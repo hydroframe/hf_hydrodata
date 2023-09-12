@@ -1,0 +1,4 @@
+id,level_description
+1, Embargo: Results that are pending publication can be used in analysis but not in publication pending publication of the original
+2, Private: private datasets not to be distributed
+3, Public: accesiible through the API

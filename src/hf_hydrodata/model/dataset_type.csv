@@ -1,0 +1,7 @@
+id,description
+parflow,Outputs of a parflow run as well as model run scripts
+forcing,Weather forcing files.
+parameters,Static model parameters
+current_conditions,Generated current conditions files.
+remote_sensing,Data acquired by remote sensing from an external source.
+point_observations,"Point observations (e.g. wells, stream gauges, flux towers0"

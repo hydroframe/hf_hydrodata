@@ -1,0 +1,10 @@
+id,title,Description
+mean,Average,
+min,Min,Minimum 
+max,Max,
+sum,Sum,
+static,Static,
+tbd,,
+?,,
+eod,End of Day,Value at the end of the day (refer to aggregation to know what time it is)
+-,,Not aggregated

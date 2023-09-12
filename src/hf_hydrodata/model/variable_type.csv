@@ -1,0 +1,11 @@
+id,description
+atmospheric,Atmospheric forcing variables
+climate,"Long term average atmospheric forcings, net recharge, aridity index"
+hydrogeology,"Subsurface parameters -- hydraulic conductivity, porosity, etc."
+land_surface,Vegetation types and any water or energy fluxes at the land surface
+location,"Lat, log"
+run_file,Model run files  (not really varibles but they get stored as catalog entries)
+stream_network,"Watershed and subbasin IDS, stream order, flow directions, HUCs"
+subsurface,"Watertable depth, soil moisture, soil temperature"
+surface_water,"Streamflow, irrigation, diversions"
+topography,"Elevation (raw and processed), slopes and topographic index"
