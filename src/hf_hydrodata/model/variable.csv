@@ -1,0 +1,63 @@
+id,title,description,variable_type,unit_type,has_z
+air_temp,Air Temperature,,atmospheric,temperature,
+aridity_index,Aridity Index,Aridity Index precipitation/ (precipitaiton -Evaporaiton),climate,,
+atmospheric_pressure,Atmospheric Pressure,,atmospheric,pressure,
+clm_run,,,run_file,,
+downward_longwave,Downward Longwave Radiation,,atmospheric,intensity,
+downward_shortwave,Downward Shortwave Radiation,,atmospheric,intensity,
+drainage_area,Drainage Area,,topography,area,
+distance_stream_lin,Linear Distance to Streams,Shortest linear distance to streams,stream_network,length,
+east_windspeed,Zonal windspeed,,atmospheric,rate,
+elevation,Processed elevation ,Final processed elevation,topography,length,
+evapotranspiration,Evapotranspiration,,land_surface,rate,
+flow_direction_grass,Grass Flow Direction ,"D4 Flow directions with Grass numbering (2=up, 4=left, 6=down, 8=right)",stream_network,,
+flow_direction,Flow Direction,"D4 Flow Direcitons with the following numbering: 1=down, 2=left, 3=up, 4=right",stream_network,,
+ground_evap,Ground evaporation,ground surface evaporation rate,land_surface,rate,
+ground_evap_heat,Ground evaporation heat flux,evaporation heat flux from ground,land_surface,rate,
+ground_heat,ground heat flux,ground heat flux ,land_surface,intensity,
+ground_temp,ground temperature,ground temperature,subsurface,temperature,
+infiltration,Infiltration rate,infiltration,subsurface,rate,
+irrigation,Irrigation Flux,irrigation applied at surface ,surface_water,rate,
+latent_heat,Latent Heat Flux, latent heat flux from canopy height to atmosphere,land_surface,intensity,
+latitude,latitude,,location,lat_lon,
+longitude,longitude,,location,lat_lon,
+lat_lon,lat_lon,Latitude/Longitude in z dimension,location,lat_lon,TRUE
+north_windspeed,Meridional windspeed,,atmospheric,rate,
+mannings,Mannings N,Mannings roughness coefficient,surface_water,,
+mask,mask,Mask showing active domain,topography,,
+outward_longwave_radiation,Outward Longwave radiation ,outgoing long-wave radiation from ground+canopy,land_surface,intensity,
+parflow_run,ParFlow Run files,Run scripts and other model configuration files,run_file,,
+permeability,permeability,,hydrogeology,rate,TRUE
+pf_indicator,Indicator file for subsufrace units in ParFlow,,hydrogeology,unitless,TRUE
+pf_solid,ParFlow Solid File,File to define a domain shape for Parflow,run_file,,
+pf_flowbarrier,ParFlow Flow Barrier,File defining the depth to flow barier,hydrogeology,,
+pme,Precipitation minus evaporation (net recharge),Recharge forcing used for ParFlow spinups,climate,rate,TRUE
+porosity,Porosity ,,hydrogeology,unitless,TRUE
+precipitation,Precipitation,,atmospheric,length,
+pressure_head,Pressure Head ,,subsurface,length,TRUE
+ss_pressure_head,Steady State Pressure Head,Presssure head at the end of spinup,subsurface,pressure,TRUE
+pressure_next,Pressure Head at the following timestep,,subsurface,pressure,TRUE
+saturation,Saturation,,subsurface,unitless,TRUE
+sensible_heat,Sensible heat flux ,sensible heat from canopy height to atmosphere ,land_surface,intensity,
+slope_x,Slope x,Slope in the x direciton (Grid centered),topography,,
+slope_y,Slope y,Slope in the y direction (Grid centered),topography,,
+soil_moisture,Soil Moisture,,subsurface,unitless,TRUE
+soil_temp,Soil Temperature,soil temperature,subsurface,temperature,TRUE
+specific_humidity,Specific Humidity,,atmospheric,,
+stream_order,Kahler stream order,Kahler stream order,stream_network,,
+stream_segments,Stream segment IDs,Stream segment ID numbers (0 values outside of stream),stream_network,,
+streamflow,Streamflow,,land_surface,volume_flux,
+subbasins,Watershed subbains IDs,Subbasins calculated from topographic processing,,,
+swe,Snow water equivalent,,surface_water,length,
+swe_melt,Snow melt,Difference in SWE over a given time period,land_surface,length,
+topographic_index,Topographic Index,,topography,,
+transpiration,Transpiration rate,transpiration rate,land_surface,,
+transpiration_leaves,Evapotranspiration from leaves,evaporation+transpiration from leaves,land_surface,,
+van_genuchten_alpha,Van Genuchten Alpha,alpha parameter for van Genucten curve,hydrogeology,unitless,TRUE
+van_genuchten_n,Van Genuchten n,n parameter for van Genuchten curve,hydrogeology,unitless,TRUE
+veg_type_IGBP,Vegetation Type,Vegetation type using IGBP classifications,land_surface,unitless,TRUE
+water_table_depth,Water Table Depth,,subsurface,length,
+huc_map,topography,HUC map,,,
+anomaly,Difference from normal,,land_surface,,
+anomaly_daily_week_of_values,Daily Amomaly,,land_surface,,
+site_id,Site Id,,,,

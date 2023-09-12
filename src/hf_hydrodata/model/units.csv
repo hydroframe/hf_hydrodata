@@ -1,0 +1,31 @@
+id,title,unit_type
+c,Celcius,temperature
+cm,centimeters,length
+cm3/cm3,cm3/cm3,
+f,Farenheit,temperature
+ft,feet,length
+in,inches,length
+km,kilometers,length
+K,Kelvin,temperature
+kg/kg,kg/kg,
+kg/m2,kilograms per square meter,surface_density
+km2,square kilometers,area
+m/s,meters per second,rate
+m/h,meters per hour,rate
+m,meters,length
+m3/h,cubic meters per hour,volume_flux
+m3/s,cubic meters per second,volume_flux
+mm,milimeters,length
+mm/s,mm per second,rate
+mm/h,mm per hour,rate
+mm/d,mm per day ,rate
+mm/mon,mm per month,rate
+mm/yr,mm per year,rate
+w/m2,Watts per square meter,intensity
+kw/m2,K Watts per square meter,intensity
+degrees_north,Degrees North,lat_lon
+degrees_east,Degrees East,lat_lon
+degrees,Degrees,lat_lon
+pa,Pascal,pressure
+-,UnitLess,unitless
+?,,
