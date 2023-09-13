@@ -17,7 +17,9 @@
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="hf_hydrodata.data_model_access module" href="hf_hydrodata.data_model_access.html" />
+    <link rel="prev" title="hf_hydrodata package" href="hf_hydrodata.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -59,6 +61,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="api_reference.html">Python API Refererence</a></li>
+          <li class="breadcrumb-item"><a href="hf_hydrodata.html">hf_hydrodata package</a></li>
       <li class="breadcrumb-item active">hf_hydrodata.data_access module</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/hf_hydrodata.data_access.rst.txt" rel="nofollow"> View page source</a>
@@ -71,23 +75,7 @@
              
   <section id="module-hf_hydrodata.data_access">
 <span id="hf-hydrodata-data-access-module"></span><h1>hf_hydrodata.data_access module<a class="headerlink" href="#module-hf_hydrodata.data_access" title="Permalink to this heading"></a></h1>
-<dl>
-<dt>Functions to access data from data catalog information.</dt><dd><p>get_catalog_entries()</p>
-<p>get_catalog_entry()</p>
-<p>get_file_paths()</p>
-<p>get_numpy_data()</p>
-<p>get_ndarray()</p>
-<p>get_table_names()</p>
-<p>get_table_rows()</p>
-<p>get_table_row()</p>
-<p>get_yaml_data_catalog()</p>
-<p>grid_to_latlng()</p>
-<p>latlng_to_grid()</p>
-<p>get_huc_bbox()</p>
-<p>get_huc_from_latlng()</p>
-<p>get_huc_from_xy()</p>
-</dd>
-</dl>
+<p>Functions to access data from the data catalog index of the GPFS files.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.data_access.get_catalog_entries">
 <span class="sig-prename descclassname"><span class="pre">hf_hydrodata.data_access.</span></span><span class="sig-name descname"><span class="pre">get_catalog_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="hf_hydrodata.data_model_access.html#hf_hydrodata.data_model_access.ModelTableRow" title="hf_hydrodata.data_model_access.ModelTableRow"><span class="pre">ModelTableRow</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.data_access.get_catalog_entries" title="Permalink to this definition"></a></dt>
@@ -105,14 +93,22 @@
 </dl>
 <p>A filter option is any column name in the data_catalog_entry table.
 The value of the filter option argument must be a value of that column in the table.</p>
-<dl>
-<dt>For example,</dt><dd><p>entries = get_catalog_entries(dataset=”NLDAS2”, file_type=”pfb”, period=”daily”)</p>
+<p>For example,</p>
+<blockquote>
+<div><dl>
+<dt>entries = get_catalog_entries(</dt><dd><p>dataset=”NLDAS2”, period=”daily”,
+variable=”precipitation”, start_time=”2003-01-01”)</p>
+<p>or</p>
+</dd>
+<dt>options = {“dataset”: “NLDAS2”, “period”: “daily”,</dt><dd><p>“variable”: “precipitation”, “start_time”:”2003-01-01”}</p>
+</dd>
+</dl>
+<p>entries = get_catalog_entries(options)</p>
 <p># 9 forcing variables and all metadata</p>
 <p>assert len(entries) == 9</p>
 <p>assert len(entries[0].column_names()) == 20</p>
 <p>assert entries[0][“variable”] == “precipitation”</p>
-</dd>
-</dl>
+</div></blockquote>
 <p>Note, it is better to filter by dimension options like “variable” instead of free-form volitile options like “dataset_var”.</p>
 </dd></dl>
 
@@ -134,7 +130,15 @@ The value of the filter option argument must be a value of that column in the ta
 <dd class="field-odd"><p><strong>ValueError      If the filter options do not uniquely select a single data_catalog_entry.</strong> – </p>
 </dd>
 </dl>
-<p>This method is the same as get_catalog_entries() except returns a single row rather than a list of rows.</p>
+<p>This method is the same as get_catalog_entries() except returns a single row rather than a list of rows.
+For example,</p>
+<blockquote>
+<div><dl class="simple">
+<dt>options = {“dataset”: “NLDAS2”, “period”: “daily”,</dt><dd><p>“variable”: “precipitation”, “start_time”: “2005-7-1”}</p>
+</dd>
+</dl>
+<p>entry = get_catalog_entry(options)</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py function">
@@ -182,7 +186,10 @@ after looping through time range and replacing substitution keys.</p>
 <p>If only start_time is specified then only the data at that time is used to substitute into path names.
 If both start_time and end_time is specified then dates in the date range are used to substitute into path names.</p>
 <dl>
-<dt>For example, get 3 daily files bewteen 9/30/2021 and 10/3/2021.</dt><dd><p>entry = get_catalog_entry(dataset=”NLDAS2”, file_type=”pfb”, period=”daily”, variable=”precipitation”)</p>
+<dt>For example, get 3 daily files bewteen 9/30/2021 and 10/3/2021.</dt><dd><dl class="simple">
+<dt>entry = get_catalog_entry(dataset=”NLDAS2”, period=”daily”,</dt><dd><p>variable=”precipitation”, start_time=”2021-09-30”, end_time=”2021-10-03”)</p>
+</dd>
+</dl>
 <p>paths = get_file_paths(entry, start_time=”2021-09-30”, end_time=”2021-10-03”)</p>
 <p>assert len(paths) = 3</p>
 </dd>
@@ -289,7 +296,11 @@ The start_time is inclusive the end_time is exclusive (data returned less than t
 <p>If z is specified then the result is sliced by the z dimension.</p>
 <dl>
 <dt>For example, to get data from the 3 daily files bewteen 9/30/2021 and 10/3/2021.</dt><dd><p>bounds = [200, 200, 300, 250]</p>
-<p>entry = get_catalog_entry(dataset=”NLDAS2”, file_type=”pfb”, period=”daily”, variable=”precipitation”)</p>
+<dl class="simple">
+<dt>options = {“dataset”: “NLDAS2”, “period”: “daily”, “variable”: “precipitation”,</dt><dd><p>“start_time=”2021-09-30”, end_time=”2021-10-03”, grid_bounds = bounds)</p>
+</dd>
+</dl>
+<p>entry = get_catalog_entry(options)</p>
 <p>data = get_ndarray(entry, start_time=”2021-09-30”, end_time=”2021-10-03”, grid_bounds = bounds)</p>
 <p># The result has 3 days in the time dimension and sliced to x,y shape 100x50 at origin 200, 200 in the conus1 grid.</p>
 <p>assert data.shape == [3, 100, 50]</p>
@@ -351,9 +362,11 @@ The start_time is inclusive the end_time is exclusive (data returned less than t
 <dl>
 <dt>For example, to get data from the 3 daily files bewteen 9/30/2021 and 10/3/2021.</dt><dd><p>bounds = [200, 200, 300, 250]</p>
 <dl class="simple">
-<dt>data = get_numpy_data(dataset=”NLDAS2”, file_type=”pfb”, period=”daily”, variable=”precipitation”,</dt><dd><p>start_time=”2021-09-30”, end_time=”2021-10-03”, grid_bounds = bounds)</p>
+<dt>options = {“dataset”: “NLDAS2”, “period”: “daily”, “variable”: “precipitation”,</dt><dd><p>“start_time=”2021-09-30”, end_time=”2021-10-03”, grid_bounds = bounds)</p>
 </dd>
 </dl>
+<p>data = get_numpy_data(options)
+metadata = get_catalog_entry(options)</p>
 <p># The result has 3 days in the time dimension and sliced to x,y shape 100x50 at origin 200, 200 in the conus1 grid.</p>
 <p>assert data.shape == [3, 100, 50]</p>
 </dd>
@@ -460,7 +473,7 @@ by non-python clients such as javascript that want access to the data model info
 </dd>
 </dl>
 <p>Note, this may be used to convert a single point or a bounds of 2 points or a large array of points.</p>
-<p>This conversion is fast. It is about 12.8K points/second (8 min for all points in conus1).</p>
+<p>This conversion is fast. It is about 100K+ points/second.</p>
 <dl>
 <dt>For example,</dt><dd><p>(lat, lng) = grid_to_latlng(“conus1”, 10, 10)</p>
 <p>latlng_bounds = grid_to_latlng(“conus1”, <a href="#id1"><span class="problematic" id="id2">*</span></a>[0, 0, 20, 20])</p>
@@ -485,7 +498,7 @@ by non-python clients such as javascript that want access to the data model info
 </dd>
 </dl>
 <p>Note, this may be used to convert a single point or a bounds of 2 points or a large array of points.</p>
-<p>This conversion is fast. It is about 12.8K points/second (8 min for all points in conus1).</p>
+<p>This conversion is fast. It is about 100K+ points/second.</p>
 <dl>
 <dt>For example,</dt><dd><p>(x, y) = grid_to_latlng(“conus1”, 31.759219, -115.902573)</p>
 <p>latlng_bounds = grid_to_latlng(“conus1”, <a href="#id3"><span class="problematic" id="id4">*</span></a>[31.651836, -115.982367, 31.759219, -115.902573])</p>
@@ -498,7 +511,10 @@ by non-python clients such as javascript that want access to the data model info
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="hf_hydrodata.html" class="btn btn-neutral float-left" title="hf_hydrodata package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hf_hydrodata.data_model_access.html" class="btn btn-neutral float-right" title="hf_hydrodata.data_model_access module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

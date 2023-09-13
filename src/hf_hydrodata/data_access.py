@@ -1,32 +1,5 @@
 """
-Functions to access data from data catalog information.
-    get_catalog_entries()
-
-    get_catalog_entry()
-
-    get_file_paths()
-
-    get_numpy_data()
-    
-    get_ndarray()
-
-    get_table_names()
-
-    get_table_rows()
-
-    get_table_row()
-
-    get_yaml_data_catalog()
-
-    grid_to_latlng()
-
-    latlng_to_grid()
-
-    get_huc_bbox()
-
-    get_huc_from_latlng()
-
-    get_huc_from_xy()
+Functions to access data from the data catalog index of the GPFS files.
 """
 
 # pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632
@@ -89,7 +62,17 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
     The value of the filter option argument must be a value of that column in the table.
 
     For example,
-        entries = get_catalog_entries(dataset="NLDAS2", file_type="pfb", period="daily")
+
+        entries = get_catalog_entries(
+            dataset="NLDAS2", period="daily", 
+            variable="precipitation", start_time="2003-01-01")
+
+            or
+
+        options = {"dataset": "NLDAS2", "period": "daily", 
+                   "variable": "precipitation", "start_time":"2003-01-01"}
+
+        entries = get_catalog_entries(options)
 
         # 9 forcing variables and all metadata
 
@@ -129,6 +112,10 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
         ValueError      If the filter options do not uniquely select a single data_catalog_entry.
 
     This method is the same as get_catalog_entries() except returns a single row rather than a list of rows.
+    For example,
+        options = {"dataset": "NLDAS2", "period": "daily",
+                   "variable": "precipitation", "start_time": "2005-7-1"}
+        entry = get_catalog_entry(options)
     """
 
     entries = get_catalog_entries(*args, **kwargs)
@@ -263,7 +250,8 @@ def get_file_paths(entry, *args, **kwargs) -> List[str]:
     If both start_time and end_time is specified then dates in the date range are used to substitute into path names.
 
     For example, get 3 daily files bewteen 9/30/2021 and 10/3/2021.
-        entry = get_catalog_entry(dataset="NLDAS2", file_type="pfb", period="daily", variable="precipitation")
+        entry = get_catalog_entry(dataset="NLDAS2", period="daily",
+                  variable="precipitation", start_time="2021-09-30", end_time="2021-10-03")
 
         paths = get_file_paths(entry, start_time="2021-09-30", end_time="2021-10-03")
 
@@ -437,8 +425,10 @@ def get_numpy_data(*args, **kwargs) -> np.ndarray:
     For example, to get data from the 3 daily files bewteen 9/30/2021 and 10/3/2021.
         bounds = [200, 200, 300, 250]
 
-        data = get_numpy_data(dataset="NLDAS2", file_type="pfb", period="daily", variable="precipitation",
-                              start_time="2021-09-30", end_time="2021-10-03", grid_bounds = bounds)
+        options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
+                    "start_time="2021-09-30", end_time="2021-10-03", grid_bounds = bounds)
+        data = get_numpy_data(options)
+        metadata = get_catalog_entry(options)
 
         # The result has 3 days in the time dimension and sliced to x,y shape 100x50 at origin 200, 200 in the conus1 grid.
 
@@ -579,7 +569,10 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
     For example, to get data from the 3 daily files bewteen 9/30/2021 and 10/3/2021.
         bounds = [200, 200, 300, 250]
 
-        entry = get_catalog_entry(dataset="NLDAS2", file_type="pfb", period="daily", variable="precipitation")
+        options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
+                    "start_time="2021-09-30", end_time="2021-10-03", grid_bounds = bounds)
+        entry = get_catalog_entry(options)
+
 
         data = get_ndarray(entry, start_time="2021-09-30", end_time="2021-10-03", grid_bounds = bounds)
 
@@ -1111,7 +1104,7 @@ def grid_to_latlng(grid: str, *args) -> List[float]:
 
     Note, this may be used to convert a single point or a bounds of 2 points or a large array of points.
 
-    This conversion is fast. It is about 12.8K points/second (8 min for all points in conus1).
+    This conversion is fast. It is about 100K+ points/second.
 
     For example,
         (lat, lng) = grid_to_latlng("conus1", 10, 10)
@@ -1153,7 +1146,7 @@ def latlng_to_grid(grid: str, *args) -> List[float]:
 
     Note, this may be used to convert a single point or a bounds of 2 points or a large array of points.
 
-    This conversion is fast. It is about 12.8K points/second (8 min for all points in conus1).
+    This conversion is fast. It is about 100K+ points/second.
 
     For example,
         (x, y) = grid_to_latlng("conus1", 31.759219, -115.902573)
