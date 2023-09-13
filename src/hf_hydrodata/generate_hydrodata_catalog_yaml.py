@@ -1,11 +1,14 @@
 """
 Functions to generate the hydroframe_catalog_yaml file.
 """
-# pylint: disable=C0301,E0401,W0718,C0103,W1514,R1702
+# pylint: disable=C0301,E0401,W0718,C0103,W1514,R1702,C0413
 
 import sys
+import os
 from typing import List
-import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from hf_hydrodata.data_model_access import load_data_model, DataModel
 
 YAML_FILE = "hydrodata_catalog.yaml"
@@ -151,6 +154,6 @@ def _validate_cell_value(
 if __name__ == "__main__":
     try:
         generate_yaml()
-    except Exception as e:
-        print(e)
+    except Exception as ex:
+        print(ex)
         sys.exit(-1)
