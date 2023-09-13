@@ -832,7 +832,7 @@ def test_get_ndarray_smap_daily():
         grid="smapgrid",
     )
     # Get 1 day of smap
-    start_time = "2023-01-01"
+    start_time = "2022-08-01"
     data = hf_hydrodata.data_access.get_ndarray(
         entry, grid_bounds=bounds, start_time=start_time
     )

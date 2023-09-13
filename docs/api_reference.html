@@ -18,7 +18,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Data Catalog" href="data_catalog.html" />
+    <link rel="next" title="hf_hydrodata package" href="hf_hydrodata.html" />
     <link rel="prev" title="Welcome to Hydrodata Documentation" href="index.html" /> 
 </head>
 
@@ -43,7 +43,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Python API Refererence</a><ul class="simple">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Python API Refererence</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hf_hydrodata.html">hf_hydrodata package</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="data_catalog.html">Data Catalog</a></li>
@@ -77,6 +78,70 @@
 <h1>Python API Refererence<a class="headerlink" href="#python-api-refererence" title="Permalink to this heading"></a></h1>
 <p>This is the code documentation of the python API modules to access data from hydrodata.</p>
 <div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hf_hydrodata.html">hf_hydrodata package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hf_hydrodata.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hf_hydrodata.data_access.html">hf_hydrodata.data_access module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_access.html#hf_hydrodata.data_access.get_catalog_entries"><code class="docutils literal notranslate"><span class="pre">get_catalog_entries()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_access.html#hf_hydrodata.data_access.get_catalog_entry"><code class="docutils literal notranslate"><span class="pre">get_catalog_entry()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_access.html#hf_hydrodata.data_access.get_file_path"><code class="docutils literal notranslate"><span class="pre">get_file_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_access.html#hf_hydrodata.data_access.get_file_paths"><code class="docutils literal notranslate"><span class="pre">get_file_paths()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_access.html#hf_hydrodata.data_access.get_huc_bbox"><code class="docutils literal notranslate"><span class="pre">get_huc_bbox()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_access.html#hf_hydrodata.data_access.get_huc_from_latlng"><code class="docutils literal notranslate"><span class="pre">get_huc_from_latlng()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_access.html#hf_hydrodata.data_access.get_huc_from_xy"><code class="docutils literal notranslate"><span class="pre">get_huc_from_xy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_access.html#hf_hydrodata.data_access.get_ndarray"><code class="docutils literal notranslate"><span class="pre">get_ndarray()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_access.html#hf_hydrodata.data_access.get_numpy_data"><code class="docutils literal notranslate"><span class="pre">get_numpy_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_access.html#hf_hydrodata.data_access.get_raw_file"><code class="docutils literal notranslate"><span class="pre">get_raw_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_access.html#hf_hydrodata.data_access.get_table_names"><code class="docutils literal notranslate"><span class="pre">get_table_names()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_access.html#hf_hydrodata.data_access.get_table_row"><code class="docutils literal notranslate"><span class="pre">get_table_row()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_access.html#hf_hydrodata.data_access.get_table_rows"><code class="docutils literal notranslate"><span class="pre">get_table_rows()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_access.html#hf_hydrodata.data_access.get_yaml_data_catalog"><code class="docutils literal notranslate"><span class="pre">get_yaml_data_catalog()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_access.html#hf_hydrodata.data_access.grid_to_latlng"><code class="docutils literal notranslate"><span class="pre">grid_to_latlng()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_access.html#hf_hydrodata.data_access.latlng_to_grid"><code class="docutils literal notranslate"><span class="pre">latlng_to_grid()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hf_hydrodata.data_model_access.html">hf_hydrodata.data_model_access module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_model_access.html#hf_hydrodata.data_model_access.DataModel"><code class="docutils literal notranslate"><span class="pre">DataModel</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="hf_hydrodata.data_model_access.html#hf_hydrodata.data_model_access.DataModel.get_table"><code class="docutils literal notranslate"><span class="pre">DataModel.get_table()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="hf_hydrodata.data_model_access.html#hf_hydrodata.data_model_access.DataModel.table_names"><code class="docutils literal notranslate"><span class="pre">DataModel.table_names</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_model_access.html#hf_hydrodata.data_model_access.ModelTable"><code class="docutils literal notranslate"><span class="pre">ModelTable</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="hf_hydrodata.data_model_access.html#hf_hydrodata.data_model_access.ModelTable.column_names"><code class="docutils literal notranslate"><span class="pre">ModelTable.column_names</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="hf_hydrodata.data_model_access.html#hf_hydrodata.data_model_access.ModelTable.get_row"><code class="docutils literal notranslate"><span class="pre">ModelTable.get_row()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="hf_hydrodata.data_model_access.html#hf_hydrodata.data_model_access.ModelTable.row_ids"><code class="docutils literal notranslate"><span class="pre">ModelTable.row_ids</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_model_access.html#hf_hydrodata.data_model_access.ModelTableRow"><code class="docutils literal notranslate"><span class="pre">ModelTableRow</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="hf_hydrodata.data_model_access.html#hf_hydrodata.data_model_access.ModelTableRow.column_names"><code class="docutils literal notranslate"><span class="pre">ModelTableRow.column_names()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="hf_hydrodata.data_model_access.html#hf_hydrodata.data_model_access.ModelTableRow.get_value"><code class="docutils literal notranslate"><span class="pre">ModelTableRow.get_value()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="hf_hydrodata.data_model_access.html#hf_hydrodata.data_model_access.ModelTableRow.set_value"><code class="docutils literal notranslate"><span class="pre">ModelTableRow.set_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.data_model_access.html#hf_hydrodata.data_model_access.load_data_model"><code class="docutils literal notranslate"><span class="pre">load_data_model()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hf_hydrodata.generate_hydrodata_catalog_yaml.html">hf_hydrodata.generate_hydrodata_catalog_yaml module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.generate_hydrodata_catalog_yaml.html#hf_hydrodata.generate_hydrodata_catalog_yaml.generate_yaml"><code class="docutils literal notranslate"><span class="pre">generate_yaml()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="hf_hydrodata.projection.html">hf_hydrodata.projection module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.projection.html#hf_hydrodata.projection.ProjConstants"><code class="docutils literal notranslate"><span class="pre">ProjConstants</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="hf_hydrodata.projection.html#hf_hydrodata.projection.ProjConstants.calculate_m"><code class="docutils literal notranslate"><span class="pre">ProjConstants.calculate_m()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="hf_hydrodata.projection.html#hf_hydrodata.projection.ProjConstants.calculate_t"><code class="docutils literal notranslate"><span class="pre">ProjConstants.calculate_t()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="hf_hydrodata.projection.html#hf_hydrodata.projection.ProjConstants.un_calculate_t"><code class="docutils literal notranslate"><span class="pre">ProjConstants.un_calculate_t()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.projection.html#hf_hydrodata.projection.from_conic"><code class="docutils literal notranslate"><span class="pre">from_conic()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="hf_hydrodata.projection.html#hf_hydrodata.projection.to_conic"><code class="docutils literal notranslate"><span class="pre">to_conic()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="hf_hydrodata.html#module-hf_hydrodata">Module contents</a></li>
+</ul>
+</li>
+</ul>
 </div>
 </section>
 
@@ -85,7 +150,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Welcome to Hydrodata Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="data_catalog.html" class="btn btn-neutral float-right" title="Data Catalog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="hf_hydrodata.html" class="btn btn-neutral float-right" title="hf_hydrodata package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

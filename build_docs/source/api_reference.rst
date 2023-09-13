@@ -5,4 +5,4 @@ This is the code documentation of the python API modules to access data from hyd
 .. toctree::
    :maxdepth: 5
 
-   hydroframe
+   hf_hydrodata
