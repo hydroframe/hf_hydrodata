@@ -1,0 +1,6 @@
+.scrolltable {
+    display:block;
+    max-width:930px;
+    max-height:550px;
+    overflow-x:auto;
+}

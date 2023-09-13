@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hf_hydrodata.projection module &mdash; hf_hydrodata  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            hf_hydrodata
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">Python API Refererence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_catalog.html">Data Catalog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">hf_hydrodata</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">hf_hydrodata.projection module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/hf_hydrodata.projection.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-hf_hydrodata.projection">
+<span id="hf-hydrodata-projection-module"></span><h1>hf_hydrodata.projection module<a class="headerlink" href="#module-hf_hydrodata.projection" title="Permalink to this heading"></a></h1>
+<p>Convert lat/lng (EPSG:4326) to to  Lambert Confirmal Conic (ESRI:102004) for conus 1.</p>
+<p>Do this using the projection constants of the coordinate systems obtained from the
+python pyproj package. This module is a custom implementation of lat/lng to conic transformation
+that is 35x faster than the pyproj.Transform class. The speed improvement is because the
+code is not generic and can be compiled instead interpreting all the possible
+coordinates types supported by pyproj. Since the algorithm and conversion constants are
+the same as pyproj the answer is the same for conus1.
+For conus2 the conversion constants are different.</p>
+<p>The unit tests compares the answer with pyproj to verify that the two functions produce
+the same answer within 0.001 meters.</p>
+<dl class="simple">
+<dt>Inspiration (not code) taken from:</dt><dd><p><a class="reference external" href="https://github.com/vraida/Lambert-projection">https://github.com/vraida/Lambert-projection</a>
+<a class="reference external" href="https://en.wikipedia.org/wiki/Lambert_conformal_conic_projection">https://en.wikipedia.org/wiki/Lambert_conformal_conic_projection</a></p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="hf_hydrodata.projection.ProjConstants">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hf_hydrodata.projection.</span></span><span class="sig-name descname"><span class="pre">ProjConstants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.projection.ProjConstants" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Constants from the pyproj package used for the EPSG:4326 to ESRI:102004 transformation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="hf_hydrodata.projection.ProjConstants.calculate_m">
+<span class="sig-name descname"><span class="pre">calculate_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#hf_hydrodata.projection.ProjConstants.calculate_m" title="Permalink to this definition"></a></dt>
+<dd><p>Return the M value associated with the x radians values as required by the algorithm.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hf_hydrodata.projection.ProjConstants.calculate_t">
+<span class="sig-name descname"><span class="pre">calculate_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.projection.ProjConstants.calculate_t" title="Permalink to this definition"></a></dt>
+<dd><p>Return the T value associated with the x radians values as required by the algorithm.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hf_hydrodata.projection.ProjConstants.un_calculate_t">
+<span class="sig-name descname"><span class="pre">un_calculate_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.projection.ProjConstants.un_calculate_t" title="Permalink to this definition"></a></dt>
+<dd><p>Return the x value given t where x=calculate_t(x) using numerical iteration method.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hf_hydrodata.projection.from_conic">
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.projection.</span></span><span class="sig-name descname"><span class="pre">from_conic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'conus1'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.projection.from_conic" title="Permalink to this definition"></a></dt>
+<dd><p>Convert conic x,y point to lat/lng point.
+:param lat: x position in meters in conic flat coordinates
+:param lng: y position in meters in conic flat coordinates</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>4326 coordinates.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple (lat, lng) as a float in degrees in EPSG</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hf_hydrodata.projection.to_conic">
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.projection.</span></span><span class="sig-name descname"><span class="pre">to_conic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'conus1'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.projection.to_conic" title="Permalink to this definition"></a></dt>
+<dd><p>Convert lat/lng point to conic x,y point.
+:param lat: Latitude in degrees.
+:param lng: Longitude in degress.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A tuple (x, y) as a float in flat projected conic coordinates in meters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Laura Condon, Reed Maxwell.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
