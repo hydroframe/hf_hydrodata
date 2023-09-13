@@ -87,14 +87,14 @@ to read the data remotely and without hard coding the location of files from the
 <section id="example-usage">
 <h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this heading"></a></h2>
 <p>You can read data from any file in the hydrodata repository using python to get a numpy array with:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hf_hydrodata.data_access</span> <span class="kn">import</span> <span class="n">get_numpy_data</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hf_hydrodata.data_access</span> <span class="kn">import</span> <span class="n">get_numpy_data</span><span class="p">,</span><span class="n">get_data_catalog_entry</span>
 
 <span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">:</span><span class="s2">&quot;NLDAS2&quot;</span><span class="p">,</span> <span class="s2">&quot;variable&quot;</span><span class="p">:</span><span class="s2">&quot;precipitation&quot;</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s2">&quot;daily&quot;</span><span class="p">,</span> <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="s2">&quot;2005-03-01&quot;</span><span class="p">,</span> <span class="s2">&quot;file_type&quot;</span><span class="p">:</span> <span class="s2">&quot;pfb&quot;</span><span class="p">]</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">get_numpy_data</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
 <span class="c1"># Get the metadata about the returned data</span>
-<span class="n">emtry</span> <span class="o">=</span> <span class="n">get_data_catalog_entry</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
+<span class="n">entry</span> <span class="o">=</span> <span class="n">get_data_catalog_entry</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
 </pre></div>
 </div>

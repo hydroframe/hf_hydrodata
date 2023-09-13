@@ -357,6 +357,7 @@ def _construct_string_from_qparams(entry, options):
 
 def get_file_path(entry, *args, **kwargs) -> List[str]:
     """Get the file path for a data catalog entry.
+
     Args:
         entry:          Either a ModelTableRow or the ID number of a data_catalog_entry. If None use the entry found by the filters.
         args:           Optional positional parameter that must be a dict with data filter options.
@@ -465,6 +466,7 @@ def _construct_string_from_options(qparam_values):
 
 def _write_file_from_api(filepath, options):
     """Get the hydroframe file that is selected by the options to the given filepath.
+
     Args:
         filepath:          Either a ModelTableRow or the ID number of a data_catalog_entry. If None use the entry found by the filters.
         options:           Optional positional parameter that must be a dict with data filter options.
@@ -494,6 +496,7 @@ def _write_file_from_api(filepath, options):
 
 def get_raw_file(filepath, *args, **kwargs):
     """Get the hydroframe file that is selected by the options to the given filepath.
+
     Args:
         filepath:          Either a ModelTableRow or the ID number of a data_catalog_entry. If None use the entry found by the filters.
         options:           Optional positional parameter that must be a dict with data filter options.
@@ -849,6 +852,7 @@ def _read_and_filter_pfb_files(
 ) -> np.ndarray:
     """
     Read the PFB files in the file paths of the entry filter and filter the data.
+
     Args:
         entry:          A modelTableRow containing the data catalog entry.
         options:        The options passed to get_ndarray as a dict.
@@ -889,6 +893,7 @@ def _read_and_filter_c_pfb_files(
 ) -> np.ndarray:
     """
     Read the c.PFB files in the file paths of the entry filter and filter the data.
+
     Args:
         entry:          A modelTableRow containing the data catalog entry.
         options:        The options passed to get_ndarray as a dict.
@@ -942,6 +947,7 @@ def _read_and_filter_pfmetadata_files(
 ) -> np.ndarray:
     """
     Read the pfmetadata files in the file paths of the entry filter and filter the data.
+
     Args:
         entry:          A modelTableRow containing the data catalog entry.
         options:        The options passed to get_ndarray as a dict.
@@ -972,6 +978,7 @@ def _read_and_filter_vegm_files(
 ) -> np.ndarray:
     """
     Read the vegm files in the file paths of the entry filter and filter the data.
+
     Args:
         entry:          A modelTableRow containing the data catalog entry.
         options:        The options passed to get_ndarray as a dict.
@@ -997,6 +1004,7 @@ def _read_and_filter_netcdf_files(
 ) -> np.ndarray:
     """
     Read the PFB files in the file paths of the entry filter and filter the data.
+
     Args:
         entry:          A modelTableRow containing the data catalog entry.
         options:        The options passed to get_ndarray as a dict.
@@ -1049,6 +1057,7 @@ def _read_and_filter_tiff_files(
 ) -> np.ndarray:
     """
     Read the tiff files in the file paths of the entry filter and filter the data.
+
     Args:
         entry:          A modelTableRow containing the data catalog entry.
         options:        The options passed to get_ndarray as a dict.
@@ -1097,7 +1106,7 @@ def grid_to_latlng(grid: str, *args) -> List[float]:
     Convert grid x,y coordinates to lat,lng.
 
     Args:
-        grid:       The name of a grid dimension from the data catalog grid table (e.g. conus1 or conus2, or smapgrid).
+        grid:       The name of a grid dimension from the data catalog grid table (e.g. conus1 or conus2).
         args:       A list of numbers of (x,y) values that are coordinates in the grid (may be int or float).
     Returns:
         An array of lat,lng points converted from each of the (x,y) grid coordinates in args.
@@ -1139,7 +1148,7 @@ def latlng_to_grid(grid: str, *args) -> List[float]:
     Convert grid lat,lng coordinates to x,y.
 
     Args:
-        grid:       The name of a grid dimension from the data catalog grid table (e.g. conus1 or conus2, or smapgrid).
+        grid:       The name of a grid dimension from the data catalog grid table (e.g. conus1 or conus2).
         args:       A list of floating pairs if (lat,lng) values.
     Returns:
         An array of x,y integer points converted from each of the (lat,lng) grid coordinates in args.
@@ -1177,6 +1186,7 @@ def latlng_to_grid(grid: str, *args) -> List[float]:
 def get_huc_from_latlng(grid: str, level: int, lat: float, lng: float) -> str:
     """
         Get a HUC id at a lat/lng point for a given grid and level.
+
         Args:
             grid:   grid name (e.g. conus1 or conus2)
             level:  HUC level (length of HUC id to be returned)\
@@ -1199,6 +1209,7 @@ def get_huc_from_latlng(grid: str, level: int, lat: float, lng: float) -> str:
 def get_huc_from_xy(grid: str, level: int, x: int, y: int) -> str:
     """
         Get a HUC id at an xy point for a given grid and level.
+
         Args:
             grid:   grid name (e.g. conus1 or conus2)
             level:  HUC level (length of HUC id to be returned)\
@@ -1220,11 +1231,12 @@ def get_huc_from_xy(grid: str, level: int, x: int, y: int) -> str:
 def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
     """
     Get the grid bounding box containing all the HUC ids.
+
     Args:
         grid:           A grid id from the data catalog (e.g. conus1 or conus2)
         huc_id_list:    A list of HUC id strings of HUCs in the grid.
     Returns:
-        A bounding box as a list of int (i_min, j_min, i_max, j_max)
+        A bounding box in grid coordinates as a list of int (i_min, j_min, i_max, j_max)
     Raises:
         ValueError if all the HUC id are not at the same level (same length).
         ValueError if grid is not valid.
@@ -1282,6 +1294,7 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
 def __get_geotiff(grid: str, level: int) -> xr.Dataset:
     """
     Get an xarray dataset of the geotiff file for the grid at the level.
+
     Args:
         grid:   grid name (e.g. conus1 or conus2)
         level:  HUC level (length of HUC id to be returned)\
@@ -1310,7 +1323,9 @@ def _collect_pfb_date_dimensions(
     time_values: List[str], data: np.ndarray, start_time_value: datetime.datetime
 ):
     """
-    Create the date strings of the time dimension of the data and add them to the time_values array.
+    Create the date strings of the time dimension of the data and add them to the
+    time_values array.
+
     Args:
         time_values:     An empty array to be filled with date strings.
         data:               The ndarray returned by get_ndarray method
@@ -1416,6 +1431,7 @@ def _add_pfb_time_constraint(
 ) -> dict:
     """
     Add a PFB constraint to the z dimension when the PFB z dimension is being used as a time dimension.
+
     Args:
         boundary_constraints:   A previously constructed PFT boundary constraint object,
         entry:                  A data catalog entry
@@ -1538,6 +1554,7 @@ def _substitute_datapath(
 ) -> str:
     """
     Replace any substitution keys in the datapath with values from metadata, options, or time_value.
+
     Args:
         path:           The path template of the data_catalog_entry.
         entry:          A ModelTableRow of the data_catalog_entry the defines the paths
@@ -1610,6 +1627,7 @@ def _substitute_datapath(
 
 def _get_water_year(dt: datetime.datetime):
     """Get the water year and water year start date containing the date dt.
+
     Args:
         dt:     a date
     Returns:
@@ -1629,6 +1647,7 @@ def _get_water_year(dt: datetime.datetime):
 
 def _parse_time(value: str) -> datetime.datetime:
     """Parse a value as a date time.
+
     Args:
         input:  A string or a datetime object.
     Returns:
@@ -1662,6 +1681,7 @@ def _parse_time(value: str) -> datetime.datetime:
 
 def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -> dict:
     """Create an xarray data array indexer object for common filters.
+
     Args:
         options:    Data options passed to data access request.
         entry:      A data catalog entry of the data to be indexed
@@ -1791,6 +1811,7 @@ def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -
 def _get_time_dimension_name(ds: xr.Dataset, da: xr.DataArray):
     """
     Get the name of the time dimension in the xarray data set.
+
     Args:
         ds:     An xarray dataset.
         da:     An xrray data array.
