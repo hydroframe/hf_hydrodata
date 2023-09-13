@@ -18,14 +18,14 @@ Example Usage
 -------------
 You can read data from any file in the hydrodata repository using python to get a numpy array with::
 
-    from hf_hydrodata.data_access import get_numpy_data
+    from hf_hydrodata.data_access import get_numpy_data,get_data_catalog_entry
 
     filters = ["dataset":"NLDAS2", "variable":"precipitation", period="daily", "start_time": "2005-03-01", "file_type": "pfb"]
     data = get_numpy_data(filters)
     print(data.shape)
 
     # Get the metadata about the returned data
-    emtry = get_data_catalog_entry(filters)
+    entry = get_data_catalog_entry(filters)
     print(entry)
 
 See the sub-section "Data Catalog" for information about parameters that can be passed to functions
