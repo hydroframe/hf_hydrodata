@@ -1675,7 +1675,12 @@ def _parse_time(value: str) -> datetime.datetime:
                                 value, "%m/%d/%Y %H:%M:%S"
                             )
                         except:
-                            result = None
+                            try:
+                                result = datetime.datetime.strptime(
+                                    value, "%Y-%m-%dT%H:%M:%S.000000000"
+                                )
+                            except:
+                                result = None
     return result
 
 
