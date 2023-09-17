@@ -921,7 +921,7 @@ def _read_and_filter_c_pfb_files(
         grid = entry["grid"]
         shape = get_table_rows("grid", id=grid)[0]["shape"]
         boundary_constraints = {
-            "x": {"start": 0, "stop": int(shape[0])},
+            "x": {"start": 0, "stop": int(shape[2])},
             "y": {"start": 0, "stop": int(shape[1])},
             "z": {"start": 0, "stop": 0},
         }
@@ -1455,7 +1455,7 @@ def _add_pfb_time_constraint(
                 raise ValueError(f"No such grid {grid} available.")
             grid_shape = grid_row["shape"]
             boundary_constraints = {
-                "x": {"start": int(0), "stop": int(grid_shape[0])},
+                "x": {"start": int(0), "stop": int(grid_shape[2])},
                 "y": {"start": int(0), "stop": int(grid_shape[1])},
                 "z": {"start": 0, "stop": 0},
             }
