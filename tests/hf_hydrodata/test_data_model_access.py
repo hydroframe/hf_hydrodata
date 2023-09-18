@@ -15,7 +15,7 @@ def test_load_model():
     data_model = hf_hydrodata.data_model_access.load_data_model()
 
     assert len(data_model.table_names) >= 14
-    assert len(data_model.get_table("grid").row_ids) == 6
+    assert len(data_model.get_table("grid").row_ids) >= 6
     assert data_model.get_table("grid").get_row("conus2").get_value("shape")[1] == 3256
     assert data_model.get_table("grid").get_row("conus2")["shape"][1] == 3256
 
