@@ -1,5 +1,5 @@
 rm -rf html
-sphinx-apidoc -f -e -o source ../src "../src/hf_hydrodata/data_access*" "../src/hf_hydrodata/projection.*" "../src/generate_hydrodata_catalog_yaml*"
+sphinx-apidoc -f -e -o source ../src "../src/hf_hydrodata/data_access*" "../src/hf_hydrodata/data_model_access*" "../src/hf_hydrodata/projection.*" "../src/hf_hydrodata/generate_hydrodata_catalog_yaml*"
 make html
 rm source/modules.rst
 rm -rf html/.buildInfo hml/.buildinfo html/objects.inv

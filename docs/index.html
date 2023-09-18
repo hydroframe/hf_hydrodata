@@ -12,11 +12,9 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -73,21 +71,21 @@
            <div itemprop="articleBody">
              
   <section id="welcome-to-hydrodata-documentation">
-<h1>Welcome to Hydrodata Documentation<a class="headerlink" href="#welcome-to-hydrodata-documentation" title="Link to this heading"></a></h1>
+<h1>Welcome to Hydrodata Documentation<a class="headerlink" href="#welcome-to-hydrodata-documentation" title="Permalink to this heading"></a></h1>
 <p>Hydrodata is a large GPFS file share that contains a large
 number of hydrology related data files that have been accumulated and derived. The files in hydrodata are indexed by
 a data catalog.</p>
 <p>The data catalog is provided to allow code that needs access to hydrology data
 to read the data remotely and without hard coding the location of files from the file share.</p>
 <section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
 <p>You can install the python package with the API to access files using pip with:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">hydroframe</span><span class="o">/</span><span class="n">hf_hydrodata</span><span class="o">.</span><span class="n">git</span>
 </pre></div>
 </div>
 </section>
 <section id="example-usage">
-<h2>Example Usage<a class="headerlink" href="#example-usage" title="Link to this heading"></a></h2>
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this heading"></a></h2>
 <p>You can read data from any file in the hydrodata repository using python to get a numpy array with:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hf_hydrodata.data_access</span> <span class="kn">import</span> <span class="n">get_numpy_data</span><span class="p">,</span><span class="n">get_data_catalog_entry</span>
 
@@ -107,7 +105,7 @@ returning the data. See the sub-section about “Data Catalog” for details abo
 that can be passed to the functions to filter data by space and/or time.</p>
 </section>
 <section id="data-catalog-data-model">
-<h2>Data Catalog Data Model<a class="headerlink" href="#data-catalog-data-model" title="Link to this heading"></a></h2>
+<h2>Data Catalog Data Model<a class="headerlink" href="#data-catalog-data-model" title="Permalink to this heading"></a></h2>
 <p>The arguments to get_numpy_data locate the data using a set of metadata attributes about each type of data.
 You filter the data catalog using values of these attributes to locate the data you want. In addition to attributes
 used for filtering there are additional attributes used to describe the data.</p>
