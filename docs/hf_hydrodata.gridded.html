@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hf_hydrodata.gridded module &mdash; hf_hydrodata  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Data Catalog" href="data_catalog.html" />
+    <link rel="prev" title="hf_hydrodata.grid module" href="hf_hydrodata.grid.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            hf_hydrodata
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">Python API Refererence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_catalog.html">Data Catalog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">hf_hydrodata</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="api_reference.html">Python API Refererence</a></li>
+          <li class="breadcrumb-item"><a href="hf_hydrodata.html">hf_hydrodata package</a></li>
+      <li class="breadcrumb-item active">hf_hydrodata.gridded module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/hf_hydrodata.gridded.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-hf_hydrodata.gridded">
+<span id="hf-hydrodata-gridded-module"></span><h1>hf_hydrodata.gridded module<a class="headerlink" href="#module-hf_hydrodata.gridded" title="Permalink to this heading"></a></h1>
+<p>Functions to access gridded data from the data catalog index of the GPFS files.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="hf_hydrodata.gridded.get_catalog_entries">
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_catalog_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelTableRow</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_catalog_entries" title="Permalink to this definition"></a></dt>
+<dd><p>Get data catalog entry rows selected by filter options.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – Optional positional parameter that must be a dict with filter options.</p></li>
+<li><p><strong>kwargs</strong> – Supports multiple named parameters with filter option values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of ModelTableRow entries that match the filter options.</p>
+</dd>
+</dl>
+<p>A filter option is any column name in the data_catalog_entry table.
+The value of the filter option argument must be a value of that column in the table.</p>
+<p>For example,</p>
+<blockquote>
+<div><dl>
+<dt>entries = get_catalog_entries(</dt><dd><p>dataset=”NLDAS2”, period=”daily”,
+variable=”precipitation”, start_time=”2003-01-01”)</p>
+<p>or</p>
+</dd>
+<dt>options = {“dataset”: “NLDAS2”, “period”: “daily”,</dt><dd><p>“variable”: “precipitation”, “start_time”:”2003-01-01”}</p>
+</dd>
+</dl>
+<p>entries = get_catalog_entries(options)</p>
+<p># 9 forcing variables and all metadata</p>
+<p>assert len(entries) == 9</p>
+<p>assert len(entries[0].column_names()) == 20</p>
+<p>assert entries[0][“variable”] == “precipitation”</p>
+</div></blockquote>
+<p>Note, it is better to filter by dimension options like “variable” instead of free-form volitile options like “dataset_var”.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hf_hydrodata.gridded.get_catalog_entry">
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_catalog_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ModelTableRow</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_catalog_entry" title="Permalink to this definition"></a></dt>
+<dd><p>Get a single data catalog entry row selected by filter options.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – Optional positional parameters that must be a dict with filter options.</p></li>
+<li><p><strong>kwargs</strong> – Supports multiple named parameters with filter option values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A single of ModelTableRow entries that matches the filter options or None if no entry matches the filter options.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError      If the filter options do not uniquely select a single data_catalog_entry.</strong> – </p>
+</dd>
+</dl>
+<p>This method is the same as get_catalog_entries() except returns a single row rather than a list of rows.
+For example,</p>
+<blockquote>
+<div><dl class="simple">
+<dt>options = {“dataset”: “NLDAS2”, “period”: “daily”,</dt><dd><p>“variable”: “precipitation”, “start_time”: “2005-7-1”}</p>
+</dd>
+</dl>
+<p>entry = get_catalog_entry(options)</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hf_hydrodata.gridded.get_file_path">
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_file_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_file_path" title="Permalink to this definition"></a></dt>
+<dd><p>Get the file path for a data catalog entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry</strong> – Either a ModelTableRow or the ID number of a data_catalog_entry. If None use the entry found by the filters.</p></li>
+<li><p><strong>args</strong> – Optional positional parameter that must be a dict with data filter options.</p></li>
+<li><p><strong>kwargs</strong> – Supports multiple named parameters with data filter option values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A single path path for the data catalog entry</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError      if there is no path</strong><strong> or </strong><strong>multiple paths for the data catalog entry.</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hf_hydrodata.gridded.get_file_paths">
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_file_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_file_paths" title="Permalink to this definition"></a></dt>
+<dd><p>Get a list of file paths from the data catalog identified by the filter options.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry</strong> – Either a ModelTableRow or the ID number of a data_catalog_entry.</p></li>
+<li><p><strong>args</strong> – Optional positional parameter that must be a dict with data filter options.</p></li>
+<li><p><strong>kwargs</strong> – Supports multiple named parameters with data filter option values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of absolute path names to files of the data catalog entry
+after looping through time range and replacing substitution keys.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>A data filter option must be one of the following:</dt><dd><ul class="simple">
+<li><p>start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.</p></li>
+<li><p>end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.</p></li>
+<li><p>site_id:        An observation point site id.</p></li>
+</ul>
+</dd>
+</dl>
+<p>If only start_time is specified then only the data at that time is used to substitute into path names.
+If both start_time and end_time is specified then dates in the date range are used to substitute into path names.</p>
+<dl>
+<dt>For example, get 3 daily files bewteen 9/30/2021 and 10/3/2021.</dt><dd><dl class="simple">
+<dt>entry = get_catalog_entry(dataset=”NLDAS2”, period=”daily”,</dt><dd><p>variable=”precipitation”, start_time=”2021-09-30”, end_time=”2021-10-03”)</p>
+</dd>
+</dl>
+<p>paths = get_file_paths(entry, start_time=”2021-09-30”, end_time=”2021-10-03”)</p>
+<p>assert len(paths) = 3</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hf_hydrodata.gridded.get_ndarray">
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_ndarray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_ndarray" title="Permalink to this definition"></a></dt>
+<dd><p>Get a numpy ndarray from files in /hydroframe. with the applied data filters.
+If a time_values data filter option is provided as an arrat this array will be populated with the
+date strings of the date dimentions of the ndarray that is returned. This is used for graphing use cases.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry</strong> – Either a ModelTableRow or the ID number of a data_catalog_entry. If None then get entry from options.</p></li>
+<li><p><strong>args</strong> – Optional positional parameter that must be a dict with data filter options.</p></li>
+<li><p><strong>kwargs</strong> – Supports multiple named parameters with data filter option values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A numpy ndarray containing the data loaded from the files identified by the entry and sliced by the data filter options.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError if both grid_bounds and latlng_bounds are specified as data filters.</strong> – </p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>A data filter option must be one of the following:</dt><dd><ul class="simple">
+<li><p>start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.</p></li>
+<li><p>end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.</p></li>
+<li><p>site_id:        An observation point site id.</p></li>
+<li><p>grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.</p></li>
+<li><p>latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.</p></li>
+<li><p>depth:          A number 0-n of the depth index of the data to return.</p></li>
+<li><p>z:              A value of the z dimension to be used as a filter to remove this dismension.</p></li>
+<li><p>level:          A HUC level integer when reading HUC boundary files.</p></li>
+</ul>
+</dd>
+<dt>For gridded results the returned numpy array has dimensions:</dt><dd><ul class="simple">
+<li><p>[hour, y, x]`````               period is hourly without z dimension</p></li>
+<li><p>[day, y, x]                     period is daily without z dimension</p></li>
+<li><p>[month, y, x]                   period is monthly without z dimension</p></li>
+<li><p>[y, x]                          period is static or blank without z dimension</p></li>
+<li><p>[hour, z, y, x]`````            period is hourly with z dimension</p></li>
+<li><p>[day, z, y, x]                  period is daily with z dimension</p></li>
+<li><p>[month, z, y, x]                period is monthly with z dimension</p></li>
+<li><p>[z, y, x]                       period is static or blank with z dimension</p></li>
+</ul>
+</dd>
+</dl>
+<p>If the dataset has ensembles then there is an ensemble dimension at the beginning.</p>
+<p>Both start_time and end_time must be in the form “YYYY-MM-DD HH:MM:SS” or “YYYY-MM-DD” or a datetime object.</p>
+<p>If only start_time is specified than only that month/day/hour is returned.
+The start_time is inclusive the end_time is exclusive (data returned less than that time).</p>
+<p>If either grid_bounds or latlng_bounds is specified then the result is sliced by the x,y values in the bounds.</p>
+<p>If z is specified then the result is sliced by the z dimension.</p>
+<dl>
+<dt>For example, to get data from the 3 daily files bewteen 9/30/2021 and 10/3/2021.</dt><dd><p>bounds = [200, 200, 300, 250]</p>
+<dl class="simple">
+<dt>options = {“dataset”: “NLDAS2”, “period”: “daily”, “variable”: “precipitation”,</dt><dd><p>“start_time=”2021-09-30”, end_time=”2021-10-03”, grid_bounds = bounds)</p>
+</dd>
+</dl>
+<p>entry = get_catalog_entry(options)</p>
+<p>data = get_ndarray(entry, start_time=”2021-09-30”, end_time=”2021-10-03”, grid_bounds = bounds)</p>
+<p># The result has 3 days in the time dimension and sliced to x,y shape 100x50 at origin 200, 200 in the conus1 grid.</p>
+<p>assert data.shape == [3, 100, 50]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hf_hydrodata.gridded.get_numpy">
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_numpy" title="Permalink to this definition"></a></dt>
+<dd><p>Get a numpy ndarray from files in /hydroframe. with the applied data filters.
+If a time_values data filter option is provided as an arrat this array will be populated with the
+date strings of the date dimentions of the ndarray that is returned. This is used for graphing use cases.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry</strong> – Either a ModelTableRow or the ID number of a data_catalog_entry. If None then get entry from options.</p></li>
+<li><p><strong>args</strong> – Optional positional parameter that must be a dict with data filter options.</p></li>
+<li><p><strong>kwargs</strong> – Supports multiple named parameters with data filter option values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A numpy ndarray containing the data loaded from the files identified by the entry and sliced by the data filter options.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError if both grid_bounds and latlng_bounds are specified as data filters.</strong> – </p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>A data filter option must be one of the following:</dt><dd><ul class="simple">
+<li><p>start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.</p></li>
+<li><p>end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.</p></li>
+<li><p>site_id:        An observation point site id.</p></li>
+<li><p>grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.</p></li>
+<li><p>latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.</p></li>
+<li><p>depth:          A number 0-n of the depth index of the data to return.</p></li>
+<li><p>z:              A value of the z dimension to be used as a filter to remove this dismension.</p></li>
+<li><p>level:          A HUC level integer when reading HUC boundary files.</p></li>
+</ul>
+</dd>
+<dt>For gridded results the returned numpy array has dimensions:</dt><dd><ul class="simple">
+<li><p>[hour, y, x]`````               period is hourly without z dimension</p></li>
+<li><p>[day, y, x]                     period is daily without z dimension</p></li>
+<li><p>[month, y, x]                   period is monthly without z dimension</p></li>
+<li><p>[y, x]                          period is static or blank without z dimension</p></li>
+<li><p>[hour, z, y, x]`````            period is hourly with z dimension</p></li>
+<li><p>[day, z, y, x]                  period is daily with z dimension</p></li>
+<li><p>[month, z, y, x]                period is monthly with z dimension</p></li>
+<li><p>[z, y, x]                       period is static or blank with z dimension</p></li>
+</ul>
+</dd>
+</dl>
+<p>If the dataset has ensembles then there is an ensemble dimension at the beginning.</p>
+<p>Both start_time and end_time must be in the form “YYYY-MM-DD HH:MM:SS” or “YYYY-MM-DD” or a datetime object.</p>
+<p>If only start_time is specified than only that month/day/hour is returned.
+The start_time is inclusive the end_time is exclusive (data returned less than that time).</p>
+<p>If either grid_bounds or latlng_bounds is specified then the result is sliced by the x,y values in the bounds.</p>
+<p>If z is specified then the result is sliced by the z dimension.</p>
+<dl>
+<dt>For example, to get data from the 3 daily files bewteen 9/30/2021 and 10/3/2021.</dt><dd><p>bounds = [200, 200, 300, 250]</p>
+<dl class="simple">
+<dt>options = {“dataset”: “NLDAS2”, “period”: “daily”, “variable”: “precipitation”,</dt><dd><p>“start_time=”2021-09-30”, end_time=”2021-10-03”, grid_bounds = bounds)</p>
+</dd>
+</dl>
+<p>data = get_numpy_data(options)
+metadata = get_catalog_entry(options)</p>
+<p># The result has 3 days in the time dimension and sliced to x,y shape 100x50 at origin 200, 200 in the conus1 grid.</p>
+<p>assert data.shape == [3, 100, 50]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hf_hydrodata.gridded.get_raw_file">
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_raw_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.gridded.get_raw_file" title="Permalink to this definition"></a></dt>
+<dd><p>Get the hydroframe file that is selected by the options to the given filepath.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> – Either a ModelTableRow or the ID number of a data_catalog_entry. If None use the entry found by the filters.</p></li>
+<li><p><strong>options</strong> – Optional positional parameter that must be a dict with data filter options.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError      if there are multiple paths selected from hydroframe.</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hf_hydrodata.gridded.get_registered_api_pin">
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_registered_api_pin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_registered_api_pin" title="Permalink to this definition"></a></dt>
+<dd><p>Get the email and pin registered by the current user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A tuple (email, pin)</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError if no email/pin was registered</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hf_hydrodata.gridded.get_table_names">
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_table_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_table_names" title="Permalink to this definition"></a></dt>
+<dd><p>Return the list of table names in the data model.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hf_hydrodata.gridded.get_table_row">
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_table_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ModelTableRow</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_table_row" title="Permalink to this definition"></a></dt>
+<dd><p>Get one row of a data model table filtered by columns from that table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_name</strong> – The name of a table in the data model.</p></li>
+<li><p><strong>args</strong> – Optional positional parameter that must be a dict with filter options.</p></li>
+<li><p><strong>kwargs</strong> – Supports multiple named parameters with filter option values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A single of ModelTableRow entries of the specified table_name that match the filter options or None if now row is found.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError if the filter options are ambiguous and this matches more than one row.</strong> – </p>
+</dd>
+</dl>
+<dl>
+<dt>For example,</dt><dd><p>row = get_table_rows(“variable”, variable_type=”atmospheric”)</p>
+<p>assert row[“variable”] == “air_temp”</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hf_hydrodata.gridded.get_table_rows">
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_table_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelTableRow</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_table_rows" title="Permalink to this definition"></a></dt>
+<dd><p>Get rows of a data model table filtered by columns from that table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_name</strong> – The name of a table in the data model.</p></li>
+<li><p><strong>args</strong> – Optional positional parameter that must be a dict with filter options.</p></li>
+<li><p><strong>kwargs</strong> – Supports multiple named parameters with filter option values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of ModelTableRow entries of the specified table_name that match the filter options.</p>
+</dd>
+</dl>
+<dl>
+<dt>For example,</dt><dd><p>rows = get_table_rows(“variable”, variable_type=”atmospheric”)</p>
+<p>assert row[0][“variable”] == “air_temp”</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hf_hydrodata.gridded.get_yaml_data_catalog">
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_yaml_data_catalog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_yaml_data_catalog" title="Permalink to this definition"></a></dt>
+<dd><p>Get the parsed yaml data catalog.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The hydrodata_catalog.yaml file loaded into a dict.</p>
+</dd>
+</dl>
+<p>The parsed yaml file representation of the data catalog is useful for use
+by non-python clients such as javascript that want access to the data model information.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hf_hydrodata.gridded.register_api_pin">
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">register_api_pin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.gridded.register_api_pin" title="Permalink to this definition"></a></dt>
+<dd><p>Register the email and pin that was created with the website in the users home directory.</p>
+<p>This creates a file in the users home directory in ~/.hydrodata/pin.json.
+This file is only visible by the user and allows authenticated access to remote data.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="hf_hydrodata.grid.html" class="btn btn-neutral float-left" title="hf_hydrodata.grid module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="data_catalog.html" class="btn btn-neutral float-right" title="Data Catalog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Laura Condon, Reed Maxwell.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
