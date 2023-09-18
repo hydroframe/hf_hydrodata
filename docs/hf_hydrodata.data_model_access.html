@@ -12,14 +12,16 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="hf_hydrodata.generate_hydrodata_catalog_yaml module" href="hf_hydrodata.generate_hydrodata_catalog_yaml.html" />
-    <link rel="prev" title="hf_hydrodata.data_access module" href="hf_hydrodata.data_access.html" /> 
+    <link rel="prev" title="hf_hydrodata package" href="hf_hydrodata.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -74,7 +76,7 @@
            <div itemprop="articleBody">
              
   <section id="module-hf_hydrodata.data_model_access">
-<span id="hf-hydrodata-data-model-access-module"></span><h1>hf_hydrodata.data_model_access module<a class="headerlink" href="#module-hf_hydrodata.data_model_access" title="Permalink to this heading"></a></h1>
+<span id="hf-hydrodata-data-model-access-module"></span><h1>hf_hydrodata.data_model_access module<a class="headerlink" href="#module-hf_hydrodata.data_model_access" title="Link to this heading"></a></h1>
 <p>Functions to load the csv files of the data catalog model into a DataModel object.</p>
 <blockquote>
 <div><p>Contains one function load_data_model() to load the model and several classes
@@ -91,18 +93,18 @@ using the model.</p>
 </div></blockquote>
 <dl class="py class">
 <dt class="sig sig-object py" id="hf_hydrodata.data_model_access.DataModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hf_hydrodata.data_model_access.</span></span><span class="sig-name descname"><span class="pre">DataModel</span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.DataModel" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hf_hydrodata.data_model_access.</span></span><span class="sig-name descname"><span class="pre">DataModel</span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.DataModel" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Represents a data catalog model.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="hf_hydrodata.data_model_access.DataModel.get_table">
-<span class="sig-name descname"><span class="pre">get_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#hf_hydrodata.data_model_access.ModelTable" title="hf_hydrodata.data_model_access.ModelTable"><span class="pre">ModelTable</span></a></span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.DataModel.get_table" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#hf_hydrodata.data_model_access.ModelTable" title="hf_hydrodata.data_model_access.ModelTable"><span class="pre">ModelTable</span></a></span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.DataModel.get_table" title="Link to this definition"></a></dt>
 <dd><p>Get the ModelTable object with the table_name.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="hf_hydrodata.data_model_access.DataModel.table_names">
-<span class="sig-name descname"><span class="pre">table_names</span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.DataModel.table_names" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">table_names</span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.DataModel.table_names" title="Link to this definition"></a></dt>
 <dd><p>A list of table names of the model.</p>
 </dd></dl>
 
@@ -110,24 +112,24 @@ using the model.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="hf_hydrodata.data_model_access.ModelTable">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hf_hydrodata.data_model_access.</span></span><span class="sig-name descname"><span class="pre">ModelTable</span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.ModelTable" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hf_hydrodata.data_model_access.</span></span><span class="sig-name descname"><span class="pre">ModelTable</span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.ModelTable" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Represents a model table.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="hf_hydrodata.data_model_access.ModelTable.column_names">
-<span class="sig-name descname"><span class="pre">column_names</span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.ModelTable.column_names" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">column_names</span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.ModelTable.column_names" title="Link to this definition"></a></dt>
 <dd><p>A list of the column names in the table.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hf_hydrodata.data_model_access.ModelTable.get_row">
-<span class="sig-name descname"><span class="pre">get_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#hf_hydrodata.data_model_access.ModelTableRow" title="hf_hydrodata.data_model_access.ModelTableRow"><span class="pre">ModelTableRow</span></a></span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.ModelTable.get_row" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#hf_hydrodata.data_model_access.ModelTableRow" title="hf_hydrodata.data_model_access.ModelTableRow"><span class="pre">ModelTableRow</span></a></span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.ModelTable.get_row" title="Link to this definition"></a></dt>
 <dd><p>Get the ModelTableRow of a row ID.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="hf_hydrodata.data_model_access.ModelTable.row_ids">
-<span class="sig-name descname"><span class="pre">row_ids</span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.ModelTable.row_ids" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">row_ids</span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.ModelTable.row_ids" title="Link to this definition"></a></dt>
 <dd><p>A list of row IDs in the table.</p>
 </dd></dl>
 
@@ -135,24 +137,24 @@ using the model.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="hf_hydrodata.data_model_access.ModelTableRow">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hf_hydrodata.data_model_access.</span></span><span class="sig-name descname"><span class="pre">ModelTableRow</span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.ModelTableRow" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hf_hydrodata.data_model_access.</span></span><span class="sig-name descname"><span class="pre">ModelTableRow</span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.ModelTableRow" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Represents one row in a model table.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="hf_hydrodata.data_model_access.ModelTableRow.column_names">
-<span class="sig-name descname"><span class="pre">column_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.data_model_access.ModelTableRow.column_names" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">column_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.data_model_access.ModelTableRow.column_names" title="Link to this definition"></a></dt>
 <dd><p>Return the column names of the row.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hf_hydrodata.data_model_access.ModelTableRow.get_value">
-<span class="sig-name descname"><span class="pre">get_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.ModelTableRow.get_value" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.ModelTableRow.get_value" title="Link to this definition"></a></dt>
 <dd><p>Get the value of the named column in the row.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hf_hydrodata.data_model_access.ModelTableRow.set_value">
-<span class="sig-name descname"><span class="pre">set_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.data_model_access.ModelTableRow.set_value" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">set_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.data_model_access.ModelTableRow.set_value" title="Link to this definition"></a></dt>
 <dd><p>Set the value of the named column in the row.</p>
 </dd></dl>
 
@@ -160,7 +162,7 @@ using the model.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.data_model_access.load_data_model">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.data_model_access.</span></span><span class="sig-name descname"><span class="pre">load_data_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#hf_hydrodata.data_model_access.DataModel" title="hf_hydrodata.data_model_access.DataModel"><span class="pre">DataModel</span></a></span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.load_data_model" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.data_model_access.</span></span><span class="sig-name descname"><span class="pre">load_data_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#hf_hydrodata.data_model_access.DataModel" title="hf_hydrodata.data_model_access.DataModel"><span class="pre">DataModel</span></a></span></span><a class="headerlink" href="#hf_hydrodata.data_model_access.load_data_model" title="Link to this definition"></a></dt>
 <dd><p>Load the data catalog model from CSV files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -175,7 +177,7 @@ using the model.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="hf_hydrodata.data_access.html" class="btn btn-neutral float-left" title="hf_hydrodata.data_access module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hf_hydrodata.html" class="btn btn-neutral float-left" title="hf_hydrodata package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="hf_hydrodata.generate_hydrodata_catalog_yaml.html" class="btn btn-neutral float-right" title="hf_hydrodata.generate_hydrodata_catalog_yaml module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
