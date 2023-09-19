@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Data Catalog &mdash; hf_hydrodata  documentation</title>
+  <title>Gridded Data &mdash; hf_hydrodata  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -18,6 +18,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Point Observation Data" href="point_observation_data.html" />
     <link rel="prev" title="hf_hydrodata.gridded module" href="hf_hydrodata.gridded.html" /> 
 </head>
 
@@ -43,7 +44,8 @@
               <p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">Python API Refererence</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Data Catalog</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Gridded Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="point_observation_data.html">Point Observation Data</a></li>
 </ul>
 
         </div>
@@ -60,9 +62,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Data Catalog</li>
+      <li class="breadcrumb-item active">Gridded Data</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/data_catalog.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/gridded_data.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -70,10 +72,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="data-catalog">
-<h1>Data Catalog<a class="headerlink" href="#data-catalog" title="Permalink to this heading"></a></h1>
-<p>The hydrodata data catalog is a static database of attributes that can be used to filter data in the
-file share.</p>
+  <section id="gridded-data">
+<h1>Gridded Data<a class="headerlink" href="#gridded-data" title="Permalink to this heading"></a></h1>
+<p>Gridded data is data that can be represented in a grid such as a numpy array.
+The gridded data stored in the hydrodata repository is accessed using attributes that can be used
+to filter and located the requested data.</p>
 <p>The attributes used to identify data are described below.
 Click on an attribute name to see available attribute keys to use as filter values.</p>
 <table class="docutils align-default" id="id1">
@@ -89,13 +92,13 @@ Click on an attribute name to see available attribute keys to use as filter valu
 </thead>
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="gen_datasets.html#gen-datasets"><span class="std std-ref">dataset</span></a></p></td>
-<td><p>Collected or derived products containing several data variables</p></td>
+<td><p>Data products containing several data variables (may be collected or derived products).</p></td>
 </tr>
 <tr class="row-odd"><td><p>variable</p></td>
-<td><p>A data variable in a dataset such as air_temp, streamflow or pressure</p></td>
+<td><p>A data variable in a dataset such as air_temp, streamflow or pressure.</p></td>
 </tr>
 <tr class="row-even"><td><p>period</p></td>
-<td><p>A time period that the variable data is collected such as hourly, daily, monthly</p></td>
+<td><p>A time period that the variable data is collected such as hourly, daily, monthly.</p></td>
 </tr>
 </tbody>
 </table>
@@ -112,13 +115,13 @@ Click on an attribute name to see available attribute keys to use as filter valu
 </thead>
 <tbody>
 <tr class="row-even"><td><p>aggregation</p></td>
-<td><p>How the data is aggregated: such as mean, max, min</p></td>
+<td><p>How the data is aggregated: such as mean, max, min.</p></td>
 </tr>
 <tr class="row-odd"><td><p>grid</p></td>
-<td><p>The grid size and projection of the data variable</p></td>
+<td><p>The grid size and projection of the data variable.</p></td>
 </tr>
 <tr class="row-even"><td><p>file_type</p></td>
-<td><p>The format that the data is stored in the GPFS file stored</p></td>
+<td><p>The format that the data is stored in the GPFS file.</p></td>
 </tr>
 </tbody>
 </table>
@@ -138,10 +141,10 @@ The grid is not required unless the dataset variable is available in multiple gr
 </thead>
 <tbody>
 <tr class="row-even"><td><p>grid_bounds</p></td>
-<td><p>The requested bounds of data to be returned as array of int: [x_min, y_min, x_max, y_max]</p></td>
+<td><p>The requested bounds of data to be returned as array of int: [x_min, y_min, x_max, y_max].</p></td>
 </tr>
 <tr class="row-odd"><td><p>lat_lng_bounds</p></td>
-<td><p>The requested bounds of data to be returned as an array of float: [low_lat, low_lng, high_lat, high_lng]</p></td>
+<td><p>The requested bounds of data to be returned as an array of float: [low_lat, low_lng, high_lat, high_lng].</p></td>
 </tr>
 <tr class="row-even"><td><p>start_time</p></td>
 <td><p>The requested start time of the data to be returned.
@@ -165,6 +168,7 @@ These other metadata attributes can be retrieved to understand more about the da
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="hf_hydrodata.gridded.html" class="btn btn-neutral float-left" title="hf_hydrodata.gridded module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="point_observation_data.html" class="btn btn-neutral float-right" title="Point Observation Data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

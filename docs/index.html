@@ -43,7 +43,8 @@
               <p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">Python API Refererence</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data_catalog.html">Data Catalog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gridded_data.html">Gridded Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="point_observation_data.html">Point Observation Data</a></li>
 </ul>
 
         </div>
@@ -87,7 +88,7 @@ to read the data remotely and without hard coding the location of files from the
 <section id="example-usage">
 <h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this heading"></a></h2>
 <p>You can read data from any file in the hydrodata repository using python to get a numpy array with:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hf_hydrodata.data_access</span> <span class="kn">import</span> <span class="n">get_numpy_data</span><span class="p">,</span><span class="n">get_data_catalog_entry</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hf_hydrodata.gridded</span> <span class="kn">import</span> <span class="n">get_numpy</span><span class="p">,</span><span class="n">get_data_catalog_entry</span>
 
 <span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">:</span><span class="s2">&quot;NLDAS2&quot;</span><span class="p">,</span> <span class="s2">&quot;variable&quot;</span><span class="p">:</span><span class="s2">&quot;precipitation&quot;</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s2">&quot;daily&quot;</span><span class="p">,</span> <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="s2">&quot;2005-03-01&quot;</span><span class="p">,</span> <span class="s2">&quot;file_type&quot;</span><span class="p">:</span> <span class="s2">&quot;pfb&quot;</span><span class="p">]</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">get_numpy_data</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
@@ -98,23 +99,27 @@ to read the data remotely and without hard coding the location of files from the
 <span class="nb">print</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>See the sub-section “Data Catalog” for information about parameters that can be passed to functions
-to filter and identify data in the hydrodata file share.</p>
 <p>Many of the files are very large so parameters can be provided to subset the files by space and/or time before
-returning the data. See the sub-section about “Data Catalog” for details about the available parameters
+returning the data. See the sub-section about “Gridded Data” for details about the available parameters
 that can be passed to the functions to filter data by space and/or time.</p>
 </section>
-<section id="data-catalog-data-model">
-<h2>Data Catalog Data Model<a class="headerlink" href="#data-catalog-data-model" title="Permalink to this heading"></a></h2>
-<p>The arguments to get_numpy_data locate the data using a set of metadata attributes about each type of data.
-You filter the data catalog using values of these attributes to locate the data you want. In addition to attributes
+<section id="gridded-data">
+<h2>Gridded Data<a class="headerlink" href="#gridded-data" title="Permalink to this heading"></a></h2>
+<p>The get_numpy() function returns gridded data from the hydrodata repository.
+The arguments to get_numpy() locate the data using a set of metadata attributes about each type of data.
+You filter the data using values of these attributes to locate the data you want. In addition to attributes
 used for filtering there are additional attributes used to describe the data.</p>
-<p>See the sub-section “Data Catalog” for the list of attributes and values that are availble.</p>
+<p>See the sub-section “Gridded Data” for the list of attributes and values that are availble.</p>
+</section>
+<section id="point-observation-data">
+<h2>Point Observation Data<a class="headerlink" href="#point-observation-data" title="Permalink to this heading"></a></h2>
+<p>See the sub-section “Point Observation Data” for the list of attributes and values that are availble.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">Python API Refererence</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data_catalog.html">Data Catalog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gridded_data.html">Gridded Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="point_observation_data.html">Point Observation Data</a></li>
 </ul>
 </div>
 </section>

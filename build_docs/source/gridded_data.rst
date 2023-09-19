@@ -1,7 +1,8 @@
-Data Catalog
+Gridded Data
 ======================
-The hydrodata data catalog is a static database of attributes that can be used to filter data in the
-file share.
+Gridded data is data that can be represented in a grid such as a numpy array.
+The gridded data stored in the hydrodata repository is accessed using attributes that can be used
+to filter and located the requested data.
 
 The attributes used to identify data are described below.
 Click on an attribute name to see available attribute keys to use as filter values.
@@ -13,11 +14,11 @@ Click on an attribute name to see available attribute keys to use as filter valu
     * - Attribute Name
       - Description
     * - :ref:`gen_datasets`
-      - Collected or derived products containing several data variables
+      - Data products containing several data variables (may be collected or derived products).
     * - variable
-      - A data variable in a dataset such as air_temp, streamflow or pressure
+      - A data variable in a dataset such as air_temp, streamflow or pressure.
     * - period
-      - A time period that the variable data is collected such as hourly, daily, monthly
+      - A time period that the variable data is collected such as hourly, daily, monthly.
 
 .. list-table:: Secondary Attributes for Filtering
     :widths: 25 100
@@ -26,11 +27,11 @@ Click on an attribute name to see available attribute keys to use as filter valu
     * - Attribute Name
       - Description
     * - aggregation
-      - How the data is aggregated: such as mean, max, min
+      - How the data is aggregated: such as mean, max, min.
     * - grid
-      - The grid size and projection of the data variable
+      - The grid size and projection of the data variable.
     * - file_type
-      - The format that the data is stored in the GPFS file stored
+      - The format that the data is stored in the GPFS file.
 Note: data is returned as a numpy array regardless of of how the data is stored.
 The aggregation is not required unless the data is available in multiple aggregations such as temperature variables.
 The grid is not required unless the dataset variable is available in multiple grids.
@@ -42,9 +43,9 @@ The grid is not required unless the dataset variable is available in multiple gr
     * - Attribute Name
       - Description
     * - grid_bounds
-      - The requested bounds of data to be returned as array of int: [x_min, y_min, x_max, y_max]
+      - The requested bounds of data to be returned as array of int: [x_min, y_min, x_max, y_max].
     * - lat_lng_bounds
-      - The requested bounds of data to be returned as an array of float: [low_lat, low_lng, high_lat, high_lng]
+      - The requested bounds of data to be returned as an array of float: [low_lat, low_lng, high_lat, high_lng].
     * - start_time
       - The requested start time of the data to be returned.
         This is required if the data has a period with a time dimension.
