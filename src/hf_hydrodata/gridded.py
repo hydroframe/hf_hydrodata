@@ -796,6 +796,8 @@ def _validate_user():
     email, pin = get_registered_api_pin()
     url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
     response = requests.get(url_security, timeout=15)
+    if not response.status_code == 200:
+        raise ValueError(f"No registered PIN for email '{email}' and PIN {pin}. See documentation to register with a URL.")
     json_string = response.content.decode("utf-8")
     jwt_json = json.loads(json_string)
     jwt_token = jwt_json["jwt_token"]
