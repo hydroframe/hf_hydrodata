@@ -21,11 +21,11 @@ class MockResponse:
     def __init__(self):
         self.headers = {}
         self.status_code = 200
-        self.content = b"test content"
+        self.content = b'{"email": "dummy@email.com", "jwt_token":"foo"}'
         self.checksum = ""
 
 
-def mock_requests_get(url, timeout):
+def mock_requests_get(url, headers=None, timeout=5):
     """Create a mock streaming response."""
 
     response = MockResponse()
