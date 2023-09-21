@@ -38,7 +38,7 @@ def to_latlon(grid: str, *args) -> List[float]:
     grid_row = table.get_row(grid.lower())
     if grid_row is None:
         raise ValueError(f"No such grid {grid} available.")
-    grid_resolution = int(grid_row["resolution_meters"])
+    grid_resolution = float(grid_row["resolution_meters"])
     if len(args) == 0:
         raise ValueError("At least two x, y values must be provided.")
     if len(args) % 2 == 1:
@@ -80,7 +80,7 @@ def from_latlon(grid: str, *args) -> List[float]:
     grid_row = table.get_row(grid.lower())
     if grid_row is None:
         raise ValueError(f"No such grid {grid} available.")
-    grid_resolution = int(grid_row["resolution_meters"])
+    grid_resolution = float(grid_row["resolution_meters"])
     if len(args) == 0:
         raise ValueError("At least two x, y values must be provided.")
     if len(args) % 2 == 1:
