@@ -308,4 +308,4 @@ id,dataset,file_type,variable,dataset_var,entry_start_date,entry_end_date,period
 430,obs_anomalies,netcdf,anomaly,anomaly_monthly,10/1/63,,monthly,-,sum,,2,/hydrodata/national_obs/swe/data/anomalies/monthly/WY{wy}.nc,,snotel
 431,obs_anomalies,netcdf,swe,swe,10/1/63,,monthly,mm,sum,,2,/hydrodata/national_obs/swe/data/anomalies/monthly/WY{wy}.nc,,snotel
 432,obs_anomalies,netcdf,site_id,site,,,monthly,mm,sum,,2,/hydrodata/national_obs/swe/data/anomalies/monthly/WY{wy}.nc,,snotel
-433,conus1_domain,pfb,frac_stream_dist,frac_stream_var,,,static,-,-,conus1,2,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/ÊFrac_dist_100_withfilter.pfb,,
+433,conus1_domain,pfb,frac_stream_dist,frac_stream_var,,,static,-,-,conus1,2,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/Frac_dist_100_withfilter.pfb,,

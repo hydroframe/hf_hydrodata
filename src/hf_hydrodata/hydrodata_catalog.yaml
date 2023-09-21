@@ -4026,8 +4026,8 @@ sources:
       dataset_var: "band_data"
       description: "Current Conditions Conus2"
       file_type: "tiff"
-      grid: "conus2"
-      path: "/hydrodata/temp/high_resolution_data/WTD_estimates/1km/wtd_mean_estimate_RF_1km_CONUS2_m_v_20230406.tif"
+      grid: "conus2_wtd"
+      path: "/hydrodata/temp/bill/wtd_30_1k_flipped.tiff"
       security_level: "3"
       structure_type: "gridded"
       time_zone: "UTC−0:00"
@@ -4043,8 +4043,8 @@ sources:
       dataset_var: "band_data"
       description: "Current Conditions Conus2"
       file_type: "tiff"
-      grid: "conus2.90"
-      path: "/hydrodata/temp/high_resolution_data/WTD_estimates/90m/wtd_mean_estimate_RF_additional_input_3s_CONUS2_m_v_20230627.tif"
+      grid: "conus2_wtd.100"
+      path: "/hydrodata/temp/bill/wtd_30_100_flipped.tiff"
       security_level: "3"
       structure_type: "gridded"
       time_zone: "UTC−0:00"
@@ -4060,8 +4060,8 @@ sources:
       dataset_var: "band_data"
       description: "Current Conditions Conus2"
       file_type: "tiff"
-      grid: "conus2.30"
-      path: "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1s_CONUS2_m_v_20230714.tif"
+      grid: "conus2_wtd.30"
+      path: "/hydrodata/temp/bill/wtd_30_30_flipped.tiff"
       security_level: "3"
       structure_type: "gridded"
       time_zone: "UTC−0:00"
@@ -5912,6 +5912,24 @@ sources:
       unit_type: "length"
       units: "mm"
       variable: "site_id"
+  "433":
+    metadata:
+      aggregation: "-"
+      dataset: "conus1_domain"
+      dataset_type: "parameters"
+      dataset_var: "frac_stream_var"
+      description: "Inputs for baseline CONUS1 ParFlow Simulations"
+      file_type: "pfb"
+      grid: "conus1"
+      paper_dois: "10.5194/gmd-8-923-2015; 10.1016/j.advwatres.2015.04.008; 10.1002/2014WR016774; 10.1002/2015GL066916"
+      path: "/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/Frac_dist_100_withfilter.pfb"
+      period: "static"
+      security_level: "2"
+      structure_type: "gridded"
+      unit_type: "unitless"
+      units: "-"
+      variable: "frac_stream_dist"
+      variable_type: "topography"
 
 ##########
 # Dimension Tables
@@ -6080,7 +6098,7 @@ file_type:
 grid:
   "conus1":
       title: "conus 1"
-      shape: [3342, 1888, 5]
+      shape: [5, 1888, 3342]
       latlng_bounds: [31.651836025255015, -121.47939483437318, 50.49802132270979, -76.09875469594509]
       resolution_meters: "1000"
       crs_name: "ESRI:102104"
@@ -6088,34 +6106,41 @@ grid:
       crs: "+proj=lcc +lat_1=33 +lat_2=45 +lon_0=-96.0 +lat_0=39 +a=6378137.0 +b=6356752.31 +x_0=1885055.4995 +y_0=604957.0654"
   "conus2":
       title: "conus 2"
-      shape: [4442, 3256, 10]
+      shape: [10, 3256, 4442]
       latlng_bounds: [21.8170599154073, -126.88755692881833, 53.20274381640737, -64.7677149695924]
       resolution_meters: "1000"
       origin: [-2208000.30881173, -1668999.65483222]
       crs: "+proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000 +x_0=2208000.30881173 +y_0=1668999.65483222"
-  "conus2.90":
-      title: "conus 2 90 meters"
-      shape: [69968, 34187, 10]
+  "conus2_wtd":
+      title: "WTD 30m grid 1k"
+      shape: [10, 3484, 5940]
       latlng_bounds: [21.8170599154073, -126.88755692881833, 53.20274381640737, -64.7677149695924]
-      resolution_meters: "90"
+      resolution_meters: "1000"
       origin: [-2208000.30881173, -1668999.65483222]
-      crs: "+proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000.00 +x_0=2208000.30881173 +y_0=1668999.65483222"
-  "conus2.30":
-      title: "conus 2 30 meters"
-      shape: [209904, 102561, 10]
+      crs: "+proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000 +x_0=2848061.2936895434 +y_0=1724874.3619788198"
+  "conus2_wtd.100":
+      title: "WTD 30m grid 100m"
+      shape: [10, 34832, 59400]
       latlng_bounds: [21.8170599154073, -126.88755692881833, 53.20274381640737, -64.7677149695924]
-      resolution_meters: "30"
+      resolution_meters: "100"
       origin: [-2208000.30881173, -1668999.65483222]
-      crs: "+proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000.00 +x_0=2208000.30881173 +y_0=1668999.65483222"
+      crs: "+proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000 +x_0=2848061.2936895434 +y_0=1724874.3619788198"
+  "conus2_wtd.30":
+      title: "WTD 30m grid 30m"
+      shape: [10, 144287, 246056]
+      latlng_bounds: [21.8170599154073, -126.88755692881833, 53.20274381640737, -64.7677149695924]
+      resolution_meters: "24.140766313896204"
+      origin: [-2208000.30881173, -1668999.65483222]
+      crs: "+proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000 +x_0=2848061.2936895434 +y_0=1724874.3619788198"
   "conus2.250":
       title: "conus 2"
-      shape: [4442, 3256, 10]
+      shape: [10, 3256, 4442]
       latlng_bounds: [21.8170599154073, -126.88755692881833, 53.20274381640737, -64.7677149695924]
       resolution_meters: "250"
       origin: [-2208000.30881173, -1668999.65483222]
   "smapgrid":
       title: "SMAP Grid"
-      shape: [646, 335]
+      shape: [1, 646, 335]
       latlng_bounds: [21.8170599154073, -126.88755692881833, 53.20274381640737, -64.7677149695924]
       resolution_meters: "9000"
       origin: [-2208000.30881173, -1668999.65483222]
@@ -6152,7 +6177,7 @@ site_type:
   "streamflow":
       title: "Streamflow"
   "groundwater":
-      title: "Groundwater"
+      title: "Water Table Depth"
   "snotel":
       title: "Snow Water Equivalent"
 
@@ -6564,6 +6589,10 @@ variable:
       variable_type: "land_surface"
   "site_id":
       title: "Site Id"
+  "frac_stream_dist":
+      title: "fractional distance from stream"
+      description: "Shortest distance of a given cell to a stream divided by the distance from the stream cell to the nearest topographic divide (Values range from 0-1)"
+      variable_type: "topography"
 
 variable_type:
   "atmospheric":
