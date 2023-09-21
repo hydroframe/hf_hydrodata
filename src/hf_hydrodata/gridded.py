@@ -400,8 +400,28 @@ def _construct_string_from_qparams(entry, options):
     result_string = "&".join(string_parts)
     return result_string
 
+def get_path(*args, **kwargs) -> str:
+    """
+    Get the file path for the filter options.
 
-def get_file_path(entry, *args, **kwargs) -> List[str]:
+    Returns:
+        An absolute path name to the file location on the GPFS file system.
+    Raises:
+        ValueError if no data data catalog entry is found for the filter options provided.
+
+    For example,
+        options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
+                    "start_time="2021-09-30")
+
+        path = get_path(options)
+
+        print(path)
+    """
+
+    result = get_file_path(None, *args, **kwargs)
+    return result
+
+def get_file_path(entry, *args, **kwargs) -> str:
     """Get the file path for a data catalog entry.
 
     Args:

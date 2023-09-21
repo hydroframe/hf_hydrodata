@@ -18,15 +18,15 @@ Example Usage
 -------------
 You can read data from any file in the hydrodata repository using python to get a numpy array with::
 
-    from hf_hydrodata.gridded import get_numpy,get_data_catalog_entry
+    from hf_hydrodata.gridded import get_numpy,get_catalog_entry
 
-    filters = ["dataset":"NLDAS2", "variable":"precipitation", period="daily", "start_time": "2005-03-01", "file_type": "pfb"]
-    data = get_numpy_data(filters)
+    filters = {"dataset":"NLDAS2", "variable":"precipitation", "period":"daily", "start_time": "2005-03-01"}
+    data = get_numpy(filters)
     print(data.shape)
 
     # Get the metadata about the returned data
-    entry = get_data_catalog_entry(filters)
-    print(entry)
+    metadata = get_catalog_entry(filters)
+    print(metadata)
 
 Many of the files are very large so parameters can be provided to subset the files by space and/or time before
 returning the data. See the sub-section about "Gridded Data" for details about the available parameters
