@@ -85,6 +85,7 @@ class ProjConstants:
         if grid_row is None:
             raise ValueError(f"Grid '{grid}' is not recognized")
         crs = grid_row["crs"]
+        crs = crs.strip()
         if crs is None:
             raise ValueError(f"Grid '{grid}' does not have a projection.")
         crs_dict = self._parse_crs(crs)
