@@ -820,6 +820,12 @@ def _validate_user():
         raise ValueError(f"No registered PIN for email '{email}' and PIN {pin}. See documentation to register with a URL.")
     json_string = response.content.decode("utf-8")
     jwt_json = json.loads(json_string)
+    expires_string = jwt_json.get("expires")
+    if expires_string:
+        expires = datetime.datetime.strptime(expires_string, "%Y/%m/%d %H:%M:%S GMT-0000")
+        now = datetime.datetime.now()
+        if now > expires:
+            raise ValueError("PIN has expired. Please re-register it from https://hydrogen.princeton.edu/pin")
     jwt_token = jwt_json["jwt_token"]
     headers = {}
     headers["Authorization"] = f"Bearer {jwt_token}"
