@@ -6,8 +6,9 @@ authors = ["William M. Hasling", "Laura Condon", "Reed Maxwell",  "George Artava
 license = "MIT"
 readme = "README.md"
 
-[tool.poetry.files]
+[package]
 include = ["src/hf_hydrodata/model/*.csv"]
+
 
 [tool.poetry.dependencies]
 python = "^3.8"
