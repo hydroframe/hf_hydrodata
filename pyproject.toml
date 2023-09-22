@@ -1,13 +1,14 @@
 [tool.poetry]
 name = "hf_hydrodata"
-version = "0.1.11"
+version = "0.9.1"
 description = "hydroframe tools and utilities"
 authors = ["William M. Hasling", "Laura Condon", "Reed Maxwell",  "George Artavanis", "Amy M. Johnson", "Amy C. Defnet"]
 license = "MIT"
 readme = "README.md"
 
-[tool.poetry.files]
+[package]
 include = ["src/hf_hydrodata/model/*.csv"]
+
 
 [tool.poetry.dependencies]
 python = "^3.8"
