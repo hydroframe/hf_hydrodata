@@ -4027,7 +4027,7 @@ sources:
       description: "Current Conditions Conus2"
       file_type: "tiff"
       grid: "conus2_wtd"
-      path: "/hydrodata/temp/bill/wtd_30_1k_flipped.tiff"
+      path: "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data_flip/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1000m_CONUS2_m_1s_remapped.tif"
       security_level: "3"
       structure_type: "gridded"
       time_zone: "UTC−0:00"
@@ -4044,7 +4044,7 @@ sources:
       description: "Current Conditions Conus2"
       file_type: "tiff"
       grid: "conus2_wtd.100"
-      path: "/hydrodata/temp/bill/wtd_30_100_flipped.tiff"
+      path: "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data_flip/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_100m_CONUS2_m_1s_remapped.tif"
       security_level: "3"
       structure_type: "gridded"
       time_zone: "UTC−0:00"
@@ -4061,7 +4061,7 @@ sources:
       description: "Current Conditions Conus2"
       file_type: "tiff"
       grid: "conus2_wtd.30"
-      path: "/hydrodata/temp/bill/wtd_30_30_flipped.tiff"
+      path: "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data_flip/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1s_CONUS2_m_remapped.tif"
       security_level: "3"
       structure_type: "gridded"
       time_zone: "UTC−0:00"
@@ -6103,35 +6103,35 @@ grid:
       resolution_meters: "1000"
       crs_name: "ESRI:102104"
       origin: [-1885055.4995, -604957.0654]
-      crs: "+proj=lcc +lat_1=33 +lat_2=45 +lon_0=-96.0 +lat_0=39 +a=6378137.0 +b=6356752.31 +x_0=1885055.4995 +y_0=604957.0654"
+      crs: " +proj=lcc +lat_1=33 +lat_2=45 +lon_0=-96.0 +lat_0=39 +a=6378137.0 +b=6356752.31 +x_0=1885055.4995 +y_0=604957.0654"
   "conus2":
       title: "conus 2"
       shape: [10, 3256, 4442]
       latlng_bounds: [21.8170599154073, -126.88755692881833, 53.20274381640737, -64.7677149695924]
       resolution_meters: "1000"
       origin: [-2208000.30881173, -1668999.65483222]
-      crs: "+proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000 +x_0=2208000.30881173 +y_0=1668999.65483222"
+      crs: " +proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000 +x_0=2208000.30881173 +y_0=1668999.65483222"
   "conus2_wtd":
       title: "WTD 30m grid 1k"
       shape: [10, 3484, 5940]
       latlng_bounds: [21.8170599154073, -126.88755692881833, 53.20274381640737, -64.7677149695924]
       resolution_meters: "1000"
       origin: [-2208000.30881173, -1668999.65483222]
-      crs: "+proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000 +x_0=2848061.2936895434 +y_0=1724874.3619788198"
+      crs: " +proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000 +x_0=2848061.2936895434 +y_0=1724874.3619788198"
   "conus2_wtd.100":
       title: "WTD 30m grid 100m"
       shape: [10, 34832, 59400]
       latlng_bounds: [21.8170599154073, -126.88755692881833, 53.20274381640737, -64.7677149695924]
       resolution_meters: "100"
       origin: [-2208000.30881173, -1668999.65483222]
-      crs: "+proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000 +x_0=2848061.2936895434 +y_0=1724874.3619788198"
+      crs: " +proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000 +x_0=2848061.2936895434 +y_0=1724874.3619788198"
   "conus2_wtd.30":
       title: "WTD 30m grid 30m"
       shape: [10, 144287, 246056]
       latlng_bounds: [21.8170599154073, -126.88755692881833, 53.20274381640737, -64.7677149695924]
       resolution_meters: "24.140766313896204"
       origin: [-2208000.30881173, -1668999.65483222]
-      crs: "+proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000 +x_0=2848061.2936895434 +y_0=1724874.3619788198"
+      crs: " +proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000 +x_0=2848061.2936895434 +y_0=1724874.3619788198"
   "conus2.250":
       title: "conus 2"
       shape: [10, 3256, 4442]
