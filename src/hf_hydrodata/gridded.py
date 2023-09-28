@@ -393,6 +393,7 @@ def _construct_string_from_qparams(entry, options):
     qparam_values["variable"] = entry["variable"]
     qparam_values["file_type"] = entry["file_type"]
     qparam_values["grid"] = entry["grid"]
+    qparam_values["structure_type"] = entry["structure_type"]
 
     string_parts = [
         f"{name}={value}" for name, value in qparam_values.items() if value is not None
