@@ -1080,7 +1080,7 @@ def _read_and_filter_vegm_files(
     file_path = paths[0]
 #    data = read_clm(file_path, type="vegm")
 
-    df = pd.read_csv(file_name, delim_whitespace=True, skiprows=2, header=None)
+    df = pd.read_csv(file_path, delim_whitespace=True, skiprows=2, header=None)
     df.columns = [f'c{i}' for i in range(df.shape[1])]
 
     # Number of columns and rows determined by last line of file
