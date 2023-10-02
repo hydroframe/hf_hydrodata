@@ -16,6 +16,7 @@ from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 import numpy as np
 import xarray as xr
+import pandas as pd
 from parflow import read_pfb_sequence
 from parflow.tools.io import read_clm
 from hf_hydrodata.data_model_access import ModelTableRow
@@ -1077,7 +1078,21 @@ def _read_and_filter_vegm_files(
     """
     paths = get_file_paths(entry, options)
     file_path = paths[0]
-    data = read_clm(file_path, type="vegm")
+#    data = read_clm(file_path, type="vegm")
+
+    df = pd.read_csv(file_name, delim_whitespace=True, skiprows=2, header=None)
+    df.columns = [f'c{i}' for i in range(df.shape[1])]
+
+    # Number of columns and rows determined by last line of file
+    nx = int(df.iloc[-1]['c0'])
+    ny = int(df.iloc[-1]['c1'])
+    # Don't use 'x' and 'y' columns
+    feature_cols = df.columns[2:]
+    # Stack everything into (ny, nx, n_features)
+    data = np.stack(
+        [df[c].values.reshape((ny, nx)) for c in feature_cols], axis=-1
+    )
+
     grid_bounds = options.get("grid_bounds")
     if grid_bounds is not None:
         imin, jmin, imax, jmax = grid_bounds
