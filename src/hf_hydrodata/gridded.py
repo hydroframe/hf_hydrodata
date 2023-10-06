@@ -817,7 +817,7 @@ def _validate_user():
     url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
     response = requests.get(url_security, timeout=15)
     if not response.status_code == 200:
-        raise ValueError(f"No registered PIN for email '{email}' and PIN {pin}. See documentation to register with a URL.")
+        raise ValueError(f"No registered PIN for email '{email}' and PIN '{pin}'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'.")
     json_string = response.content.decode("utf-8")
     jwt_json = json.loads(json_string)
     expires_string = jwt_json.get("expires")
