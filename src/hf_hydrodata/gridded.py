@@ -80,7 +80,7 @@ def get_registered_api_pin() -> Tuple[str, str]:
     pin_path = f"{pin_dir}/pin.json"
     if not os.path.exists(pin_path):
         raise ValueError(
-            "No email/pin was registered. Use the register_api() method to register the pin you created at the website."
+            "No email/pin was registered'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'."
         )
     try:
         with open(pin_path, "r") as stream:
@@ -91,7 +91,7 @@ def get_registered_api_pin() -> Tuple[str, str]:
             return (email, pin)
     except Exception as e:
         raise ValueError(
-            "No email/pin was registered. Use the register_api() method to register the pin you created at the website."
+            "No email/pin was registered'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'."
         ) from e
 
 
@@ -402,6 +402,7 @@ def _construct_string_from_qparams(entry, options):
     result_string = "&".join(string_parts)
     return result_string
 
+
 def get_path(*args, **kwargs) -> str:
     """
     Get the file path for the filter options.
@@ -422,6 +423,7 @@ def get_path(*args, **kwargs) -> str:
 
     result = get_file_path(None, *args, **kwargs)
     return result
+
 
 def get_file_path(entry, *args, **kwargs) -> str:
     """Get the file path for a data catalog entry.
@@ -819,15 +821,21 @@ def _validate_user():
     url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
     response = requests.get(url_security, timeout=15)
     if not response.status_code == 200:
-        raise ValueError(f"No registered PIN for email '{email}' and PIN '{pin}'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'.")
+        raise ValueError(
+            f"No registered PIN for email '{email}' and PIN '{pin}'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'."
+        )
     json_string = response.content.decode("utf-8")
     jwt_json = json.loads(json_string)
     expires_string = jwt_json.get("expires")
     if expires_string:
-        expires = datetime.datetime.strptime(expires_string, "%Y/%m/%d %H:%M:%S GMT-0000")
+        expires = datetime.datetime.strptime(
+            expires_string, "%Y/%m/%d %H:%M:%S GMT-0000"
+        )
         now = datetime.datetime.now()
         if now > expires:
-            raise ValueError("PIN has expired. Please re-register it from https://hydrogen.princeton.edu/pin")
+            raise ValueError(
+                "PIN has expired. Please re-register it from https://hydrogen.princeton.edu/pin"
+            )
     jwt_token = jwt_json["jwt_token"]
     headers = {}
     headers["Authorization"] = f"Bearer {jwt_token}"
@@ -1079,20 +1087,18 @@ def _read_and_filter_vegm_files(
     """
     paths = get_file_paths(entry, options)
     file_path = paths[0]
-#    data = read_clm(file_path, type="vegm")
+    #    data = read_clm(file_path, type="vegm")
 
     df = pd.read_csv(file_path, delim_whitespace=True, skiprows=2, header=None)
-    df.columns = [f'c{i}' for i in range(df.shape[1])]
+    df.columns = [f"c{i}" for i in range(df.shape[1])]
 
     # Number of columns and rows determined by last line of file
-    nx = int(df.iloc[-1]['c0'])
-    ny = int(df.iloc[-1]['c1'])
+    nx = int(df.iloc[-1]["c0"])
+    ny = int(df.iloc[-1]["c1"])
     # Don't use 'x' and 'y' columns
     feature_cols = df.columns[2:]
     # Stack everything into (ny, nx, n_features)
-    data = np.stack(
-        [df[c].values.reshape((ny, nx)) for c in feature_cols], axis=-1
-    )
+    data = np.stack([df[c].values.reshape((ny, nx)) for c in feature_cols], axis=-1)
 
     grid_bounds = options.get("grid_bounds")
     if grid_bounds is not None:
