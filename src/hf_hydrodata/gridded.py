@@ -16,6 +16,7 @@ from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 import numpy as np
 import xarray as xr
+import pandas as pd
 from parflow import read_pfb_sequence
 from parflow.tools.io import read_clm
 from hf_hydrodata.data_model_access import ModelTableRow
@@ -393,6 +394,7 @@ def _construct_string_from_qparams(entry, options):
     qparam_values["variable"] = entry["variable"]
     qparam_values["file_type"] = entry["file_type"]
     qparam_values["grid"] = entry["grid"]
+    qparam_values["structure_type"] = entry["structure_type"]
 
     string_parts = [
         f"{name}={value}" for name, value in qparam_values.items() if value is not None
@@ -817,7 +819,7 @@ def _validate_user():
     url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
     response = requests.get(url_security, timeout=15)
     if not response.status_code == 200:
-        raise ValueError(f"No registered PIN for email '{email}' and PIN {pin}. See documentation to register with a URL.")
+        raise ValueError(f"No registered PIN for email '{email}' and PIN '{pin}'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'.")
     json_string = response.content.decode("utf-8")
     jwt_json = json.loads(json_string)
     expires_string = jwt_json.get("expires")
@@ -1077,7 +1079,21 @@ def _read_and_filter_vegm_files(
     """
     paths = get_file_paths(entry, options)
     file_path = paths[0]
-    data = read_clm(file_path, type="vegm")
+#    data = read_clm(file_path, type="vegm")
+
+    df = pd.read_csv(file_path, delim_whitespace=True, skiprows=2, header=None)
+    df.columns = [f'c{i}' for i in range(df.shape[1])]
+
+    # Number of columns and rows determined by last line of file
+    nx = int(df.iloc[-1]['c0'])
+    ny = int(df.iloc[-1]['c1'])
+    # Don't use 'x' and 'y' columns
+    feature_cols = df.columns[2:]
+    # Stack everything into (ny, nx, n_features)
+    data = np.stack(
+        [df[c].values.reshape((ny, nx)) for c in feature_cols], axis=-1
+    )
+
     grid_bounds = options.get("grid_bounds")
     if grid_bounds is not None:
         imin, jmin, imax, jmax = grid_bounds
