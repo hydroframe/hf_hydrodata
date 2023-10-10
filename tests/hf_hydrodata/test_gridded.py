@@ -332,8 +332,8 @@ def test_files_exist():
     rows = hf_hydrodata.gridded.get_catalog_entries()
 
     bad_row = False
-    site_id = ""
     for row in rows:
+        site_id = ""
         dataset = row["dataset"]
         site_type = row["site_type"]
         if dataset == "conus1_baseline_85":
@@ -354,6 +354,8 @@ def test_files_exist():
             site_id = "348:UT:SNTL"
         elif dataset == "obs_anomolies":
             start_time = "2002-01-01"
+        elif dataset == "conus1_current_conditions":
+            start_time = "2023-01-01"
 
         row_id = row["id"]
         if not row_id in ["206", "207", "208", "209", "210", "213", "253", "254"]:
