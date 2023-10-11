@@ -4253,7 +4253,7 @@ sources:
       description: "Inputs for baseline CONUS2 ParFlow Simulations"
       file_type: "vegm"
       grid: "conus2"
-      path: "/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_vegm.CONUS2_723.dat"
+      path: "/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_vegm.CONUS2_fixed.2.dat"
       period: "static"
       security_level: "2"
       structure_type: "gridded"
@@ -4270,7 +4270,7 @@ sources:
       description: "Inputs for baseline CONUS2 ParFlow Simulations"
       file_type: "vegp"
       grid: "conus2"
-      path: "/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_vegm.CONUS2_723.dat"
+      path: "/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_vegp.dat"
       period: "static"
       security_level: "2"
       structure_type: "gridded"
@@ -5930,6 +5930,25 @@ sources:
       units: "-"
       variable: "frac_stream_dist"
       variable_type: "topography"
+  "434":
+    metadata:
+      aggregation: "mean"
+      dataset: "conus1_current_conditions"
+      dataset_type: "current_conditions"
+      dataset_var: "pressure"
+      description: "Current Conditions Conus1"
+      entry_start_date: "5/20/22"
+      file_type: "pfb"
+      grid: "conus1"
+      path: "/hydrodata/HydroGEN/current_conditions/CONUS1/WY{wy}/{dataset_var}.{mdy}.pfb"
+      period: "daily"
+      security_level: "3"
+      structure_type: "gridded"
+      time_zone: "UTC−0:00"
+      unit_type: "length"
+      units: "m"
+      variable: "pressure_head"
+      variable_type: "subsurface"
 
 ##########
 # Dimension Tables
