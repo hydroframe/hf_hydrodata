@@ -8,6 +8,8 @@ import os
 import datetime
 from unittest.mock import patch
 import pytest
+import pytz
+
 from parflow import read_pfb_sequence
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
@@ -1167,6 +1169,7 @@ def test_filter_point_obs_by_time():
     )
     assert data.shape[0] == 2
 
+
 def test_register_api():
     """Test register and and get and email pin stored in users home directory."""
 
@@ -1174,6 +1177,44 @@ def test_register_api():
     email, pin = hf_hydrodata.gridded.get_registered_api_pin()
     assert pin == "0000"
     assert email == "dummy@email.com"
+
+
+def test_timezone():
+    """Test with timezone in start_time/end_time"""
+
+    hf_hydrodata.gridded.HYDRODATA = "/hydrodata"
+    if not os.path.exists("/hydrodata"):
+        # Just skip test if this is run on a machine without /hydrodata access
+        return
+
+    bounds = [375, 239, 487, 329]
+    start = "2005-10-07"
+    time_zone = "EST"
+    start_date = datetime.datetime.strptime(start, "%Y-%m-%d")
+    if time_zone != "UTC":
+        start_date = (
+            start_date.replace(tzinfo=pytz.timezone(time_zone))
+            .astimezone(pytz.UTC)
+            .replace(tzinfo=None)
+        )
+    end_date = start_date + datetime.timedelta(hours=7)
+
+    entry = hf_hydrodata.gridded.get_catalog_entry(
+        dataset="NLDAS2",
+        variable="air_temp",
+        grid="conus1",
+        file_type="pfb",
+        period="hourly",
+    )
+
+    data = hf_hydrodata.gridded.get_ndarray(
+        entry,
+        start_time=start_date,
+        end_time=end_date,
+        grid_bounds=bounds,
+    )
+    assert data.shape[0] == 7
+
 
 if __name__ == "__main__":
     pytest.main([__file__])
