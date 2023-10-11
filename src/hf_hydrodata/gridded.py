@@ -1407,10 +1407,9 @@ def _add_pfb_time_constraint(
             if end_time_value is not None:
                 end_hour = start_hour + int((end_time_value - start_time_value).total_seconds()/3600)
                 if end_hour > 24:
-                    raise ValueError(f"The start_time '{start_time_value}' and end_time '{end_time_value}' of a PFB file constraint spans more than one hourly file of 24 hour entries.")
+                    end_hour = 24
             else:
-                start_hour = 0
-                end_hour = 24
+                end_hour = start_hour + 1
             boundary_constraints["z"] = {"start": start_hour, "stop": end_hour}
     return boundary_constraints
 
