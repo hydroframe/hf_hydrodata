@@ -1402,20 +1402,15 @@ def _add_pfb_time_constraint(
                 month_end = month_start + 1
             boundary_constraints["z"] = {"start": month_start, "stop": month_end}
         elif period == "hourly":
+            # We are going to assume the file contains 24 hours of a day
             start_hour = start_time_value.hour
             if end_time_value is not None:
-                days = (end_time_value - start_time_value).days
-                hours = int((end_time_value - start_time_value).seconds / 3600)
-                if days > 0:
-                    # PFB Files never have more than 24 hours in one file
-                    hours = hours + 24 * 1
-                end_hour = hours
+                end_hour = start_hour + int((end_time_value - start_time_value).total_seconds()/3600)
+                if end_hour > 24:
+                    end_hour = 24
             else:
                 end_hour = start_hour + 1
-            boundary_constraints["z"] = {
-                "start": int(start_hour),
-                "stop": int(end_hour),
-            }
+            boundary_constraints["z"] = {"start": start_hour, "stop": end_hour}
     return boundary_constraints
 
 
