@@ -296,7 +296,7 @@ def _load_model_from_api(data_model: DataModel):
     """Load the latest version of the model from model in the API."""
 
     try:
-        url = f"{HYDRODATA_URL}/api/data_catalog"
+        url = f"{HYDRODATA_URL}/api/config/data_catalog_model"
         print("Loading from API")
         logging.info("Getting data catalog model from API '%s'", url)
         response = requests.get(url, timeout=5)
