@@ -7,7 +7,7 @@ Functions to load the csv files of the data catalog model into a DataModel objec
   This can be used to load the data catalog model and access all the tables and rows and columns
   of the model.
 
-  Also see the data_access.py module for methods to access information from /hydrodata
+  Also see the data_access.py module for methods to access information from /hydrodatas
   using the model.
 
   Usage:
@@ -297,7 +297,6 @@ def _load_model_from_api(data_model: DataModel):
 
     try:
         url = f"{HYDRODATA_URL}/api/config/data_catalog_model"
-        print("Loading from API")
         logging.info("Getting data catalog model from API '%s'", url)
         response = requests.get(url, timeout=5)
         if response.status_code == 200:
