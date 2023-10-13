@@ -192,11 +192,11 @@ def load_data_model(load_from_api=True) -> DataModel:
     _add_columns_to_catalog_entry_table(data_model)
     data_model.table_names.sort()
 
+    DATA_MODEL_CACHE = data_model
     if load_from_api:
         # Replace the data model with the version from the API
         _load_model_from_api(data_model)
 
-    DATA_MODEL_CACHE = data_model
     return data_model
 
 def _add_columns_to_catalog_entry_table(data_model: DataModel):
@@ -295,14 +295,19 @@ def _parse_column_value(column_value: str):
 def _load_model_from_api(data_model: DataModel):
     """Load the latest version of the model from model in the API."""
 
+    url = f"{HYDRODATA_URL}/api/config/data_catalog_model"
     try:
-        url = f"{HYDRODATA_URL}/api/config/data_catalog_model"
-        logging.info("Getting data catalog model from API '%s'", url)
         response = requests.get(url, timeout=5)
         if response.status_code == 200:
             response_json = json.loads(response.text)
             data_model.import_from_dict(response_json)
+            logging.info("Updated data catalog model from API '%s'", url)
         else:
-            logging.info("Error status '%s' response from API", response.status_code)
+            logging.info("Error status '%s' response while loading data catalog model from API '%s'", response.status_code, url)
+            # Do not cache data model if an API error occurred
+            global DATA_MODEL_CACHE
+            DATA_MODEL_CACHE = None
     except Exception as e:
-        logging.exception("Error loading data catalog model from API")
+        logging.exception("Error loading data catalog model from API '%s'", url)
+        global DATA_MODEL_CACHE
+        DATA_MODEL_CACHE = None
