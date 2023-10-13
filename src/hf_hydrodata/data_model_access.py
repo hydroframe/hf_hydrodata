@@ -295,18 +295,14 @@ def _parse_column_value(column_value: str):
 def _load_model_from_api(data_model: DataModel):
     """Load the latest version of the model from model in the API."""
 
-    global DATA_MODEL_CACHE
     url = f"{HYDRODATA_URL}/api/config/data_catalog_model"
     try:
         response = requests.get(url, timeout=5)
         if response.status_code == 200:
             response_json = json.loads(response.text)
             data_model.import_from_dict(response_json)
-            logging.info("Updated data catalog model from API '%s'", url)
         else:
             logging.info("Error status '%s' response while loading data catalog model from API '%s'", response.status_code, url)
             # Do not cache data model if an API error occurred
-            DATA_MODEL_CACHE = None
     except Exception as e:
         logging.exception("Error loading data catalog model from API '%s'", url)
-        DATA_MODEL_CACHE = None
