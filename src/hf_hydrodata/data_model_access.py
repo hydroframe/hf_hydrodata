@@ -23,7 +23,7 @@ import json
 import requests
 import logging
 
-HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev-wh.princeton.edu")
+HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev.princeton.edu")
 
 class ModelTableRow:
     """Represents one row in a model table."""

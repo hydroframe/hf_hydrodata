@@ -5959,7 +5959,7 @@ aggregation:
       title: "Average"
   "min":
       title: "Min"
-      Description: "Minimum "
+      description: "Minimum"
   "max":
       title: "Max"
   "sum":
@@ -5970,9 +5970,9 @@ aggregation:
   "?":
   "eod":
       title: "End of Day"
-      Description: "Value at the end of the day (refer to aggregation to know what time it is)"
+      description: "Value at the end of the day (refer to aggregation to know what time it is)"
   "-":
-      Description: "Not aggregated"
+      description: "Not aggregated"
 
 dataset:
   "conus1_baseline_85":
