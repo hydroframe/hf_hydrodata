@@ -142,7 +142,7 @@ class DataModel:
         self.table_names.sort()
 
 
-DATA_MODEL_CACHE: DataModel = None
+DATA_MODEL_CACHE = None
 
 
 def load_data_model(load_from_api=True) -> DataModel:
@@ -295,6 +295,7 @@ def _parse_column_value(column_value: str):
 def _load_model_from_api(data_model: DataModel):
     """Load the latest version of the model from model in the API."""
 
+    global DATA_MODEL_CACHE
     url = f"{HYDRODATA_URL}/api/config/data_catalog_model"
     try:
         response = requests.get(url, timeout=5)
@@ -305,9 +306,7 @@ def _load_model_from_api(data_model: DataModel):
         else:
             logging.info("Error status '%s' response while loading data catalog model from API '%s'", response.status_code, url)
             # Do not cache data model if an API error occurred
-            global DATA_MODEL_CACHE
             DATA_MODEL_CACHE = None
     except Exception as e:
         logging.exception("Error loading data catalog model from API '%s'", url)
-        global DATA_MODEL_CACHE
         DATA_MODEL_CACHE = None
