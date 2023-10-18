@@ -118,7 +118,7 @@ def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
     """
     huc_id = None
     tiff_ds = __get_geotiff(grid, level)
-    [x, y] = from_latlon(grid, lat, lon)
+    [x, y] = to_ij(grid, lat, lon)
     x = round(x)
     y = round(y)
     data = np.flip(tiff_ds[0].to_numpy(), 0)
