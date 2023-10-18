@@ -942,22 +942,22 @@ def test_latlng_to_grid():
 
     hf_hydrodata.gridded.HYDRODATA = "/hydrodata"
     (x, y) = hf_hydrodata.grid.from_latlon("conus1", 31.759219, -115.902573)
-    assert x == 10
-    assert y == 10
+    assert round(x) == 10
+    assert round(y) == 10
     grid_bounds = hf_hydrodata.grid.from_latlon(
         "conus1", 31.65, -115.98, 31.759219, -115.902573
     )
-    assert grid_bounds[0] == 0
-    assert grid_bounds[1] == 0
+    assert round(grid_bounds[0]) == 0
+    assert round(grid_bounds[1]) == 0
     grid_bounds = hf_hydrodata.grid.from_latlon(
         "conus2", 31.65, -115.98, 31.759219, -115.902573
     )
-    assert grid_bounds[0] == 441
-    assert grid_bounds[1] == 970
+    assert round(grid_bounds[0]) == 441
+    assert round(grid_bounds[1]) == 970
 
     (x, y) = hf_hydrodata.grid.from_latlon("conus1", 49.1423, -76.3369)
-    assert x == 3324
-    assert y == 1888
+    assert round(x) == 3324
+    assert round(y) == 1888
 
 
 def test_get_huc_from_point():

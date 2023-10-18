@@ -54,6 +54,7 @@ def to_latlon(grid: str, *args) -> List[float]:
         result.append(lon)
     return result
 
+  
 
 def from_latlon(grid: str, *args) -> List[float]:
     """
@@ -92,8 +93,14 @@ def from_latlon(grid: str, *args) -> List[float]:
         lat = args[index]
         lon = args[index + 1]
         (x, y) = to_conic(lat, lon, grid)
-        result.append(round((x) / grid_resolution))
-        result.append(round((y) / grid_resolution))
+        result.append(x / grid_resolution)
+        result.append(y / grid_resolution)
+    return result
+
+def to_ij(grid: str, *args) -> List[int]:
+    """Same as from_latlon, except returns int instead of float."""
+
+    result = [int(v) for v in from_latlon(grid, *args)]
     return result
 
 
@@ -112,6 +119,8 @@ def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
     huc_id = None
     tiff_ds = __get_geotiff(grid, level)
     [x, y] = from_latlon(grid, lat, lon)
+    x = round(x)
+    y = round(y)
     data = np.flip(tiff_ds[0].to_numpy(), 0)
     if 0 <= x <= data.shape[1] and 0 <= y <= data.shape[0]:
         huc_id = np.flip(tiff_ds[0].to_numpy(), 0)[y][x].item()
