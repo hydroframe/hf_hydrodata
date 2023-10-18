@@ -100,7 +100,7 @@ def from_latlon(grid: str, *args) -> List[float]:
 def to_ij(grid: str, *args) -> List[int]:
     """Same as from_latlon, except returns int instead of float."""
 
-    result = [int(v) for v in from_latlon(grid, *args)]
+    result = [round(v) for v in from_latlon(grid, *args)]
     return result
 
 

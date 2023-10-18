@@ -59,8 +59,14 @@ def test_latlng_to_grid():
 
     (x, y) = hf_hydrodata.grid.to_ij("conus1", 49.1423, -76.3369)
     assert x == 3324
-    assert y == 1887
+    assert y == 1888
 
+    (lat1, lon1, lat2, lon2) = hf_hydrodata.grid.to_latlon("conus1", 375, 239, 487, 329)
+    (x1, y1, x2, y2) = hf_hydrodata.grid.to_ij("conus1", lat1, lon1, lat2, lon2)
+    assert x1 == 375
+    assert y1 == 239
+    assert x2 == 487
+    assert y2 == 329
 
 def test_get_huc_from_point():
     """Unit test for get_huc_from_latlon and get_huc_from_xy"""
