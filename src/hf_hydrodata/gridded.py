@@ -21,7 +21,7 @@ from parflow import read_pfb_sequence
 from parflow.tools.io import read_clm
 from hf_hydrodata.data_model_access import ModelTableRow
 from hf_hydrodata.data_model_access import load_data_model
-from hf_hydrodata.grid import from_latlon
+from hf_hydrodata.grid import to_ij
 
 
 C_PFB_MAP = {
@@ -1257,7 +1257,7 @@ def _slice_da_bounds(
     if grid_bounds and latlng_bounds:
         raise ValueError("Cannot specify both grid_bounds and latlng_bounds")
     if latlng_bounds:
-        grid_bounds = from_latlon(grid, *latlng_bounds)
+        grid_bounds = to_ij(grid, *latlng_bounds)
 
     if grid_bounds:
         result = da[:, grid_bounds[1] : grid_bounds[3], grid_bounds[0] : grid_bounds[2]]
@@ -1295,7 +1295,7 @@ def _get_pfb_boundary_constraints(
     if grid_bounds and latlng_bounds:
         raise ValueError("Cannot specify both grid_bounds and latlng_bounds")
     if latlng_bounds:
-        grid_bounds = from_latlon(grid, *latlng_bounds)
+        grid_bounds = to_ij(grid, *latlng_bounds)
 
     result = None
     if x is not None:
@@ -1688,7 +1688,7 @@ def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -
     if grid_bounds is not None and latlng_bounds is not None:
         raise ValueError("Cannot specify both grid_bounds and latlng_bounds")
     if latlng_bounds:
-        grid_bounds = from_latlon(grid, *latlng_bounds)
+        grid_bounds = to_ij(grid, *latlng_bounds)
     if x is not None:
         if y is None:
             raise ValueError("If x is specified then y must be specified.")
