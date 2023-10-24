@@ -1,15 +1,16 @@
-.. __quickstart:
+.. _quickstart:
 
 QuickStart to Accessing Data
 =======================================
 The hf_hydrodata package supports both gridded and point observations data. The below examples contain 
-quick syntax for getting started. Further developed examples are available at :ref:`examples_index` and
-the :ref:`api` can be used to see the full list of available features. 
+some simple syntax for getting started. Further developed examples are available at :ref:`examples_index`. 
+Additionally, the :ref:`api` can be used to see the full list of available features. 
 
 
 Accessing Gridded Data
 ------------------------
-You can read data from any file in the hydrodata repository using python to get a numpy array with::
+You can read gridded data and select site-level data from the hydrodata repository using 
+Python to get a NumPy array with::
 
     from hf_hydrodata.gridded import get_numpy,get_catalog_entry
 
