@@ -1,4 +1,4 @@
-.. _Point Data Sources:
+.. _data_collection:
 
 Point Data Sources
 ==================

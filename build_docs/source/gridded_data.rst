@@ -34,6 +34,7 @@ Click on an attribute name to see available attribute keys to use as filter valu
       - The grid size and projection of the data variable.
     * - file_type
       - The format that the data is stored in the GPFS file.
+
 Note: data is returned as a numpy array regardless of of how the data is stored.
 The aggregation is not required unless the data is available in multiple aggregations such as temperature variables.
 The grid is not required unless the dataset variable is available in multiple grids.
