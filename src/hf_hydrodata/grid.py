@@ -73,7 +73,7 @@ def from_latlon(grid: str, *args) -> List[float]:
 
         latlon_bounds = to_latlon("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     """    
-    result = to_meters(grid, *args)
+    result = []
     data_model = load_data_model()
     table = data_model.get_table("grid")
     grid_row = table.get_row(grid.lower())
@@ -83,7 +83,7 @@ def from_latlon(grid: str, *args) -> List[float]:
     for index in range(0, len(args), 2):
         lat = args[index]
         lon = args[index + 1]
-        (x, y) = to_meters(lat, lon, grid)
+        (x, y) = to_meters(grid, lat, lon)
         result.append(x / grid_resolution)
         result.append(y / grid_resolution)
     return result  
