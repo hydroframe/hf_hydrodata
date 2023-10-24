@@ -54,11 +54,43 @@ def to_latlon(grid: str, *args) -> List[float]:
         result.append(lon)
     return result
 
-  
-
 def from_latlon(grid: str, *args) -> List[float]:
     """
-    Convert grid lat,lon coordinates to x,y.
+    Convert grid lat,lon coordinates to x,y in grid resolution coordinates from grid origin.
+
+    Args:
+        grid:       The name of a grid dimension from the data catalog grid table (e.g. conus1 or conus2).
+        args:       A list of floating pairs if (lat,lon) values.
+    Returns:
+        An array of x,y integer points converted from each of the (lat,lon) grid coordinates in args.
+
+    Note, this may be used to convert a single point or a bounds of 2 points or a large array of points.
+
+    This conversion is fast. It is about 100K+ points/second.
+
+    For example,
+        (x, y) = to_latlon("conus1", 31.759219, -115.902573)
+
+        latlon_bounds = to_latlon("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
+    """    
+    result = []
+    data_model = load_data_model()
+    table = data_model.get_table("grid")
+    grid_row = table.get_row(grid.lower())
+    if grid_row is None:
+        raise ValueError(f"No such grid {grid} available.")
+    grid_resolution = float(grid_row["resolution_meters"])
+    for index in range(0, len(args), 2):
+        lat = args[index]
+        lon = args[index + 1]
+        (x, y) = to_meters(grid, lat, lon)
+        result.append(x / grid_resolution)
+        result.append(y / grid_resolution)
+    return result  
+
+def to_meters(grid: str, *args) -> List[float]:
+    """
+    Convert grid lat,lon coordinates to x,y in meters from grid projection origin.
 
     Args:
         grid:       The name of a grid dimension from the data catalog grid table (e.g. conus1 or conus2).
@@ -76,12 +108,6 @@ def from_latlon(grid: str, *args) -> List[float]:
         latlon_bounds = to_latlon("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     """
     result = []
-    data_model = load_data_model()
-    table = data_model.get_table("grid")
-    grid_row = table.get_row(grid.lower())
-    if grid_row is None:
-        raise ValueError(f"No such grid {grid} available.")
-    grid_resolution = float(grid_row["resolution_meters"])
     if len(args) == 0:
         raise ValueError("At least two x, y values must be provided.")
     if len(args) % 2 == 1:
@@ -93,12 +119,15 @@ def from_latlon(grid: str, *args) -> List[float]:
         lat = args[index]
         lon = args[index + 1]
         (x, y) = to_conic(lat, lon, grid)
-        result.append(x / grid_resolution)
-        result.append(y / grid_resolution)
+        result.append(x)
+        result.append(y)
     return result
 
 def to_ij(grid: str, *args) -> List[int]:
-    """Same as from_latlon, except returns int instead of float."""
+    """Convert grid lat,lon coordinates to i,j in grid resolution coordinates from grid origin.
+
+    Same as from_latlon, except returns int instead of float.
+    """
 
     result = [round(v) for v in from_latlon(grid, *args)]
     return result
