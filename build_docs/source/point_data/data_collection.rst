@@ -3,75 +3,42 @@
 Point Data Sources
 ==================
 
-The ``hf_hydrodata.point`` module provides functionality to compile site-level observations data for a 
-variety of hydrologic variables. All source data comes from public sources that have been compiled in order
-for users to access the data with a single common Python syntax.
-
-Note that raw hourly data is saved in UTC while raw daily data is saved with respect to the local site time zone. 
-This is what currently gets returned with each of the `hourly` and `daily` aggregation parameters. 
-
-*Coming soon*: the ability for a user to specify whether data gets returned in UTC or local time, regardless of 
-how the raw data is structured.
-
 Data Sources
 -------------
+All source data comes from public sources that have been compiled in order for users to access the 
+data with a single common Python syntax. This section describes each of those original sources.
 
-Data sources that can be accessed with this function currently include:
+usgs_nwis
+^^^^^^^^^
+Data with ``data_source='usgs_nwis'`` comes from the United States Geological Survey (USGS) National
+Water Information System (NWIS) `Water Services <https://waterservices.usgs.gov/>`_ platform.
 
-.. container::
-   :name: point_input_parameters
+* Daily streamflow and water table depth data are obtained from the
+  `Daily Values Service <https://waterservices.usgs.gov/docs/dv-service/daily-values-service-details/>`_.  
 
-   .. table:: Input parameters available for accessing site-level data.
+* Hourly streamflow and water table depth data are aggregated to the hourly level from the 
+  `Instantaneous Values Service <https://waterservices.usgs.gov/docs/instantaneous-values/instantaneous-values-details/>`_, 
+  which are frequently collected at 15-minute increments.   
 
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | data_source                | variable                   | temporal_resolution       | aggregation            | depth_level                      | units                  |                         
-      +============================+============================+===========================+========================+==================================+========================+
-      | 'usgs_nwis'                | 'streamflow'               | 'hourly'                  | 'average'              |                                  | :math:`m^{3} s^{-1}`   |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'usgs_nwis'                | 'streamflow'               | 'daily'                   | 'average'              |                                  | :math:`m^{3} s^{-1}`   |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'usgs_nwis'                | 'wtd'                      | 'hourly'                  | 'average'              |                                  | m                      |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'usgs_nwis'                | 'wtd'                      | 'daily'                   | 'average'              |                                  | m                      |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'usgs_nwis'                | 'wtd'                      | 'instantaneous'           | 'instantaneous'        |                                  | m                      |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'usda_nrcs'                | 'swe'                      | 'daily'                   | 'start-of-day'         |                                  | mm                     |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'usda_nrcs'                | 'precipitation'            | 'daily'                   | 'accumulated'          |                                  | mm                     |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'usda_nrcs'                | 'precipitation'            | 'daily'                   | 'total'                |                                  | mm                     |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'usda_nrcs'                | 'precipitation'            | 'daily'                   | 'total, snow-adjusted' |                                  | mm                     |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'usda_nrcs'                | 'temperature'              | 'daily'                   | 'minimum'              |                                  | C                      |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'usda_nrcs'                | 'temperature'              | 'daily'                   | 'maximum'              |                                  | C                      |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'usda_nrcs'                | 'temperature'              | 'daily'                   | 'average'              |                                  | C                      |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'usda_nrcs'                | 'soil moisture'            | 'daily'                   | 'start-of-day'         | 2, 4, 8, 20, or 40 (inches)      | pct                    |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'ameriflux'                | 'latent heat flux'         | 'hourly'                  | 'total'                |                                  | :math:`W m^{-2}`       |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'ameriflux'                | 'sensible heat flux'       | 'hourly'                  | 'total'                |                                  | :math:`W m^{-2}`       |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'ameriflux'                | 'shortwave radiation'      | 'hourly'                  | 'average'              |                                  | :math:`W m^{-2}`       |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'ameriflux'                | 'longwave radiation'       | 'hourly'                  | 'average'              |                                  | :math:`W m^{-2}`       |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'ameriflux'                | 'vapor pressure deficit'   | 'hourly'                  | 'average'              |                                  | hPa                    |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'ameriflux'                | 'temperature'              | 'hourly'                  | 'average'              |                                  | C                      |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
-      | 'ameriflux'                | 'wind speed'               | 'hourly'                  | 'average'              |                                  | :math:`m s^{-1}`       |
-      +----------------------------+----------------------------+---------------------------+------------------------+----------------------------------+------------------------+
+* The water table depth data accessed with ``temporal_resolution='instantaneous'`` comes from the USGS
+  `Groundwater Levels Service <https://waterservices.usgs.gov/docs/groundwater-levels/groundwater-levels-details/>`_. Note
+  that these data usually do not have regular temporal coverage and many of the sites with data available
+  through this method only have a single point-in-time observation available.  
 
 
-Note that the parameter, ``depth_level``, needs only be provided when querying soil moisture data.
+usda_nrcs
+^^^^^^^^^ 
+Data with ``data_source='usda_nrcs'`` comes from the United States Department of Agriculture (USDA)
+Natural Resources Conservation Service (NRCS) `Air Water 
+Database <https://www.nrcs.usda.gov/wps/portal/wcc/home/dataAccessHelp/webService>`_.
 
-We are under active development and anticipate regularly incorporating additional sources.
+
+ameriflux
+^^^^^^^^^
+Data with ``data_source='ameriflux'`` comes from the `AmeriFlux <https://ameriflux.lbl.gov/data/data-policy/>`_
+network.
 
 
 Data Collection
 ------------------
+This section provides some additional details on our data collection process.
