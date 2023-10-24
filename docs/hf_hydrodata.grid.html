@@ -80,7 +80,7 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.grid.from_latlon">
 <span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">from_latlon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.grid.from_latlon" title="Permalink to this definition"></a></dt>
-<dd><p>Convert grid lat,lon coordinates to x,y.</p>
+<dd><p>Convert grid lat,lon coordinates to x,y in grid resolution coordinates from grid origin.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -161,6 +161,13 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="hf_hydrodata.grid.to_ij">
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">to_ij</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.grid.to_ij" title="Permalink to this definition"></a></dt>
+<dd><p>Convert grid lat,lon coordinates to i,j in grid resolution coordinates from grid origin.</p>
+<p>Same as from_latlon, except returns int instead of float.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.grid.to_latlon">
 <span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">to_latlon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.grid.to_latlon" title="Permalink to this definition"></a></dt>
 <dd><p>Convert grid x,y coordinates to lat,lon.</p>
@@ -181,6 +188,30 @@
 <dt>For example,</dt><dd><p>(lat, lon) = to_latlon(“conus1”, 10, 10)</p>
 <p>latlon_bounds = to_latlon(“conus1”, <a href="#id3"><span class="problematic" id="id4">*</span></a>[0, 0, 20, 20])</p>
 <p>(lat, lon) = grid_to_latlon(“conus1”, 10.5, 10.5)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hf_hydrodata.grid.to_meters">
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">to_meters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.grid.to_meters" title="Permalink to this definition"></a></dt>
+<dd><p>Convert grid lat,lon coordinates to x,y in meters from grid projection origin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> – The name of a grid dimension from the data catalog grid table (e.g. conus1 or conus2).</p></li>
+<li><p><strong>args</strong> – A list of floating pairs if (lat,lon) values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An array of x,y integer points converted from each of the (lat,lon) grid coordinates in args.</p>
+</dd>
+</dl>
+<p>Note, this may be used to convert a single point or a bounds of 2 points or a large array of points.</p>
+<p>This conversion is fast. It is about 100K+ points/second.</p>
+<dl>
+<dt>For example,</dt><dd><p>(x, y) = to_latlon(“conus1”, 31.759219, -115.902573)</p>
+<p>latlon_bounds = to_latlon(“conus1”, <a href="#id5"><span class="problematic" id="id6">*</span></a>[31.651836, -115.982367, 31.759219, -115.902573])</p>
 </dd>
 </dl>
 </dd></dl>
