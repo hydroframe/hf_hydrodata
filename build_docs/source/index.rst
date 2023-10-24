@@ -14,8 +14,8 @@ and the :ref:`api` contains the full list of available functions.
    :maxdepth: 1
    :caption: Table of Contents
 
-   getting_started/index
-   getting_started/accessing_data
+   getting_started
+   quickstart
    gridded_data
    point_data/index
    examples/index
