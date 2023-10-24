@@ -1,55 +1,22 @@
 Welcome to Hydrodata Documentation
 =======================================
 
-Hydrodata is a large GPFS file share that contains a large
-number of hydrology related data files that have been accumulated and derived. The files in hydrodata are indexed by
-a data catalog.
+hf_hydrodata is an open-source project that serves a large number of different files types
+important to hydrologic research. Some of these files have been accumulated from open-source data repositories,
+while others have been derived by our team of scientists and software engineers.
 
-The data catalog is provided to allow code that needs access to hydrology data
-to read the data remotely and without hard coding the location of files from the file share.
-
-Installation
-------------
-You can install the python package with the API to access files using pip with::
-
-    pip install git+https://github.com/hydroframe/hf_hydrodata.git
-
-Example Usage
--------------
-You can read data from any file in the hydrodata repository using python to get a numpy array with::
-
-    from hf_hydrodata.gridded import get_numpy,get_catalog_entry
-
-    filters = {"dataset":"NLDAS2", "variable":"precipitation", "period":"daily", "start_time": "2005-03-01"}
-    data = get_numpy(filters)
-    print(data.shape)
-
-    # Get the metadata about the returned data
-    metadata = get_catalog_entry(filters)
-    print(metadata)
-
-Many of the files are very large so parameters can be provided to subset the files by space and/or time before
-returning the data. See the sub-section about "Gridded Data" for details about the available parameters
-that can be passed to the functions to filter data by space and/or time.
-
-Gridded Data
-------------
-The get_numpy() function returns gridded data from the hydrodata repository.
-The arguments to get_numpy() locate the data using a set of metadata attributes about each type of data.
-You filter the data using values of these attributes to locate the data you want. In addition to attributes
-used for filtering there are additional attributes used to describe the data.
-
-See the sub-section "Gridded Data" for the list of attributes and values that are availble.
-
-Point Observation Data
-----------------------
-See the sub-section "Point Observation Data" for the list of attributes and values that are availble.
-
+:ref:`getting_started_index` contains installation instructions and a quick-start guide for obtaining 
+gridded and point datasets. The secions on :ref:`gridded_data` and :ref:`point_data_index` provide more
+detail on the datasets and fields that are avaialble. Full example workflows are in :ref:`examples_index`
+and the :ref:`api` contains the full list of available functions.
 
 .. toctree::
    :maxdepth: 1
-   :caption: API Reference:
+   :caption: Table of Contents
 
-   api_reference
+   getting_started/index
+   getting_started/accessing_data
    gridded_data
-   point_observation_data
+   point_data/index
+   examples/index
+   api_reference

@@ -1,3 +1,5 @@
+.. _gridded_data:
+
 Gridded Data
 ======================
 Gridded data is data that can be represented in a grid such as a numpy array.
