@@ -9,6 +9,7 @@ Submodules
 
    hf_hydrodata.grid
    hf_hydrodata.gridded
+   hf_hydrodata.point
 
 Module contents
 ---------------

@@ -26,34 +26,30 @@ def get_data(data_source, variable, temporal_resolution, aggregation, *args, **k
     Observations collected from HydroData for the specified data source, variable, temporal
     resolution, and aggregation. Optional arguments can be supplied for filters such as
     date bounds, geography bounds, and/or the minimum number of per-site observations allowed.
+    Please see the package documentation for the full set of supported combinations.
 
     Parameters
     ----------
     data_source : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
         'ameriflux'.
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
-        'ameriflux'.
     variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
         Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
         'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
         'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
-        Please see the README documentation for allowable combinations with `variable`.
+        Please see the documentation for allowable combinations with `variable`.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
-        Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the README documentation
+        Options include descriptors such as 'average' and 'total'. Please see the documentation
         for allowable combinations with `variable`.
-    args :
-        Optional positional parameters that must be a dict with filter options.
-    kwargs :
-        Supports multiple named parameters with filter option values.
+    \*args :
+        Optional positional parameters that must be a dict with filter options. See 'Keyword Arguments' below.
+    \**kwargs :
+        Supports multiple named parameters with filter option values. See 'Keyword Arguments' below.
 
-    Optional Parameters
+    Keyword Arguments
     --------------------
     depth_level : int
         Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
@@ -81,7 +77,6 @@ def get_data(data_source, variable, temporal_resolution, aggregation, *args, **k
     -------
     data_df : DataFrame
         Stacked observations data for a single variable, filtered to only sites that
-        (optionally) have the minimum number of observations specified, within the
         (optionally) have the minimum number of observations specified, within the
         defined geographic and/or date range.
     """
@@ -151,28 +146,23 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
     data_source : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
         'ameriflux'.
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
-        'ameriflux'.
     variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
         Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
         'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
         'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
-        Please see the README documentation for allowable combinations with `variable`.
+        Please see the documentation for allowable combinations with `variable`.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
-        Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the README documentation
+        Options include descriptors such as 'average' and 'total'. Please see the documentation
         for allowable combinations with `variable`.
-    args :
-        Optional positional parameters that must be a dict with filter options.
-    kwargs :
-        Supports multiple named parameters with filter option values.
+    \*args :
+        Optional positional parameters that must be a dict with filter options. See 'Keyword Arguments' below.
+    \**kwargs :
+        Supports multiple named parameters with filter option values. See 'Keyword Arguments' below.
 
-    Optional Parameters
+    Keyword Arguments
     --------------------
     depth_level : int
         Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
@@ -508,24 +498,19 @@ def get_citations(data_source, variable, temporal_resolution, aggregation, site_
     data_source : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
         'ameriflux'.
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
-        'ameriflux'.
     variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
         Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
         'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
         'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
-        Please see the README documentation for allowable combinations with `variable`.
+        Please see the documentation for allowable combinations with `variable`.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
-        Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the README documentation
+        Options include descriptors such as 'average' and 'total'. Please see the documentation
         for allowable combinations with `variable`.
     site_ids : list; default None
-        If provided, the specific list of sites to return data DOIs for. This is only
+        If provided, the specific list of sites to return site DOIs for. This is only
         supported if `data_source` == 'ameriflux'.
 
     Returns
@@ -688,14 +673,14 @@ def _check_inputs(data_source, variable, temporal_resolution, aggregation, *args
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned. 
-        Options include descriptors such as 'average' and 'total'. Please see the README documentation
+        Options include descriptors such as 'average' and 'total'. Please see the documentation
         for allowable combinations with `variable`.
     args :
         Optional positional parameters that must be a dict with filter options.
     kwargs :
         Supports multiple named parameters with filter option values.
 
-    Optional Parameters
+    Keyword Arguments
     --------------------
     depth_level : int
         Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
@@ -764,14 +749,14 @@ def _get_var_id(conn, data_source, variable, temporal_resolution, aggregation, *
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned. 
-        Options include descriptors such as 'average' and 'total'. Please see the README documentation
+        Options include descriptors such as 'average' and 'total'. Please see the documentation
         for allowable combinations with `variable`.
     args :
         Optional positional parameters that must be a dict with filter options.
     kwargs :
         Supports multiple named parameters with filter option values.
 
-    Optional Parameters
+    Keyword Arguments
     --------------------
     depth_level : int
         Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
@@ -879,17 +864,17 @@ def _get_sites(conn, data_source, variable, temporal_resolution, aggregation, *a
         'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
-        Please see the README documentation for allowable combinations with `variable`.
+        Please see the documentation for allowable combinations with `variable`.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned. 
-        Options include descriptors such as 'average' and 'total'. Please see the README documentation
+        Options include descriptors such as 'average' and 'total'. Please see the documentation
         for allowable combinations with `variable`.
     args :
         Optional positional parameters that must be a dict with filter options.
     kwargs :
         Supports multiple named parameters with filter option values.
 
-    Optional Parameters
+    Keyword Arguments
     --------------------
     depth_level : int
         Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.

@@ -12,9 +12,12 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -41,11 +44,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api_reference.html">Python API Refererence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">QuickStart Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gridded_data.html">Gridded Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="point_observation_data.html">Point Observation Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="point_data/index.html">Point Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">Python API Refererence</a></li>
 </ul>
 
         </div>
@@ -75,11 +81,11 @@
            <div itemprop="articleBody">
              
   <section id="module-hf_hydrodata.grid">
-<span id="hf-hydrodata-grid-module"></span><h1>hf_hydrodata.grid module<a class="headerlink" href="#module-hf_hydrodata.grid" title="Permalink to this heading"></a></h1>
+<span id="hf-hydrodata-grid-module"></span><h1>hf_hydrodata.grid module<a class="headerlink" href="#module-hf_hydrodata.grid" title="Link to this heading"></a></h1>
 <p>Functions using a data catalog grid to perform conversions.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.grid.from_latlon">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">from_latlon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.grid.from_latlon" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">from_latlon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.grid.from_latlon" title="Link to this definition"></a></dt>
 <dd><p>Convert grid lat,lon coordinates to x,y in grid resolution coordinates from grid origin.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -103,7 +109,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.grid.get_huc_bbox">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">get_huc_bbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">huc_id_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.grid.get_huc_bbox" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">get_huc_bbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">huc_id_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.grid.get_huc_bbox" title="Link to this definition"></a></dt>
 <dd><p>Get the grid bounding box containing all the HUC ids.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -126,7 +132,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.grid.get_huc_from_latlon">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">get_huc_from_latlon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#hf_hydrodata.grid.get_huc_from_latlon" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">get_huc_from_latlon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#hf_hydrodata.grid.get_huc_from_latlon" title="Link to this definition"></a></dt>
 <dd><p>Get a HUC id at a lat/lon point for a given grid and level.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -144,7 +150,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.grid.get_huc_from_xy">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">get_huc_from_xy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#hf_hydrodata.grid.get_huc_from_xy" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">get_huc_from_xy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#hf_hydrodata.grid.get_huc_from_xy" title="Link to this definition"></a></dt>
 <dd><p>Get a HUC id at an xy point for a given grid and level.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -162,14 +168,14 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.grid.to_ij">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">to_ij</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.grid.to_ij" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">to_ij</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.grid.to_ij" title="Link to this definition"></a></dt>
 <dd><p>Convert grid lat,lon coordinates to i,j in grid resolution coordinates from grid origin.</p>
 <p>Same as from_latlon, except returns int instead of float.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.grid.to_latlon">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">to_latlon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.grid.to_latlon" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">to_latlon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.grid.to_latlon" title="Link to this definition"></a></dt>
 <dd><p>Convert grid x,y coordinates to lat,lon.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -194,7 +200,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.grid.to_meters">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">to_meters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.grid.to_meters" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.grid.</span></span><span class="sig-name descname"><span class="pre">to_meters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.grid.to_meters" title="Link to this definition"></a></dt>
 <dd><p>Convert grid lat,lon coordinates to x,y in meters from grid projection origin.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

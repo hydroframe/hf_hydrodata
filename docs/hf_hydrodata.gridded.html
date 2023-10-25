@@ -12,13 +12,16 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Gridded Data" href="gridded_data.html" />
+    <link rel="next" title="hf_hydrodata.point module" href="hf_hydrodata.point.html" />
     <link rel="prev" title="hf_hydrodata.grid module" href="hf_hydrodata.grid.html" /> 
 </head>
 
@@ -41,11 +44,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api_reference.html">Python API Refererence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">QuickStart Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gridded_data.html">Gridded Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="point_observation_data.html">Point Observation Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="point_data/index.html">Point Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">Python API Refererence</a></li>
 </ul>
 
         </div>
@@ -75,11 +81,11 @@
            <div itemprop="articleBody">
              
   <section id="module-hf_hydrodata.gridded">
-<span id="hf-hydrodata-gridded-module"></span><h1>hf_hydrodata.gridded module<a class="headerlink" href="#module-hf_hydrodata.gridded" title="Permalink to this heading"></a></h1>
+<span id="hf-hydrodata-gridded-module"></span><h1>hf_hydrodata.gridded module<a class="headerlink" href="#module-hf_hydrodata.gridded" title="Link to this heading"></a></h1>
 <p>Functions to access gridded data from the data catalog index of the GPFS files.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.gridded.get_catalog_entries">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_catalog_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelTableRow</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_catalog_entries" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_catalog_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelTableRow</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_catalog_entries" title="Link to this definition"></a></dt>
 <dd><p>Get data catalog entry rows selected by filter options.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -115,7 +121,7 @@ variable=”precipitation”, start_time=”2003-01-01”)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.gridded.get_catalog_entry">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_catalog_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ModelTableRow</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_catalog_entry" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_catalog_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ModelTableRow</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_catalog_entry" title="Link to this definition"></a></dt>
 <dd><p>Get a single data catalog entry row selected by filter options.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -144,7 +150,7 @@ For example,</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.gridded.get_file_path">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_file_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_file_path" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_file_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_file_path" title="Link to this definition"></a></dt>
 <dd><p>Get the file path for a data catalog entry.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -165,7 +171,7 @@ For example,</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.gridded.get_file_paths">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_file_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_file_paths" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_file_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_file_paths" title="Link to this definition"></a></dt>
 <dd><p>Get a list of file paths from the data catalog identified by the filter options.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -203,7 +209,7 @@ If both start_time and end_time is specified then dates in the date range are us
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.gridded.get_ndarray">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_ndarray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_ndarray" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_ndarray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_ndarray" title="Link to this definition"></a></dt>
 <dd><p>Get a numpy ndarray from files in /hydroframe. with the applied data filters.
 If a time_values data filter option is provided as an arrat this array will be populated with the
 date strings of the date dimentions of the ndarray that is returned. This is used for graphing use cases.</p>
@@ -268,7 +274,7 @@ The start_time is inclusive the end_time is exclusive (data returned less than t
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.gridded.get_numpy">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_numpy" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_numpy" title="Link to this definition"></a></dt>
 <dd><p>Get a numpy ndarray from files in /hydroframe. with the applied data filters.
 If a time_values data filter option is provided as an arrat this array will be populated with the
 date strings of the date dimentions of the ndarray that is returned. This is used for graphing use cases.</p>
@@ -333,7 +339,7 @@ metadata = get_catalog_entry(options)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.gridded.get_path">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_path" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_path" title="Link to this definition"></a></dt>
 <dd><p>Get the file path for the filter options.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -356,7 +362,7 @@ metadata = get_catalog_entry(options)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.gridded.get_raw_file">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_raw_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.gridded.get_raw_file" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_raw_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.gridded.get_raw_file" title="Link to this definition"></a></dt>
 <dd><p>Get the hydroframe file that is selected by the options to the given filepath.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -376,7 +382,7 @@ metadata = get_catalog_entry(options)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.gridded.get_registered_api_pin">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_registered_api_pin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_registered_api_pin" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_registered_api_pin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_registered_api_pin" title="Link to this definition"></a></dt>
 <dd><p>Get the email and pin registered by the current user.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -390,13 +396,13 @@ metadata = get_catalog_entry(options)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.gridded.get_table_names">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_table_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_table_names" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_table_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_table_names" title="Link to this definition"></a></dt>
 <dd><p>Return the list of table names in the data model.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.gridded.get_table_row">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_table_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ModelTableRow</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_table_row" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_table_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ModelTableRow</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_table_row" title="Link to this definition"></a></dt>
 <dd><p>Get one row of a data model table filtered by columns from that table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -422,7 +428,7 @@ metadata = get_catalog_entry(options)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.gridded.get_table_rows">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_table_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelTableRow</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_table_rows" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_table_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelTableRow</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_table_rows" title="Link to this definition"></a></dt>
 <dd><p>Get rows of a data model table filtered by columns from that table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -445,7 +451,7 @@ metadata = get_catalog_entry(options)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.gridded.get_yaml_data_catalog">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_yaml_data_catalog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_yaml_data_catalog" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">get_yaml_data_catalog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#hf_hydrodata.gridded.get_yaml_data_catalog" title="Link to this definition"></a></dt>
 <dd><p>Get the parsed yaml data catalog.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -458,7 +464,7 @@ by non-python clients such as javascript that want access to the data model info
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.gridded.register_api_pin">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">register_api_pin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.gridded.register_api_pin" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.gridded.</span></span><span class="sig-name descname"><span class="pre">register_api_pin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.gridded.register_api_pin" title="Link to this definition"></a></dt>
 <dd><p>Register the email and pin that was created with the website in the users home directory.</p>
 <p>This creates a file in the users home directory in ~/.hydrodata/pin.json.
 This file is only visible by the user and allows authenticated access to remote data.</p>
@@ -471,7 +477,7 @@ This file is only visible by the user and allows authenticated access to remote 
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="hf_hydrodata.grid.html" class="btn btn-neutral float-left" title="hf_hydrodata.grid module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="gridded_data.html" class="btn btn-neutral float-right" title="Gridded Data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="hf_hydrodata.point.html" class="btn btn-neutral float-right" title="hf_hydrodata.point module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

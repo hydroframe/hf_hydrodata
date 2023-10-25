@@ -8,9 +8,10 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),"..", "../src")))
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),"..", "../src", "hydroframe")))
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),"..", "../src", "hydroframe", "data_catalog")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "../src")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "../src", "hydroframe")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(
+    __file__), "..", "../src", "hydroframe", "data_catalog")))
 
 project = u"hf_hydrodata"
 copyright = u"2023, Laura Condon, Reed Maxwell"
@@ -25,7 +26,8 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
     "sphinx.ext.napoleon",
-    'sphinx.ext.githubpages'
+    'sphinx.ext.githubpages',
+    'nbsphinx'
 ]
 templates_path = ['_templates']
 
@@ -41,6 +43,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 #
 html_theme = "sphinx_rtd_theme"
 html_static_path = ['_static']
+
 
 def setup(app):
     app.add_css_file("css/custom.css")
