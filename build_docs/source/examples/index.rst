@@ -7,5 +7,4 @@ This section contains a set of example workflows that utilize different capabili
 .. toctree::
    :maxdepth: 1
 
-   example1
-   example2
+   example_point.ipynb
