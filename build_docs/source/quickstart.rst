@@ -1,6 +1,6 @@
 .. _quickstart:
 
-QuickStart to Accessing Data
+QuickStart Guide
 =======================================
 The ``hf_hydrodata`` package supports both gridded and point observations data. The below examples contain 
 some simple syntax for getting started. Further developed examples are available at :ref:`examples_index`. 
