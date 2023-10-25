@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Point Data Sources &mdash; hf_hydrodata  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Metadata Definitions" href="metadata_definitions.html" />
+    <link rel="prev" title="Input Fields" href="point_inputs.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            hf_hydrodata
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">QuickStart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gridded_data.html">Gridded Data</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Point Data</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="point_inputs.html">Input Fields</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Point Data Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#data-sources">Data Sources</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#usgs-nwis">usgs_nwis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#usda-nrcs">usda_nrcs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ameriflux">ameriflux</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Data Collection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="metadata_definitions.html">Metadata Definitions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_reference.html">Python API Refererence</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hf_hydrodata</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Point Data</a></li>
+      <li class="breadcrumb-item active">Point Data Sources</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/point_data/data_collection.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="point-data-sources">
+<span id="data-collection"></span><h1>Point Data Sources<a class="headerlink" href="#point-data-sources" title="Link to this heading"></a></h1>
+<section id="data-sources">
+<h2>Data Sources<a class="headerlink" href="#data-sources" title="Link to this heading"></a></h2>
+<p>All source data comes from public sources that have been compiled in order for users to access the
+data with a single common Python syntax. This section describes each of those original sources.</p>
+<section id="usgs-nwis">
+<h3>usgs_nwis<a class="headerlink" href="#usgs-nwis" title="Link to this heading"></a></h3>
+<p>Data with <code class="docutils literal notranslate"><span class="pre">data_source='usgs_nwis'</span></code> comes from the United States Geological Survey (USGS) National
+Water Information System (NWIS) <a class="reference external" href="https://waterservices.usgs.gov/">Water Services</a> platform.</p>
+<ul class="simple">
+<li><p>Daily streamflow and water table depth data are obtained from the
+<a class="reference external" href="https://waterservices.usgs.gov/docs/dv-service/daily-values-service-details/">Daily Values Service</a>.</p></li>
+<li><p>Hourly streamflow and water table depth data are aggregated to the hourly level from the
+<a class="reference external" href="https://waterservices.usgs.gov/docs/instantaneous-values/instantaneous-values-details/">Instantaneous Values Service</a>,
+which are frequently collected at 15-minute increments.</p></li>
+<li><p>The water table depth data accessed with <code class="docutils literal notranslate"><span class="pre">temporal_resolution='instantaneous'</span></code> comes from the USGS
+<a class="reference external" href="https://waterservices.usgs.gov/docs/groundwater-levels/groundwater-levels-details/">Groundwater Levels Service</a>. Note
+that these data usually do not have regular temporal coverage and many of the sites with data available
+through this method only have a single point-in-time observation available.</p></li>
+</ul>
+</section>
+<section id="usda-nrcs">
+<h3>usda_nrcs<a class="headerlink" href="#usda-nrcs" title="Link to this heading"></a></h3>
+<p>Data with <code class="docutils literal notranslate"><span class="pre">data_source='usda_nrcs'</span></code> comes from the United States Department of Agriculture (USDA)
+Natural Resources Conservation Service (NRCS) <a class="reference external" href="https://www.nrcs.usda.gov/wps/portal/wcc/home/dataAccessHelp/webService">Air Water
+Database</a>.</p>
+</section>
+<section id="ameriflux">
+<h3>ameriflux<a class="headerlink" href="#ameriflux" title="Link to this heading"></a></h3>
+<p>Data with <code class="docutils literal notranslate"><span class="pre">data_source='ameriflux'</span></code> comes from the <a class="reference external" href="https://ameriflux.lbl.gov/data/data-policy/">AmeriFlux</a>
+network.</p>
+</section>
+</section>
+<section id="id2">
+<h2>Data Collection<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>We query data from the above sources weekly, early on Sunday mornings. Each weekly job collects all observations
+since the date through which we have existing data stored. For sites that are currently in operation, this
+translates to collecting data for only the previous week (7 days for daily data, 168 hours for hourly data).
+Because of the sparsity of the USGS <cite>temporal_resolution=’instantaneous’</cite> groundwater measurements, those are
+not included in this weekly schedule. We plan to query that source for new observations roughly every few months.</p>
+<p>To maintain the integrety and traceability back to the original sources, our team conducts very limited data
+manipulation on the queried data. This includes the following:</p>
+<ul>
+<li><p>Unit translation into SI units</p></li>
+<li><p>Standardization of NaN/missing values</p>
+<ul class="simple">
+<li><p>For example, USGS will sometimes provide strings such as “Ice” or “Dry” to indicate reasons for why certain
+observations are missing. A full list of such fields is available <a class="reference external" href="https://help.waterdata.usgs.gov/codes-and-parameters/instantaneous-and-daily-value-status-codes">here</a>.
+We standardize these values into the numeric numpy.NaN to allow the entireity of the series to be interpreted
+as numeric.</p></li>
+</ul>
+</li>
+<li><p>Consolidating multiple concurrent data series</p>
+<ul>
+<li><p>The USGS data sometimes provides multiple concurrent observation series for the same variable for the same site.</p>
+<p>In these cases, we consolidate the multiple series into a single series following these prioritizations:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>If one of the series has been verified, we prioritize that over provisional data</p></li>
+<li><p>If both series are identical values, we simply reduce down to a single set of observations</p></li>
+<li><p>If one of the series has non-missing data and the other series has missing data, we prioritize the non-missing data</p></li>
+<li><p>If multiple series remain with conflicting values, we take the average of the resulting non-missing values</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="point_inputs.html" class="btn btn-neutral float-left" title="Input Fields" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="metadata_definitions.html" class="btn btn-neutral float-right" title="Metadata Definitions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Laura Condon, Reed Maxwell.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

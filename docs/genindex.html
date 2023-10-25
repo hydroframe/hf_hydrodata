@@ -11,9 +11,12 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -38,11 +41,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api_reference.html">Python API Refererence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">QuickStart Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gridded_data.html">Gridded Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="point_observation_data.html">Point Observation Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="point_data/index.html">Point Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">Python API Refererence</a></li>
 </ul>
 
         </div>
@@ -95,6 +101,10 @@
 </li>
       <li><a href="hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_catalog_entry">get_catalog_entry() (in module hf_hydrodata.gridded)</a>
 </li>
+      <li><a href="hf_hydrodata.point.html#hf_hydrodata.point.get_citations">get_citations() (in module hf_hydrodata.point)</a>
+</li>
+      <li><a href="hf_hydrodata.point.html#hf_hydrodata.point.get_data">get_data() (in module hf_hydrodata.point)</a>
+</li>
       <li><a href="hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_file_path">get_file_path() (in module hf_hydrodata.gridded)</a>
 </li>
       <li><a href="hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_file_paths">get_file_paths() (in module hf_hydrodata.gridded)</a>
@@ -105,10 +115,12 @@
 </li>
       <li><a href="hf_hydrodata.grid.html#hf_hydrodata.grid.get_huc_from_xy">get_huc_from_xy() (in module hf_hydrodata.grid)</a>
 </li>
-      <li><a href="hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_ndarray">get_ndarray() (in module hf_hydrodata.gridded)</a>
+      <li><a href="hf_hydrodata.point.html#hf_hydrodata.point.get_metadata">get_metadata() (in module hf_hydrodata.point)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_ndarray">get_ndarray() (in module hf_hydrodata.gridded)</a>
+</li>
       <li><a href="hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_numpy">get_numpy() (in module hf_hydrodata.gridded)</a>
 </li>
       <li><a href="hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_path">get_path() (in module hf_hydrodata.gridded)</a>
@@ -116,7 +128,11 @@
       <li><a href="hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_raw_file">get_raw_file() (in module hf_hydrodata.gridded)</a>
 </li>
       <li><a href="hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_registered_api_pin">get_registered_api_pin() (in module hf_hydrodata.gridded)</a>
+
+      <ul>
+        <li><a href="hf_hydrodata.point.html#hf_hydrodata.point.get_registered_api_pin">(in module hf_hydrodata.point)</a>
 </li>
+      </ul></li>
       <li><a href="hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_table_names">get_table_names() (in module hf_hydrodata.gridded)</a>
 </li>
       <li><a href="hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_table_row">get_table_row() (in module hf_hydrodata.gridded)</a>
@@ -154,6 +170,13 @@
         <li><a href="hf_hydrodata.gridded.html#module-hf_hydrodata.gridded">module</a>
 </li>
       </ul></li>
+      <li>
+    hf_hydrodata.point
+
+      <ul>
+        <li><a href="hf_hydrodata.point.html#module-hf_hydrodata.point">module</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -169,6 +192,8 @@
         <li><a href="hf_hydrodata.grid.html#module-hf_hydrodata.grid">hf_hydrodata.grid</a>
 </li>
         <li><a href="hf_hydrodata.gridded.html#module-hf_hydrodata.gridded">hf_hydrodata.gridded</a>
+</li>
+        <li><a href="hf_hydrodata.point.html#module-hf_hydrodata.point">hf_hydrodata.point</a>
 </li>
       </ul></li>
   </ul></td>

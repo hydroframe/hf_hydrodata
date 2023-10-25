@@ -12,9 +12,12 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -39,11 +42,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api_reference.html">Python API Refererence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">QuickStart Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gridded_data.html">Gridded Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="point_observation_data.html">Point Observation Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="point_data/index.html">Point Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">Python API Refererence</a></li>
 </ul>
 
         </div>
@@ -71,25 +77,25 @@
            <div itemprop="articleBody">
              
   <section id="conus2-domain">
-<span id="gen-conus2-domain"></span><h1>conus2_domain<a class="headerlink" href="#conus2-domain" title="Permalink to this heading"></a></h1>
+<span id="gen-conus2-domain"></span><h1>conus2_domain<a class="headerlink" href="#conus2-domain" title="Link to this heading"></a></h1>
 <p>The CONUS2 domain covers the entire contiguous US and areas draining to it.
 The domain extent and projection are based off of the National Water Model Grid.
 Manual corrections were made along the coastline to get rid of cells that were water
 and to prune any orphan cells (i.e. cells attached to the domain only by a corner).</p>
 <section id="references">
-<h2>References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h2>
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
 <p>Papers describing the generation of some of the variables in this dataset can be found at:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://doi.org/10.5194/essd-13-3263-2021">10.5194/essd-13-3263-2021</a>.</p></li>
 </ul>
 </section>
 <section id="projections">
-<h2>Projections<a class="headerlink" href="#projections" title="Permalink to this heading"></a></h2>
+<h2>Projections<a class="headerlink" href="#projections" title="Link to this heading"></a></h2>
 <p>The projected coordinate system is Lambert Conformal Conic.
 The underlying datum is a sphere with radius 6370000m.
 The following are the grids supported the dataset. Click on the grid attribute key below for projection details.</p>
 <table class="docutils align-default" id="id1">
-<caption><span class="caption-text">Supported Grids</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
+<caption><span class="caption-text">Supported Grids</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 80%" />
@@ -108,9 +114,9 @@ The following are the grids supported the dataset. Click on the grid attribute k
 </section>
 </section>
 <section id="data-files-of-the-dataset">
-<h1>Data Files of the Dataset<a class="headerlink" href="#data-files-of-the-dataset" title="Permalink to this heading"></a></h1>
+<h1>Data Files of the Dataset<a class="headerlink" href="#data-files-of-the-dataset" title="Link to this heading"></a></h1>
 <table class="docutils align-default" id="id2">
-<caption><span class="caption-text">Domain Extent Variables in Dataset</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
+<caption><span class="caption-text">Domain Extent Variables in Dataset</span><a class="headerlink" href="#id2" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 80%" />
@@ -130,7 +136,7 @@ The following are the grids supported the dataset. Click on the grid attribute k
 </tbody>
 </table>
 <table class="docutils align-default" id="id3">
-<caption><span class="caption-text">Topography Variables in Dataset</span><a class="headerlink" href="#id3" title="Permalink to this table"></a></caption>
+<caption><span class="caption-text">Topography Variables in Dataset</span><a class="headerlink" href="#id3" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 80%" />
