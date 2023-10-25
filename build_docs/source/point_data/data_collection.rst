@@ -41,4 +41,29 @@ network.
 
 Data Collection
 ------------------
-This section provides some additional details on our data collection process.
+We query data from the above sources weekly, early on Sunday mornings. Each weekly job collects all observations
+since the date through which we have existing data stored. For sites that are currently in operation, this
+translates to collecting data for only the previous week (7 days for daily data, 168 hours for hourly data).
+Because of the sparsity of the USGS `temporal_resolution='instantaneous'` groundwater measurements, those are 
+not included in this weekly schedule. We plan to query that source for new observations roughly every few months.
+
+To maintain the integrety and traceability back to the original sources, our team conducts very limited data 
+manipulation on the queried data. This includes the following:
+
+* Unit translation into SI units  
+* Standardization of NaN/missing values
+
+  * For example, USGS will sometimes provide strings such as "Ice" or "Dry" to indicate reasons for why certain
+    observations are missing. A full list of such fields is available `here <https://help.waterdata.usgs.gov/codes-and-parameters/instantaneous-and-daily-value-status-codes>`_.
+    We standardize these values into the numeric numpy.NaN to allow the entireity of the series to be interpreted
+    as numeric.
+* Consolidating multiple concurrent data series
+
+  * The USGS data sometimes provides multiple concurrent observation series for the same variable for the same site.
+
+    In these cases, we consolidate the multiple series into a single series following these prioritizations:
+
+      * If one of the series has been verified, we prioritize that over provisional data
+      * If both series are identical values, we simply reduce down to a single set of observations
+      * If one of the series has non-missing data and the other series has missing data, we prioritize the non-missing data
+      * If multiple series remain with conflicting values, we take the average of the resulting non-missing values
