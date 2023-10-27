@@ -395,6 +395,9 @@ def _construct_string_from_qparams(entry, options):
     qparam_values["file_type"] = entry["file_type"]
     qparam_values["grid"] = entry["grid"]
     qparam_values["structure_type"] = entry["structure_type"]
+    #Prevents latitude and longitude coordinates from
+    #being returned to speed up download
+    qparam_values["return_coordinates"] = "False"
 
     string_parts = [
         f"{name}={value}" for name, value in qparam_values.items() if value is not None
@@ -822,7 +825,7 @@ def _validate_user():
     response = requests.get(url_security, timeout=15)
     if not response.status_code == 200:
         raise ValueError(
-            f"No registered PIN for email '{email}' and PIN '{pin}'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'."
+            f"No registered PIN for email '{email}'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'."
         )
     json_string = response.content.decode("utf-8")
     jwt_json = json.loads(json_string)
