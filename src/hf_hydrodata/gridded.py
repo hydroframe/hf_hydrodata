@@ -806,13 +806,19 @@ def _get_ndarray_from_api(entry, options, time_values):
         data = netcdf_variable.values
 
         # Add time values if the data is not static
+        #Add this back in later when updates
+        #have been made to hydrogen-service
+        #to retreive time values
+        """
         if options.get("start_time") is not None:
             time_values_new = netcdf_dataset["time"]
+            print("time values new is:", time_values_new)
 
             if time_values_new is not None and time_values is not None:
                 time_values_np = time_values_new.values
                 time_values_np_strings = np.datetime_as_string(time_values_np, unit="D")
                 time_values.extend(time_values_np_strings)
+        """
 
         return data
 
