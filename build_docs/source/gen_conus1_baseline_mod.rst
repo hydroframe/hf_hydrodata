@@ -39,21 +39,21 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - evapotranspiration
-      - No description
+      - Evapotranspiration
       - daily, hourly
       - sum
       - no
       - conus1
     * - streamflow
-      - No description
+      - Streamflow
       - daily
-      - ?
+      - 
       - no
       - conus1
     * - swe_melt
       - Difference in swe over a given time period
       - daily
-      - tbd
+      - 
       - no
       - conus1
     * - latent_heat
@@ -117,31 +117,31 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - soil_moisture
-      - No description
+      - Soil moisture
       - daily
       - mean
       - yes
       - conus1
     * - water_table_depth
-      - No description
+      - Water table depth
       - daily
       - mean
       - no
       - conus1
     * - pressure_head
-      - No description
+      - Map 3d grid point to pressure head
       - daily, hourly
       - mean
       - yes
       - conus1
     * - pressure_next
-      - No description
+      - Pressure head at the following timestep
       - daily
       - tbd
       - yes
       - conus1
     * - saturation
-      - No description
+      - Map 3d grid point to saturation value
       - hourly
       - 
       - yes
@@ -177,7 +177,7 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - swe
-      - No description
+      - Snow water equivalent
       - daily, hourly
       - eod
       - no
@@ -201,13 +201,13 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - precipitation
-      - No description
+      - Precipitation
       - daily
       - ?
       - no
       - conus1
     * - air_temp
-      - No description
+      - Air temperature
       - daily
       - max, min
       - no

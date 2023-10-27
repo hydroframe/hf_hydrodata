@@ -3,7 +3,10 @@
 conus2_domain
 ^^^^^^^^^^^^^^^^^^
 
-Inputs for baseline CONUS2 ParFlow Simulations
+The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner).
 
 Projections
 ^^^^^^^^^^^^^^^^^^
@@ -50,12 +53,12 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - latitude
-      - No description
+      - Map grid points to latitude
       - static
       - no
       - conus2
     * - longitude
-      - No description
+      - Map grid points to longitude
       - static
       - no
       - conus2
@@ -102,7 +105,7 @@ Use the dataset, variables and periods in python access functions as described i
       - no
       - conus2
     * - drainage_area
-      - No description
+      - Drainage area
       - static
       - no
       - conus2, conus2.250
@@ -181,7 +184,7 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - pf_indicator
-      - No description
+      - Indicator file for subsufrace units in parflow
       - static
       - yes
       - conus1

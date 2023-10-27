@@ -82,12 +82,12 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - water_table_depth
-      - No description
+      - Water table depth
       - static
       - no
       - conus2_wtd, conus2_wtd.100, conus2_wtd.30
     * - soil_moisture
-      - No description
+      - Soil moisture
       - daily
       - yes
       - conus2

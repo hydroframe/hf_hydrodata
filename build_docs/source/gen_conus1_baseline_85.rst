@@ -40,12 +40,12 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - pressure_head
-      - No description
+      - Map 3d grid point to pressure head
       - daily, hourly
       - yes
       - conus1
     * - saturation
-      - No description
+      - Map 3d grid point to saturation value
       - hourly
       - yes
       - conus1
@@ -96,7 +96,7 @@ Use the dataset, variables and periods in python access functions as described i
       - no
       - conus1
     * - evapotranspiration
-      - No description
+      - Evapotranspiration
       - hourly
       - no
       - conus1
@@ -132,7 +132,7 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - swe
-      - No description
+      - Snow water equivalent
       - hourly
       - no
       - conus1

@@ -22,19 +22,19 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - streamflow
-      - No description
+      - Streamflow
       - daily, weekly, monthly
       - mean, sum
       - no
       - 
     * - anomaly
-      - No description
+      - Difference from normal
       - daily, weekly, monthly
       - mean, sum
       - no
       - 
     * - anomaly_daily_week_of_values
-      - No description
+      - Daily amomaly
       - daily
       - mean
       - no
@@ -52,7 +52,7 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - water_table_depth
-      - No description
+      - Water table depth
       - daily, weekly, monthly
       - mean, sum
       - no
@@ -70,7 +70,7 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - swe
-      - No description
+      - Snow water equivalent
       - daily, weekly, monthly
       - mean, sum
       - no
@@ -88,13 +88,13 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - precipitation
-      - No description
+      - Precipitation
       - daily
       - mean
       - no
       - 
     * - air_temp
-      - No description
+      - Air temperature
       - daily
       - mean
       - no

@@ -33,49 +33,49 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - precipitation
-      - No description
+      - Precipitation
       - hourly, daily, monthly
       - sum
       - no
       - conus2
     * - downward_longwave
-      - No description
+      - Downward longwave radiation
       - hourly, daily
       - mean
       - no
       - conus2
     * - downward_shortwave
-      - No description
+      - Downward shortwave radiation
       - hourly, daily
       - mean
       - no
       - conus2
     * - specific_humidity
-      - No description
+      - Specific humidity
       - hourly, daily
       - mean
       - no
       - conus2
     * - air_temp
-      - No description
+      - Air temperature
       - hourly, daily, monthly
       - min, max, mean
       - no
       - conus2
     * - east_windspeed
-      - No description
+      - Zonal windspeed
       - hourly, daily
       - mean
       - no
       - conus2
     * - north_windspeed
-      - No description
+      - Meridional windspeed
       - hourly, daily
       - mean
       - no
       - conus2
     * - atmospheric_pressure
-      - No description
+      - Atmospheric pressure
       - hourly, daily
       - mean
       - no

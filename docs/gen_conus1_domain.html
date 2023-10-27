@@ -76,7 +76,10 @@
              
   <section id="conus1-domain">
 <span id="gen-conus1-domain"></span><h1>conus1_domain<a class="headerlink" href="#conus1-domain" title="Permalink to this heading"></a></h1>
-<p>Inputs for baseline CONUS1 ParFlow Simulations</p>
+<p>The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid.
+Manual corrections were made along the coastline to get rid of cells that were water
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner).</p>
 </section>
 <section id="references">
 <h1>References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h1>
@@ -124,13 +127,13 @@ Use the dataset, variables and periods in python access functions as described i
 </thead>
 <tbody>
 <tr class="row-even"><td><p>latitude</p></td>
-<td><p>No description</p></td>
+<td><p>Map grid points to latitude</p></td>
 <td><p>static</p></td>
 <td><p>no</p></td>
 <td><p>conus1</p></td>
 </tr>
 <tr class="row-odd"><td><p>longitude</p></td>
-<td><p>No description</p></td>
+<td><p>Map grid points to longitude</p></td>
 <td><p>static</p></td>
 <td><p>no</p></td>
 <td><p>conus1</p></td>
@@ -156,13 +159,13 @@ Use the dataset, variables and periods in python access functions as described i
 </thead>
 <tbody>
 <tr class="row-even"><td><p>permeability</p></td>
-<td><p>No description</p></td>
+<td><p>Permeability</p></td>
 <td><p>static</p></td>
 <td><p>yes</p></td>
 <td><p>conus1</p></td>
 </tr>
 <tr class="row-odd"><td><p>porosity</p></td>
-<td><p>No description</p></td>
+<td><p>Porosity</p></td>
 <td><p>static</p></td>
 <td><p>yes</p></td>
 <td><p>conus1</p></td>
@@ -180,7 +183,7 @@ Use the dataset, variables and periods in python access functions as described i
 <td><p>conus1</p></td>
 </tr>
 <tr class="row-even"><td><p>pf_indicator</p></td>
-<td><p>No description</p></td>
+<td><p>Indicator file for subsufrace units in parflow</p></td>
 <td><p>static</p></td>
 <td><p>yes</p></td>
 <td><p>conus1</p></td>
@@ -206,13 +209,13 @@ Use the dataset, variables and periods in python access functions as described i
 </thead>
 <tbody>
 <tr class="row-even"><td><p>topographic_index</p></td>
-<td><p>No description</p></td>
+<td><p>Topographic index</p></td>
 <td><p>static</p></td>
 <td><p>no</p></td>
 <td><p>conus1</p></td>
 </tr>
 <tr class="row-odd"><td><p>drainage_area</p></td>
-<td><p>No description</p></td>
+<td><p>Drainage area</p></td>
 <td><p>static</p></td>
 <td><p>no</p></td>
 <td><p>conus1</p></td>
