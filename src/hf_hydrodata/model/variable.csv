@@ -57,7 +57,7 @@ van_genuchten_alpha,Van Genuchten Alpha,alpha parameter for van Genucten curve,h
 van_genuchten_n,Van Genuchten n,n parameter for van Genuchten curve,hydrogeology,unitless,TRUE
 veg_type_IGBP,Vegetation Type,Vegetation type using IGBP classifications,land_surface,unitless,TRUE
 water_table_depth,Water Table Depth,Water Table Depth,subsurface,length,
-huc_map,HUC map,Map of points to HUC ID,topography,-,
+huc_map,HUC map,Map of points to HUC ID,topography,unitless,
 anomaly,Difference from normal,,land_surface,,
 anomaly_daily_week_of_values,Daily Amomaly,,land_surface,,
 site_id,Site Id,,,,

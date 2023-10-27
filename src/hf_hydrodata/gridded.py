@@ -554,7 +554,7 @@ def _write_file_from_api(filepath, options):
 
     try:
         headers = _validate_user()
-        response = requests.get(datafile_url, headers=headers, timeout=180)
+        response = requests.get(datafile_url, headers=headers, timeout=1200)
         if response.status_code != 200:
             raise ValueError(
                 f"The datafile_url {datafile_url} returned error code {response.status_code}."
@@ -788,7 +788,7 @@ def _get_ndarray_from_api(entry, options, time_values):
 
         try:
             headers = _validate_user()
-            response = requests.get(gridded_data_url, headers=headers, timeout=180)
+            response = requests.get(gridded_data_url, headers=headers, timeout=1200)
             if response.status_code != 200:
                 raise ValueError(
                     f"The  {gridded_data_url} returned error code {response.status_code}."
@@ -822,7 +822,7 @@ def _get_ndarray_from_api(entry, options, time_values):
 def _validate_user():
     email, pin = get_registered_api_pin()
     url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
-    response = requests.get(url_security, timeout=15)
+    response = requests.get(url_security, timeout=1200)
     if not response.status_code == 200:
         raise ValueError(
             f"No registered PIN for email '{email}'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'."
