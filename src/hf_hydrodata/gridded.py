@@ -812,7 +812,6 @@ def _get_ndarray_from_api(entry, options, time_values):
         """
         if options.get("start_time") is not None:
             time_values_new = netcdf_dataset["time"]
-            print("time values new is:", time_values_new)
 
             if time_values_new is not None and time_values is not None:
                 time_values_np = time_values_new.values
