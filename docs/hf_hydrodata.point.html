@@ -12,11 +12,9 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -80,11 +78,11 @@
            <div itemprop="articleBody">
              
   <section id="module-hf_hydrodata.point">
-<span id="hf-hydrodata-point-module"></span><h1>hf_hydrodata.point module<a class="headerlink" href="#module-hf_hydrodata.point" title="Link to this heading"></a></h1>
+<span id="hf-hydrodata-point-module"></span><h1>hf_hydrodata.point module<a class="headerlink" href="#module-hf_hydrodata.point" title="Permalink to this heading"></a></h1>
 <p>Module to retrieve point observations.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.point.get_citations">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.point.</span></span><span class="sig-name descname"><span class="pre">get_citations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.point.get_citations" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.point.</span></span><span class="sig-name descname"><span class="pre">get_citations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.point.get_citations" title="Permalink to this definition"></a></dt>
 <dd><p>Print and/or return specific citation information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -114,7 +112,7 @@ supported if <cite>data_source</cite> == ‘ameriflux’.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.point.get_data">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.point.</span></span><span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.point.get_data" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.point.</span></span><span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.point.get_data" title="Permalink to this definition"></a></dt>
 <dd><p>Collect observations data into a Pandas DataFrame.</p>
 <p>Observations collected from HydroData for the specified data source, variable, temporal
 resolution, and aggregation. Optional arguments can be supplied for filters such as
@@ -166,7 +164,7 @@ defined geographic and/or date range.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.point.get_metadata">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.point.</span></span><span class="sig-name descname"><span class="pre">get_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.point.get_metadata" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.point.</span></span><span class="sig-name descname"><span class="pre">get_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hf_hydrodata.point.get_metadata" title="Permalink to this definition"></a></dt>
 <dd><p>Return DataFrame with site metadata for the requested site IDs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -211,7 +209,7 @@ in the package directory and named as ‘network_name’.csv. Eg: <cite>site_net
 
 <dl class="py function">
 <dt class="sig sig-object py" id="hf_hydrodata.point.get_registered_api_pin">
-<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.point.</span></span><span class="sig-name descname"><span class="pre">get_registered_api_pin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.point.get_registered_api_pin" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">hf_hydrodata.point.</span></span><span class="sig-name descname"><span class="pre">get_registered_api_pin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hf_hydrodata.point.get_registered_api_pin" title="Permalink to this definition"></a></dt>
 <dd><p>Get the email and pin registered by the current user.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>

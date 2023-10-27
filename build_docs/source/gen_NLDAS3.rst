@@ -1,28 +1,20 @@
-.. _gen_NLDAS2:
+.. _gen_NLDAS3:
 
-NLDAS2
+NLDAS3
 ^^^^^^^^^^^^^^^^^^
 
-National Land Data Assimilation Product V2
 
-References
-^^^^^^^^^^
-Papers describing the generation of some variables in the dataset.
 
-* `10.5194/gmd-14-7223-2021`_
-.. _`10.5194/gmd-14-7223-2021`: https://doi.org/10.5194/gmd-14-7223-2021
-* `10.1002/2016GL069964`_
-.. _`10.1002/2016GL069964`: https://doi.org/10.1002/2016GL069964
 Projections
 ^^^^^^^^^^^^^^^^^^
 
 The projected coordinate system is Lambert Conformal Conic.
 
-The underlying datum of grid 'conus1' is an elipsoid with equatorial radius 6378137.0 meters and polar radius 6356752.31 meters.
+The underlying datum of grid 'conus2' is a sphere with radius 6370000.0 meters.
 
-The first parallel is 33. The second parallel is 45. The origin latitude is 39. The origin longitude is -96.0. The false easting is 1885055.4995 meters. The false northing is 604957.0654 meters.
+The first parallel is 30. The second parallel is 60. The origin latitude is 40.0000076294444. The origin longitude is -97.0. The false easting is 2208000.30881173 meters. The false northing is 1668999.65483222 meters.
 
-The grid 'conus1' has dimensions X=3342,  Y=1888,  Z=5
+The grid 'conus2' has dimensions X=4442,  Y=3256,  Z=10
 
 Data Variables in Dataset
 ^^^^^^^^^^^^^^^^^^
@@ -42,51 +34,51 @@ Use the dataset, variables and periods in python access functions as described i
       - Grids
     * - precipitation
       - No description
-      - hourly, daily, monthly_clim, annual_clim, monthly
+      - hourly, daily, monthly
       - sum
       - no
-      - conus1
+      - conus2
     * - downward_longwave
       - No description
       - hourly, daily
       - mean
       - no
-      - conus1
+      - conus2
     * - downward_shortwave
       - No description
       - hourly, daily
       - mean
       - no
-      - conus1
+      - conus2
     * - specific_humidity
       - No description
       - hourly, daily
       - mean
       - no
-      - conus1
+      - conus2
     * - air_temp
       - No description
-      - hourly, daily, monthly_clim, annual_clim, monthly
+      - hourly, daily, monthly
       - min, max, mean
       - no
-      - conus1
+      - conus2
     * - east_windspeed
       - No description
       - hourly, daily
       - mean
       - no
-      - conus1
+      - conus2
     * - north_windspeed
       - No description
       - hourly, daily
       - mean
       - no
-      - conus1
+      - conus2
     * - atmospheric_pressure
       - No description
       - hourly, daily
       - mean
       - no
-      - conus1
+      - conus2
 
 

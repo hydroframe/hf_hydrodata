@@ -12,11 +12,9 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -92,11 +90,11 @@
            <div itemprop="articleBody">
              
   <section id="metadata-definitions">
-<span id="metadata-description"></span><h1>Metadata Definitions<a class="headerlink" href="#metadata-definitions" title="Link to this heading"></a></h1>
+<span id="metadata-description"></span><h1>Metadata Definitions<a class="headerlink" href="#metadata-definitions" title="Permalink to this heading"></a></h1>
 <p>This sections provides users with information on what the fields are that get returned by <code class="docutils literal notranslate"><span class="pre">hf_hydrodata.point.get_metadata()</span></code>
 and where they are sourced.</p>
 <section id="standard-metadata">
-<h2>Standard Metadata<a class="headerlink" href="#standard-metadata" title="Link to this heading"></a></h2>
+<h2>Standard Metadata<a class="headerlink" href="#standard-metadata" title="Permalink to this heading"></a></h2>
 <p>There are several variables that are returned by all <code class="docutils literal notranslate"><span class="pre">hf_hydrodata.point.get_metadata()</span></code> function calls.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">site_id</span></code>: Unique site-level identifier, as provided by the contributing agency.</p></li>
@@ -127,7 +125,7 @@ from the contributing agency.</p></li>
 </ul>
 </section>
 <section id="stream-gage-metadata">
-<h2>Stream Gage Metadata<a class="headerlink" href="#stream-gage-metadata" title="Link to this heading"></a></h2>
+<h2>Stream Gage Metadata<a class="headerlink" href="#stream-gage-metadata" title="Permalink to this heading"></a></h2>
 <p>There are several site attributes that are specific to sites with <code class="docutils literal notranslate"><span class="pre">site_type=='stream</span> <span class="pre">gauge'</span></code>:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">gagesii_drainage_area</span></code>: Drainage area (square kilometers) for the site, as per the
@@ -140,7 +138,7 @@ Values include ‘Ref’ to indicate a reference gage, ‘Non-ref’ to indicate
 </ul>
 </section>
 <section id="groundwater-well-metadata">
-<h2>Groundwater Well Metadata<a class="headerlink" href="#groundwater-well-metadata" title="Link to this heading"></a></h2>
+<h2>Groundwater Well Metadata<a class="headerlink" href="#groundwater-well-metadata" title="Permalink to this heading"></a></h2>
 <p>There are several site attributes that are specific to sites with <code class="docutils literal notranslate"><span class="pre">site_type=='groundwater</span> <span class="pre">well'</span></code>:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">usgs_nat_aqfr_cd</span></code>: National aquifer code, as provided by the USGS.</p></li>
@@ -152,7 +150,7 @@ Values include ‘Ref’ to indicate a reference gage, ‘Non-ref’ to indicate
 </ul>
 </section>
 <section id="snotel-scan-station-metadata">
-<h2>SNOTEL/SCAN Station Metadata<a class="headerlink" href="#snotel-scan-station-metadata" title="Link to this heading"></a></h2>
+<h2>SNOTEL/SCAN Station Metadata<a class="headerlink" href="#snotel-scan-station-metadata" title="Permalink to this heading"></a></h2>
 <p>There are several site attributes that are specific to sites with <code class="docutils literal notranslate"><span class="pre">site_type=='SNOTEL</span> <span class="pre">station'</span></code> or
 <code class="docutils literal notranslate"><span class="pre">site_type=='SCAN</span> <span class="pre">station'</span></code>:</p>
 <ul class="simple">
@@ -160,7 +158,7 @@ Values include ‘Ref’ to indicate a reference gage, ‘Non-ref’ to indicate
 </ul>
 </section>
 <section id="ameriflux-tower-metadata">
-<h2>AmeriFlux Tower Metadata<a class="headerlink" href="#ameriflux-tower-metadata" title="Link to this heading"></a></h2>
+<h2>AmeriFlux Tower Metadata<a class="headerlink" href="#ameriflux-tower-metadata" title="Permalink to this heading"></a></h2>
 <p>There are several site attributes that are specific to sites with <code class="docutils literal notranslate"><span class="pre">site_type=='flux</span> <span class="pre">tower'</span></code>:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">ameriflux_site_description</span></code>: Site description, as queried from AmeriFlux.</p></li>
