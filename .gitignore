@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 **/*.bkp
+build_docs/source/bin
 
 # C extensions
 *.so

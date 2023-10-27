@@ -13,11 +13,9 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -92,18 +90,18 @@
            <div itemprop="articleBody">
              
   <section id="Accessing-point-data-through-hf_hydrodata.point">
-<h1>Accessing point data through <code class="docutils literal notranslate"><span class="pre">hf_hydrodata.point</span></code><a class="headerlink" href="#Accessing-point-data-through-hf_hydrodata.point" title="Link to this heading"></a></h1>
+<h1>Accessing point data through <code class="docutils literal notranslate"><span class="pre">hf_hydrodata.point</span></code><a class="headerlink" href="#Accessing-point-data-through-hf_hydrodata.point" title="Permalink to this heading"></a></h1>
 <p>This notebook provides a walk-through of some example functionality for accessing point observations data via the <code class="docutils literal notranslate"><span class="pre">hf_hydrodata.point</span></code> module. Please see the full documentation for information on what data is available, our data collection process, and new features we are working on!</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Import packages
-import sys
-import os
-import pandas as pd
-from hf_hydrodata.gridded import register_api_pin
-from hf_hydrodata.point import get_data, get_metadata, get_citations
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import packages</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">hf_hydrodata.gridded</span> <span class="kn">import</span> <span class="n">register_api_pin</span>
+<span class="kn">from</span> <span class="nn">hf_hydrodata.point</span> <span class="kn">import</span> <span class="n">get_data</span><span class="p">,</span> <span class="n">get_metadata</span><span class="p">,</span> <span class="n">get_citations</span>
 </pre></div>
 </div>
 </div>
@@ -111,31 +109,31 @@ from hf_hydrodata.point import get_data, get_metadata, get_citations
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># You need to register on https://hydrogen.princeton.edu/pin
-# and run the following with your registered information
-# before you can use the hydrodata utilities
-register_api_pin(&quot;your_email&quot;, &quot;your_pin&quot;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># You need to register on https://hydrogen.princeton.edu/pin</span>
+<span class="c1"># and run the following with your registered information</span>
+<span class="c1"># before you can use the hydrodata utilities</span>
+<span class="n">register_api_pin</span><span class="p">(</span><span class="s2">&quot;your_email&quot;</span><span class="p">,</span> <span class="s2">&quot;your_pin&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <section id="Define-input-parameters">
-<h2>Define input parameters<a class="headerlink" href="#Define-input-parameters" title="Link to this heading"></a></h2>
+<h2>Define input parameters<a class="headerlink" href="#Define-input-parameters" title="Permalink to this heading"></a></h2>
 <p>Note that there only mandatory parameters are <code class="docutils literal notranslate"><span class="pre">data_source</span></code>, <code class="docutils literal notranslate"><span class="pre">variable</span></code>, <code class="docutils literal notranslate"><span class="pre">temporal_resolution</span></code>, and <code class="docutils literal notranslate"><span class="pre">aggregation</span></code> (and <code class="docutils literal notranslate"><span class="pre">depth_level</span></code> if asking for soil moisture data). Please see the documentation for information about the optional filtering parameters that are available. Those parameters work cumulatively, so if <code class="docutils literal notranslate"><span class="pre">state</span></code> and <code class="docutils literal notranslate"><span class="pre">site_ids</span></code> are both supplied then only sites within <code class="docutils literal notranslate"><span class="pre">site_ids</span></code> that are also in <code class="docutils literal notranslate"><span class="pre">state</span></code> will be returned.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Let&#39;s explore daily streamflow data. We&#39;ll use this throughout several examples below.
-data_source = &#39;usgs_nwis&#39;
-variable = &#39;streamflow&#39;
-temporal_resolution = &#39;daily&#39;
-aggregation = &#39;average&#39;
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Let&#39;s explore daily streamflow data. We&#39;ll use this throughout several examples below.</span>
+<span class="n">data_source</span> <span class="o">=</span> <span class="s1">&#39;usgs_nwis&#39;</span>
+<span class="n">variable</span> <span class="o">=</span> <span class="s1">&#39;streamflow&#39;</span>
+<span class="n">temporal_resolution</span> <span class="o">=</span> <span class="s1">&#39;daily&#39;</span>
+<span class="n">aggregation</span> <span class="o">=</span> <span class="s1">&#39;average&#39;</span>
 </pre></div>
 </div>
 </div>
 </section>
 <section id="Example-1:-Specify-a-date-range-and-geographic-bounding-box">
-<h2>Example 1: Specify a date range and geographic bounding box<a class="headerlink" href="#Example-1:-Specify-a-date-range-and-geographic-bounding-box" title="Link to this heading"></a></h2>
+<h2>Example 1: Specify a date range and geographic bounding box<a class="headerlink" href="#Example-1:-Specify-a-date-range-and-geographic-bounding-box" title="Permalink to this heading"></a></h2>
 <p>In this example, a specific start and end date are provided, along with a geographic domain. Start and end dates, if provided, must be in ‘YYYY-MM-DD’ format. If a start date is not provided, data is returned from as early as it is available. Likewise, if an end date is not provided, data is returned through as current as is available.</p>
 <p>Geographic domain specifications, if provided, can be in the form of latitude and/or longitude bounds, a 2-digit state postal code (<code class="docutils literal notranslate"><span class="pre">state</span></code>=’NJ’), or a specific list of site IDs (see example 2 below). If no geography restriction is included, sites from the entire continental United States will be returned (note that this might take some time).</p>
 <p>Note taht the more the data is filtered, the more quickly the final data will be available. While there are no explicit bounds on how many sites can be asked for, getting data for a small geographic region for a short period of time will naturally take less time to return than all of the sites in the US for an entire Water Year.</p>
@@ -143,10 +141,10 @@ aggregation = &#39;average&#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>date_start = &#39;2002-01-01&#39;
-date_end = &#39;2002-01-05&#39;
-latitude_range = (45, 50)
-longitude_range = (-75, -50)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">date_start</span> <span class="o">=</span> <span class="s1">&#39;2002-01-01&#39;</span>
+<span class="n">date_end</span> <span class="o">=</span> <span class="s1">&#39;2002-01-05&#39;</span>
+<span class="n">latitude_range</span> <span class="o">=</span> <span class="p">(</span><span class="mi">45</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="n">longitude_range</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">75</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -154,13 +152,13 @@ longitude_range = (-75, -50)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Get data
-data_df = get_data(data_source, variable, temporal_resolution, aggregation,
-                  date_start=date_start,
-                  date_end=date_end,
-                  latitude_range=latitude_range,
-                  longitude_range=longitude_range)
-data_df.head(5)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get data</span>
+<span class="n">data_df</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">temporal_resolution</span><span class="p">,</span> <span class="n">aggregation</span><span class="p">,</span>
+                  <span class="n">date_start</span><span class="o">=</span><span class="n">date_start</span><span class="p">,</span>
+                  <span class="n">date_end</span><span class="o">=</span><span class="n">date_end</span><span class="p">,</span>
+                  <span class="n">latitude_range</span><span class="o">=</span><span class="n">latitude_range</span><span class="p">,</span>
+                  <span class="n">longitude_range</span><span class="o">=</span><span class="n">longitude_range</span><span class="p">)</span>
+<span class="n">data_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -349,13 +347,13 @@ data collected.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Get metadata for these sites
-metadata_df = get_metadata(data_source, variable, temporal_resolution, aggregation,
-                          date_start=date_start,
-                          date_end=date_end,
-                          latitude_range=latitude_range,
-                          longitude_range=longitude_range)
-metadata_df.head(5)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get metadata for these sites</span>
+<span class="n">metadata_df</span> <span class="o">=</span> <span class="n">get_metadata</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">temporal_resolution</span><span class="p">,</span> <span class="n">aggregation</span><span class="p">,</span>
+                          <span class="n">date_start</span><span class="o">=</span><span class="n">date_start</span><span class="p">,</span>
+                          <span class="n">date_end</span><span class="o">=</span><span class="n">date_end</span><span class="p">,</span>
+                          <span class="n">latitude_range</span><span class="o">=</span><span class="n">latitude_range</span><span class="p">,</span>
+                          <span class="n">longitude_range</span><span class="o">=</span><span class="n">longitude_range</span><span class="p">)</span>
+<span class="n">metadata_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -533,14 +531,14 @@ metadata_df.head(5)
 </div>
 </section>
 <section id="Example-2:-Specifying-a-specific-site-ID-or-list-of-site-IDs-without-a-time-restriction">
-<h2>Example 2: Specifying a specific site ID or list of site IDs without a time restriction<a class="headerlink" href="#Example-2:-Specifying-a-specific-site-ID-or-list-of-site-IDs-without-a-time-restriction" title="Link to this heading"></a></h2>
+<h2>Example 2: Specifying a specific site ID or list of site IDs without a time restriction<a class="headerlink" href="#Example-2:-Specifying-a-specific-site-ID-or-list-of-site-IDs-without-a-time-restriction" title="Permalink to this heading"></a></h2>
 <p>Instead of latitude/longitude bounds, data for a specific stream gauge or groundwater well can be returned with or without a date bound. Below, daily streamflow data is returned for a single site and then a select list of sites. There is no time restriction in these examples, so all data available in-house is included.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Data and metadata for a single site
-get_data(data_source, variable, temporal_resolution, aggregation, site_ids=[&#39;01013500&#39;])
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Data and metadata for a single site</span>
+<span class="n">get_data</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">temporal_resolution</span><span class="p">,</span> <span class="n">aggregation</span><span class="p">,</span> <span class="n">site_ids</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;01013500&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -645,7 +643,7 @@ data collected.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>get_metadata(data_source, variable, temporal_resolution, aggregation, site_ids=[&#39;01013500&#39;])
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">get_metadata</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">temporal_resolution</span><span class="p">,</span> <span class="n">aggregation</span><span class="p">,</span> <span class="n">site_ids</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;01013500&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -729,8 +727,8 @@ data collected.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Data and metadata for multiple sites
-get_data(data_source, variable, temporal_resolution, aggregation, site_ids=[&#39;01013500&#39;, &#39;01011000&#39;, &#39;01029500&#39;])
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Data and metadata for multiple sites</span>
+<span class="n">get_data</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">temporal_resolution</span><span class="p">,</span> <span class="n">aggregation</span><span class="p">,</span> <span class="n">site_ids</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;01013500&#39;</span><span class="p">,</span> <span class="s1">&#39;01011000&#39;</span><span class="p">,</span> <span class="s1">&#39;01029500&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -859,7 +857,7 @@ data collected.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>get_metadata(data_source, variable, temporal_resolution, aggregation, site_ids=[&#39;01013500&#39;, &#39;01011000&#39;, &#39;01029500&#39;])
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">get_metadata</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">temporal_resolution</span><span class="p">,</span> <span class="n">aggregation</span><span class="p">,</span> <span class="n">site_ids</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;01013500&#39;</span><span class="p">,</span> <span class="s1">&#39;01011000&#39;</span><span class="p">,</span> <span class="s1">&#39;01029500&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -989,19 +987,19 @@ data collected.
 </div>
 </section>
 <section id="Example-3:-Add-a-restriction-on-the-minimum-number-of-observations-per-site-within-a-requested-time-range">
-<h2>Example 3: Add a restriction on the minimum number of observations per site within a requested time range<a class="headerlink" href="#Example-3:-Add-a-restriction-on-the-minimum-number-of-observations-per-site-within-a-requested-time-range" title="Link to this heading"></a></h2>
+<h2>Example 3: Add a restriction on the minimum number of observations per site within a requested time range<a class="headerlink" href="#Example-3:-Add-a-restriction-on-the-minimum-number-of-observations-per-site-within-a-requested-time-range" title="Permalink to this heading"></a></h2>
 <p>The parameter <code class="docutils literal notranslate"><span class="pre">min_num_obs</span></code> allows the user to further specify that a site must have a minimum number of observations within the specified time range (if one is provided).</p>
 <p>The example below ensures that only sites that have valid streamflow data for every day of the calendar year requested get returned.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data_df = get_data(data_source, variable, temporal_resolution, aggregation,
-                   date_start=&#39;2005-01-01&#39;, date_end=&#39;2005-12-31&#39;,
-                   state=&#39;NJ&#39;,
-                   min_num_obs=365
-                   )
-data_df.head(5)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_df</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">temporal_resolution</span><span class="p">,</span> <span class="n">aggregation</span><span class="p">,</span>
+                   <span class="n">date_start</span><span class="o">=</span><span class="s1">&#39;2005-01-01&#39;</span><span class="p">,</span> <span class="n">date_end</span><span class="o">=</span><span class="s1">&#39;2005-12-31&#39;</span><span class="p">,</span>
+                   <span class="n">state</span><span class="o">=</span><span class="s1">&#39;NJ&#39;</span><span class="p">,</span>
+                   <span class="n">min_num_obs</span><span class="o">=</span><span class="mi">365</span>
+                   <span class="p">)</span>
+<span class="n">data_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1190,20 +1188,20 @@ data collected.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Metadata access does not support the `min_num_obs` filter.
-# The following is an example workflow for obtaining metadata for only those sites that
-# additionally satisfy the `min_num_obs` filter
-metadata_df = get_metadata(data_source, variable, temporal_resolution, aggregation,
-                   date_start=&#39;2005-01-01&#39;, date_end=&#39;2005-12-31&#39;,
-                   state=&#39;NJ&#39;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Metadata access does not support the `min_num_obs` filter.</span>
+<span class="c1"># The following is an example workflow for obtaining metadata for only those sites that</span>
+<span class="c1"># additionally satisfy the `min_num_obs` filter</span>
+<span class="n">metadata_df</span> <span class="o">=</span> <span class="n">get_metadata</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">temporal_resolution</span><span class="p">,</span> <span class="n">aggregation</span><span class="p">,</span>
+                   <span class="n">date_start</span><span class="o">=</span><span class="s1">&#39;2005-01-01&#39;</span><span class="p">,</span> <span class="n">date_end</span><span class="o">=</span><span class="s1">&#39;2005-12-31&#39;</span><span class="p">,</span>
+                   <span class="n">state</span><span class="o">=</span><span class="s1">&#39;NJ&#39;</span><span class="p">)</span>
 
-c = list(data_df.columns)
-c.remove(&#39;date&#39;)
-filtered_site_list = pd.DataFrame(data=c, columns=[&#39;site_id&#39;])
-filtered_metadata_df = pd.merge(filtered_site_list, metadata_df, on=&#39;site_id&#39;, how=&#39;left&#39;)
-assert len(filtered_metadata_df) == data_df.shape[1]-1
+<span class="n">c</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">)</span>
+<span class="n">filtered_site_list</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;site_id&#39;</span><span class="p">])</span>
+<span class="n">filtered_metadata_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">filtered_site_list</span><span class="p">,</span> <span class="n">metadata_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;site_id&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered_metadata_df</span><span class="p">)</span> <span class="o">==</span> <span class="n">data_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span>
 
-filtered_metadata_df
+<span class="n">filtered_metadata_df</span>
 </pre></div>
 </div>
 </div>

@@ -1,16 +1,14 @@
-.. _gen_NLDAS2:
+.. _gen_NLDAS2_85:
 
-NLDAS2
+NLDAS2_85
 ^^^^^^^^^^^^^^^^^^
 
-National Land Data Assimilation Product V2
+National Land Data Assimilation Product V2  - Water Year 1985
 
 References
 ^^^^^^^^^^
 Papers describing the generation of some variables in the dataset.
 
-* `10.5194/gmd-14-7223-2021`_
-.. _`10.5194/gmd-14-7223-2021`: https://doi.org/10.5194/gmd-14-7223-2021
 * `10.1002/2016GL069964`_
 .. _`10.1002/2016GL069964`: https://doi.org/10.1002/2016GL069964
 Projections
@@ -42,49 +40,49 @@ Use the dataset, variables and periods in python access functions as described i
       - Grids
     * - precipitation
       - Precipitation
-      - hourly, daily, monthly_clim, annual_clim, monthly
+      - daily, monthly
       - sum
       - no
       - conus1
     * - downward_longwave
       - Downward longwave radiation
-      - hourly, daily
+      - daily
       - mean
       - no
       - conus1
     * - downward_shortwave
       - Downward shortwave radiation
-      - hourly, daily
+      - daily
       - mean
       - no
       - conus1
     * - specific_humidity
       - Specific humidity
-      - hourly, daily
+      - daily
       - mean
       - no
       - conus1
     * - air_temp
       - Air temperature
-      - hourly, daily, monthly_clim, annual_clim, monthly
+      - daily, monthly
       - min, max, mean
       - no
       - conus1
     * - east_windspeed
       - Zonal windspeed
-      - hourly, daily
+      - daily
       - mean
       - no
       - conus1
     * - north_windspeed
       - Meridional windspeed
-      - hourly, daily
+      - daily
       - mean
       - no
       - conus1
     * - atmospheric_pressure
       - Atmospheric pressure
-      - hourly, daily
+      - daily
       - mean
       - no
       - conus1

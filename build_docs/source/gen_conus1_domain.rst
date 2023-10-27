@@ -1,34 +1,28 @@
-.. _gen_conus2_domain:
+.. _gen_conus1_domain:
 
-conus2_domain
+conus1_domain
 ^^^^^^^^^^^^^^^^^^
 
-The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
 The domain extent and projection are based off of the National Water Model Grid. 
 Manual corrections were made along the coastline to get rid of cells that were water 
 and to prune any orphan cells (i.e. cells attached to the domain only by a corner).
 
+References
+^^^^^^^^^^
+Papers describing the generation of some variables in the dataset.
+
+* `10.5194/gmd-8-923-2015`_
+.. _`10.5194/gmd-8-923-2015`: https://doi.org/10.5194/gmd-8-923-2015
+* `10.1016/j.advwatres.2015.04.008`_
+.. _`10.1016/j.advwatres.2015.04.008`: https://doi.org/10.1016/j.advwatres.2015.04.008
+* `10.1002/2014WR016774`_
+.. _`10.1002/2014WR016774`: https://doi.org/10.1002/2014WR016774
+* `10.1002/2015GL066916`_
+.. _`10.1002/2015GL066916`: https://doi.org/10.1002/2015GL066916
 Projections
 ^^^^^^^^^^^^^^^^^^
 
-There are several different grids supported by this dataset.
-
-Grid: conus2
-^^^^^^^^^^^^^^^
-The projected coordinate system is Lambert Conformal Conic.
-
-The underlying datum of grid 'conus2' is a sphere with radius 6370000.0 meters.
-
-The first parallel is 30. The second parallel is 60. The origin latitude is 40.0000076294444. The origin longitude is -97.0. The false easting is 2208000.30881173 meters. The false northing is 1668999.65483222 meters.
-
-The grid 'conus2' has dimensions X=4442,  Y=3256,  Z=10
-
-Grid: conus2.250
-^^^^^^^^^^^^^^^
-The projected coordinate system is Lambert Conformal Conic.
-
-Grid: conus1
-^^^^^^^^^^^^^^^
 The projected coordinate system is Lambert Conformal Conic.
 
 The underlying datum of grid 'conus1' is an elipsoid with equatorial radius 6378137.0 meters and polar radius 6356752.31 meters.
@@ -56,17 +50,89 @@ Use the dataset, variables and periods in python access functions as described i
       - Map grid points to latitude
       - static
       - no
-      - conus2
+      - conus1
     * - longitude
       - Map grid points to longitude
       - static
       - no
-      - conus2
-    * - lat_lon
-      - Latitude/longitude in z dimension
+      - conus1
+
+
+.. list-table:: Hydrogeology Variables in Dataset
+    :widths: 25 80 30 20 20
+    :header-rows: 1
+
+    * - Variable
+      - Description
+      - Periods
+      - Z Dim
+      - Grids
+    * - permeability
+      - Permeability
       - static
       - yes
-      - conus2
+      - conus1
+    * - porosity
+      - Porosity
+      - static
+      - yes
+      - conus1
+    * - van_genuchten_alpha
+      - Alpha parameter for van genucten curve
+      - static
+      - yes
+      - conus1
+    * - van_genuchten_n
+      - N parameter for van genuchten curve
+      - static
+      - yes
+      - conus1
+    * - pf_indicator
+      - Indicator file for subsufrace units in parflow
+      - static
+      - yes
+      - conus1
+
+
+.. list-table:: Topography Variables in Dataset
+    :widths: 25 80 30 20 20
+    :header-rows: 1
+
+    * - Variable
+      - Description
+      - Periods
+      - Z Dim
+      - Grids
+    * - topographic_index
+      - Topographic index
+      - static
+      - no
+      - conus1
+    * - drainage_area
+      - Drainage area
+      - static
+      - no
+      - conus1
+    * - slope_x
+      - Slope in the x direciton (grid centered)
+      - static
+      - no
+      - conus1
+    * - slope_y
+      - Slope in the y direction (grid centered)
+      - static
+      - no
+      - conus1
+    * - elevation
+      - Final processed elevation
+      - static
+      - no
+      - conus1
+    * - frac_stream_dist
+      - Shortest distance of a given cell to a stream divided by the distance from the stream cell to the nearest topographic divide (values range from 0-1)
+      - static
+      - no
+      - conus1
 
 
 .. list-table:: Land Surface Variables in Dataset
@@ -82,64 +148,7 @@ Use the dataset, variables and periods in python access functions as described i
       - Vegetation type using igbp classifications
       - static
       - yes
-      - conus2, conus2.250
-
-
-.. list-table:: Topography Variables in Dataset
-    :widths: 25 80 30 20 20
-    :header-rows: 1
-
-    * - Variable
-      - Description
-      - Periods
-      - Z Dim
-      - Grids
-    * - slope_x
-      - Slope in the x direciton (grid centered)
-      - static
-      - no
-      - conus2
-    * - slope_y
-      - Slope in the y direction (grid centered)
-      - static
-      - no
-      - conus2
-    * - drainage_area
-      - Drainage area
-      - static
-      - no
-      - conus2, conus2.250
-    * - elevation
-      - Final processed elevation
-      - static
-      - no
-      - conus2, conus2.250
-    * - mask
-      - Mask showing active domain
-      - static
-      - no
-      - conus2
-
-
-.. list-table:: Run File Variables in Dataset
-    :widths: 25 80 30 20 20
-    :header-rows: 1
-
-    * - Variable
-      - Description
-      - Periods
-      - Z Dim
-      - Grids
-    * - clm_run
-      - No description
-      - static
-      - no
-      - conus2
-    * - pf_solid
-      - File to define a domain shape for parflow
-      - static
-      - no
-      - conus2
+      - conus1
 
 
 .. list-table:: Climate Variables in Dataset
@@ -155,44 +164,38 @@ Use the dataset, variables and periods in python access functions as described i
       - Recharge forcing used for parflow spinups
       - static
       - yes
-      - conus2
-
-
-.. list-table:: Surface Water Variables in Dataset
-    :widths: 25 80 30 20 20
-    :header-rows: 1
-
-    * - Variable
-      - Description
-      - Periods
-      - Z Dim
-      - Grids
-    * - mannings
-      - Mannings roughness coefficient
-      - static
-      - no
-      - conus2
-
-
-.. list-table:: Hydrogeology Variables in Dataset
-    :widths: 25 80 30 20 20
-    :header-rows: 1
-
-    * - Variable
-      - Description
-      - Periods
-      - Z Dim
-      - Grids
-    * - pf_indicator
-      - Indicator file for subsufrace units in parflow
-      - static
-      - yes
       - conus1
-    * - pf_flowbarrier
-      - File defining the depth to flow barier
+    * - aridity_index
+      - Aridity index precipitation/ (precipitaiton -evaporaiton)
       - static
       - no
-      - conus2
+      - conus1
+
+
+.. list-table:: Stream Network Variables in Dataset
+    :widths: 25 80 30 20 20
+    :header-rows: 1
+
+    * - Variable
+      - Description
+      - Periods
+      - Z Dim
+      - Grids
+    * - stream_order
+      - Kahler stream order
+      - static
+      - no
+      - conus1
+    * - flow_direction_grass
+      - D4 flow directions with grass numbering (2=up, 4=left, 6=down, 8=right)
+      - static
+      - no
+      - conus1
+    * - stream_segments
+      - Stream segment id numbers (0 values outside of stream)
+      - static
+      - no
+      - conus1
 
 
 .. list-table:: Subsurface Variables in Dataset
@@ -208,37 +211,6 @@ Use the dataset, variables and periods in python access functions as described i
       - Presssure head at the end of spinup
       - static
       - yes
-      - conus2
-
-
-.. list-table:: Stream Network Variables in Dataset
-    :widths: 25 80 30 20 20
-    :header-rows: 1
-
-    * - Variable
-      - Description
-      - Periods
-      - Z Dim
-      - Grids
-    * - distance_stream_lin
-      - Shortest linear distance to streams
-      - static
-      - no
-      - conus2, conus2.250
-    * - flow_direction
-      - D4 flow direcitons with the following numbering: 1=down, 2=left, 3=up, 4=right
-      - static
-      - no
-      - conus2, conus2.250
-    * - stream_order
-      - Kahler stream order
-      - static
-      - no
-      - conus2, conus2.250
-    * - stream_segments
-      - Stream segment id numbers (0 values outside of stream)
-      - static
-      - no
-      - conus2, conus2.250
+      - conus1
 
 

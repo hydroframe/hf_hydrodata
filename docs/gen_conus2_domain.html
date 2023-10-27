@@ -12,11 +12,9 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -77,96 +75,335 @@
            <div itemprop="articleBody">
              
   <section id="conus2-domain">
-<span id="gen-conus2-domain"></span><h1>conus2_domain<a class="headerlink" href="#conus2-domain" title="Link to this heading"></a></h1>
+<span id="gen-conus2-domain"></span><h1>conus2_domain<a class="headerlink" href="#conus2-domain" title="Permalink to this heading"></a></h1>
 <p>The CONUS2 domain covers the entire contiguous US and areas draining to it.
 The domain extent and projection are based off of the National Water Model Grid.
 Manual corrections were made along the coastline to get rid of cells that were water
 and to prune any orphan cells (i.e. cells attached to the domain only by a corner).</p>
-<section id="references">
-<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
-<p>Papers describing the generation of some of the variables in this dataset can be found at:</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://doi.org/10.5194/essd-13-3263-2021">10.5194/essd-13-3263-2021</a>.</p></li>
-</ul>
 </section>
 <section id="projections">
-<h2>Projections<a class="headerlink" href="#projections" title="Link to this heading"></a></h2>
-<p>The projected coordinate system is Lambert Conformal Conic.
-The underlying datum is a sphere with radius 6370000m.
-The following are the grids supported the dataset. Click on the grid attribute key below for projection details.</p>
+<h1>Projections<a class="headerlink" href="#projections" title="Permalink to this heading"></a></h1>
+<p>There are several different grids supported by this dataset.</p>
+</section>
+<section id="grid-conus2">
+<h1>Grid: conus2<a class="headerlink" href="#grid-conus2" title="Permalink to this heading"></a></h1>
+<p>The projected coordinate system is Lambert Conformal Conic.</p>
+<p>The underlying datum of grid ‘conus2’ is a sphere with radius 6370000.0 meters.</p>
+<p>The first parallel is 30. The second parallel is 60. The origin latitude is 40.0000076294444. The origin longitude is -97.0. The false easting is 2208000.30881173 meters. The false northing is 1668999.65483222 meters.</p>
+<p>The grid ‘conus2’ has dimensions X=4442,  Y=3256,  Z=10</p>
+</section>
+<section id="grid-conus2-250">
+<h1>Grid: conus2.250<a class="headerlink" href="#grid-conus2-250" title="Permalink to this heading"></a></h1>
+<p>The projected coordinate system is Lambert Conformal Conic.</p>
+</section>
+<section id="grid-conus1">
+<h1>Grid: conus1<a class="headerlink" href="#grid-conus1" title="Permalink to this heading"></a></h1>
+<p>The projected coordinate system is Lambert Conformal Conic.</p>
+<p>The underlying datum of grid ‘conus1’ is an elipsoid with equatorial radius 6378137.0 meters and polar radius 6356752.31 meters.</p>
+<p>The first parallel is 33. The second parallel is 45. The origin latitude is 39. The origin longitude is -96.0. The false easting is 1885055.4995 meters. The false northing is 604957.0654 meters.</p>
+<p>The grid ‘conus1’ has dimensions X=3342,  Y=1888,  Z=5</p>
+</section>
+<section id="data-variables-in-dataset">
+<h1>Data Variables in Dataset<a class="headerlink" href="#data-variables-in-dataset" title="Permalink to this heading"></a></h1>
+<p>This describes the available variables of the dataset.
+Use the dataset, variables and periods in python access functions as described in the QuickStart Guide and Examples.</p>
 <table class="docutils align-default" id="id1">
-<caption><span class="caption-text">Supported Grids</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<caption><span class="caption-text">Location Variables in Dataset</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
 <colgroup>
-<col style="width: 20%" />
-<col style="width: 80%" />
+<col style="width: 14%" />
+<col style="width: 46%" />
+<col style="width: 17%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Grid Attribute Key</p></th>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
 <th class="head"><p>Description</p></th>
+<th class="head"><p>Periods</p></th>
+<th class="head"><p>Z Dim</p></th>
+<th class="head"><p>Grids</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="gen_conus2_grid.html#gen-conus2-grid"><span class="std std-ref">conus2</span></a></p></td>
-<td><p>The conus2 grid covers the contential US.</p></td>
+<tr class="row-even"><td><p>latitude</p></td>
+<td><p>Map grid points to latitude</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus2</p></td>
+</tr>
+<tr class="row-odd"><td><p>longitude</p></td>
+<td><p>Map grid points to longitude</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus2</p></td>
+</tr>
+<tr class="row-even"><td><p>lat_lon</p></td>
+<td><p>Latitude/longitude in z dimension</p></td>
+<td><p>static</p></td>
+<td><p>yes</p></td>
+<td><p>conus2</p></td>
 </tr>
 </tbody>
 </table>
-</section>
-</section>
-<section id="data-files-of-the-dataset">
-<h1>Data Files of the Dataset<a class="headerlink" href="#data-files-of-the-dataset" title="Link to this heading"></a></h1>
 <table class="docutils align-default" id="id2">
-<caption><span class="caption-text">Domain Extent Variables in Dataset</span><a class="headerlink" href="#id2" title="Link to this table"></a></caption>
+<caption><span class="caption-text">Land Surface Variables in Dataset</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
 <colgroup>
-<col style="width: 20%" />
-<col style="width: 80%" />
+<col style="width: 14%" />
+<col style="width: 46%" />
+<col style="width: 17%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Variable Attribute Key</p></th>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
 <th class="head"><p>Description</p></th>
+<th class="head"><p>Periods</p></th>
+<th class="head"><p>Z Dim</p></th>
+<th class="head"><p>Grids</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>lat_lng</p></td>
-<td><p>The latitude and longitude of the center of every grid cell provided in decimal degree. Data are provided in two columns and the row order follows the standard ParFlow file order (i.e. looping from the lower left corner to the upper right with y as the outer loop).</p></td>
-</tr>
-<tr class="row-odd"><td><p>mask</p></td>
-<td><p>A mask for the PF conus domain that extends to 1 grid cell around the active domain in every direction. Lakes and sinks are not represented in this file (0=outside  domain, 1=inside domain).</p></td>
+<tr class="row-even"><td><p>veg_type_IGBP</p></td>
+<td><p>Vegetation type using igbp classifications</p></td>
+<td><p>static</p></td>
+<td><p>yes</p></td>
+<td><p>conus2, conus2.250</p></td>
 </tr>
 </tbody>
 </table>
 <table class="docutils align-default" id="id3">
-<caption><span class="caption-text">Topography Variables in Dataset</span><a class="headerlink" href="#id3" title="Link to this table"></a></caption>
+<caption><span class="caption-text">Topography Variables in Dataset</span><a class="headerlink" href="#id3" title="Permalink to this table"></a></caption>
 <colgroup>
-<col style="width: 20%" />
-<col style="width: 80%" />
+<col style="width: 14%" />
+<col style="width: 46%" />
+<col style="width: 17%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Variable Attribute Key</p></th>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
 <th class="head"><p>Description</p></th>
+<th class="head"><p>Periods</p></th>
+<th class="head"><p>Z Dim</p></th>
+<th class="head"><p>Grids</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>drainage_area</p></td>
-<td><p>Drainage area in km2 calculated based on the flow directions.</p></td>
-</tr>
-<tr class="row-odd"><td><p>flow_direction</p></td>
-<td><p>Primary flow direction for every grid cell (1=down, 2=left, 3=up, 4=right)</p></td>
-</tr>
 <tr class="row-even"><td><p>slope_x</p></td>
-<td><p>Final slopes in the x direction calculated at cell faces to be used with the OverlandKinematic formulation in ParFlow.</p></td>
+<td><p>Slope in the x direciton (grid centered)</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus2</p></td>
 </tr>
 <tr class="row-odd"><td><p>slope_y</p></td>
-<td><p>Final slopes in the y direction calculated at cell faces to be used with the OverlandKinematic formulation in ParFlow.</p></td>
+<td><p>Slope in the y direction (grid centered)</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus2</p></td>
 </tr>
-<tr class="row-even"><td><p>stream_segments</p></td>
-<td><p>Mask of stream segments with their segment IDs.</p></td>
+<tr class="row-even"><td><p>drainage_area</p></td>
+<td><p>Drainage area</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus2, conus2.250</p></td>
 </tr>
-<tr class="row-odd"><td><p>subbasins</p></td>
-<td><p>Map of the subbasins drainage area for each stream segment.</p></td>
+<tr class="row-odd"><td><p>elevation</p></td>
+<td><p>Final processed elevation</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus2, conus2.250</p></td>
 </tr>
+<tr class="row-even"><td><p>mask</p></td>
+<td><p>Mask showing active domain</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus2</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default" id="id4">
+<caption><span class="caption-text">Run File Variables in Dataset</span><a class="headerlink" href="#id4" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 46%" />
+<col style="width: 17%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Periods</p></th>
+<th class="head"><p>Z Dim</p></th>
+<th class="head"><p>Grids</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>clm_run</p></td>
+<td><p>No description</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus2</p></td>
+</tr>
+<tr class="row-odd"><td><p>pf_solid</p></td>
+<td><p>File to define a domain shape for parflow</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus2</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default" id="id5">
+<caption><span class="caption-text">Climate Variables in Dataset</span><a class="headerlink" href="#id5" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 46%" />
+<col style="width: 17%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Periods</p></th>
+<th class="head"><p>Z Dim</p></th>
+<th class="head"><p>Grids</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>pme</p></td>
+<td><p>Recharge forcing used for parflow spinups</p></td>
+<td><p>static</p></td>
+<td><p>yes</p></td>
+<td><p>conus2</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default" id="id6">
+<caption><span class="caption-text">Surface Water Variables in Dataset</span><a class="headerlink" href="#id6" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 46%" />
+<col style="width: 17%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Periods</p></th>
+<th class="head"><p>Z Dim</p></th>
+<th class="head"><p>Grids</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>mannings</p></td>
+<td><p>Mannings roughness coefficient</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus2</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default" id="id7">
+<caption><span class="caption-text">Hydrogeology Variables in Dataset</span><a class="headerlink" href="#id7" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 46%" />
+<col style="width: 17%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Periods</p></th>
+<th class="head"><p>Z Dim</p></th>
+<th class="head"><p>Grids</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>pf_indicator</p></td>
+<td><p>Indicator file for subsufrace units in parflow</p></td>
+<td><p>static</p></td>
+<td><p>yes</p></td>
+<td><p>conus1</p></td>
+</tr>
+<tr class="row-odd"><td><p>pf_flowbarrier</p></td>
+<td><p>File defining the depth to flow barier</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus2</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default" id="id8">
+<caption><span class="caption-text">Subsurface Variables in Dataset</span><a class="headerlink" href="#id8" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 46%" />
+<col style="width: 17%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Periods</p></th>
+<th class="head"><p>Z Dim</p></th>
+<th class="head"><p>Grids</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ss_pressure_head</p></td>
+<td><p>Presssure head at the end of spinup</p></td>
+<td><p>static</p></td>
+<td><p>yes</p></td>
+<td><p>conus2</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default" id="id9">
+<caption><span class="caption-text">Stream Network Variables in Dataset</span><a class="headerlink" href="#id9" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 46%" />
+<col style="width: 17%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Periods</p></th>
+<th class="head"><p>Z Dim</p></th>
+<th class="head"><p>Grids</p></th>
+</tr>
+</thead>
+<tbody>
 <tr class="row-even"><td><p>distance_stream_lin</p></td>
-<td><p>Map of distance for each cell to the stream (CONUS2.0.Final1km.RiverMask) using the function StreamDist in PriorityFlow.</p></td>
+<td><p>Shortest linear distance to streams</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus2, conus2.250</p></td>
+</tr>
+<tr class="row-odd"><td><p>flow_direction</p></td>
+<td><p>D4 flow direcitons with the following numbering: 1=down, 2=left, 3=up, 4=right</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus2, conus2.250</p></td>
+</tr>
+<tr class="row-even"><td><p>stream_order</p></td>
+<td><p>Kahler stream order</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus2, conus2.250</p></td>
+</tr>
+<tr class="row-odd"><td><p>stream_segments</p></td>
+<td><p>Stream segment id numbers (0 values outside of stream)</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus2, conus2.250</p></td>
 </tr>
 </tbody>
 </table>
