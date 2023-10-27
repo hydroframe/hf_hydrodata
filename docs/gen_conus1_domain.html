@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>conus2_domain &mdash; hf_hydrodata  documentation</title>
+  <title>conus1_domain &mdash; hf_hydrodata  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -64,9 +64,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">conus2_domain</li>
+      <li class="breadcrumb-item active">conus1_domain</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/gen_conus2_domain.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/gen_conus1_domain.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -74,27 +74,28 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="conus2-domain">
-<span id="gen-conus2-domain"></span><h1>conus2_domain<a class="headerlink" href="#conus2-domain" title="Permalink to this heading"></a></h1>
-<p>Inputs for baseline CONUS2 ParFlow Simulations</p>
+  <section id="conus1-domain">
+<span id="gen-conus1-domain"></span><h1>conus1_domain<a class="headerlink" href="#conus1-domain" title="Permalink to this heading"></a></h1>
+<p>Inputs for baseline CONUS1 ParFlow Simulations</p>
+</section>
+<section id="references">
+<h1>References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h1>
+<p>Papers describing the generation of some variables in the dataset.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://doi.org/10.5194/gmd-8-923-2015">10.5194/gmd-8-923-2015</a></p></li>
+</ul>
+<ul class="simple">
+<li><p><a class="reference external" href="https://doi.org/10.1016/j.advwatres.2015.04.008">10.1016/j.advwatres.2015.04.008</a></p></li>
+</ul>
+<ul class="simple">
+<li><p><a class="reference external" href="https://doi.org/10.1002/2014WR016774">10.1002/2014WR016774</a></p></li>
+</ul>
+<ul class="simple">
+<li><p><a class="reference external" href="https://doi.org/10.1002/2015GL066916">10.1002/2015GL066916</a></p></li>
+</ul>
 </section>
 <section id="projections">
 <h1>Projections<a class="headerlink" href="#projections" title="Permalink to this heading"></a></h1>
-<p>There are several different grids supported by this dataset.</p>
-</section>
-<section id="grid-conus2">
-<h1>Grid: conus2<a class="headerlink" href="#grid-conus2" title="Permalink to this heading"></a></h1>
-<p>The projected coordinate system is Lambert Conformal Conic.</p>
-<p>The underlying datum of grid ‘conus2’ is a sphere with radius 6370000.0 meters.</p>
-<p>The first parallel is 30. The second parallel is 60. The origin latitude is 40.0000076294444. The origin longitude is -97.0. The false easting is 2208000.30881173 meters. The false northing is 1668999.65483222 meters.</p>
-<p>The grid ‘conus2’ has dimensions X=4442,  Y=3256,  Z=10</p>
-</section>
-<section id="grid-conus2-250">
-<h1>Grid: conus2.250<a class="headerlink" href="#grid-conus2-250" title="Permalink to this heading"></a></h1>
-<p>The projected coordinate system is Lambert Conformal Conic.</p>
-</section>
-<section id="grid-conus1">
-<h1>Grid: conus1<a class="headerlink" href="#grid-conus1" title="Permalink to this heading"></a></h1>
 <p>The projected coordinate system is Lambert Conformal Conic.</p>
 <p>The underlying datum of grid ‘conus1’ is an elipsoid with equatorial radius 6378137.0 meters and polar radius 6356752.31 meters.</p>
 <p>The first parallel is 33. The second parallel is 45. The origin latitude is 39. The origin longitude is -96.0. The false easting is 1885055.4995 meters. The false northing is 604957.0654 meters.</p>
@@ -126,24 +127,18 @@ Use the dataset, variables and periods in python access functions as described i
 <td><p>No description</p></td>
 <td><p>static</p></td>
 <td><p>no</p></td>
-<td><p>conus2</p></td>
+<td><p>conus1</p></td>
 </tr>
 <tr class="row-odd"><td><p>longitude</p></td>
 <td><p>No description</p></td>
 <td><p>static</p></td>
 <td><p>no</p></td>
-<td><p>conus2</p></td>
-</tr>
-<tr class="row-even"><td><p>lat_lon</p></td>
-<td><p>Latitude/longitude in z dimension</p></td>
-<td><p>static</p></td>
-<td><p>yes</p></td>
-<td><p>conus2</p></td>
+<td><p>conus1</p></td>
 </tr>
 </tbody>
 </table>
 <table class="docutils align-default" id="id2">
-<caption><span class="caption-text">Land Surface Variables in Dataset</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
+<caption><span class="caption-text">Hydrogeology Variables in Dataset</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
 <colgroup>
 <col style="width: 14%" />
 <col style="width: 46%" />
@@ -160,11 +155,35 @@ Use the dataset, variables and periods in python access functions as described i
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>veg_type_IGBP</p></td>
-<td><p>Vegetation type using igbp classifications</p></td>
+<tr class="row-even"><td><p>permeability</p></td>
+<td><p>No description</p></td>
 <td><p>static</p></td>
 <td><p>yes</p></td>
-<td><p>conus2, conus2.250</p></td>
+<td><p>conus1</p></td>
+</tr>
+<tr class="row-odd"><td><p>porosity</p></td>
+<td><p>No description</p></td>
+<td><p>static</p></td>
+<td><p>yes</p></td>
+<td><p>conus1</p></td>
+</tr>
+<tr class="row-even"><td><p>van_genuchten_alpha</p></td>
+<td><p>Alpha parameter for van genucten curve</p></td>
+<td><p>static</p></td>
+<td><p>yes</p></td>
+<td><p>conus1</p></td>
+</tr>
+<tr class="row-odd"><td><p>van_genuchten_n</p></td>
+<td><p>N parameter for van genuchten curve</p></td>
+<td><p>static</p></td>
+<td><p>yes</p></td>
+<td><p>conus1</p></td>
+</tr>
+<tr class="row-even"><td><p>pf_indicator</p></td>
+<td><p>No description</p></td>
+<td><p>static</p></td>
+<td><p>yes</p></td>
+<td><p>conus1</p></td>
 </tr>
 </tbody>
 </table>
@@ -186,40 +205,46 @@ Use the dataset, variables and periods in python access functions as described i
 </tr>
 </thead>
 <tbody>
+<tr class="row-even"><td><p>topographic_index</p></td>
+<td><p>No description</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus1</p></td>
+</tr>
+<tr class="row-odd"><td><p>drainage_area</p></td>
+<td><p>No description</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus1</p></td>
+</tr>
 <tr class="row-even"><td><p>slope_x</p></td>
 <td><p>Slope in the x direciton (grid centered)</p></td>
 <td><p>static</p></td>
 <td><p>no</p></td>
-<td><p>conus2</p></td>
+<td><p>conus1</p></td>
 </tr>
 <tr class="row-odd"><td><p>slope_y</p></td>
 <td><p>Slope in the y direction (grid centered)</p></td>
 <td><p>static</p></td>
 <td><p>no</p></td>
-<td><p>conus2</p></td>
+<td><p>conus1</p></td>
 </tr>
-<tr class="row-even"><td><p>drainage_area</p></td>
-<td><p>No description</p></td>
-<td><p>static</p></td>
-<td><p>no</p></td>
-<td><p>conus2, conus2.250</p></td>
-</tr>
-<tr class="row-odd"><td><p>elevation</p></td>
+<tr class="row-even"><td><p>elevation</p></td>
 <td><p>Final processed elevation</p></td>
 <td><p>static</p></td>
 <td><p>no</p></td>
-<td><p>conus2, conus2.250</p></td>
+<td><p>conus1</p></td>
 </tr>
-<tr class="row-even"><td><p>mask</p></td>
-<td><p>Mask showing active domain</p></td>
+<tr class="row-odd"><td><p>frac_stream_dist</p></td>
+<td><p>Shortest distance of a given cell to a stream divided by the distance from the stream cell to the nearest topographic divide (values range from 0-1)</p></td>
 <td><p>static</p></td>
 <td><p>no</p></td>
-<td><p>conus2</p></td>
+<td><p>conus1</p></td>
 </tr>
 </tbody>
 </table>
 <table class="docutils align-default" id="id4">
-<caption><span class="caption-text">Run File Variables in Dataset</span><a class="headerlink" href="#id4" title="Permalink to this table"></a></caption>
+<caption><span class="caption-text">Land Surface Variables in Dataset</span><a class="headerlink" href="#id4" title="Permalink to this table"></a></caption>
 <colgroup>
 <col style="width: 14%" />
 <col style="width: 46%" />
@@ -236,17 +261,11 @@ Use the dataset, variables and periods in python access functions as described i
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>clm_run</p></td>
-<td><p>No description</p></td>
+<tr class="row-even"><td><p>veg_type_IGBP</p></td>
+<td><p>Vegetation type using igbp classifications</p></td>
 <td><p>static</p></td>
-<td><p>no</p></td>
-<td><p>conus2</p></td>
-</tr>
-<tr class="row-odd"><td><p>pf_solid</p></td>
-<td><p>File to define a domain shape for parflow</p></td>
-<td><p>static</p></td>
-<td><p>no</p></td>
-<td><p>conus2</p></td>
+<td><p>yes</p></td>
+<td><p>conus1</p></td>
 </tr>
 </tbody>
 </table>
@@ -272,12 +291,18 @@ Use the dataset, variables and periods in python access functions as described i
 <td><p>Recharge forcing used for parflow spinups</p></td>
 <td><p>static</p></td>
 <td><p>yes</p></td>
-<td><p>conus2</p></td>
+<td><p>conus1</p></td>
+</tr>
+<tr class="row-odd"><td><p>aridity_index</p></td>
+<td><p>Aridity index precipitation/ (precipitaiton -evaporaiton)</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus1</p></td>
 </tr>
 </tbody>
 </table>
 <table class="docutils align-default" id="id6">
-<caption><span class="caption-text">Surface Water Variables in Dataset</span><a class="headerlink" href="#id6" title="Permalink to this table"></a></caption>
+<caption><span class="caption-text">Stream Network Variables in Dataset</span><a class="headerlink" href="#id6" title="Permalink to this table"></a></caption>
 <colgroup>
 <col style="width: 14%" />
 <col style="width: 46%" />
@@ -294,48 +319,28 @@ Use the dataset, variables and periods in python access functions as described i
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>mannings</p></td>
-<td><p>Mannings roughness coefficient</p></td>
+<tr class="row-even"><td><p>stream_order</p></td>
+<td><p>Kahler stream order</p></td>
 <td><p>static</p></td>
 <td><p>no</p></td>
-<td><p>conus2</p></td>
+<td><p>conus1</p></td>
+</tr>
+<tr class="row-odd"><td><p>flow_direction_grass</p></td>
+<td><p>D4 flow directions with grass numbering (2=up, 4=left, 6=down, 8=right)</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus1</p></td>
+</tr>
+<tr class="row-even"><td><p>stream_segments</p></td>
+<td><p>Stream segment id numbers (0 values outside of stream)</p></td>
+<td><p>static</p></td>
+<td><p>no</p></td>
+<td><p>conus1</p></td>
 </tr>
 </tbody>
 </table>
 <table class="docutils align-default" id="id7">
-<caption><span class="caption-text">Hydrogeology Variables in Dataset</span><a class="headerlink" href="#id7" title="Permalink to this table"></a></caption>
-<colgroup>
-<col style="width: 14%" />
-<col style="width: 46%" />
-<col style="width: 17%" />
-<col style="width: 11%" />
-<col style="width: 11%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Variable</p></th>
-<th class="head"><p>Description</p></th>
-<th class="head"><p>Periods</p></th>
-<th class="head"><p>Z Dim</p></th>
-<th class="head"><p>Grids</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>pf_indicator</p></td>
-<td><p>No description</p></td>
-<td><p>static</p></td>
-<td><p>yes</p></td>
-<td><p>conus1</p></td>
-</tr>
-<tr class="row-odd"><td><p>pf_flowbarrier</p></td>
-<td><p>File defining the depth to flow barier</p></td>
-<td><p>static</p></td>
-<td><p>no</p></td>
-<td><p>conus2</p></td>
-</tr>
-</tbody>
-</table>
-<table class="docutils align-default" id="id8">
-<caption><span class="caption-text">Subsurface Variables in Dataset</span><a class="headerlink" href="#id8" title="Permalink to this table"></a></caption>
+<caption><span class="caption-text">Subsurface Variables in Dataset</span><a class="headerlink" href="#id7" title="Permalink to this table"></a></caption>
 <colgroup>
 <col style="width: 14%" />
 <col style="width: 46%" />
@@ -356,51 +361,7 @@ Use the dataset, variables and periods in python access functions as described i
 <td><p>Presssure head at the end of spinup</p></td>
 <td><p>static</p></td>
 <td><p>yes</p></td>
-<td><p>conus2</p></td>
-</tr>
-</tbody>
-</table>
-<table class="docutils align-default" id="id9">
-<caption><span class="caption-text">Stream Network Variables in Dataset</span><a class="headerlink" href="#id9" title="Permalink to this table"></a></caption>
-<colgroup>
-<col style="width: 14%" />
-<col style="width: 46%" />
-<col style="width: 17%" />
-<col style="width: 11%" />
-<col style="width: 11%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Variable</p></th>
-<th class="head"><p>Description</p></th>
-<th class="head"><p>Periods</p></th>
-<th class="head"><p>Z Dim</p></th>
-<th class="head"><p>Grids</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>distance_stream_lin</p></td>
-<td><p>Shortest linear distance to streams</p></td>
-<td><p>static</p></td>
-<td><p>no</p></td>
-<td><p>conus2, conus2.250</p></td>
-</tr>
-<tr class="row-odd"><td><p>flow_direction</p></td>
-<td><p>D4 flow direcitons with the following numbering: 1=down, 2=left, 3=up, 4=right</p></td>
-<td><p>static</p></td>
-<td><p>no</p></td>
-<td><p>conus2, conus2.250</p></td>
-</tr>
-<tr class="row-even"><td><p>stream_order</p></td>
-<td><p>Kahler stream order</p></td>
-<td><p>static</p></td>
-<td><p>no</p></td>
-<td><p>conus2, conus2.250</p></td>
-</tr>
-<tr class="row-odd"><td><p>stream_segments</p></td>
-<td><p>Stream segment id numbers (0 values outside of stream)</p></td>
-<td><p>static</p></td>
-<td><p>no</p></td>
-<td><p>conus2, conus2.250</p></td>
+<td><p>conus1</p></td>
 </tr>
 </tbody>
 </table>
