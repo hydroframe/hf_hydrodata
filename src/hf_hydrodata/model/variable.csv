@@ -19,8 +19,8 @@ ground_temp,ground temperature,ground temperature,subsurface,temperature,
 infiltration,Infiltration rate,infiltration,subsurface,rate,
 irrigation,Irrigation Flux,irrigation applied at surface ,surface_water,rate,
 latent_heat,Latent Heat Flux, latent heat flux from canopy height to atmosphere,land_surface,intensity,
-latitude,latitude,,location,lat_lon,
-longitude,longitude,,location,lat_lon,
+latitude,latitude,Map grid points to latitude,location,lat_lon,
+longitude,longitude,Map grid points to longitude,location,lat_lon,
 lat_lon,lat_lon,Latitude/Longitude in z dimension,location,lat_lon,TRUE
 north_windspeed,Meridional windspeed,,atmospheric,rate,
 mannings,Mannings N,Mannings roughness coefficient,surface_water,,
@@ -34,14 +34,14 @@ pf_flowbarrier,ParFlow Flow Barrier,File defining the depth to flow barier,hydro
 pme,Precipitation minus evaporation (net recharge),Recharge forcing used for ParFlow spinups,climate,rate,TRUE
 porosity,Porosity ,,hydrogeology,unitless,TRUE
 precipitation,Precipitation,,atmospheric,length,
-pressure_head,Pressure Head ,,subsurface,length,TRUE
+pressure_head,Pressure Head,Map 3D grid point to pressure head,subsurface,length,TRUE
 ss_pressure_head,Steady State Pressure Head,Presssure head at the end of spinup,subsurface,pressure,TRUE
 pressure_next,Pressure Head at the following timestep,,subsurface,pressure,TRUE
-saturation,Saturation,,subsurface,unitless,TRUE
+saturation,Saturation,Map 3D grid point to saturation value,subsurface,unitless,TRUE
 sensible_heat,Sensible heat flux ,sensible heat from canopy height to atmosphere ,land_surface,intensity,
 slope_x,Slope x,Slope in the x direciton (Grid centered),topography,,
 slope_y,Slope y,Slope in the y direction (Grid centered),topography,,
-soil_moisture,Soil Moisture,,subsurface,unitless,TRUE
+soil_moisture,Soil Moisture,Soil Moisture,subsurface,unitless,TRUE
 soil_temp,Soil Temperature,soil temperature,subsurface,temperature,TRUE
 specific_humidity,Specific Humidity,,atmospheric,,
 stream_order,Kahler stream order,Kahler stream order,stream_network,,
@@ -56,8 +56,8 @@ transpiration_leaves,Evapotranspiration from leaves,evaporation+transpiration fr
 van_genuchten_alpha,Van Genuchten Alpha,alpha parameter for van Genucten curve,hydrogeology,unitless,TRUE
 van_genuchten_n,Van Genuchten n,n parameter for van Genuchten curve,hydrogeology,unitless,TRUE
 veg_type_IGBP,Vegetation Type,Vegetation type using IGBP classifications,land_surface,unitless,TRUE
-water_table_depth,Water Table Depth,,subsurface,length,
-huc_map,topography,HUC map,,,
+water_table_depth,Water Table Depth,Water Table Depth,subsurface,length,
+huc_map,HUC map,Map of points to HUC ID,topography,-,
 anomaly,Difference from normal,,land_surface,,
 anomaly_daily_week_of_values,Daily Amomaly,,land_surface,,
 site_id,Site Id,,,,

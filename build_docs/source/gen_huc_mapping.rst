@@ -36,3 +36,19 @@ Data Variables in Dataset
 This describes the available variables of the dataset.
 Use the dataset, variables and periods in python access functions as described in the QuickStart Guide and Examples.
 
+.. list-table:: Topography Variables in Dataset
+    :widths: 25 80 30 20 20
+    :header-rows: 1
+
+    * - Variable
+      - Description
+      - Periods
+      - Z Dim
+      - Grids
+    * - huc_map
+      - Map of points to huc id
+      - static
+      - no
+      - conus1, conus2
+
+

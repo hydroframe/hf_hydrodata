@@ -40,7 +40,7 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - soil_moisture
-      - No description
+      - Soil moisture
       - daily
       - yes
       - smapgrid, conus2
@@ -56,12 +56,12 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - latitude
-      - No description
+      - Map grid points to latitude
       - static
       - no
       - smapgrid
     * - longitude
-      - No description
+      - Map grid points to longitude
       - static
       - no
       - smapgrid

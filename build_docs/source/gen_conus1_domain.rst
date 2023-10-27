@@ -3,7 +3,10 @@
 conus1_domain
 ^^^^^^^^^^^^^^^^^^
 
-Inputs for baseline CONUS1 ParFlow Simulations
+The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner).
 
 References
 ^^^^^^^^^^
@@ -44,12 +47,12 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - latitude
-      - No description
+      - Map grid points to latitude
       - static
       - no
       - conus1
     * - longitude
-      - No description
+      - Map grid points to longitude
       - static
       - no
       - conus1
@@ -65,12 +68,12 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - permeability
-      - No description
+      - Permeability
       - static
       - yes
       - conus1
     * - porosity
-      - No description
+      - Porosity
       - static
       - yes
       - conus1
@@ -85,7 +88,7 @@ Use the dataset, variables and periods in python access functions as described i
       - yes
       - conus1
     * - pf_indicator
-      - No description
+      - Indicator file for subsufrace units in parflow
       - static
       - yes
       - conus1
@@ -101,12 +104,12 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - topographic_index
-      - No description
+      - Topographic index
       - static
       - no
       - conus1
     * - drainage_area
-      - No description
+      - Drainage area
       - static
       - no
       - conus1

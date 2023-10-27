@@ -140,7 +140,9 @@ def _generate_variable_docs(dataset_row, stream):
         for variable_id in variables:
             variable_row = variable_table.get_row(variable_id)
             if variable_row["variable_type"] == variable_type_id:
+                variable_title = variable_row["title"]
                 variable_description = variable_row["description"]
+                variable_description = variable_description if variable_description.strip() else variable_title
                 variable_description = (
                     variable_description if variable_description else "No description"
                 )

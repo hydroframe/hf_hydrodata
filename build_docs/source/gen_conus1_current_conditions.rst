@@ -32,17 +32,17 @@ Use the dataset, variables and periods in python access functions as described i
       - Z Dim
       - Grids
     * - soil_moisture
-      - No description
+      - Soil moisture
       - daily
       - yes
       - conus1
     * - water_table_depth
-      - No description
+      - Water table depth
       - daily
       - no
       - conus1
     * - pressure_head
-      - No description
+      - Map 3d grid point to pressure head
       - daily
       - yes
       - conus1
