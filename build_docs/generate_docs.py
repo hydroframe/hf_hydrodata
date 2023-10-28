@@ -7,7 +7,7 @@
 import sys
 import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 from hf_hydrodata.data_model_access import load_data_model
 
 
@@ -23,7 +23,7 @@ def main():
 def generate_datasets():
     """Generate the documentation of datasets (not used now)"""
 
-    directory = "../../build_docs/source"
+    directory = "./source"
     (dataset_type_ids, dataset_ids) = _collect_visible_datasets()
 
     gen_dataset_list_path = f"{directory}/gen_dataset_list.rst"
@@ -126,13 +126,14 @@ def _generate_variable_docs(dataset_row, stream):
 
         stream.write(f".. list-table:: {variable_type_name} Variables in Dataset\n")
         if _has_multiple_aggregations(dataset_row, variables):
-            stream.write("    :widths: 25 80 30 20 20 20\n")
+            stream.write("    :widths: 25 60 30 20 20 20 20\n")
         else:
-            stream.write("    :widths: 25 80 30 20 20\n")
+            stream.write("    :widths: 25 60 30 20 20 20\n")
         stream.write("    :header-rows: 1\n\n")
         stream.write(f"    * - Variable\n")
         stream.write(f"      - Description\n")
         stream.write(f"      - Periods\n")
+        stream.write(f"      - Units\n")
         if _has_multiple_aggregations(dataset_row, variables):
             stream.write(f"      - Aggregation\n")
         stream.write(f"      - Z Dim\n")
@@ -147,6 +148,7 @@ def _generate_variable_docs(dataset_row, stream):
                     variable_description if variable_description else "No description"
                 )
                 variable_description = variable_description.strip().capitalize()
+                variable_units = _collect_variable_units(dataset_id, variable_id)
                 variable_periods = _collect_variable_periods(dataset_id, variable_id)
                 variable_grids = _collect_grids_in_variables(dataset_row, variable_id)
                 variable_aggregations = ", ".join(
@@ -156,6 +158,7 @@ def _generate_variable_docs(dataset_row, stream):
                 stream.write(f"    * - {variable_id}\n")
                 stream.write(f"      - {variable_description}\n")
                 stream.write(f"      - {variable_periods}\n")
+                stream.write(f"      - {variable_units}\n")
                 if _has_multiple_aggregations(dataset_row, variables):
                     stream.write(f"      - {variable_aggregations}\n")
                 stream.write(f"      - {z_dim}\n")
@@ -194,6 +197,24 @@ def _collect_variable_periods(dataset_id, variable_id):
                 if period not in periods:
                     periods.append(period)
     return ", ".join(periods)
+
+def _collect_variable_units(dataset_id, variable_id):
+    units_list = []
+    data_model = load_data_model()
+    data_catalog_entry_table = data_model.get_table("data_catalog_entry")
+    for data_catalog_entry_id in data_catalog_entry_table.row_ids:
+        data_catalog_entry_row = data_catalog_entry_table.get_row(data_catalog_entry_id)
+        security_level = data_catalog_entry_row["security_level"]
+        if _is_entry_visible(security_level):
+            if (
+                data_catalog_entry_row["dataset"] == dataset_id
+                and data_catalog_entry_row["variable"] == variable_id
+            ):
+                units = data_catalog_entry_row["units"]
+                units = units if units and units not in ["-"] else "unitless"
+                if units not in units_list:
+                    units_list.append(units)
+    return ", ".join(units_list)
 
 
 def _collect_variable_aggregation(dataset_row, variable_id):

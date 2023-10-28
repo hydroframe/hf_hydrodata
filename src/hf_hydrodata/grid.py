@@ -132,6 +132,13 @@ def to_ij(grid: str, *args) -> List[int]:
     result = [round(v) for v in from_latlon(grid, *args)]
     return result
 
+def to_xy(grid: str, *args) -> List[float]:
+    """
+    Convert grid lat,lon coordinates to x,y float values in grid resolution coordinates from grid origin.
+    """
+
+    result = from_latlon(grid, *args)
+    return result
 
 def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
     """
