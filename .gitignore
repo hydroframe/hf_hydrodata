@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 **/*.bkp
 build_docs/source/bin
+deploy_docs
 
 # C extensions
 *.so
