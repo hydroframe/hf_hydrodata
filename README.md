@@ -23,6 +23,23 @@ You can install the python package with the API to access files using pip with::
     emtry = get_data_catalog_entry(filters)
     print(entry)
 
+## Build Instructions
+
+To build the component you must have a python virtual environment containing
+the required components. Install the required components with:
+
+    pop install -r requirements.txt
+
+Edit the python components in src/hf_hydrodata and the unit tests in tests/hf_hydrodata and the data catalog model CSV files in src/hf_hydrodata/model.
+Use Excel to edit the CSV files so that files are saved in standard CSV format.
+
+Generate the documentation with:
+
+    cd build_docs
+    bash build.sh
+
+This will generate read-the-docs html into deploy_docs folder.
+After committing to the main branch the CI/CD job will copy the deploy_docs folder to the public website for the documentation.
 
 ## License
 
