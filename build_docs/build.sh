@@ -15,8 +15,6 @@ mkdir ../deploy_docs
 rsync -av html/ ../deploy_docs
 rm -rf html
 rm -f source/gen_*
-# Copy the files to maurice
-# scp -r ../deploy_docs/* hmei-hydro@maurice.princeton.edu:/var/www/hydroframe/docs
 echo
 echo "Generation Complete!"
 echo "  Documention generated into ../deploy_docs/index.html"

@@ -28,7 +28,7 @@ You can install the python package with the API to access files using pip with::
 To build the component you must have a python virtual environment containing
 the required components. Install the required components with:
 
-    pop install -r requirements.txt
+    pip install -r requirements.txt
 
 Edit the python components in src/hf_hydrodata and the unit tests in tests/hf_hydrodata and the data catalog model CSV files in src/hf_hydrodata/model.
 Use Excel to edit the CSV files so that files are saved in standard CSV format.
