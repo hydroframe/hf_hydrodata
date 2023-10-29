@@ -38,7 +38,8 @@ Generate the documentation with:
     cd build_docs
     bash build.sh
 
-This will generate read-the-docs html into deploy_docs folder.
+This will validate the model CSV files and 
+generate the read-the-docs html into deploy_docs folder.
 After committing to the main branch the CI/CD job will copy the deploy_docs folder to the public website for the documentation.
 
 ## License
