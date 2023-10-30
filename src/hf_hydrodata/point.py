@@ -9,6 +9,7 @@ import json
 import sqlite3
 import datetime as dt
 import pandas as pd
+import geopandas as gpd
 import xarray as xr
 import numpy as np
 import requests
@@ -65,6 +66,8 @@ def get_data(data_source, variable, temporal_resolution, aggregation, *args, **k
         List of desired (string) site identifiers.
     state : str; default=None
         Two-letter postal code state abbreviation.
+    polygon : str
+        Path to location of shapefile. Must be readable by `geopandas.read_file()`.
     site_networks: list
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise
@@ -178,6 +181,8 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
         List of desired (string) site identifiers.
     state : str; default=None
         Two-letter postal code state abbreviation.
+    polygon : str
+        Path to location of shapefile. Must be readable by `geopandas.read_file()`.
     site_networks: list
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise
@@ -890,6 +895,8 @@ def _get_sites(conn, data_source, variable, temporal_resolution, aggregation, *a
         List of desired (string) site identifiers.
     state : str; default=None
         Two-letter postal code state abbreviation.
+    polygon : str
+        Path to location of shapefile. Must be readable by `geopandas.read_file()`.
     site_networks: list
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise
@@ -985,7 +992,24 @@ def _get_sites(conn, data_source, variable, temporal_resolution, aggregation, *a
 
     df = pd.read_sql_query(query, conn, params=param_list)
 
-    return df
+    # Polygon shapefile provided
+    if 'polygon' in options and options['polygon'] is not None:
+        gdf = gpd.GeoDataFrame(
+            df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
+        mask = gpd.read_file(options['polygon'])
+
+        try:
+            assert mask.crs is not None
+            mask_proj = mask.to_crs('EPSG:4326')
+        except:
+            raise Exception('Please make sure the referenced shapefile has a crs defined.')
+
+        clipped_points = gpd.clip(gdf, mask_proj)
+        clipped_df = pd.DataFrame(clipped_points.drop(columns='geometry'))
+        return clipped_df
+
+    else:
+        return df
 
 
 def _get_network_site_list(data_source, variable, site_networks):

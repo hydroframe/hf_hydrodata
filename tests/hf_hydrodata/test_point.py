@@ -13,6 +13,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../s
 
 from hf_hydrodata import point  # noqa
 
+TEST_DATA_DIR = '/hydrodata/national_obs/tools/test_data'
+
 
 class MockResponseMetadata:
     """Mock the flask.request response."""
@@ -827,11 +829,40 @@ def test_get_data_min_num_obs_filter():
     assert list(df.columns) == ['date', '01377500', '01378500', '01445000']
 
 
+def test_polygon_filter():
+    """Test filter for accepting a shapefile."""
+    df = point.get_data(
+        "usgs_nwis",
+        "streamflow",
+        "daily",
+        "average",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        polygon=f'{TEST_DATA_DIR}/raritan_watershed.shp'
+    )
+    assert len(df) == 5
+    assert len(df.columns) >= 25
+    assert '01401000' in df.columns
+
+    metadata_df = point.get_metadata(
+        "usgs_nwis",
+        "streamflow",
+        "daily",
+        "average",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        polygon=f'{TEST_DATA_DIR}/raritan_watershed.shp'
+    )
+
+    assert len(metadata_df) >= 24
+    assert '01401000' in list(metadata_df['site_id'])
+
+
 def test_get_citations():
     """Test for get_citations function with return DataFrame."""
     doi_df = point.get_citations(data_source='ameriflux', variable='latent heat flux',
-                                         temporal_resolution='hourly', aggregation='total',
-                                         site_ids=['US-Act', 'US-Bar'])
+                                 temporal_resolution='hourly', aggregation='total',
+                                 site_ids=['US-Act', 'US-Bar'])
 
     assert doi_df.shape == (2, 2)
     assert 'site_id' in doi_df.columns
@@ -839,4 +870,5 @@ def test_get_citations():
 
 
 if __name__ == "__main__":
-    pytest.main()
+    # pytest.main()
+    test_polygon_filter()
