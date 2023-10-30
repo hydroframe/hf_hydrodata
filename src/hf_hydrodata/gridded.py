@@ -110,14 +110,11 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
 
     For example,
 
-        entries = get_catalog_entries(
-            dataset="NLDAS2", period="daily",
-            variable="precipitation", start_time="2003-01-01")
+        entries = get_catalog_entries(dataset="NLDAS2", period="daily")
 
             or
 
-        options = {"dataset": "NLDAS2", "period": "daily",
-                   "variable": "precipitation", "start_time":"2003-01-01"}
+        options = {"dataset": "NLDAS2", "period": "daily"}
 
         entries = get_catalog_entries(options)
 
@@ -128,8 +125,6 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
         assert len(entries[0].column_names()) == 20
 
         assert entries[0]["variable"] == "precipitation"
-
-    Note, it is better to filter by dimension options like "variable" instead of free-form volitile options like "dataset_var".
     """
 
     result = []
@@ -680,6 +675,9 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
 
     if entry is None:
         raise ValueError("No entry found in data catalog")
+    
+    _verify_time_in_range(entry, options)
+
     # An optional empty array passed as an option to be populated with the time dimension for graphing.
     time_values = options.get("time_values")
 
@@ -711,6 +709,28 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
         options = _convert_json_to_strings(options)
 
     return data
+
+
+def _verify_time_in_range(entry:dict, options:dict):
+    """
+    Verify that the start_time from the options is within the dataset allowed time range.
+    Raises:
+        ValueError if the start time of the options request is not within the dataset allowed time range.
+    """
+    start_time = options.get("start_time")
+    dataset_start_date = entry["dataset_start_date"]
+    dataset_end_date = entry["dataset_end_date"]
+    if dataset_end_date is None:
+        dataset_end_date = entry["dataset_dnd_Date"]
+
+    start_time_value = _parse_time(start_time)
+    dataset_start_date_value = _parse_time(dataset_start_date)
+    dataset_end_date_value = _parse_time(dataset_end_date)
+
+    if start_time_value is not None and dataset_start_date_value is not None and dataset_end_date_value is not None:
+        if not dataset_start_date_value <= start_time_value <= dataset_end_date_value:
+            raise ValueError(f"The start_time '{start_time}' is not within the available range of data for the dataset between '{dataset_start_date}' and '{dataset_end_date}'")
+    
 
 
 def _convert_strings_to_json(options):
@@ -1577,7 +1597,18 @@ def _parse_time(value: str) -> datetime.datetime:
                                     value, "%Y-%m-%dT%H:%M:%S.000000000"
                                 )
                             except:
-                                result = None
+                                try:
+                                    result = datetime.datetime.strptime(
+                                        value, "%m/%d/%Y"
+                                    )
+                                except:
+                                    try:
+                                        result = datetime.datetime.strptime(
+                                            value, "%m/%d/%y"
+                                        )
+                                    except:
+                                        result = None
+
     return result
 
 
