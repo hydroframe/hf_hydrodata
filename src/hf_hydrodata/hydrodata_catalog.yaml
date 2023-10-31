@@ -432,7 +432,7 @@ sources:
       variable_type: "atmospheric"
   "21":
     metadata:
-      aggregation: "?"
+      aggregation: "-"
       dataset: "conus1_baseline_mod"
       dataset_dnd_Date: "10/1/02 0:00"
       dataset_start_date: "10/1/02 0:00"
@@ -453,7 +453,6 @@ sources:
       variable_type: "land_surface"
   "22":
     metadata:
-      aggregation: "tbd"
       dataset: "conus1_baseline_mod"
       dataset_dnd_Date: "10/1/02 0:00"
       dataset_start_date: "10/1/02 0:00"
@@ -507,6 +506,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "lat_lon"
       units: "degrees_north"
       variable: "latitude"
@@ -525,6 +528,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "lat_lon"
       units: "degrees_east"
       variable: "longitude"
@@ -543,6 +550,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "rate"
       units: "m/h"
       variable: "permeability"
@@ -561,6 +572,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "topographic_index"
@@ -579,6 +594,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "area"
       units: "km2"
       variable: "drainage_area"
@@ -597,6 +616,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "porosity"
@@ -615,6 +638,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "slope_x"
@@ -633,6 +660,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "slope_y"
@@ -651,6 +682,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "van_genuchten_alpha"
@@ -669,6 +704,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "van_genuchten_n"
@@ -687,6 +726,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "veg_type_IGBP"
@@ -705,6 +748,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "veg_type_IGBP"
@@ -1395,6 +1442,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "lat_lon"
       units: "degrees_north"
       variable: "latitude"
@@ -1413,6 +1464,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "lat_lon"
       units: "degrees_east"
       variable: "longitude"
@@ -1431,6 +1486,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "van_genuchten_n"
@@ -1449,6 +1508,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "van_genuchten_alpha"
@@ -1467,6 +1530,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "slope_x"
@@ -1485,6 +1552,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "slope_y"
@@ -1503,6 +1574,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       variable: "porosity"
       variable_type: "hydrogeology"
   "75":
@@ -1519,6 +1594,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "rate"
       units: "m/h"
       variable: "permeability"
@@ -1537,6 +1616,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "area"
       units: "km2"
       variable: "drainage_area"
@@ -1555,6 +1638,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "veg_type_IGBP"
@@ -1573,6 +1660,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "topographic_index"
@@ -1591,6 +1682,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "lat_lon"
       units: "degrees_north"
       variable: "latitude"
@@ -1609,6 +1704,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "lat_lon"
       units: "degrees_east"
       variable: "longitude"
@@ -1627,6 +1726,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "van_genuchten_n"
@@ -1645,6 +1748,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "van_genuchten_alpha"
@@ -1663,6 +1770,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "slope_x"
@@ -1681,6 +1792,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "slope_y"
@@ -1699,6 +1814,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       variable: "porosity"
       variable_type: "hydrogeology"
   "86":
@@ -1715,6 +1834,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "rate"
       units: "m/h"
       variable: "permeability"
@@ -1733,6 +1856,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "area"
       units: "km2"
       variable: "drainage_area"
@@ -1751,6 +1878,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "veg_type_IGBP"
@@ -1769,6 +1900,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "topographic_index"
@@ -1788,6 +1923,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "rate"
       units: "m/h"
       variable: "pme"
@@ -1807,6 +1946,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "length"
       units: "m"
       variable: "elevation"
@@ -1826,6 +1969,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "stream_order"
@@ -1845,6 +1992,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "pf_indicator"
@@ -1864,6 +2015,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "flow_direction_grass"
@@ -1883,6 +2038,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "stream_segments"
@@ -1902,6 +2061,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "subbasins"
@@ -1920,6 +2083,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "aridity_index"
@@ -2133,6 +2300,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "length"
       units: "m"
       variable: "ss_pressure_head"
@@ -3861,6 +4032,7 @@ sources:
       security_level: "2"
       structure_type: "gridded"
       variable: "huc_map"
+      variable_type: "topography"
   "199":
     metadata:
       dataset: "huc_mapping"
@@ -3873,6 +4045,7 @@ sources:
       security_level: "2"
       structure_type: "gridded"
       variable: "huc_map"
+      variable_type: "topography"
   "200":
     metadata:
       aggregation: "-"
@@ -3886,6 +4059,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "lat_lon"
       units: "degrees_north"
       variable: "latitude"
@@ -3903,6 +4080,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "lat_lon"
       units: "degrees_east"
       variable: "longitude"
@@ -4138,6 +4319,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "veg_type_IGBP"
@@ -4155,6 +4340,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "veg_type_IGBP"
@@ -4172,6 +4361,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "veg_type_IGBP"
@@ -4189,6 +4382,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "veg_type_IGBP"
@@ -4206,6 +4403,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "slope_x"
@@ -4223,6 +4424,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "slope_y"
@@ -4240,6 +4445,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "clm_run"
@@ -4253,10 +4462,14 @@ sources:
       description: "Inputs for baseline CONUS2 ParFlow Simulations"
       file_type: "vegm"
       grid: "conus2"
-      path: "/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_vegm.CONUS2_723.dat"
+      path: "/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_vegm.CONUS2_fixed.2.dat"
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "clm_run"
@@ -4270,10 +4483,14 @@ sources:
       description: "Inputs for baseline CONUS2 ParFlow Simulations"
       file_type: "vegp"
       grid: "conus2"
-      path: "/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_vegm.CONUS2_723.dat"
+      path: "/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_vegp.dat"
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "clm_run"
@@ -4292,6 +4509,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "rate"
       units: "m/h"
       variable: "pme"
@@ -4309,6 +4530,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "pf_solid"
@@ -4326,6 +4551,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "mannings"
@@ -4343,6 +4572,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "pf_indicator"
@@ -4360,6 +4593,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "pf_flowbarrier"
@@ -4378,6 +4615,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "ss_pressure_head"
@@ -4396,6 +4637,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "length"
       units: "km"
       variable: "distance_stream_lin"
@@ -4414,6 +4659,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "length"
       units: "km"
       variable: "distance_stream_lin"
@@ -4432,6 +4681,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "area"
       units: "km2"
       variable: "drainage_area"
@@ -4450,6 +4703,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "area"
       units: "km2"
       variable: "drainage_area"
@@ -4468,6 +4725,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "flow_direction"
@@ -4486,6 +4747,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "flow_direction"
@@ -4504,6 +4769,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "length"
       units: "m"
       variable: "elevation"
@@ -4522,6 +4791,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "length"
       units: "m"
       variable: "elevation"
@@ -4540,6 +4813,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "stream_order"
@@ -4558,6 +4835,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "stream_order"
@@ -4576,6 +4857,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "stream_segments"
@@ -4594,6 +4879,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "stream_segments"
@@ -4612,6 +4901,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "subbasins"
@@ -4629,6 +4922,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "subbasins"
@@ -4646,6 +4943,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "length"
       units: "km"
       variable: "distance_stream_lin"
@@ -4664,6 +4965,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "length"
       units: "km"
       variable: "distance_stream_lin"
@@ -4682,6 +4987,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "area"
       units: "km2"
       variable: "drainage_area"
@@ -4700,6 +5009,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "flow_direction"
@@ -4718,6 +5031,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "length"
       units: "m"
       variable: "elevation"
@@ -4736,6 +5053,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "stream_order"
@@ -4754,6 +5075,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "stream_segments"
@@ -4772,6 +5097,10 @@ sources:
       period: "static"
       security_level: "3"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "subbasins"
@@ -4788,6 +5117,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "lat_lon"
@@ -4805,6 +5138,10 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "mask"
@@ -5926,10 +6263,33 @@ sources:
       period: "static"
       security_level: "2"
       structure_type: "gridded"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       unit_type: "unitless"
       units: "-"
       variable: "frac_stream_dist"
       variable_type: "topography"
+  "434":
+    metadata:
+      aggregation: "mean"
+      dataset: "conus1_current_conditions"
+      dataset_type: "current_conditions"
+      dataset_var: "pressure"
+      description: "Current Conditions Conus1"
+      entry_start_date: "5/20/22"
+      file_type: "pfb"
+      grid: "conus1"
+      path: "/hydrodata/HydroGEN/current_conditions/CONUS1/WY{wy}/{dataset_var}.{mdy}.pfb"
+      period: "daily"
+      security_level: "3"
+      structure_type: "gridded"
+      time_zone: "UTC−0:00"
+      unit_type: "length"
+      units: "m"
+      variable: "pressure_head"
+      variable_type: "subsurface"
 
 ##########
 # Dimension Tables
@@ -5940,7 +6300,7 @@ aggregation:
       title: "Average"
   "min":
       title: "Min"
-      Description: "Minimum "
+      description: "Minimum"
   "max":
       title: "Max"
   "sum":
@@ -5951,9 +6311,9 @@ aggregation:
   "?":
   "eod":
       title: "End of Day"
-      Description: "Value at the end of the day (refer to aggregation to know what time it is)"
+      description: "Value at the end of the day (refer to aggregation to know what time it is)"
   "-":
-      Description: "Not aggregated"
+      description: "Not aggregated"
 
 dataset:
   "conus1_baseline_85":
@@ -5975,11 +6335,19 @@ dataset:
   "conus1_domain":
       dataset_type: "parameters"
       description: "Inputs for baseline CONUS1 ParFlow Simulations"
+      summary: "The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       paper_dois: "10.5194/gmd-8-923-2015; 10.1016/j.advwatres.2015.04.008; 10.1002/2014WR016774; 10.1002/2015GL066916"
       structure_type: "gridded"
   "conus2_domain":
       dataset_type: "parameters"
       description: "Inputs for baseline CONUS2 ParFlow Simulations"
+      summary: "The CONUS2 domain covers the entire contiguous US and areas draining to it.
+The domain extent and projection are based off of the National Water Model Grid. 
+Manual corrections were made along the coastline to get rid of cells that were water 
+and to prune any orphan cells (i.e. cells attached to the domain only by a corner)."
       structure_type: "gridded"
   "NLDAS2":
       dataset_type: "forcing"
@@ -6124,14 +6492,14 @@ grid:
       latlng_bounds: [21.8170599154073, -126.88755692881833, 53.20274381640737, -64.7677149695924]
       resolution_meters: "100"
       origin: [-2208000.30881173, -1668999.65483222]
-      crs: " +proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000 +x_0=2848061.2936895434 +y_0=1724874.3619788198"
+      crs: " +proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000 +x_0=2848511.2936895434 +y_0=1724524.3619788198"
   "conus2_wtd.30":
       title: "WTD 30m grid 30m"
       shape: [10, 144287, 246056]
       latlng_bounds: [21.8170599154073, -126.88755692881833, 53.20274381640737, -64.7677149695924]
-      resolution_meters: "24.140766313896204"
+      resolution_meters: "24.14076631"
       origin: [-2208000.30881173, -1668999.65483222]
-      crs: " +proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000 +x_0=2848061.2936895434 +y_0=1724874.3619788198"
+      crs: " +proj=lcc +lat_1=30 +lat_2=60 +lon_0=-97.0 +lat_0=40.0000076294444 +a=6370000.0 +b=6370000 +x_0=2848549.2233063863 +y_0=1724561.0407288047"
   "conus2.250":
       title: "conus 2"
       shape: [10, 3256, 4442]
@@ -6407,10 +6775,12 @@ variable:
       unit_type: "intensity"
   "latitude":
       title: "latitude"
+      description: "Map grid points to latitude"
       variable_type: "location"
       unit_type: "lat_lon"
   "longitude":
       title: "longitude"
+      description: "Map grid points to longitude"
       variable_type: "location"
       unit_type: "lat_lon"
   "lat_lon":
@@ -6474,7 +6844,8 @@ variable:
       variable_type: "atmospheric"
       unit_type: "length"
   "pressure_head":
-      title: "Pressure Head "
+      title: "Pressure Head"
+      description: "Map 3D grid point to pressure head"
       variable_type: "subsurface"
       unit_type: "length"
       has_z: "TRUE"
@@ -6491,6 +6862,7 @@ variable:
       has_z: "TRUE"
   "saturation":
       title: "Saturation"
+      description: "Map 3D grid point to saturation value"
       variable_type: "subsurface"
       unit_type: "unitless"
       has_z: "TRUE"
@@ -6509,6 +6881,7 @@ variable:
       variable_type: "topography"
   "soil_moisture":
       title: "Soil Moisture"
+      description: "Soil Moisture"
       variable_type: "subsurface"
       unit_type: "unitless"
       has_z: "TRUE"
@@ -6576,11 +6949,14 @@ variable:
       has_z: "TRUE"
   "water_table_depth":
       title: "Water Table Depth"
+      description: "Water Table Depth"
       variable_type: "subsurface"
       unit_type: "length"
   "huc_map":
-      title: "topography"
-      description: "HUC map"
+      title: "HUC map"
+      description: "Map of points to HUC ID"
+      variable_type: "topography"
+      unit_type: "unitless"
   "anomaly":
       title: "Difference from normal"
       variable_type: "land_surface"

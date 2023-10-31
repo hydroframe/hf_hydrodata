@@ -1,6 +1,6 @@
-id,title,Description
+id,title,description
 mean,Average,
-min,Min,Minimum 
+min,Min,Minimum
 max,Max,
 sum,Sum,
 static,Static,

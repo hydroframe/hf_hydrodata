@@ -30,7 +30,7 @@ def to_latlon(grid: str, *args) -> List[float]:
 
         latlon_bounds = to_latlon("conus1", *[0, 0, 20, 20])
 
-        (lat, lon) = grid_to_latlon("conus1", 10.5, 10.5)
+        (lat, lon) = to_latlon("conus1", 10.5, 10.5)
     """
     result = []
     data_model = load_data_model()
@@ -54,10 +54,9 @@ def to_latlon(grid: str, *args) -> List[float]:
         result.append(lon)
     return result
 
-
 def from_latlon(grid: str, *args) -> List[float]:
     """
-    Convert grid lat,lon coordinates to x,y.
+    Convert grid lat,lon coordinates to x,y float values in grid resolution coordinates from the grid origin.
 
     Args:
         grid:       The name of a grid dimension from the data catalog grid table (e.g. conus1 or conus2).
@@ -70,10 +69,10 @@ def from_latlon(grid: str, *args) -> List[float]:
     This conversion is fast. It is about 100K+ points/second.
 
     For example,
-        (x, y) = to_latlon("conus1", 31.759219, -115.902573)
+        (x, y) = from_latlon("conus1", 31.759219, -115.902573)
 
-        latlon_bounds = to_latlon("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
-    """
+        latlon_bounds = from_latlon("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
+    """    
     result = []
     data_model = load_data_model()
     table = data_model.get_table("grid")
@@ -81,6 +80,34 @@ def from_latlon(grid: str, *args) -> List[float]:
     if grid_row is None:
         raise ValueError(f"No such grid {grid} available.")
     grid_resolution = float(grid_row["resolution_meters"])
+    for index in range(0, len(args), 2):
+        lat = args[index]
+        lon = args[index + 1]
+        (x, y) = to_meters(grid, lat, lon)
+        result.append(x / grid_resolution)
+        result.append(y / grid_resolution)
+    return result  
+
+def to_meters(grid: str, *args) -> List[float]:
+    """
+    Convert grid lat,lon coordinates to x,y in meters from grid origin.
+
+    Args:
+        grid:       The name of a grid dimension from the data catalog grid table (e.g. conus1 or conus2).
+        args:       A list of floating pairs if (lat,lon) values.
+    Returns:
+        An array of x,y integer points converted from each of the (lat,lon) grid coordinates in args.
+
+    Note, this may be used to convert a single point or a bounds of 2 points or a large array of points.
+
+    This conversion is fast. It is about 100K+ points/second.
+
+    For example,
+        (x, y) = to_meters("conus1", 31.759219, -115.902573)
+
+        latlon_bounds = to_meters("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
+    """
+    result = []
     if len(args) == 0:
         raise ValueError("At least two x, y values must be provided.")
     if len(args) % 2 == 1:
@@ -92,10 +119,35 @@ def from_latlon(grid: str, *args) -> List[float]:
         lat = args[index]
         lon = args[index + 1]
         (x, y) = to_conic(lat, lon, grid)
-        result.append(round((x) / grid_resolution))
-        result.append(round((y) / grid_resolution))
+        result.append(x)
+        result.append(y)
     return result
 
+def to_ij(grid: str, *args) -> List[int]:
+    """
+        Convert grid lat,lon coordinates to i,j integers in grid resolution coordinates from grid origin.
+
+        For example,
+            (i, j) = to_ij("conus1", 31.759219, -115.902573)
+
+            ij_bounds = to_ij("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])        
+    """
+
+    result = [round(v) for v in from_latlon(grid, *args)]
+    return result
+
+def to_xy(grid: str, *args) -> List[float]:
+    """
+    Convert grid lat,lon coordinates to x,y float values in grid resolution coordinates from grid origin.
+
+    For example,
+        (x, y) = to_xy("conus1", 31.759219, -115.902573)
+
+        xy_bounds = to_xy("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])      
+    """
+
+    result = from_latlon(grid, *args)
+    return result
 
 def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
     """
@@ -111,7 +163,9 @@ def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
     """
     huc_id = None
     tiff_ds = __get_geotiff(grid, level)
-    [x, y] = from_latlon(grid, lat, lon)
+    [x, y] = to_ij(grid, lat, lon)
+    x = round(x)
+    y = round(y)
     data = np.flip(tiff_ds[0].to_numpy(), 0)
     if 0 <= x <= data.shape[1] and 0 <= y <= data.shape[0]:
         huc_id = np.flip(tiff_ds[0].to_numpy(), 0)[y][x].item()

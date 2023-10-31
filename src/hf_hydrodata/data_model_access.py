@@ -7,7 +7,7 @@ Functions to load the csv files of the data catalog model into a DataModel objec
   This can be used to load the data catalog model and access all the tables and rows and columns
   of the model.
 
-  Also see the data_access.py module for methods to access information from /hydrodata
+  Also see the data_access.py module for methods to access information from /hydrodatas
   using the model.
 
   Usage:
@@ -15,12 +15,15 @@ Functions to load the csv files of the data catalog model into a DataModel objec
 
     print(data_model.table_names)
 """
-# pylint: disable=R0903,W0603,W1514,C0103,R0912
+# pylint: disable=R0903,W0603,W1514,C0103,R0912,R0914
 
 import os
 import csv
 import json
+import requests
+import logging
 
+HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev.princeton.edu")
 
 class ModelTableRow:
     """Represents one row in a model table."""
@@ -70,19 +73,79 @@ class DataModel:
     """Represents a data catalog model."""
 
     def __init__(self):
+        """Constructor"""
+
         self.table_names = []
         """A list of table names of the model."""
         self.table_index = {}
 
     def get_table(self, table_name: str) -> ModelTable:
         """Get the ModelTable object with the table_name."""
+
         return self.table_index.get(table_name)
 
+    def export_to_dict(self) -> dict:
+        """Export the csf files of the data model to a dict"""
 
-DATA_MODEL_CACHE: DataModel = None
+        result = {}
+        model_dir = f"{os.path.abspath(os.path.dirname(__file__))}/model"
+        for file_name in os.listdir(model_dir):
+            if file_name.endswith(".csv"):
+                try:
+                    table_name = file_name.replace(".csv", "")
+                    with open(f"{model_dir}/{file_name}") as csv_file:
+                        model_table_entries = []
+                        rows = csv.reader(csv_file, delimiter=",")
+                        for row_count, row in enumerate(list(rows)):
+                            if row_count == 0:
+                                # Read header
+                                column_names = row
+                            else:
+                                entry = {}
+                                for col_count, col_name in enumerate(column_names):
+                                    col_value = row[col_count]
+                                    entry[col_name] = col_value
+                                model_table_entries.append(entry)
+                        result[table_name] = model_table_entries
+                except Exception as e:
+                    raise ValueError(f"Error reading '{file_name}' {str(e)}") from e
+        return result
+
+    def import_from_dict(self, model: dict):
+        """Import the latest data model from the dict created by export_to_dict."""
+
+        # Clear out old rows from tables
+        for table_name in model.keys():
+            table = self.get_table(table_name)
+            table.row_ids = []
+            table.rows = {}
+            table.column_names = []
+
+        # Load new rows from dict
+        for table_name in model.keys():
+            table = self.get_table(table_name)
+            rows = model.get(table_name)
+            for row in rows:
+                table_row = ModelTableRow()
+                id_value = None
+                for col_name in row.keys():
+                    if not col_name in table.column_names:
+                        table.column_names.append(col_name)
+                    col_value = _parse_column_value(row.get(col_name))
+                    if col_name == "id":
+                        id_value = col_value
+                    table_row.row_values[col_name] = col_value
+                table.row_ids.append(id_value)
+                table.rows[id_value] = table_row
+
+        _add_columns_to_catalog_entry_table(self)
+        self.table_names.sort()
 
 
-def load_data_model() -> DataModel:
+DATA_MODEL_CACHE = None
+
+
+def load_data_model(load_from_api=True) -> DataModel:
     """
     Load the data catalog model from CSV files.
 
@@ -93,8 +156,9 @@ def load_data_model() -> DataModel:
     global DATA_MODEL_CACHE
     if DATA_MODEL_CACHE is not None:
         return DATA_MODEL_CACHE
-    model_dir = f"{os.path.abspath(os.path.dirname(__file__))}/model"
     data_model = DataModel()
+
+    model_dir = f"{os.path.abspath(os.path.dirname(__file__))}/model"
     for file_name in os.listdir(model_dir):
         if file_name.endswith(".csv"):
             try:
@@ -127,9 +191,13 @@ def load_data_model() -> DataModel:
                 raise ValueError(f"Error reading '{file_name}' {str(e)}") from e
     _add_columns_to_catalog_entry_table(data_model)
     data_model.table_names.sort()
-    DATA_MODEL_CACHE = data_model
-    return data_model
 
+    DATA_MODEL_CACHE = data_model
+    if load_from_api:
+        # Replace the data model with the version from the API
+        _load_model_from_api(data_model)
+
+    return data_model
 
 def _add_columns_to_catalog_entry_table(data_model: DataModel):
     """
@@ -223,3 +291,18 @@ def _parse_column_value(column_value: str):
         column_value = json.loads(column_value)
         return column_value
     return column_value
+
+def _load_model_from_api(data_model: DataModel):
+    """Load the latest version of the model from model in the API."""
+
+    url = f"{HYDRODATA_URL}/api/config/data_catalog_model"
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            response_json = json.loads(response.text)
+            data_model.import_from_dict(response_json)
+        else:
+            logging.info("Error status '%s' response while loading data catalog model from API '%s'", response.status_code, url)
+            # Do not cache data model if an API error occurred
+    except Exception as e:
+        logging.exception("Error loading data catalog model from API '%s'", url)

@@ -8,13 +8,18 @@ import os
 import datetime
 from unittest.mock import patch
 import pytest
+import pytz
+
 from parflow import read_pfb_sequence
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 
 import hf_hydrodata.gridded
 
-
+@pytest.fixture(autouse=True)
+def patch_api(mocker):
+    mocker.patch("hf_hydrodata.data_model_access._load_model_from_api", return_value=None)
+    
 class MockResponse:
     """Mock the flask.request response."""
 
@@ -332,8 +337,8 @@ def test_files_exist():
     rows = hf_hydrodata.gridded.get_catalog_entries()
 
     bad_row = False
-    site_id = ""
     for row in rows:
+        site_id = ""
         dataset = row["dataset"]
         site_type = row["site_type"]
         if dataset == "conus1_baseline_85":
@@ -354,6 +359,8 @@ def test_files_exist():
             site_id = "348:UT:SNTL"
         elif dataset == "obs_anomolies":
             start_time = "2002-01-01"
+        elif dataset == "conus1_current_conditions":
+            start_time = "2023-01-01"
 
         row_id = row["id"]
         if not row_id in ["206", "207", "208", "209", "210", "213", "253", "254"]:
@@ -400,7 +407,7 @@ def test_read_data_all_entries():
             start_time = "1984-11-01"
         elif dataset == "conus1_domain":
             start_time = "2005-09-01"
-        elif dataset == "NLDAS3":
+        elif dataset == "CW3E":
             start_time = "2005-09-02"
 
         try:
@@ -935,22 +942,22 @@ def test_latlng_to_grid():
 
     hf_hydrodata.gridded.HYDRODATA = "/hydrodata"
     (x, y) = hf_hydrodata.grid.from_latlon("conus1", 31.759219, -115.902573)
-    assert x == 10
-    assert y == 10
+    assert round(x) == 10
+    assert round(y) == 10
     grid_bounds = hf_hydrodata.grid.from_latlon(
         "conus1", 31.65, -115.98, 31.759219, -115.902573
     )
-    assert grid_bounds[0] == 0
-    assert grid_bounds[1] == 0
+    assert round(grid_bounds[0]) == 0
+    assert round(grid_bounds[1]) == 0
     grid_bounds = hf_hydrodata.grid.from_latlon(
         "conus2", 31.65, -115.98, 31.759219, -115.902573
     )
-    assert grid_bounds[0] == 441
-    assert grid_bounds[1] == 970
+    assert round(grid_bounds[0]) == 441
+    assert round(grid_bounds[1]) == 970
 
     (x, y) = hf_hydrodata.grid.from_latlon("conus1", 49.1423, -76.3369)
-    assert x == 3324
-    assert y == 1888
+    assert round(x) == 3324
+    assert round(y) == 1888
 
 
 def test_get_huc_from_point():
@@ -1167,6 +1174,7 @@ def test_filter_point_obs_by_time():
     )
     assert data.shape[0] == 2
 
+
 def test_register_api():
     """Test register and and get and email pin stored in users home directory."""
 
@@ -1174,6 +1182,58 @@ def test_register_api():
     email, pin = hf_hydrodata.gridded.get_registered_api_pin()
     assert pin == "0000"
     assert email == "dummy@email.com"
+
+
+def test_timezone():
+    """Test with timezone in start_time/end_time"""
+
+    hf_hydrodata.gridded.HYDRODATA = "/hydrodata"
+    if not os.path.exists("/hydrodata"):
+        # Just skip test if this is run on a machine without /hydrodata access
+        return
+
+    bounds = [375, 239, 487, 329]
+    start = "2005-10-07"
+    time_zone = "EST"
+    start_date = datetime.datetime.strptime(start, "%Y-%m-%d")
+    if time_zone != "UTC":
+        start_date = (
+            start_date.replace(tzinfo=pytz.timezone(time_zone))
+            .astimezone(pytz.UTC)
+            .replace(tzinfo=None)
+        )
+    end_date = start_date + datetime.timedelta(hours=7)
+
+    entry = hf_hydrodata.gridded.get_catalog_entry(
+        dataset="NLDAS2",
+        variable="air_temp",
+        grid="conus1",
+        file_type="pfb",
+        period="hourly",
+    )
+
+    data = hf_hydrodata.gridded.get_ndarray(
+        entry,
+        start_time=start_date,
+        end_time=end_date,
+        grid_bounds=bounds,
+    )
+    assert data.shape[0] == 7
+
+def test_get_date_range():
+    """Test get_date_range."""
+
+    options = {
+        "dataset": "NLDAS2",
+        "variable": "precipitation",
+        "period": "daily",
+        "start_time": "2005-08-01",
+    }
+
+    (low, high) = hf_hydrodata.gridded.get_date_range(options)
+    assert low.strftime("%Y-%m-%d") == "2002-10-01"
+    assert high.strftime("%Y-%m-%d") == "2006-09-30"
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

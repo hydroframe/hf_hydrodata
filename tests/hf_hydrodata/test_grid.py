@@ -6,11 +6,15 @@ Unit test for the grid.py module
 import sys
 import os
 import pytest
+from unittest.mock import patch
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 
 import hf_hydrodata.grid
 
+@pytest.fixture(autouse=True)
+def patch_api(mocker):
+    mocker.patch("hf_hydrodata.data_model_access._load_model_from_api", return_value=None)
 
 def test_grid_to_latlng():
     """Test grid_to_latlng."""
@@ -36,23 +40,33 @@ def test_latlng_to_grid():
     """Test grid_to_latlng."""
 
     (x, y) = hf_hydrodata.grid.from_latlon("conus1", 31.759219, -115.902573)
-    assert x == 10
-    assert y == 10
+    assert round(x) == 10
+    assert round(y) == 10
     grid_bounds = hf_hydrodata.grid.from_latlon(
         "conus1", 31.65, -115.98, 31.759219, -115.902573
     )
-    assert grid_bounds[0] == 0
-    assert grid_bounds[1] == 0
+    assert round(grid_bounds[0]) == 0
+    assert round(grid_bounds[1]) == 0
     grid_bounds = hf_hydrodata.grid.from_latlon(
         "conus2", 31.65, -115.98, 31.759219, -115.902573
     )
-    assert grid_bounds[0] == 441
-    assert grid_bounds[1] == 970
+    assert round(grid_bounds[0]) == 441
+    assert round(grid_bounds[1]) == 970
 
     (x, y) = hf_hydrodata.grid.from_latlon("conus1", 49.1423, -76.3369)
+    assert round(x) == 3324
+    assert round(y) == 1888
+
+    (x, y) = hf_hydrodata.grid.to_ij("conus1", 49.1423, -76.3369)
     assert x == 3324
     assert y == 1888
 
+    (lat1, lon1, lat2, lon2) = hf_hydrodata.grid.to_latlon("conus1", 375, 239, 487, 329)
+    (x1, y1, x2, y2) = hf_hydrodata.grid.to_ij("conus1", lat1, lon1, lat2, lon2)
+    assert x1 == 375
+    assert y1 == 239
+    assert x2 == 487
+    assert y2 == 329
 
 def test_get_huc_from_point():
     """Unit test for get_huc_from_latlon and get_huc_from_xy"""
