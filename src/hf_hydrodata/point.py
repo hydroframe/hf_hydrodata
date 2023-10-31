@@ -9,6 +9,7 @@ import json
 import sqlite3
 import datetime as dt
 import pandas as pd
+import geopandas as gpd
 import xarray as xr
 import numpy as np
 import requests
@@ -296,6 +297,166 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
 
     conn.close()
     return metadata_df
+
+
+def get_site_variables(*args, **kwargs):
+    """
+    DOCSTRING
+    """
+    if len(args) > 0 and isinstance(args[0], dict):
+        options = args[0]
+    else:
+        options = kwargs
+
+    # Create database connection
+    conn = sqlite3.connect(DB_PATH)
+
+    # Initialize parameter list to SQL queries
+    param_list = []
+
+    # Data source
+    if 'data_source' in options and options['data_source'] is not None:
+        try:
+            assert options['data_source'] in ['usgs_nwis', 'usda_nrcs', 'ameriflux']
+        except:
+            raise ValueError(
+                f"data_source must be one of 'usgs_nwis', 'usda_nrcs', 'ameriflux'. You provided {options['data_source']}")
+
+        data_source_query = """ AND agency == ?"""
+
+        if options['data_source'] == 'usgs_nwis':
+            param_list.append('USGS')
+        elif options['data_source'] == 'usda_nrcs':
+            param_list.append('NRCS')
+        elif options['data_source'] == 'ameriflux':
+            param_list.append('AmeriFlux')
+    else:
+        data_source_query = """"""
+
+    # Date start
+    if 'date_start' in options and options['date_start'] is not None:
+        date_start_query = """ AND last_date_data_available >= ?"""
+        param_list.append(options['date_start'])
+    else:
+        date_start_query = """"""
+
+    # Date end
+    if 'date_end' in options and options['date_end'] is not None:
+        date_end_query = """ AND first_date_data_available <= ?"""
+        param_list.append(options['date_end'])
+    else:
+        date_end_query = """"""
+
+    # Latitude
+    if 'latitude_range' in options and options['latitude_range'] is not None:
+        lat_query = """ AND latitude BETWEEN ? AND ?"""
+        param_list.append(options['latitude_range'][0])
+        param_list.append(options['latitude_range'][1])
+    else:
+        lat_query = """"""
+
+    # Longitude
+    if 'longitude_range' in options and options['longitude_range'] is not None:
+        lon_query = """ AND longitude BETWEEN ? AND ?"""
+        param_list.append(options['longitude_range'][0])
+        param_list.append(options['longitude_range'][1])
+    else:
+        lon_query = """"""
+
+    # Site ID
+    if 'site_ids' in options and options['site_ids'] is not None:
+        site_query = """ AND s.site_id IN (%s)""" % ','.join('?'*len(options['site_ids']))
+        for s in options['site_ids']:
+            param_list.append(s)
+    else:
+        site_query = """"""
+
+    # State
+    if 'state' in options and options['state'] is not None:
+        state_query = """ AND state == ?"""
+        param_list.append(options['state'])
+    else:
+        state_query = """"""
+
+    # Site Networks
+    if 'site_networks' in options and options['site_networks'] is not None:
+        network_site_list = _get_network_site_list(data_source, variable, options['site_networks'])
+        network_query = """ AND s.site_id IN (%s)""" % ','.join('?'*len(network_site_list))
+        for s in network_site_list:
+            param_list.append(s)
+    else:
+        network_query = """"""
+
+    query = """
+            SELECT s.site_id, s.site_name, s.site_type, s.agency, s.state,
+                   o.var_id, o.first_date_data_available,
+                   o.last_date_data_available, o.record_count,
+                   s.latitude, s.longitude,  s.site_query_url,
+                   s.date_metadata_last_updated, s.tz_cd, s.doi
+            FROM sites s
+            INNER JOIN observations o
+            ON s.site_id = o.site_id
+            WHERE first_date_data_available <> 'None'
+            """ + data_source_query + date_start_query + date_end_query + lat_query + lon_query + site_query + state_query + network_query
+
+    df = pd.read_sql_query(query, conn, params=param_list)
+
+    # Polygon shapefile provided
+    if 'polygon' in options and options['polygon'] is not None:
+        gdf = gpd.GeoDataFrame(
+            df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
+        mask = gpd.read_file(options['polygon'])
+
+        try:
+            assert mask.crs is not None
+            mask_proj = mask.to_crs('EPSG:4326')
+        except:
+            raise Exception('Please make sure the referenced shapefile has a crs defined.')
+
+        clipped_points = gpd.clip(gdf, mask_proj)
+        clipped_df = pd.DataFrame(clipped_points.drop(columns='geometry'))
+        df = clipped_df.copy()
+
+    # Map var_id into variable, temporal_resolution, aggregation
+    variables = _get_variables(conn)
+    conn.close()
+    merged = pd.merge(df, variables, on='var_id', how='left')
+
+    # Add filter based on variable name
+    if 'variable' in options and options['variable'] is not None:
+        merged = merged.loc[merged['variable'] == options['variable']]
+
+    # Add filter based on temporal_resolution
+    if 'temporal_resolution' in options and options['temporal_resolution'] is not None:
+        merged = merged.loc[merged['temporal_resolution'] == options['temporal_resolution']]
+
+    if 'aggregation' in options and options['aggregation'] is not None:
+        merged = merged.loc[merged['aggregation'] == options['aggregation']]
+
+    # Drop extra columns
+    final_df = merged.drop(columns=['var_id', 'temporal_resolution', 'variable_type',
+                           'variable', 'aggregation', 'data_source', 'depth_level'])
+
+    # Re-order final columns
+    ordered_cols = ['site_id',
+                    'site_name',
+                    'site_type',
+                    'agency',
+                    'state',
+                    'variable_name',
+                    'units',
+                    'first_date_data_available',
+                    'last_date_data_available',
+                    'record_count',
+                    'latitude',
+                    'longitude',
+                    'site_query_url',
+                    'date_metadata_last_updated',
+                    'tz_cd',
+                    'doi']
+
+    final_df = final_df[ordered_cols]
+    return final_df
 
 
 def _get_data_from_api(
@@ -654,6 +815,15 @@ def get_registered_api_pin() -> Tuple[str, str]:
         raise ValueError(
             "No email/pin was registered. Use the register_api() method to register the pin you created at the website."
         ) from e
+
+
+def _get_variables(conn):
+    query = """
+            SELECT *
+            FROM variables
+            """
+    variables = pd.read_sql_query(query, conn)
+    return variables
 
 
 def _check_inputs(data_source, variable, temporal_resolution, aggregation, *args, **kwargs):
