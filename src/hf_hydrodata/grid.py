@@ -30,7 +30,7 @@ def to_latlon(grid: str, *args) -> List[float]:
 
         latlon_bounds = to_latlon("conus1", *[0, 0, 20, 20])
 
-        (lat, lon) = grid_to_latlon("conus1", 10.5, 10.5)
+        (lat, lon) = to_latlon("conus1", 10.5, 10.5)
     """
     result = []
     data_model = load_data_model()
@@ -56,7 +56,7 @@ def to_latlon(grid: str, *args) -> List[float]:
 
 def from_latlon(grid: str, *args) -> List[float]:
     """
-    Convert grid lat,lon coordinates to x,y in grid resolution coordinates from grid origin.
+    Convert grid lat,lon coordinates to x,y float values in grid resolution coordinates from the grid origin.
 
     Args:
         grid:       The name of a grid dimension from the data catalog grid table (e.g. conus1 or conus2).
@@ -69,9 +69,9 @@ def from_latlon(grid: str, *args) -> List[float]:
     This conversion is fast. It is about 100K+ points/second.
 
     For example,
-        (x, y) = to_latlon("conus1", 31.759219, -115.902573)
+        (x, y) = from_latlon("conus1", 31.759219, -115.902573)
 
-        latlon_bounds = to_latlon("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
+        latlon_bounds = from_latlon("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     """    
     result = []
     data_model = load_data_model()
@@ -90,7 +90,7 @@ def from_latlon(grid: str, *args) -> List[float]:
 
 def to_meters(grid: str, *args) -> List[float]:
     """
-    Convert grid lat,lon coordinates to x,y in meters from grid projection origin.
+    Convert grid lat,lon coordinates to x,y in meters from grid origin.
 
     Args:
         grid:       The name of a grid dimension from the data catalog grid table (e.g. conus1 or conus2).
@@ -103,9 +103,9 @@ def to_meters(grid: str, *args) -> List[float]:
     This conversion is fast. It is about 100K+ points/second.
 
     For example,
-        (x, y) = to_latlon("conus1", 31.759219, -115.902573)
+        (x, y) = to_meters("conus1", 31.759219, -115.902573)
 
-        latlon_bounds = to_latlon("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
+        latlon_bounds = to_meters("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     """
     result = []
     if len(args) == 0:
@@ -124,14 +124,30 @@ def to_meters(grid: str, *args) -> List[float]:
     return result
 
 def to_ij(grid: str, *args) -> List[int]:
-    """Convert grid lat,lon coordinates to i,j in grid resolution coordinates from grid origin.
+    """
+        Convert grid lat,lon coordinates to i,j integers in grid resolution coordinates from grid origin.
 
-    Same as from_latlon, except returns int instead of float.
+        For example,
+            (i, j) = to_ij("conus1", 31.759219, -115.902573)
+
+            ij_bounds = to_ij("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])        
     """
 
     result = [round(v) for v in from_latlon(grid, *args)]
     return result
 
+def to_xy(grid: str, *args) -> List[float]:
+    """
+    Convert grid lat,lon coordinates to x,y float values in grid resolution coordinates from grid origin.
+
+    For example,
+        (x, y) = to_xy("conus1", 31.759219, -115.902573)
+
+        xy_bounds = to_xy("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])      
+    """
+
+    result = from_latlon(grid, *args)
+    return result
 
 def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
     """
