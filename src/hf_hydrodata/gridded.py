@@ -18,7 +18,6 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 from parflow import read_pfb_sequence
-from parflow.tools.io import read_clm
 from hf_hydrodata.data_model_access import ModelTableRow
 from hf_hydrodata.data_model_access import load_data_model
 from hf_hydrodata.grid import to_ij
@@ -44,6 +43,8 @@ C_PFB_MAP = {
 
 HYDRODATA = "/hydrodata"
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev.princeton.edu")
+JWT_TOKEN = None
+USER_ROLES = None
 
 
 def register_api_pin(email: str, pin: str):
@@ -132,6 +133,11 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
         options = args[0]
     else:
         options = kwargs
+
+    # Getting the API headers has the side affect of setting the USER_ROLES global variable
+    # The USER_ROLES variables contains the list of rules of the user using their registered API pin.
+    _get_api_headers()
+
     data_model = load_data_model()
     table = data_model.get_table("data_catalog_entry")
     for row_id in table.row_ids:
@@ -390,8 +396,8 @@ def _construct_string_from_qparams(entry, options):
     qparam_values["file_type"] = entry["file_type"]
     qparam_values["grid"] = entry["grid"]
     qparam_values["structure_type"] = entry["structure_type"]
-    #Prevents latitude and longitude coordinates from
-    #being returned to speed up download
+    # Prevents latitude and longitude coordinates from
+    # being returned to speed up download
     qparam_values["return_coordinates"] = "False"
 
     string_parts = [
@@ -548,7 +554,7 @@ def _write_file_from_api(filepath, options):
     datafile_url = f"{HYDRODATA_URL}/api/data-file?{q_params}"
 
     try:
-        headers = _validate_user()
+        headers = _get_api_headers()
         response = requests.get(datafile_url, headers=headers, timeout=1200)
         if response.status_code != 200:
             raise ValueError(
@@ -589,6 +595,39 @@ def get_raw_file(filepath, *args, **kwargs):
     else:
         hydro_filepath = get_file_path(None, options)
         shutil.copy(hydro_filepath, filepath)
+
+
+def get_date_range(*args, **kwargs) -> Tuple[datetime.datetime, datetime.datetime]:
+    """Get the date range of the dataset specified by the options.
+
+    Args:
+        args:           Optional positional parameter that must be a dict with data filter options.
+        kwargs:         Supports multiple named parameters with data filter option values.
+    Returns:
+        A tuple with (dataset_start_date, dataset_end_date) or None if no date range is available.
+    """
+    result = None
+
+    if len(args) > 0 and isinstance(args[0], dict):
+        options = args[0]
+    else:
+        options = kwargs
+    dataset = options.get("dataset")
+    if not dataset:
+        return result
+    dataset_row = get_table_row("dataset", id=dataset)
+    if not dataset_row:
+        return result
+    dataset_start_date = dataset_row["dataset_start_date"]
+    dataset_end_date = dataset_row["dataset_end_date"]
+    if dataset_end_date is None:
+        dataset_end_date = dataset_row["dataset_dnd_Date"]
+
+    dataset_start_date_value = _parse_time(dataset_start_date)
+    dataset_end_date_value = _parse_time(dataset_end_date)
+    if dataset_start_date_value and dataset_end_date_value:
+        result = [dataset_start_date_value, dataset_end_date_value]
+    return result
 
 
 def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
@@ -675,7 +714,7 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
 
     if entry is None:
         raise ValueError("No entry found in data catalog")
-    
+
     _verify_time_in_range(entry, options)
 
     # An optional empty array passed as an option to be populated with the time dimension for graphing.
@@ -711,7 +750,7 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
     return data
 
 
-def _verify_time_in_range(entry:dict, options:dict):
+def _verify_time_in_range(entry: dict, options: dict):
     """
     Verify that the start_time from the options is within the dataset allowed time range.
     Raises:
@@ -727,10 +766,15 @@ def _verify_time_in_range(entry:dict, options:dict):
     dataset_start_date_value = _parse_time(dataset_start_date)
     dataset_end_date_value = _parse_time(dataset_end_date)
 
-    if start_time_value is not None and dataset_start_date_value is not None and dataset_end_date_value is not None:
+    if (
+        start_time_value is not None
+        and dataset_start_date_value is not None
+        and dataset_end_date_value is not None
+    ):
         if not dataset_start_date_value <= start_time_value <= dataset_end_date_value:
-            raise ValueError(f"The start_time '{start_time}' is not within the available range of data for the dataset between '{dataset_start_date}' and '{dataset_end_date}'")
-    
+            raise ValueError(
+                f"The start_time '{start_time}' is not within the available range of data for the dataset between '{dataset_start_date}' and '{dataset_end_date}'"
+            )
 
 
 def _convert_strings_to_json(options):
@@ -807,7 +851,7 @@ def _get_ndarray_from_api(entry, options, time_values):
         gridded_data_url = f"{HYDRODATA_URL}/api/gridded-data?{q_params}"
 
         try:
-            headers = _validate_user()
+            headers = _get_api_headers()
             response = requests.get(gridded_data_url, headers=headers, timeout=1200)
             if response.status_code != 200:
                 raise ValueError(
@@ -826,9 +870,9 @@ def _get_ndarray_from_api(entry, options, time_values):
         data = netcdf_variable.values
 
         # Add time values if the data is not static
-        #Add this back in later when updates
-        #have been made to hydrogen-service
-        #to retreive time values
+        # Add this back in later when updates
+        # have been made to hydrogen-service
+        # to retreive time values
         """
         if options.get("start_time") is not None:
             time_values_new = netcdf_dataset["time"]
@@ -844,29 +888,42 @@ def _get_ndarray_from_api(entry, options, time_values):
     return None
 
 
-def _validate_user():
-    email, pin = get_registered_api_pin()
-    url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
-    response = requests.get(url_security, timeout=1200)
-    if not response.status_code == 200:
-        raise ValueError(
-            f"No registered PIN for email '{email}'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'."
-        )
-    json_string = response.content.decode("utf-8")
-    jwt_json = json.loads(json_string)
-    expires_string = jwt_json.get("expires")
-    if expires_string:
-        expires = datetime.datetime.strptime(
-            expires_string, "%Y/%m/%d %H:%M:%S GMT-0000"
-        )
-        now = datetime.datetime.now()
-        if now > expires:
+def _get_api_headers() -> dict:
+    """
+    Get the API headers containing the jwt token to be passed to API calls.
+    Returns:
+        A dict containing an 'Authorization' attribute with a JWT bearer token.
+    """
+
+    global JWT_TOKEN
+    global USER_ROLES
+    if not os.path.exists(HYDRODATA) and not JWT_TOKEN:
+        # Only do this if we do not already have a JWT_TOKEN and this is running remote
+
+        email, pin = get_registered_api_pin()
+        url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
+        response = requests.get(url_security, timeout=1200)
+        if not response.status_code == 200:
             raise ValueError(
-                "PIN has expired. Please re-register it from https://hydrogen.princeton.edu/pin"
+                f"No registered PIN for email '{email}'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'."
             )
-    jwt_token = jwt_json["jwt_token"]
+        json_string = response.content.decode("utf-8")
+        jwt_json = json.loads(json_string)
+        expires_string = jwt_json.get("expires")
+        if expires_string:
+            expires = datetime.datetime.strptime(
+                expires_string, "%Y/%m/%d %H:%M:%S GMT-0000"
+            )
+            now = datetime.datetime.now()
+            if now > expires:
+                raise ValueError(
+                    "PIN has expired. Please re-register it from https://hydrogen.princeton.edu/pin"
+                )
+        JWT_TOKEN = jwt_json["jwt_token"]
+        USER_ROLES = jwt_json.get("user_roles")
+
     headers = {}
-    headers["Authorization"] = f"Bearer {jwt_token}"
+    headers["Authorization"] = f"Bearer {JWT_TOKEN}"
     return headers
 
 
@@ -1433,9 +1490,10 @@ def _add_pfb_time_constraint(
             # We are going to assume the file contains 24 hours of a day
             start_hour = start_time_value.hour
             if end_time_value is not None:
-                end_hour = start_hour + int((end_time_value - start_time_value).total_seconds()/3600)
-                if end_hour > 24:
-                    end_hour = 24
+                end_hour = start_hour + int(
+                    (end_time_value - start_time_value).total_seconds() / 3600
+                )
+                end_hour = min(end_hour, 24)
             else:
                 end_hour = start_hour + 1
             boundary_constraints["z"] = {"start": start_hour, "stop": end_hour}

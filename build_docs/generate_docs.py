@@ -97,6 +97,14 @@ def _generate_dataset_docs(dataset_id, directory):
             stream.write(f"{dataset_description}")
         stream.write("\n")
         stream.write("\n")
+        dataset_start_date = dataset_row["dataset_start_date"]
+        dataset_end_date = dataset_row["dataset_end_date"]
+        stream.write("\n\n")
+        if dataset_start_date and not dataset_end_date:
+            stream.write(f"Data is avaiable starting from date '{dataset_start_date}'.\n\n")
+        elif dataset_start_date and dataset_end_date:
+            stream.write(f"Data is available between dates '{dataset_start_date}' and '{dataset_end_date}'.\n\n")
+
         _generate_references_docs(dataset_row, stream)
         _generate_projection_docs(dataset_row, stream)
         _generate_variable_docs(dataset_row, stream)
@@ -110,7 +118,6 @@ def _generate_variable_docs(dataset_row, stream):
     variable_table = data_model.get_table("variable")
     dataset_id = dataset_row["id"]
     variables = _collect_variables_in_dataset(dataset_row)
-
     if not variables:
         return
     stream.write(f"Data Variables in Dataset\n")
@@ -120,6 +127,7 @@ def _generate_variable_docs(dataset_row, stream):
     stream.write(
         "Use the dataset, variables and periods in python access functions as described in the QuickStart Guide and Examples.\n\n"
     )
+
     variable_types = _collect_variable_types_of_variables(variables)
     for variable_type_id in variable_types:
         variable_type_name = variable_type_id.strip().replace("_", " ").title()
@@ -463,7 +471,7 @@ def _collect_visible_datasets():
 
 def _is_entry_visible(security_level: str) -> bool:
     """Return true if security_level is vislble"""
-    result = security_level in ["2", "3"]
+    result = security_level in ["1", "2", "3"]
     return result
 
 
