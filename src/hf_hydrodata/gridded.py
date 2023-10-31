@@ -12,6 +12,7 @@ import json
 import shutil
 import requests
 import yaml
+import threading
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 import numpy as np
@@ -45,6 +46,7 @@ HYDRODATA = "/hydrodata"
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev.princeton.edu")
 JWT_TOKEN = None
 USER_ROLES = None
+THREAD_LOCK = threading.Lock()
 
 
 def register_api_pin(email: str, pin: str):
@@ -713,7 +715,8 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
             entry = get_catalog_entry(*args, **kwargs)
 
     if entry is None:
-        raise ValueError("No entry found in data catalog")
+        args = " ".join([f"{k}={options[k]}" for k in options.keys()])
+        raise ValueError(f"No entry found in data catalog for {args}.")
 
     _verify_time_in_range(entry, options)
 
@@ -897,30 +900,36 @@ def _get_api_headers() -> dict:
 
     global JWT_TOKEN
     global USER_ROLES
-    if not os.path.exists(HYDRODATA) and not JWT_TOKEN:
-        # Only do this if we do not already have a JWT_TOKEN and this is running remote
+    THREAD_LOCK.acquire()
+    try:
+        if not os.path.exists(HYDRODATA) and not JWT_TOKEN:
+            # Only do this if we do not already have a JWT_TOKEN and this is running remote
 
-        email, pin = get_registered_api_pin()
-        url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
-        response = requests.get(url_security, timeout=1200)
-        if not response.status_code == 200:
-            raise ValueError(
-                f"No registered PIN for email '{email}'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'."
-            )
-        json_string = response.content.decode("utf-8")
-        jwt_json = json.loads(json_string)
-        expires_string = jwt_json.get("expires")
-        if expires_string:
-            expires = datetime.datetime.strptime(
-                expires_string, "%Y/%m/%d %H:%M:%S GMT-0000"
-            )
-            now = datetime.datetime.now()
-            if now > expires:
+            email, pin = get_registered_api_pin()
+            url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
+            response = requests.get(url_security, timeout=1200)
+            if not response.status_code == 200:
                 raise ValueError(
-                    "PIN has expired. Please re-register it from https://hydrogen.princeton.edu/pin"
+                    f"No registered PIN for email '{email}'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'."
                 )
-        JWT_TOKEN = jwt_json["jwt_token"]
-        USER_ROLES = jwt_json.get("user_roles")
+            json_string = response.content.decode("utf-8")
+            jwt_json = json.loads(json_string)
+            expires_string = jwt_json.get("expires")
+            if expires_string:
+                expires = datetime.datetime.strptime(
+                    expires_string, "%Y/%m/%d %H:%M:%S GMT-0000"
+                )
+                now = datetime.datetime.now()
+                if now > expires:
+                    raise ValueError(
+                        "PIN has expired. Please re-register it from https://hydrogen.princeton.edu/pin"
+                    )
+            JWT_TOKEN = jwt_json["jwt_token"]
+            USER_ROLES = jwt_json.get("user_roles")
+        THREAD_LOCK.release()
+    except Exception as e:
+        THREAD_LOCK.release()
+        raise e
 
     headers = {}
     headers["Authorization"] = f"Bearer {JWT_TOKEN}"
