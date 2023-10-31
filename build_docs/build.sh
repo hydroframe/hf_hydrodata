@@ -11,6 +11,7 @@ rm -rf html/.buildInfo hml/.buildinfo html/objects.inv
 rm -rf html/_sources doctrees html/.buildinfo
 rm html/_static/_sphinx_javascript_frameworks_compat.js
 rm html/_static/jquery.js
+rm -rf ../deploy_docs
 mkdir ../deploy_docs
 rsync -av html/ ../deploy_docs
 rm -rf html
