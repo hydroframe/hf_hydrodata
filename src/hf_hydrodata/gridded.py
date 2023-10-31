@@ -850,7 +850,7 @@ def _validate_user():
     response = requests.get(url_security, timeout=1200)
     if not response.status_code == 200:
         raise ValueError(
-            f"No registered PIN for email '{email}'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'."
+            f"User Validation Failed.  The email '{email}' may not be registered at https://hydrogen.princeton.edu/pin, may not be registered on this machine using register_pin(), or may not be registered with the same pin at https://hydrogen.princeton.edu/pin as was registered on this machine with register_pin(). See documentation to register with an email and pin."
         )
     json_string = response.content.decode("utf-8")
     jwt_json = json.loads(json_string)
