@@ -407,7 +407,7 @@ def test_read_data_all_entries():
             start_time = "1984-11-01"
         elif dataset == "conus1_domain":
             start_time = "2005-09-01"
-        elif dataset == "NLDAS3":
+        elif dataset == "CW3E":
             start_time = "2005-09-02"
 
         try:
@@ -1219,6 +1219,20 @@ def test_timezone():
         grid_bounds=bounds,
     )
     assert data.shape[0] == 7
+
+def test_get_date_range():
+    """Test get_date_range."""
+
+    options = {
+        "dataset": "NLDAS2",
+        "variable": "precipitation",
+        "period": "daily",
+        "start_time": "2005-08-01",
+    }
+
+    (low, high) = hf_hydrodata.gridded.get_date_range(options)
+    assert low.strftime("%Y-%m-%d") == "2002-10-01"
+    assert high.strftime("%Y-%m-%d") == "2006-09-30"
 
 
 if __name__ == "__main__":

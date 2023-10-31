@@ -1,6 +1,6 @@
 id,dataset_type,description,summary,paper_dois,dataset_dois,dataset_start_date,dataset_end_date,structure_type,time_zone,documentation_link,has_ensemble
-conus1_baseline_85,parflow,WY 1985 Baseline CONUS1 simulation,,10.1126/science.aaf7891; 10.5194/hess-21-1117-2017,,10/1/84,10/1/84,gridded,UTC−06:00,,
-conus1_baseline_mod,parflow,Modern CONUS1 simulations WY 2003-2006,,10.5194/gmd-14-7223-2021,,10/1/02,10/1/02,gridded,UTC−0:00,,
+conus1_baseline_85,parflow,WY 1985 Baseline CONUS1 simulation,,10.1126/science.aaf7891; 10.5194/hess-21-1117-2017,,10/1/84,9/30/06,gridded,UTC−06:00,,
+conus1_baseline_mod,parflow,Modern CONUS1 simulations WY 2003-2006,,10.5194/gmd-14-7223-2021,,10/1/02,9/30/06,gridded,UTC−0:00,,
 conus1_domain,parameters,Inputs for baseline CONUS1 ParFlow Simulations,"The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
 The domain extent and projection are based off of the National Water Model Grid. 
 Manual corrections were made along the coastline to get rid of cells that were water 

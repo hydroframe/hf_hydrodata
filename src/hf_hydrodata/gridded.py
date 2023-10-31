@@ -773,7 +773,7 @@ def _verify_time_in_range(entry: dict, options: dict):
     ):
         if not dataset_start_date_value <= start_time_value <= dataset_end_date_value:
             raise ValueError(
-                f"The start_time '{start_time}' is not within the available range of data for the dataset between '{dataset_start_date}' and '{dataset_end_date}'"
+                f"The start_time '{start_time}' is not within the available date range between '{dataset_start_date}' and '{dataset_end_date}'"
             )
 
 
