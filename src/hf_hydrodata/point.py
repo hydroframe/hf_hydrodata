@@ -301,7 +301,55 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
 
 def get_site_variables(*args, **kwargs):
     """
-    DOCSTRING
+    Return DataFrame with available sites, variables, and the period of record.
+
+    Parameters
+    ----------
+    \*args :
+        Optional positional parameters that must be a dict with filter options. See 'Keyword Arguments' below.
+    \**kwargs :
+        Supports multiple named parameters with filter option values. See 'Keyword Arguments' below.
+
+    Keyword Arguments
+    --------------------
+    data_source : str
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
+        'ameriflux'.
+    variable : str
+        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
+        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
+        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+    temporal_resolution : str
+        Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
+        Please see the documentation for allowable combinations with `variable`.
+    aggregation : str
+        Additional information specifying the aggregation method for the variable to be returned.
+        Options include descriptors such as 'average' and 'total'. Please see the documentation
+        for allowable combinations with `variable`.
+    date_start : str; default=None
+        'YYYY-MM-DD' date indicating beginning of time range.
+    date_end : str; default=None
+        'YYYY-MM-DD' date indicating end of time range.
+    latitude_range : tuple; default=None
+        Latitude range bounds for the geographic domain; lesser value is provided first.
+    longitude_range : tuple; default=None
+        Longitude range bounds for the geographic domain; lesser value is provided first.
+    site_ids : list; default=None
+        List of desired (string) site identifiers.
+    state : str; default=None
+        Two-letter postal code state abbreviation.
+    polygon : str
+        Path to location of shapefile. Must be readable by `geopandas.read_file()`.
+    site_networks: list
+        List of names of site networks. Can be a list with a single network name.
+        Each network must have matching .csv file with a list of site ID values that comprise
+        the network. This .csv file must be located under network_lists/{data_source}/{variable}
+        in the package directory and named as 'network_name'.csv. Eg: `site_networks=['gagesii']`
+
+    Returns
+    -------
+    DataFrame
+        DataFrame unique by site_id and variable_name with site- and variable-level metadata.
     """
     if len(args) > 0 and isinstance(args[0], dict):
         options = args[0]
@@ -818,6 +866,19 @@ def get_registered_api_pin() -> Tuple[str, str]:
 
 
 def _get_variables(conn):
+    """
+    Get list of stored variables.
+
+    Parameters
+    ----------
+    conn : Connection object
+        The Connection object associated with the SQLite database to query from. 
+
+    Returns
+    -------
+    DataFrame
+        DataFrame containing the entries from the variables SQLite table.
+    """
     query = """
             SELECT *
             FROM variables
@@ -906,8 +967,7 @@ def _get_var_id(conn, data_source, variable, temporal_resolution, aggregation, *
     Parameters
     ----------
     conn : Connection object
-        The Connection object associated with the SQLite database to 
-        query from. 
+        The Connection object associated with the SQLite database to query from. 
     data_source : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs', 
         'ameriflux'.    
