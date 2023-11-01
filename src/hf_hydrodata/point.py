@@ -313,8 +313,10 @@ def _get_data_from_api(
         headers = _validate_user()
         response = requests.get(point_data_url, headers=headers, timeout=180)
         if response.status_code != 200:
+            json_content = json.loads(response.content)
+            message = json_content["message"]
             raise ValueError(
-                f"The  {point_data_url} returned error code {response.status_code} with message {response.content}."
+                f"{message}."
             )
 
     except requests.exceptions.Timeout as e:
