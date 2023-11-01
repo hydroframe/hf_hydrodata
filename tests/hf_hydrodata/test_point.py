@@ -830,12 +830,150 @@ def test_get_data_min_num_obs_filter():
 def test_get_citations():
     """Test for get_citations function with return DataFrame."""
     doi_df = point.get_citations(data_source='ameriflux', variable='latent heat flux',
-                                         temporal_resolution='hourly', aggregation='total',
-                                         site_ids=['US-Act', 'US-Bar'])
+                                 temporal_resolution='hourly', aggregation='total',
+                                 site_ids=['US-Act', 'US-Bar'])
 
     assert doi_df.shape == (2, 2)
     assert 'site_id' in doi_df.columns
     assert 'doi' in doi_df.columns
+
+
+def test_get_variables_lat_lon():
+    """Test get_site_variables function with lat/lon filter"""
+    df = point.get_site_variables(
+        latitude_range=(47, 50),
+        longitude_range=(-75, -60))
+
+    # Bounds are flexible for if more sites are added
+    assert (len(df) >= 36) & (len(df) <= 50)
+    assert '01011000' in list(df['site_id'])
+    assert 'stream gauge' in list(df['site_type'])
+    assert 'groundwater well' in list(df['site_type'])
+
+
+def test_get_variables_variable_filter():
+    """Test get_site_variables function with variable filter"""
+    df = point.get_site_variables(
+        latitude_range=(47, 50),
+        longitude_range=(-75, -60),
+        variable='streamflow')
+
+    # Bounds are flexible for if more sites are added
+    assert (len(df) >= 10) & (len(df) <= 15)
+    assert '01011000' in list(df['site_id'])
+    assert 'stream gauge' in list(df['site_type'])
+    assert 'groundwater well' not in list(df['site_type'])
+
+
+def test_get_variables_temporal_filter():
+    """Test get_site_variables function with temporal_resolution filter"""
+    df = point.get_site_variables(
+        latitude_range=(47, 50),
+        longitude_range=(-75, -60),
+        variable='streamflow',
+        temporal_resolution='daily')
+
+    # Bounds are flexible for if more sites are added
+    assert (len(df) >= 6) & (len(df) <= 9)
+    assert '01011000' in list(df['site_id'])
+    assert 'stream gauge' in list(df['site_type'])
+    assert 'groundwater well' not in list(df['site_type'])
+    assert 'Daily average streamflow' in list(df['variable_name'])
+    assert 'Hourly average streamflow' not in list(df['variable_name'])
+
+
+def test_get_variables_source_filter():
+    """Test get_site_variables function with data_source filter"""
+    df = point.get_site_variables(
+        latitude_range=(39, 40),
+        longitude_range=(-120, -119),
+        data_source='usda_nrcs')
+
+    # Bounds are flexible for if more sites are added
+    assert (len(df) >= 40) & (len(df) <= 50)
+    assert '340:NV:SNTL' in list(df['site_id'])
+    assert 'SNOTEL station' in list(df['site_type'])
+    assert 'groundwater well' not in list(df['site_type'])
+
+
+def test_get_variables_aggregation_filter():
+    """Test get_site_variables function with aggregation filter"""
+    df = point.get_site_variables(
+        latitude_range=(39, 40),
+        longitude_range=(-120, -119),
+        data_source='usda_nrcs',
+        variable='temperature',
+        aggregation='average')
+
+    # Bounds are flexible for if more sites are added
+    assert (len(df) >= 4) & (len(df) <= 8)
+    assert '340:NV:SNTL' in list(df['site_id'])
+    assert 'Daily average temperature' in list(df['variable_name'])
+    assert 'Daily minimum temperature' not in list(df['variable_name'])
+
+
+def test_get_variables_date_filter():
+    """Test get_site_variables function with date filters"""
+    df = point.get_site_variables(
+        latitude_range=(47, 50),
+        longitude_range=(-75, -60),
+        date_start='2015-01-01',
+        date_end='2015-12-31')
+
+    # Bounds are flexible for if more sites are added
+    assert (len(df) >= 11) & (len(df) <= 16)
+    assert '01011000' in list(df['site_id'])
+    assert 'stream gauge' in list(df['site_type'])
+    assert 'groundwater well' in list(df['site_type'])
+
+
+def test_get_variables_site_filter():
+    """Test get_site_variables function with site_ids filter"""
+    df = point.get_site_variables(
+        site_ids=['01011000', '01013500'])
+
+    # Bounds are flexible for if more sites are added
+    assert len(df) == 4
+    assert '01011000' in list(df['site_id'])
+    assert '01013500' in list(df['site_id'])
+    assert 'Daily average streamflow' in list(df['variable_name'])
+    assert 'Hourly average streamflow' in list(df['variable_name'])
+
+
+def test_get_variables_state_filter():
+    """Test get_site_variables function with state filter"""
+    df = point.get_site_variables(
+        latitude_range=(45, 50),
+        longitude_range=(-75, -60),
+        state='VT')
+
+    # Bounds are flexible for if more sites are added
+    assert len(df) == 4
+    assert '04293430' in list(df['site_id'])
+    assert '04294300' in list(df['site_id'])
+    assert 'Daily average streamflow' in list(df['variable_name'])
+    assert 'Hourly average streamflow' in list(df['variable_name'])
+
+
+def test_get_variables_networks_filter_fail():
+    """Test failure code returned if not enough information provided with site_networks filter"""
+    with pytest.raises(Exception):
+        point.get_site_variables(
+            state='NJ',
+            site_networks='gagesii')
+
+
+def test_get_variables_networks_filter():
+    """Test get_site_variables function with site_networks filter"""
+    df = point.get_site_variables(
+        state='NJ',
+        data_source='usgs_nwis',
+        variable='streamflow',
+        temporal_resolution='daily',
+        site_networks=['gagesii'])
+
+    assert len(df) == 121
+    assert '01367800' in list(df['site_id'])
 
 
 if __name__ == "__main__":

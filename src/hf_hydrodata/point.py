@@ -428,7 +428,15 @@ def get_site_variables(*args, **kwargs):
 
     # Site Networks
     if 'site_networks' in options and options['site_networks'] is not None:
-        network_site_list = _get_network_site_list(data_source, variable, options['site_networks'])
+        try:
+            assert 'data_source' in options and options['data_source'] is not None
+            assert 'variable' in options and options['variable'] is not None
+        except:
+            raise ValueError("Please provide parameter values for data_source and variable if specifying site_networks")
+        network_site_list = _get_network_site_list(
+            options['data_source'],
+            options['variable'],
+            options['site_networks'])
         network_query = """ AND s.site_id IN (%s)""" % ','.join('?'*len(network_site_list))
         for s in network_site_list:
             param_list.append(s)
