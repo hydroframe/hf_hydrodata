@@ -541,32 +541,6 @@ def _get_data_from_api(
     return data_df
 
 
-def _validate_user():
-    email, pin = get_registered_api_pin()
-    url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
-    response = requests.get(url_security, headers=None, timeout=15)
-    if not response.status_code == 200:
-        raise ValueError(
-            f"The  {url_security} returned error code {response.status_code} with message {response.content}. User may need register their email and pin. See documentation to register with a URL."
-        )
-    json_string = response.content.decode("utf-8")
-    jwt_json = json.loads(json_string)
-    expires_string = jwt_json.get("expires")
-    if expires_string:
-        expires = datetime.datetime.strptime(
-            expires_string, "%Y/%m/%d %H:%M:%S GMT-0000"
-        )
-        now = datetime.datetime.now()
-        if now > expires:
-            raise ValueError(
-                "PIN has expired. Please re-register it from https://hydrogen.princeton.edu/pin"
-            )
-    jwt_token = jwt_json["jwt_token"]
-    headers = {}
-    headers["Authorization"] = f"Bearer {jwt_token}"
-    return headers
-
-
 def get_registered_api_pin() -> Tuple[str, str]:
     """
     Get the email and pin registered by the current user.
@@ -824,7 +798,7 @@ def _validate_user():
     response = requests.get(url_security, headers=None, timeout=15)
     if not response.status_code == 200:
         raise ValueError(
-            f"The  {url_security} returned error code {response.status_code} with message {response.content}.  The email '{email}' may not be registered. See documentation to register with an email and pin."
+            f"User Validation Failed.  The email '{email}' may not be registered at https://hydrogen.princeton.edu/pin, may not be registered on this machine using the register_pin() function, or may not be registered with the same pin at https://hydrogen.princeton.edu/pin as was registered on this machine using register_pin(). See documentation to register with an email and pin."
         )
     json_string = response.content.decode("utf-8")
     jwt_json = json.loads(json_string)
