@@ -870,5 +870,4 @@ def test_get_citations():
 
 
 if __name__ == "__main__":
-    # pytest.main()
-    test_polygon_filter()
+    pytest.main()
