@@ -72,7 +72,7 @@ def get_data(data_source, variable, temporal_resolution, aggregation, *args, **k
     state : str; default=None
         Two-letter postal code state abbreviation.
     polygon : str
-        Path to location of shapefile. Must be readable by `geopandas.read_file()`.
+        Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     site_networks: list
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise
@@ -187,7 +187,7 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
     state : str; default=None
         Two-letter postal code state abbreviation.
     polygon : str
-        Path to location of shapefile. Must be readable by `geopandas.read_file()`.
+        Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     site_networks: list
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise
@@ -875,7 +875,7 @@ def _get_sites(conn, data_source, variable, temporal_resolution, aggregation, *a
     state : str; default=None
         Two-letter postal code state abbreviation.
     polygon : str
-        Path to location of shapefile. Must be readable by `geopandas.read_file()`.
+        Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     site_networks: list
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise
