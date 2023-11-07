@@ -979,7 +979,7 @@ def _get_sites(conn, data_source, variable, temporal_resolution, aggregation, *a
 
         # Convert features to shapely geometries
         try:
-            assert len(shp.shapeRecords() == 1)
+            assert len(shp.shapeRecords()) == 1
         except:
             raise Exception("Please make sure your input shapefile contains only a single shape feature.")
 
