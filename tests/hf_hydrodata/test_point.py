@@ -838,7 +838,12 @@ def test_polygon_filter():
         "average",
         date_start="2002-01-01",
         date_end="2002-01-05",
-        polygon=f'{TEST_DATA_DIR}/raritan_watershed.shp'
+        polygon=f'{TEST_DATA_DIR}/raritan_watershed.shp',
+        polygon_crs="""GEOGCS["GCS_North_American_1983",
+                        DATUM["D_North_American_1983",
+                        SPHEROID["GRS_1980",6378137.0,298.257222101]],
+                        PRIMEM["Greenwich",0.0],
+                        UNIT["Degree",0.0174532925199433]]"""
     )
     assert len(df) == 5
     assert len(df.columns) >= 25
@@ -851,11 +856,28 @@ def test_polygon_filter():
         "average",
         date_start="2002-01-01",
         date_end="2002-01-05",
-        polygon=f'{TEST_DATA_DIR}/raritan_watershed.shp'
+        polygon=f'{TEST_DATA_DIR}/raritan_watershed.shp',
+        polygon_crs="""GEOGCS["GCS_North_American_1983",
+                        DATUM["D_North_American_1983",
+                        SPHEROID["GRS_1980",6378137.0,298.257222101]],
+                        PRIMEM["Greenwich",0.0],
+                        UNIT["Degree",0.0174532925199433]]"""
     )
-
     assert len(metadata_df) >= 24
     assert '01401000' in list(metadata_df['site_id'])
+
+
+def test_polygon_filter_fail():
+    """Ensure polygon processing fails if no polygon_crs provided"""
+    with pytest.raises(Exception):
+        point.get_data(
+            "usgs_nwis",
+            "streamflow",
+            "daily",
+            "average",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            polygon=f'{TEST_DATA_DIR}/raritan_watershed.shp')
 
 
 def test_get_citations():
