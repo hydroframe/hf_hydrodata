@@ -348,7 +348,7 @@ def get_site_variables(*args, **kwargs):
     state : str; default=None
         Two-letter postal code state abbreviation.
     polygon : str
-        Path to location of shapefile. Must be readable by `geopandas.read_file()`.
+        Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     site_networks: list
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise
