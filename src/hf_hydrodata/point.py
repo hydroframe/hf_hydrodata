@@ -13,6 +13,12 @@ import geopandas as gpd
 import xarray as xr
 import numpy as np
 import requests
+import shapefile
+import pyproj
+from shapely import contains_xy
+from shapely.geometry import Point, shape
+from shapely.ops import transform
+
 
 HYDRODATA = "/hydrodata"
 DB_PATH = f"{HYDRODATA}/national_obs/point_obs.sqlite"
@@ -66,6 +72,8 @@ def get_data(data_source, variable, temporal_resolution, aggregation, *args, **k
         List of desired (string) site identifiers.
     state : str; default=None
         Two-letter postal code state abbreviation.
+    polygon : str
+        Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     site_networks: list
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise
@@ -179,6 +187,8 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
         List of desired (string) site identifiers.
     state : str; default=None
         Two-letter postal code state abbreviation.
+    polygon : str
+        Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     site_networks: list
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise
@@ -531,7 +541,7 @@ def _get_data_from_api(
         response = requests.get(point_data_url, headers=headers, timeout=180)
         if response.status_code != 200:
             raise ValueError(
-                f"The  {point_data_url} returned error code {response.status_code} with message {response.content}."
+                f"{response.content}."
             )
 
     except requests.exceptions.Timeout as e:
@@ -1102,6 +1112,8 @@ def _get_sites(conn, data_source, variable, temporal_resolution, aggregation, *a
         List of desired (string) site identifiers.
     state : str; default=None
         Two-letter postal code state abbreviation.
+    polygon : str
+        Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     site_networks: list
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise
@@ -1197,7 +1209,57 @@ def _get_sites(conn, data_source, variable, temporal_resolution, aggregation, *a
 
     df = pd.read_sql_query(query, conn, params=param_list)
 
-    return df
+    # Polygon shapefile provided
+    if 'polygon' in options and options['polygon'] is not None:
+
+        # Read in shapefile
+        shp = shapefile.Reader(options['polygon'])
+
+        # Convert features to shapely geometries
+        try:
+            assert len(shp.shapeRecords()) == 1
+        except:
+            raise Exception("Please make sure your input shapefile contains only a single shape feature.")
+
+        feature = shp.shapeRecords()[0].shape.__geo_interface__
+        shp_geom = shape(feature)
+
+        # Make sure CRS aligns between polygon and lat/lon points
+        try:
+            assert 'polygon_crs' in options and options['polygon_crs'] is not None
+        except:
+            raise Exception(
+                """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input() 
+                   to specify this shape's CRS.""")
+
+        shp_crs = pyproj.CRS.from_user_input(options['polygon_crs'])
+
+        project = pyproj.Transformer.from_crs(
+            shp_crs, pyproj.CRS('EPSG:4326'), always_xy=True).transform
+        shp_geom_crs = transform(project, shp_geom)
+
+        # Clip points to only those within the polygon
+        df['clip'] = df.apply(lambda x: contains_xy(shp_geom_crs, x['longitude'], x['latitude']), axis=1)
+        clipped_df = df[df['clip'] == True].reset_index().drop(columns=['index', 'clip'])
+
+        return clipped_df
+
+        # gdf = gpd.GeoDataFrame(
+        #     df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
+        # mask = gpd.read_file(options['polygon'])
+
+        # try:
+        #     assert mask.crs is not None
+        #     mask_proj = mask.to_crs('EPSG:4326')
+        # except:
+        #     raise Exception('Please make sure the referenced shapefile has a crs defined.')
+
+        # clipped_points = gpd.clip(gdf, mask_proj)
+        # clipped_df = pd.DataFrame(clipped_points.drop(columns='geometry'))
+        # return clipped_df
+
+    else:
+        return df
 
 
 def _get_network_site_list(data_source, variable, site_networks):
