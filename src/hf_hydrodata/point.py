@@ -9,7 +9,6 @@ import json
 import sqlite3
 import datetime as dt
 import pandas as pd
-import geopandas as gpd
 import xarray as xr
 import numpy as np
 import requests
@@ -469,18 +468,36 @@ def get_site_variables(*args, **kwargs):
 
     # Polygon shapefile provided
     if 'polygon' in options and options['polygon'] is not None:
-        gdf = gpd.GeoDataFrame(
-            df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
-        mask = gpd.read_file(options['polygon'])
 
+        # Read in shapefile
+        shp = shapefile.Reader(options['polygon'])
+
+        # Convert features to shapely geometries
         try:
-            assert mask.crs is not None
-            mask_proj = mask.to_crs('EPSG:4326')
+            assert len(shp.shapeRecords()) == 1
         except:
-            raise Exception('Please make sure the referenced shapefile has a crs defined.')
+            raise Exception("Please make sure your input shapefile contains only a single shape feature.")
 
-        clipped_points = gpd.clip(gdf, mask_proj)
-        clipped_df = pd.DataFrame(clipped_points.drop(columns='geometry'))
+        feature = shp.shapeRecords()[0].shape.__geo_interface__
+        shp_geom = shape(feature)
+
+        # Make sure CRS aligns between polygon and lat/lon points
+        try:
+            assert 'polygon_crs' in options and options['polygon_crs'] is not None
+        except:
+            raise Exception(
+                """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input() 
+                   to specify this shape's CRS.""")
+
+        shp_crs = pyproj.CRS.from_user_input(options['polygon_crs'])
+
+        project = pyproj.Transformer.from_crs(
+            shp_crs, pyproj.CRS('EPSG:4326'), always_xy=True).transform
+        shp_geom_crs = transform(project, shp_geom)
+
+        # Clip points to only those within the polygon
+        df['clip'] = df.apply(lambda x: contains_xy(shp_geom_crs, x['longitude'], x['latitude']), axis=1)
+        clipped_df = df[df['clip'] == True].reset_index().drop(columns=['index', 'clip'])
         df = clipped_df.copy()
 
     # Map var_id into variable, temporal_resolution, aggregation
@@ -1243,20 +1260,6 @@ def _get_sites(conn, data_source, variable, temporal_resolution, aggregation, *a
         clipped_df = df[df['clip'] == True].reset_index().drop(columns=['index', 'clip'])
 
         return clipped_df
-
-        # gdf = gpd.GeoDataFrame(
-        #     df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
-        # mask = gpd.read_file(options['polygon'])
-
-        # try:
-        #     assert mask.crs is not None
-        #     mask_proj = mask.to_crs('EPSG:4326')
-        # except:
-        #     raise Exception('Please make sure the referenced shapefile has a crs defined.')
-
-        # clipped_points = gpd.clip(gdf, mask_proj)
-        # clipped_df = pd.DataFrame(clipped_points.drop(columns='geometry'))
-        # return clipped_df
 
     else:
         return df
