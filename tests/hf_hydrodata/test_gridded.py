@@ -317,15 +317,6 @@ def test_paths_hourly_files():
         == "/hydrodata/PFCLM/CONUS1_baseline/simulations/2006/raw_outputs/pressure/CONUS.2006.out.press.00048.pfb"
     )
 
-
-def test_get_yaml_data_catalog():
-    """Test get_yaml_data_catalog"""
-
-    hf_hydrodata.gridded.HYDRODATA = "/hydrodata"
-    data_catalog = data_catalog = hf_hydrodata.gridded.get_yaml_data_catalog()
-    assert len(data_catalog.get("sources")) >= 162
-
-
 def test_files_exist():
     """Test that the files found in every data_catalog_entry exist."""
 
@@ -981,14 +972,14 @@ def test_get_huc_bbox_conus1():
 
     hf_hydrodata.gridded.HYDRODATA = "/hydrodata"
     with pytest.raises(ValueError):
-        hf_hydrodata.grid.get_huc_bbox("bad grid", ["1019000404"])
+        hf_hydrodata.gridded.get_huc_bbox("bad grid", ["1019000404"])
     with pytest.raises(ValueError):
-        hf_hydrodata.grid.get_huc_bbox("conus1", ["1019000404", "123"])
+        hf_hydrodata.gridded.get_huc_bbox("conus1", ["1019000404", "123"])
 
-    bbox = hf_hydrodata.grid.get_huc_bbox("conus1", ["1019000404"])
+    bbox = hf_hydrodata.gridded.get_huc_bbox("conus1", ["1019000404"])
     assert bbox == (1076, 720, 1124, 739)
 
-    bbox = hf_hydrodata.grid.get_huc_bbox("conus1", ["1102001002", "1102001003"])
+    bbox = hf_hydrodata.gridded.get_huc_bbox("conus1", ["1102001002", "1102001003"])
     assert bbox == (1088, 415, 1132, 453)
 
 
@@ -1246,6 +1237,42 @@ def test_ambiguous_filter():
     with pytest.raises(ValueError) as info:
         hf_hydrodata.gridded.get_catalog_entry(options)
     assert "variable = 'precipitation' or 'downward_longwave" in str(info.value)
+
+def test_get_huc_from_point():
+    """Unit test for get_huc_from_latlon and get_huc_from_xy"""
+
+    grid = "conus1"
+    (lat, lng) = hf_hydrodata.grid.to_latlon("conus1", 1078, 722)
+    huc_id = hf_hydrodata.gridded.get_huc_from_latlon(grid, 10, lat, lng)
+    assert huc_id == "1019000404"
+
+    huc_id = hf_hydrodata.gridded.get_huc_from_xy(grid, 10, 1078, 722)
+    assert huc_id == "1019000404"
+
+    huc_id = hf_hydrodata.gridded.get_huc_from_xy(grid, 10, 1078, 1999)
+    assert huc_id is None
+
+
+def test_get_huc_bbox_conus1():
+    """Unit test for get_huc_bbox for conus1"""
+
+    with pytest.raises(ValueError):
+        hf_hydrodata.gridded.get_huc_bbox("bad grid", ["1019000404"])
+    with pytest.raises(ValueError):
+        hf_hydrodata.gridded.get_huc_bbox("conus1", ["1019000404", "123"])
+
+    bbox = hf_hydrodata.gridded.get_huc_bbox("conus1", ["1019000404"])
+    assert bbox == (1076, 720, 1124, 739)
+
+    bbox = hf_hydrodata.gridded.get_huc_bbox("conus1", ["1102001002", "1102001003"])
+    assert bbox == (1088, 415, 1132, 453)
+
+
+def test_get_huc_bbox_conus2():
+    """Unit test for get_huc_bbox for conus2"""
+
+    bbox = hf_hydrodata.gridded.get_huc_bbox("conus2", ["1019000404"])
+    assert bbox == (1468, 1664, 1550, 1693)
 
 if __name__ == "__main__":
     pytest.main([__file__])

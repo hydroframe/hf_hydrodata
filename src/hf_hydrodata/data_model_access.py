@@ -18,6 +18,7 @@ Functions to load the csv files of the data catalog model into a DataModel objec
 # pylint: disable=R0903,W0603,W1514,C0103,R0912,R0914
 
 import os
+import sys
 import csv
 import json
 import requests
@@ -196,6 +197,7 @@ def load_data_model(load_from_api=True) -> DataModel:
     DATA_MODEL_CACHE = data_model
     if load_from_api:
         # Replace the data model with the version from the API
+        sys.tracebacklimit=0
         _load_model_from_api(data_model)
 
     return data_model

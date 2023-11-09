@@ -5,14 +5,13 @@ Functions to access gridded data from the data catalog index of the GPFS files.
 # pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732
 import os
 import datetime
-import logging
 import io
 from typing import List, Tuple
 import json
 import shutil
 import threading
+import tempfile
 import requests
-import yaml
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 import numpy as np
@@ -71,12 +70,15 @@ def register_api_pin(email: str, pin: str):
 
 def get_registered_api_pin() -> Tuple[str, str]:
     """
-    Get the email and pin registered by the current user.
+    Get the email and pin registered by the current user on the current machine.
 
     Returns:
         A tuple (email, pin)
     Raises:
         ValueError if no email/pin was registered
+
+    For example,
+        (email, pin) = get_registered_api_pin()
     """
 
     pin_dir = os.path.expanduser("~/.hydrodata")
@@ -121,13 +123,9 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
 
         entries = get_catalog_entries(options)
 
-        # 9 forcing variables and all metadata
-
-        assert len(entries) == 9
-
-        assert len(entries[0].column_names()) == 20
-
-        assert entries[0]["variable"] == "precipitation"
+        assert len(entries) == 20
+        entry = entries[0]
+        assert entry["dataset"] == "NLDAS2"
     """
 
     result = []
@@ -253,8 +251,8 @@ def get_table_rows(table_name: str, *args, **kwargs) -> List[ModelTableRow]:
 
     For example,
         rows = get_table_rows("variable", variable_type="atmospheric")
-
-        assert row[0]["variable"] == "air_temp"
+        assert len(rows) == 8
+        assert rows[0]["id"] == "air_temp"
     """
 
     result = []
@@ -284,9 +282,8 @@ def get_table_row(table_name: str, *args, **kwargs) -> ModelTableRow:
     Raises:
         ValueError if the filter options are ambiguous and this matches more than one row.
     For example,
-        row = get_table_rows("variable", variable_type="atmospheric")
-
-        assert row["variable"] == "air_temp"
+        row = get_table_row("variable", variable_type="atmospheric", unit_type="pressure")
+        assert row["id"] == "atmospheric_pressure"
     """
 
     rows = get_table_rows(table_name, *args, **kwargs)
@@ -325,7 +322,7 @@ def get_file_paths(entry, *args, **kwargs) -> List[str]:
 
         paths = get_file_paths(entry, start_time="2021-09-30", end_time="2021-10-03")
 
-        assert len(paths) = 3
+        assert len(paths) == 3
     """
     result = []
     if isinstance(entry, ModelTableRow):
@@ -431,7 +428,7 @@ def _construct_string_from_qparams(entry, options):
 
 def get_path(*args, **kwargs) -> str:
     """
-    Get the file path for the filter options.
+    Get the file path within data catalog for the filter options.
 
     Returns:
         An absolute path name to the file location on the GPFS file system.
@@ -439,12 +436,9 @@ def get_path(*args, **kwargs) -> str:
         ValueError if no data data catalog entry is found for the filter options provided.
 
     For example,
-        options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
-                    "start_time="2021-09-30")
+        options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation", "start_time":"2005-09-30"}
 
         path = get_path(options)
-
-        print(path)
     """
 
     result = get_file_path(None, *args, **kwargs)
@@ -452,7 +446,7 @@ def get_path(*args, **kwargs) -> str:
 
 
 def get_file_path(entry, *args, **kwargs) -> str:
-    """Get the file path for a data catalog entry.
+    """Get the file path within /hydrodata for a data catalog entry.
 
     Args:
         entry:          Either a ModelTableRow or the ID number of a data_catalog_entry. If None use the entry found by the filters.
@@ -520,16 +514,15 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
     If z is specified then the result is sliced by the z dimension.
 
     For example, to get data from the 3 daily files bewteen 9/30/2021 and 10/3/2021.
-        bounds = [200, 200, 300, 250]
-
         options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
-                    "start_time="2021-09-30", end_time="2021-10-03", grid_bounds = bounds)
-        data = get_numpy_data(options)
+                    "start_time":"2005-09-30", "end_time":"2005-10-03", "grid_bounds":[200, 200, 300, 250]}
+
         metadata = get_catalog_entry(options)
+        data = get_numpy(options)
 
         # The result has 3 days in the time dimension and sliced to x,y shape 100x50 at origin 200, 200 in the conus1 grid.
 
-        assert data.shape == [3, 100, 50]
+        assert data.shape == (3, 50, 100)
     """
 
     result = get_ndarray(None, *args, **kwargs)
@@ -579,6 +572,11 @@ def _write_file_from_api(filepath, options):
         headers = _get_api_headers()
         response = requests.get(datafile_url, headers=headers, timeout=1200)
         if response.status_code != 200:
+            if response.status_code == 400:
+                content = response.content.decode()
+                response_json = json.loads(content)
+                message = response_json.get("message")
+                raise ValueError(message)
             raise ValueError(
                 f"The datafile_url {datafile_url} returned error code {response.status_code}."
             )
@@ -627,6 +625,13 @@ def get_date_range(*args, **kwargs) -> Tuple[datetime.datetime, datetime.datetim
         kwargs:         Supports multiple named parameters with data filter option values.
     Returns:
         A tuple with (dataset_start_date, dataset_end_date) or None if no date range is available.
+
+    For example,
+        options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
+                    "start_time":"2005-09-30", "end_time":"2005-10-03", "grid_bounds":[200, 200, 300, 250]}
+        range = get_date_range(options)
+        assert range[0] == datetime.datetime(2002, 10, 1)
+        assert range[1] == datetime.datetime(2006, 9, 30)
     """
     result = None
 
@@ -699,19 +704,16 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
 
     If z is specified then the result is sliced by the z dimension.
 
-    For example, to get data from the 3 daily files bewteen 9/30/2021 and 10/3/2021.
-        bounds = [200, 200, 300, 250]
-
+    For example, to get data from the 3 daily files bewteen 9/30-2005 - 10/3/2005.
         options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
-                    "start_time="2021-09-30", end_time="2021-10-03", grid_bounds = bounds)
+                    "start_time":"2005-09-30", "end_time":"2005-10-03", "grid_bounds":[200, 200, 300, 250]}
         entry = get_catalog_entry(options)
 
-
-        data = get_ndarray(entry, start_time="2021-09-30", end_time="2021-10-03", grid_bounds = bounds)
+        data = get_ndarray(entry, options)
 
         # The result has 3 days in the time dimension and sliced to x,y shape 100x50 at origin 200, 200 in the conus1 grid.
 
-        assert data.shape == [3, 100, 50]
+        assert data.shape == (3, 50, 100)
     """
 
     if entry is not None and isinstance(entry, (int, str)):
@@ -771,6 +773,128 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
         options = _convert_json_to_strings(options)
 
     return data
+
+
+def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
+    """
+        Get a HUC id at a lat/lon point for a given grid and level.
+
+        Args:
+            grid:   grid name (e.g. conus1 or conus2)
+            level:  HUC level (length of HUC id to be returned)\
+            lat:    lattitude of point
+            lon:    longitude of point
+        Returns:
+            The HUC id string containing the lat/lon point or None.
+
+        For example,
+            huc_id = get_huc_from_latlon("conus1", 6, 34.48, -115.63)
+            assert huc_id == "181001"
+    """
+    huc_id = None
+    tiff_ds = __get_geotiff(grid, level)
+    [x, y] = to_ij(grid, lat, lon)
+    x = round(x)
+    y = round(y)
+    data = np.flip(tiff_ds[0].to_numpy(), 0)
+    if 0 <= x <= data.shape[1] and 0 <= y <= data.shape[0]:
+        huc_id = np.flip(tiff_ds[0].to_numpy(), 0)[y][x].item()
+        if isinstance(huc_id, float):
+            huc_id = str(huc_id).replace(".0", "")
+    return huc_id
+
+
+def get_huc_from_xy(grid: str, level: int, x: int, y: int) -> str:
+    """
+        Get a HUC id at an xy point for a given grid and level.
+
+        Args:
+            grid:   grid name (e.g. conus1 or conus2)
+            level:  HUC level (length of HUC id to be returned)\
+            x:      x coordinate in the grid
+            y:      y coordinate in the grid
+        Returns:
+            The HUC id string containing the lat/lon point or None.
+
+        For example,
+            huc_id = get_huc_from_xy("conus1", 6, 300, 100)
+            assert huc_id == "181001"
+    """
+    tiff_ds = __get_geotiff(grid, level)
+    data = np.flip(tiff_ds[0].to_numpy(), 0)
+    huc_id = None
+    if 0 <= x <= data.shape[1] and 0 <= y <= data.shape[0]:
+        huc_id = data[y][x].item()
+        if isinstance(huc_id, float):
+            huc_id = str(huc_id).replace(".0", "")
+    return huc_id
+
+
+def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
+    """
+    Get the grid bounding box containing all the HUC ids.
+
+    Args:
+        grid:           A grid id from the data catalog (e.g. conus1 or conus2)
+        huc_id_list:    A list of HUC id strings of HUCs in the grid.
+    Returns:
+        A bounding box in grid coordinates as a list of int (i_min, j_min, i_max, j_max)
+    Raises:
+        ValueError if all the HUC id are not at the same level (same length).
+        ValueError if grid is not valid.
+
+    For example,
+        bbox = get_huc_bbox("conus1", ["181001"])
+        assert bbox == (1, 167, 180, 378)
+    """
+    # Make sure all HUC ids in the list are the same length
+    level = None
+    for huc_id in huc_id_list:
+        if level is None:
+            level = len(huc_id)
+        elif len(huc_id) != level:
+            raise ValueError("All HUC ids in the list must be the same length.")
+
+    # Open the TIFF file of the grid and level
+    tiff_ds = __get_geotiff(grid, level)
+
+    result_imin = 1000000
+    result_imax = 0
+    result_jmin = 1000000
+    result_jmax = 0
+    for huc_id in huc_id_list:
+        tiff_value = int(huc_id) if grid == "conus1" else float(huc_id)
+        sel_huc = (tiff_ds == tiff_value).squeeze()
+
+        # First find where along the y direction has "valid" cells
+        y_mask = (sel_huc.sum(dim="x") > 0).astype(int)
+
+        # Then, taking a diff along that dimension let's us see where the boundaries of that mask ar
+        diffed_y_mask = y_mask.diff(dim="y")
+
+        # Taking the argmin and argmax get's us the locations of the boundaries
+        arr_jmax = (
+            np.argmin(diffed_y_mask.values) + 1
+        )  # this one is because you want to include this right bound in your slice
+        arr_jmin = (
+            np.argmax(diffed_y_mask.values) + 1
+        )  # because of the point you actually want to indicate from the diff function
+
+        jmin = tiff_ds.shape[1] - arr_jmax
+        jmax = tiff_ds.shape[1] - arr_jmin
+
+        # Do the exact same thing for the x dimension
+        diffed_x_mask = (sel_huc.sum(dim="y") > 0).astype(int).diff(dim="x")
+        imax = np.argmin(diffed_x_mask.values) + 1
+        imin = np.argmax(diffed_x_mask.values) + 1
+
+        # Extend the result values to combine multiple HUC ids
+        result_imin = imin if imin < result_imin else result_imin
+        result_imax = imax if imax > result_imax else result_imax
+        result_jmin = jmin if jmin < result_jmin else result_jmin
+        result_jmax = jmax if jmax > result_jmax else result_jmax
+
+    return (result_imin, result_jmin, result_imax, result_jmax)
 
 
 def _verify_time_in_range(entry: dict, options: dict):
@@ -877,6 +1001,11 @@ def _get_ndarray_from_api(entry, options, time_values):
             headers = _get_api_headers()
             response = requests.get(gridded_data_url, headers=headers, timeout=1200)
             if response.status_code != 200:
+                if response.status_code == 400:
+                    content = response.content.decode()
+                    response_json = json.loads(content)
+                    message = response_json.get("message")
+                    raise ValueError(message)
                 raise ValueError(
                     f"The  {gridded_data_url} returned error code {response.status_code}."
                 )
@@ -1302,29 +1431,35 @@ def _read_and_filter_tiff_files(
     return data
 
 
-def get_yaml_data_catalog() -> dict:
+def __get_geotiff(grid: str, level: int) -> xr.Dataset:
     """
-    Get the parsed yaml data catalog.
+    Get an xarray dataset of the geotiff file for the grid at the level.
 
+    Args:
+        grid:   grid name (e.g. conus1 or conus2)
+        level:  HUC level (length of HUC id to be returned)\
     Returns:
-        The hydrodata_catalog.yaml file loaded into a dict.
-
-    The parsed yaml file representation of the data catalog is useful for use
-    by non-python clients such as javascript that want access to the data model information.
+        An xarray dataset with the contents of the geotiff file for the grid and level.
     """
 
-    try:
-        current_file_path = os.path.dirname(__file__)
-        config_file_path = f"{current_file_path}/hydrodata_catalog.yaml"
-        with open(config_file_path, "r") as stream:
-            contents = stream.read()
-            result = yaml.safe_load(contents)
-    except:
-        logging.exception("Unable to load hydrodata_catalog.yaml")
-        result = None
-    if result is None:
-        result = {}
-    return result
+    data_model = load_data_model()
+    options = {
+        "dataset": "huc_mapping",
+        "variable": "huc_map",
+        "grid": grid,
+        "level": str(level),
+    }
+    entry = get_catalog_entry(options)
+    if entry is None:
+        raise ValueError("No data catalog entry found for filter options.")
+    variable = entry["dataset_var"]
+    with tempfile.TemporaryDirectory() as tempdirname:
+        file_path = f"{tempdirname}/huc.tiff"
+        get_raw_file(file_path, options)
+
+        # Open TIFF file
+        tiff_ds = xr.open_dataset(file_path).drop_vars(("x", "y"))[variable]
+        return tiff_ds
 
 
 def _collect_pfb_date_dimensions(
@@ -1591,6 +1726,10 @@ def _substitute_datapath(
     run_number = options.get("run_number")
     site_id = options.get("site_id")
     level = options.get("level")
+    if "{level}" in path and not level:
+        raise ValueError("No 'level' specified in filter options.")
+    if "{site_id}" in path and not site_id:
+        raise ValueError("No 'site_id' specified in filter options.")
     if time_value:
         (wy, wy_start) = _get_water_year(time_value)
         wy_plus1 = str(int(wy) + 1)
