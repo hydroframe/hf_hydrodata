@@ -5,15 +5,13 @@ Functions to access gridded data from the data catalog index of the GPFS files.
 # pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732
 import os
 import datetime
-import logging
 import io
 from typing import List, Tuple
 import json
 import shutil
 import threading
-import requests
-import yaml
 import tempfile
+import requests
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 import numpy as np
@@ -72,12 +70,15 @@ def register_api_pin(email: str, pin: str):
 
 def get_registered_api_pin() -> Tuple[str, str]:
     """
-    Get the email and pin registered by the current user.
+    Get the email and pin registered by the current user on the current machine.
 
     Returns:
         A tuple (email, pin)
     Raises:
         ValueError if no email/pin was registered
+
+    For example,
+        (email, pin) = get_registered_api_pin()
     """
 
     pin_dir = os.path.expanduser("~/.hydrodata")
@@ -122,13 +123,9 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
 
         entries = get_catalog_entries(options)
 
-        # 9 forcing variables and all metadata
-
-        assert len(entries) == 9
-
-        assert len(entries[0].column_names()) == 20
-
-        assert entries[0]["variable"] == "precipitation"
+        assert len(entries) == 20
+        entry = entries[0]
+        assert entry["dataset"] == "NLDAS2"
     """
 
     result = []
@@ -254,8 +251,8 @@ def get_table_rows(table_name: str, *args, **kwargs) -> List[ModelTableRow]:
 
     For example,
         rows = get_table_rows("variable", variable_type="atmospheric")
-
-        assert row[0]["variable"] == "air_temp"
+        assert len(rows) == 8
+        assert rows[0]["id"] == "air_temp"
     """
 
     result = []
@@ -285,9 +282,8 @@ def get_table_row(table_name: str, *args, **kwargs) -> ModelTableRow:
     Raises:
         ValueError if the filter options are ambiguous and this matches more than one row.
     For example,
-        row = get_table_rows("variable", variable_type="atmospheric")
-
-        assert row["variable"] == "air_temp"
+        row = get_table_row("variable", variable_type="atmospheric", unit_type="pressure")
+        assert row["id"] == "atmospheric_pressure"
     """
 
     rows = get_table_rows(table_name, *args, **kwargs)
@@ -326,7 +322,7 @@ def get_file_paths(entry, *args, **kwargs) -> List[str]:
 
         paths = get_file_paths(entry, start_time="2021-09-30", end_time="2021-10-03")
 
-        assert len(paths) = 3
+        assert len(paths) == 3
     """
     result = []
     if isinstance(entry, ModelTableRow):
@@ -432,7 +428,7 @@ def _construct_string_from_qparams(entry, options):
 
 def get_path(*args, **kwargs) -> str:
     """
-    Get the file path for the filter options.
+    Get the file path within data catalog for the filter options.
 
     Returns:
         An absolute path name to the file location on the GPFS file system.
@@ -440,12 +436,9 @@ def get_path(*args, **kwargs) -> str:
         ValueError if no data data catalog entry is found for the filter options provided.
 
     For example,
-        options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
-                    "start_time="2021-09-30")
+        options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation", "start_time":"2005-09-30"}
 
         path = get_path(options)
-
-        print(path)
     """
 
     result = get_file_path(None, *args, **kwargs)
@@ -453,7 +446,7 @@ def get_path(*args, **kwargs) -> str:
 
 
 def get_file_path(entry, *args, **kwargs) -> str:
-    """Get the file path for a data catalog entry.
+    """Get the file path within /hydrodata for a data catalog entry.
 
     Args:
         entry:          Either a ModelTableRow or the ID number of a data_catalog_entry. If None use the entry found by the filters.
@@ -521,16 +514,15 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
     If z is specified then the result is sliced by the z dimension.
 
     For example, to get data from the 3 daily files bewteen 9/30/2021 and 10/3/2021.
-        bounds = [200, 200, 300, 250]
-
         options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
-                    "start_time="2021-09-30", end_time="2021-10-03", grid_bounds = bounds)
-        data = get_numpy_data(options)
+                    "start_time":"2005-09-30", "end_time":"2005-10-03", "grid_bounds":[200, 200, 300, 250]}
+
         metadata = get_catalog_entry(options)
+        data = get_numpy(options)
 
         # The result has 3 days in the time dimension and sliced to x,y shape 100x50 at origin 200, 200 in the conus1 grid.
 
-        assert data.shape == [3, 100, 50]
+        assert data.shape == (3, 50, 100)
     """
 
     result = get_ndarray(None, *args, **kwargs)
@@ -585,10 +577,9 @@ def _write_file_from_api(filepath, options):
                 response_json = json.loads(content)
                 message = response_json.get("message")
                 raise ValueError(message)
-            else:
-                raise ValueError(
-                    f"The datafile_url {datafile_url} returned error code {response.status_code}."
-                )
+            raise ValueError(
+                f"The datafile_url {datafile_url} returned error code {response.status_code}."
+            )
 
     except requests.exceptions.Timeout as e:
         raise ValueError(f"The datafile_url {datafile_url} has timed out.") from e
@@ -634,6 +625,13 @@ def get_date_range(*args, **kwargs) -> Tuple[datetime.datetime, datetime.datetim
         kwargs:         Supports multiple named parameters with data filter option values.
     Returns:
         A tuple with (dataset_start_date, dataset_end_date) or None if no date range is available.
+
+    For example,
+        options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
+                    "start_time":"2005-09-30", "end_time":"2005-10-03", "grid_bounds":[200, 200, 300, 250]}
+        range = get_date_range(options)
+        assert range[0] == datetime.datetime(2002, 10, 1)
+        assert range[1] == datetime.datetime(2006, 9, 30)
     """
     result = None
 
@@ -775,6 +773,7 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
         options = _convert_json_to_strings(options)
 
     return data
+
 
 def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
     """
@@ -1007,10 +1006,9 @@ def _get_ndarray_from_api(entry, options, time_values):
                     response_json = json.loads(content)
                     message = response_json.get("message")
                     raise ValueError(message)
-                else:
-                    raise ValueError(
-                        f"The  {gridded_data_url} returned error code {response.status_code}."
-                    )
+                raise ValueError(
+                    f"The  {gridded_data_url} returned error code {response.status_code}."
+                )
 
         except requests.exceptions.Timeout as e:
             raise ValueError(
@@ -1445,7 +1443,12 @@ def __get_geotiff(grid: str, level: int) -> xr.Dataset:
     """
 
     data_model = load_data_model()
-    options = {"dataset": "huc_mapping", "variable": "huc_map", "grid": grid, "level": str(level)}
+    options = {
+        "dataset": "huc_mapping",
+        "variable": "huc_map",
+        "grid": grid,
+        "level": str(level),
+    }
     entry = get_catalog_entry(options)
     variable = entry["dataset_var"]
     with tempfile.TemporaryDirectory() as tempdirname:
@@ -1455,6 +1458,7 @@ def __get_geotiff(grid: str, level: int) -> xr.Dataset:
         # Open TIFF file
         tiff_ds = xr.open_dataset(file_path).drop_vars(("x", "y"))[variable]
         return tiff_ds
+
 
 def _collect_pfb_date_dimensions(
     time_values: List[str], data: np.ndarray, start_time_value: datetime.datetime
