@@ -22,6 +22,7 @@ import csv
 import json
 import requests
 import logging
+from warnings import warn
 
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev.princeton.edu")
 
@@ -302,7 +303,7 @@ def _load_model_from_api(data_model: DataModel):
             response_json = json.loads(response.text)
             data_model.import_from_dict(response_json)
         else:
-            logging.info("Error status '%s' response while loading data catalog model from API '%s'", response.status_code, url)
+            warn("Unable to update model from API (no internet access?) Error %s from '%s'", response.status_code, url)
             # Do not cache data model if an API error occurred
     except Exception as e:
         logging.exception("Error loading data catalog model from API '%s'", url)

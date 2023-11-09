@@ -80,12 +80,21 @@ def from_latlon(grid: str, *args) -> List[float]:
     if grid_row is None:
         raise ValueError(f"No such grid {grid} available.")
     grid_resolution = float(grid_row["resolution_meters"])
+    shape = grid_row["shape"]
     for index in range(0, len(args), 2):
         lat = args[index]
         lon = args[index + 1]
         (x, y) = to_meters(grid, lat, lon)
-        result.append(x / grid_resolution)
-        result.append(y / grid_resolution)
+        x = x / grid_resolution
+        y = y / grid_resolution
+        if shape and len(shape) >= 2:
+            # Check if x,y points are within the grid bounds
+            bounds_x = float(shape[2])
+            bounds_y = float(shape[1])
+            if not (0 <= round(x) <= bounds_x and 0 <= round(y) <= bounds_y):
+                raise ValueError(f"The lat/lon point maps to {x},{y} which is outside of grid bounds {bounds_x}, {bounds_y}")
+        result.append(x)
+        result.append(y)
     return result  
 
 def to_meters(grid: str, *args) -> List[float]:
