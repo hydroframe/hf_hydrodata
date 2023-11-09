@@ -206,7 +206,7 @@ def test_get_entries():
     )
 
 
-def test_get_entry():
+def test_get_entry_filter():
     """Test getting single data_catalog_entry using filters."""
 
     hf_hydrodata.gridded.HYDRODATA = "/hydrodata"
@@ -1004,8 +1004,8 @@ def test_latlng_to_grid_out_of_bounds():
     """Unit tests for when latlng is out of bounds of conus1."""
 
     hf_hydrodata.gridded.HYDRODATA = "/hydrodata"
-    (_, y) = hf_hydrodata.grid.from_latlon("conus1", 90, -180)
-    assert y > 1888
+    with pytest.raises(ValueError):
+        (_, _) = hf_hydrodata.grid.from_latlon("conus1", 90, -180)
 
 
 def test_get_ndarray_no_entry_passed():
@@ -1234,6 +1234,18 @@ def test_get_date_range():
     assert low.strftime("%Y-%m-%d") == "2002-10-01"
     assert high.strftime("%Y-%m-%d") == "2006-09-30"
 
+
+def test_ambiguous_filter():
+    """Test ambiguous filter request."""
+    options = {
+        "dataset": "NLDAS2",
+        "period": "daily",
+        "start_time": "2005-08-01",
+    }
+
+    with pytest.raises(ValueError) as info:
+        hf_hydrodata.gridded.get_catalog_entry(options)
+    assert "variable = 'precipitation' or 'downward_longwave" in str(info.value)
 
 if __name__ == "__main__":
     pytest.main([__file__])

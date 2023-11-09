@@ -2,7 +2,7 @@
 Functions to access gridded data from the data catalog index of the GPFS files.
 """
 
-# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632
+# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732
 import os
 import datetime
 import logging
@@ -10,9 +10,9 @@ import io
 from typing import List, Tuple
 import json
 import shutil
+import threading
 import requests
 import yaml
-import threading
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 import numpy as np
@@ -190,6 +190,7 @@ def _get_preferred_catalog_entry(entries: List[dict]) -> dict:
     else:
         preferred_file_types = ["pfb", "tif", "netcdf"]
         id_1 = None
+        entry_1 = None
         file_type_1_index = 1000
         result = None
         for entry in entries:
@@ -199,18 +200,37 @@ def _get_preferred_catalog_entry(entries: List[dict]) -> dict:
                 if preferred_file_types.index(file_type_2) < file_type_1_index:
                     result = entry
                     id_1 = id_2
+                    entry_1 = entry
                     file_type_1_index = preferred_file_types.index(file_type_2)
                 elif preferred_file_types.index(file_type_2) == file_type_1_index:
-                    raise ValueError(
-                        f"Ambiguous filter result. Could be {id_1} or {id_2}."
-                    )
+                    raise ValueError(_ambiguous_error_message(entry_1, entry))
             elif id_1 is None:
                 result = entry
                 id_1 = id_2
+                entry_1 = entry
             elif file_type_1_index == 1000:
-                raise ValueError(f"Ambiguous filter result. Could be {id_1} or {id_2}.")
+                raise ValueError(_ambiguous_error_message(entry_1, entry))
 
     return result
+
+
+def _ambiguous_error_message(entry_1: dict, entry_2: dict) -> str:
+    """Returns an error message describing who entry_1 and entry_2 are ambiguous."""
+
+    diff_list = []
+    key_variables = ["dataset", "period", "aggregation", "grid", "variable"]
+    for variable in key_variables:
+        value_1 = entry_1[variable]
+        value_2 = entry_2[variable]
+        if value_1 and value_2 and not value_1 == value_2:
+            diff_list.append(f"{variable} = '{value_1}' or '{value_2}'")
+    if len(diff_list) > 0:
+        differences = ", ".join(diff_list)
+    else:
+        id_1 = entry_1["id"]
+        id_2 = entry_2["id"]
+        differences = f"id = '{id_1}' or'{id_2}'"
+    return f"Ambiguous filter. Could be {differences}."
 
 
 def get_table_names() -> List[str]:

@@ -108,9 +108,13 @@ def test_get_huc_bbox_conus2():
 def test_latlng_to_grid_out_of_bounds():
     """Unit tests for when latlng is out of bounds of conus1."""
 
-    (_, y) = hf_hydrodata.grid.from_latlon("conus1", 90, -180)
-    assert y > 1888
+    with pytest.raises(ValueError):
+        (_, y) = hf_hydrodata.grid.from_latlon("conus1", 90, -180)
 
+    (lat, lon) = hf_hydrodata.grid.to_latlon("conus1", 0, 0)
+    (_, _) = hf_hydrodata.grid.to_ij("conus1", lat, lon)
+    with pytest.raises(ValueError):
+        (_, _) = hf_hydrodata.grid.to_ij("conus1", lat, lon+0.025)
 
 if __name__ == "__main__":
     pytest.main([__file__])

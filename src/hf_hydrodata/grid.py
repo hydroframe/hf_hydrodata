@@ -25,7 +25,7 @@ def to_latlon(grid: str, *args) -> List[float]:
 
     This conversion is fast. It is about 100K+ points/second.
 
-    For example,
+    For an example,
         (lat, lon) = to_latlon("conus1", 10, 10)
 
         latlon_bounds = to_latlon("conus1", *[0, 0, 20, 20])
@@ -80,12 +80,21 @@ def from_latlon(grid: str, *args) -> List[float]:
     if grid_row is None:
         raise ValueError(f"No such grid {grid} available.")
     grid_resolution = float(grid_row["resolution_meters"])
+    shape = grid_row["shape"]
     for index in range(0, len(args), 2):
         lat = args[index]
         lon = args[index + 1]
         (x, y) = to_meters(grid, lat, lon)
-        result.append(x / grid_resolution)
-        result.append(y / grid_resolution)
+        x = x / grid_resolution
+        y = y / grid_resolution
+        if shape and len(shape) >= 2:
+            # Check if x,y points are within the grid bounds
+            bounds_x = float(shape[2])
+            bounds_y = float(shape[1])
+            if not (0 <= round(x) <= bounds_x and 0 <= round(y) <= bounds_y):
+                raise ValueError(f"The lat/lon point maps to {x},{y} which is outside of grid bounds {bounds_x}, {bounds_y}")
+        result.append(x)
+        result.append(y)
     return result  
 
 def to_meters(grid: str, *args) -> List[float]:
@@ -160,6 +169,9 @@ def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
             lon:    longitude of point
         Returns:
             The HUC id string containing the lat/lon point or None.
+
+        For example,
+            huc_id = get_huc_from_latlon("conus1", "6", 31.75 -115.90)
     """
     huc_id = None
     tiff_ds = __get_geotiff(grid, level)
@@ -283,7 +295,7 @@ def __get_geotiff(grid: str, level: int) -> xr.Dataset:
     variable = catalog_row["dataset_var"]
 
     if not os.path.exists(file_path):
-        raise ValueError("File '{file_path}' does not exist.")
+        raise ValueError(f"File '{file_path}' does not exist.")
 
     # Open TIFF file
     tiff_ds = xr.open_dataset(file_path).drop_vars(("x", "y"))[variable]
