@@ -579,9 +579,15 @@ def _write_file_from_api(filepath, options):
         headers = _get_api_headers()
         response = requests.get(datafile_url, headers=headers, timeout=1200)
         if response.status_code != 200:
-            raise ValueError(
-                f"The datafile_url {datafile_url} returned error code {response.status_code}."
-            )
+            if response.status_code == 400:
+                content = response.content.decode()
+                response_json = json.loads(content)
+                message = response_json.get("message")
+                raise ValueError(message)
+            else:
+                raise ValueError(
+                    f"The datafile_url {datafile_url} returned error code {response.status_code}."
+                )
 
     except requests.exceptions.Timeout as e:
         raise ValueError(f"The datafile_url {datafile_url} has timed out.") from e
@@ -877,9 +883,15 @@ def _get_ndarray_from_api(entry, options, time_values):
             headers = _get_api_headers()
             response = requests.get(gridded_data_url, headers=headers, timeout=1200)
             if response.status_code != 200:
-                raise ValueError(
-                    f"The  {gridded_data_url} returned error code {response.status_code}."
-                )
+                if response.status_code == 400:
+                    content = response.content.decode()
+                    response_json = json.loads(content)
+                    message = response_json.get("message")
+                    raise ValueError(message)
+                else:
+                    raise ValueError(
+                        f"The  {gridded_data_url} returned error code {response.status_code}."
+                    )
 
         except requests.exceptions.Timeout as e:
             raise ValueError(
@@ -1591,6 +1603,10 @@ def _substitute_datapath(
     run_number = options.get("run_number")
     site_id = options.get("site_id")
     level = options.get("level")
+    if "{level}" in path and not level:
+        raise ValueError("No 'level' specified in filter options.")
+    if "{site_id}" in path and not site_id:
+        raise ValueError("No 'site_id' specified in filter options.")
     if time_value:
         (wy, wy_start) = _get_water_year(time_value)
         wy_plus1 = str(int(wy) + 1)
