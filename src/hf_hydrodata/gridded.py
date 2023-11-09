@@ -113,6 +113,8 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
     A filter option is any column name in the data_catalog_entry table.
     The value of the filter option argument must be a value of that column in the table.
 
+    The filter options are the same options as provided to the get_numpy() function.
+
     For example,
 
         entries = get_catalog_entries(dataset="NLDAS2", period="daily")
@@ -124,7 +126,9 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
         entries = get_catalog_entries(options)
 
         assert len(entries) == 20
+
         entry = entries[0]
+
         assert entry["dataset"] == "NLDAS2"
     """
 
@@ -161,8 +165,10 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
 
     This method is the same as get_catalog_entries() except returns a single row rather than a list of rows.
     For example,
-        options = {"dataset": "NLDAS2", "period": "daily",
-                   "variable": "precipitation", "start_time": "2005-7-1"}
+        options = {
+            "dataset": "NLDAS2", "period": "daily",
+            "variable": "precipitation", "start_time": "2005-7-1"}
+
         entry = get_catalog_entry(options)
     """
 
@@ -251,7 +257,9 @@ def get_table_rows(table_name: str, *args, **kwargs) -> List[ModelTableRow]:
 
     For example,
         rows = get_table_rows("variable", variable_type="atmospheric")
+
         assert len(rows) == 8
+
         assert rows[0]["id"] == "air_temp"
     """
 
@@ -456,6 +464,7 @@ def get_file_path(entry, *args, **kwargs) -> str:
         A single path path for the data catalog entry
     Raises:
         ValueError      if there is no path or multiple paths for the data catalog entry.
+
     """
     paths = get_file_paths(entry, *args, **kwargs)
     if len(paths) == 0:
@@ -482,6 +491,11 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
         ValueError if both grid_bounds and latlng_bounds are specified as data filters.
 
     A data filter option must be one of the following:
+        * dataset:        A dataset name (see Gridded Data documentation).
+        * variable:       A variable from a dataset.
+        * period:         A period (e.g. hourly, daily, weekly, monthly) from a dataset variable.
+        * grid:           A grid (e.g. conus1 or conus2), normally this is determined by the dataset.
+        * aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
         * start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
         * end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
         * site_id:        An observation point site id.
@@ -490,14 +504,15 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
         * depth:          A number 0-n of the depth index of the data to return.
         * z:              A value of the z dimension to be used as a filter to remove this dismension.
         * level:          A HUC level integer when reading HUC boundary files.
+        * site_id:        Used when reading data associated with an observation site.
 
     For gridded results the returned numpy array has dimensions:
-        * [hour, y, x]`````               period is hourly without z dimension
+        * [hour, y, x]                    period is hourly without z dimension
         * [day, y, x]                     period is daily without z dimension
         * [month, y, x]                   period is monthly without z dimension
         * [y, x]                          period is static or blank without z dimension
 
-        * [hour, z, y, x]`````            period is hourly with z dimension
+        * [hour, z, y, x]                 period is hourly with z dimension
         * [day, z, y, x]                  period is daily with z dimension
         * [month, z, y, x]                period is monthly with z dimension
         * [z, y, x]                       period is static or blank with z dimension
@@ -513,7 +528,7 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
 
     If z is specified then the result is sliced by the z dimension.
 
-    For example, to get data from the 3 daily files bewteen 9/30/2021 and 10/3/2021.
+    For example, to get data from the 3 daily files bewteen 9/30/2005 and 10/3/2005.
         options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
                     "start_time":"2005-09-30", "end_time":"2005-10-03", "grid_bounds":[200, 200, 300, 250]}
 
@@ -629,8 +644,11 @@ def get_date_range(*args, **kwargs) -> Tuple[datetime.datetime, datetime.datetim
     For example,
         options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
                     "start_time":"2005-09-30", "end_time":"2005-10-03", "grid_bounds":[200, 200, 300, 250]}
+
         range = get_date_range(options)
+
         assert range[0] == datetime.datetime(2002, 10, 1)
+
         assert range[1] == datetime.datetime(2006, 9, 30)
     """
     result = None
@@ -660,8 +678,6 @@ def get_date_range(*args, **kwargs) -> Tuple[datetime.datetime, datetime.datetim
 def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
     """
     Get a numpy ndarray from files in /hydroframe. with the applied data filters.
-    If a time_values data filter option is provided as an arrat this array will be populated with the
-    date strings of the date dimentions of the ndarray that is returned. This is used for graphing use cases.
 
     Args:
         entry:          Either a ModelTableRow or the ID number of a data_catalog_entry. If None then get entry from options.
@@ -672,48 +688,7 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
     Raises:
         ValueError if both grid_bounds and latlng_bounds are specified as data filters.
 
-    A data filter option must be one of the following:
-        * start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
-        * end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
-        * site_id:        An observation point site id.
-        * grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.
-        * latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
-        * depth:          A number 0-n of the depth index of the data to return.
-        * z:              A value of the z dimension to be used as a filter to remove this dismension.
-        * level:          A HUC level integer when reading HUC boundary files.
-
-    For gridded results the returned numpy array has dimensions:
-        * [hour, y, x]`````               period is hourly without z dimension
-        * [day, y, x]                     period is daily without z dimension
-        * [month, y, x]                   period is monthly without z dimension
-        * [y, x]                          period is static or blank without z dimension
-
-        * [hour, z, y, x]`````            period is hourly with z dimension
-        * [day, z, y, x]                  period is daily with z dimension
-        * [month, z, y, x]                period is monthly with z dimension
-        * [z, y, x]                       period is static or blank with z dimension
-
-    If the dataset has ensembles then there is an ensemble dimension at the beginning.
-
-    Both start_time and end_time must be in the form "YYYY-MM-DD HH:MM:SS" or "YYYY-MM-DD" or a datetime object.
-
-    If only start_time is specified than only that month/day/hour is returned.
-    The start_time is inclusive the end_time is exclusive (data returned less than that time).
-
-    If either grid_bounds or latlng_bounds is specified then the result is sliced by the x,y values in the bounds.
-
-    If z is specified then the result is sliced by the z dimension.
-
-    For example, to get data from the 3 daily files bewteen 9/30-2005 - 10/3/2005.
-        options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
-                    "start_time":"2005-09-30", "end_time":"2005-10-03", "grid_bounds":[200, 200, 300, 250]}
-        entry = get_catalog_entry(options)
-
-        data = get_ndarray(entry, options)
-
-        # The result has 3 days in the time dimension and sliced to x,y shape 100x50 at origin 200, 200 in the conus1 grid.
-
-        assert data.shape == (3, 50, 100)
+    Filter options are the same as get_numpy().
     """
 
     if entry is not None and isinstance(entry, (int, str)):
@@ -789,6 +764,7 @@ def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
 
         For example,
             huc_id = get_huc_from_latlon("conus1", 6, 34.48, -115.63)
+
             assert huc_id == "181001"
     """
     huc_id = None
@@ -818,6 +794,7 @@ def get_huc_from_xy(grid: str, level: int, x: int, y: int) -> str:
 
         For example,
             huc_id = get_huc_from_xy("conus1", 6, 300, 100)
+
             assert huc_id == "181001"
     """
     tiff_ds = __get_geotiff(grid, level)
@@ -845,6 +822,7 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
 
     For example,
         bbox = get_huc_bbox("conus1", ["181001"])
+
         assert bbox == (1, 167, 180, 378)
     """
     # Make sure all HUC ids in the list are the same length
