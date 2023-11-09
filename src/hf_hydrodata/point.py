@@ -496,7 +496,7 @@ def get_site_variables(*args, **kwargs):
         shp_geom_crs = transform(project, shp_geom)
 
         # Clip points to only those within the polygon
-        df['clip'] = df.apply(lambda x: contains_xy(shp_geom_crs, x['longitude'], x['latitude']), axis=1)
+        df['clip'] = df.apply(lambda x: contains_xy(shp_geom_crs, float(x['longitude']), float(x['latitude'])), axis=1)
         clipped_df = df[df['clip'] == True].reset_index().drop(columns=['index', 'clip'])
         df = clipped_df.copy()
 
@@ -1256,7 +1256,7 @@ def _get_sites(conn, data_source, variable, temporal_resolution, aggregation, *a
         shp_geom_crs = transform(project, shp_geom)
 
         # Clip points to only those within the polygon
-        df['clip'] = df.apply(lambda x: contains_xy(shp_geom_crs, x['longitude'], x['latitude']), axis=1)
+        df['clip'] = df.apply(lambda x: contains_xy(shp_geom_crs, float(x['longitude']), float(x['latitude'])), axis=1)
         clipped_df = df[df['clip'] == True].reset_index().drop(columns=['index', 'clip'])
 
         return clipped_df
