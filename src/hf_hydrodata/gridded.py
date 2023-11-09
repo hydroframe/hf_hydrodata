@@ -1450,6 +1450,8 @@ def __get_geotiff(grid: str, level: int) -> xr.Dataset:
         "level": str(level),
     }
     entry = get_catalog_entry(options)
+    if entry is None:
+        raise ValueError("No data catalog entry found for filter options.")
     variable = entry["dataset_var"]
     with tempfile.TemporaryDirectory() as tempdirname:
         file_path = f"{tempdirname}/huc.tiff"
