@@ -13,6 +13,7 @@ import shutil
 import threading
 import requests
 import yaml
+import tempfile
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 import numpy as np
@@ -705,19 +706,16 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
 
     If z is specified then the result is sliced by the z dimension.
 
-    For example, to get data from the 3 daily files bewteen 9/30/2021 and 10/3/2021.
-        bounds = [200, 200, 300, 250]
-
+    For example, to get data from the 3 daily files bewteen 9/30-2005 - 10/3/2005.
         options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
-                    "start_time="2021-09-30", end_time="2021-10-03", grid_bounds = bounds)
+                    "start_time":"2005-09-30", "end_time":"2005-10-03", "grid_bounds":[200, 200, 300, 250]}
         entry = get_catalog_entry(options)
 
-
-        data = get_ndarray(entry, start_time="2021-09-30", end_time="2021-10-03", grid_bounds = bounds)
+        data = get_ndarray(entry, options)
 
         # The result has 3 days in the time dimension and sliced to x,y shape 100x50 at origin 200, 200 in the conus1 grid.
 
-        assert data.shape == [3, 100, 50]
+        assert data.shape == (3, 50, 100)
     """
 
     if entry is not None and isinstance(entry, (int, str)):
@@ -777,6 +775,127 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
         options = _convert_json_to_strings(options)
 
     return data
+
+def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
+    """
+        Get a HUC id at a lat/lon point for a given grid and level.
+
+        Args:
+            grid:   grid name (e.g. conus1 or conus2)
+            level:  HUC level (length of HUC id to be returned)\
+            lat:    lattitude of point
+            lon:    longitude of point
+        Returns:
+            The HUC id string containing the lat/lon point or None.
+
+        For example,
+            huc_id = get_huc_from_latlon("conus1", 6, 34.48, -115.63)
+            assert huc_id == "181001"
+    """
+    huc_id = None
+    tiff_ds = __get_geotiff(grid, level)
+    [x, y] = to_ij(grid, lat, lon)
+    x = round(x)
+    y = round(y)
+    data = np.flip(tiff_ds[0].to_numpy(), 0)
+    if 0 <= x <= data.shape[1] and 0 <= y <= data.shape[0]:
+        huc_id = np.flip(tiff_ds[0].to_numpy(), 0)[y][x].item()
+        if isinstance(huc_id, float):
+            huc_id = str(huc_id).replace(".0", "")
+    return huc_id
+
+
+def get_huc_from_xy(grid: str, level: int, x: int, y: int) -> str:
+    """
+        Get a HUC id at an xy point for a given grid and level.
+
+        Args:
+            grid:   grid name (e.g. conus1 or conus2)
+            level:  HUC level (length of HUC id to be returned)\
+            x:      x coordinate in the grid
+            y:      y coordinate in the grid
+        Returns:
+            The HUC id string containing the lat/lon point or None.
+
+        For example,
+            huc_id = get_huc_from_xy("conus1", 6, 300, 100)
+            assert huc_id == "181001"
+    """
+    tiff_ds = __get_geotiff(grid, level)
+    data = np.flip(tiff_ds[0].to_numpy(), 0)
+    huc_id = None
+    if 0 <= x <= data.shape[1] and 0 <= y <= data.shape[0]:
+        huc_id = data[y][x].item()
+        if isinstance(huc_id, float):
+            huc_id = str(huc_id).replace(".0", "")
+    return huc_id
+
+
+def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
+    """
+    Get the grid bounding box containing all the HUC ids.
+
+    Args:
+        grid:           A grid id from the data catalog (e.g. conus1 or conus2)
+        huc_id_list:    A list of HUC id strings of HUCs in the grid.
+    Returns:
+        A bounding box in grid coordinates as a list of int (i_min, j_min, i_max, j_max)
+    Raises:
+        ValueError if all the HUC id are not at the same level (same length).
+        ValueError if grid is not valid.
+
+    For example,
+        bbox = get_huc_bbox("conus1", ["181001"])
+        assert bbox == (1, 167, 180, 378)
+    """
+    # Make sure all HUC ids in the list are the same length
+    level = None
+    for huc_id in huc_id_list:
+        if level is None:
+            level = len(huc_id)
+        elif len(huc_id) != level:
+            raise ValueError("All HUC ids in the list must be the same length.")
+
+    # Open the TIFF file of the grid and level
+    tiff_ds = __get_geotiff(grid, level)
+
+    result_imin = 1000000
+    result_imax = 0
+    result_jmin = 1000000
+    result_jmax = 0
+    for huc_id in huc_id_list:
+        tiff_value = int(huc_id) if grid == "conus1" else float(huc_id)
+        sel_huc = (tiff_ds == tiff_value).squeeze()
+
+        # First find where along the y direction has "valid" cells
+        y_mask = (sel_huc.sum(dim="x") > 0).astype(int)
+
+        # Then, taking a diff along that dimension let's us see where the boundaries of that mask ar
+        diffed_y_mask = y_mask.diff(dim="y")
+
+        # Taking the argmin and argmax get's us the locations of the boundaries
+        arr_jmax = (
+            np.argmin(diffed_y_mask.values) + 1
+        )  # this one is because you want to include this right bound in your slice
+        arr_jmin = (
+            np.argmax(diffed_y_mask.values) + 1
+        )  # because of the point you actually want to indicate from the diff function
+
+        jmin = tiff_ds.shape[1] - arr_jmax
+        jmax = tiff_ds.shape[1] - arr_jmin
+
+        # Do the exact same thing for the x dimension
+        diffed_x_mask = (sel_huc.sum(dim="y") > 0).astype(int).diff(dim="x")
+        imax = np.argmin(diffed_x_mask.values) + 1
+        imin = np.argmax(diffed_x_mask.values) + 1
+
+        # Extend the result values to combine multiple HUC ids
+        result_imin = imin if imin < result_imin else result_imin
+        result_imax = imax if imax > result_imax else result_imax
+        result_jmin = jmin if jmin < result_jmin else result_jmin
+        result_jmax = jmax if jmax > result_jmax else result_jmax
+
+    return (result_imin, result_jmin, result_imax, result_jmax)
 
 
 def _verify_time_in_range(entry: dict, options: dict):
@@ -1314,30 +1433,28 @@ def _read_and_filter_tiff_files(
     return data
 
 
-def get_yaml_data_catalog() -> dict:
+def __get_geotiff(grid: str, level: int) -> xr.Dataset:
     """
-    Get the parsed yaml data catalog.
+    Get an xarray dataset of the geotiff file for the grid at the level.
 
+    Args:
+        grid:   grid name (e.g. conus1 or conus2)
+        level:  HUC level (length of HUC id to be returned)\
     Returns:
-        The hydrodata_catalog.yaml file loaded into a dict.
-
-    The parsed yaml file representation of the data catalog is useful for use
-    by non-python clients such as javascript that want access to the data model information.
+        An xarray dataset with the contents of the geotiff file for the grid and level.
     """
 
-    try:
-        current_file_path = os.path.dirname(__file__)
-        config_file_path = f"{current_file_path}/hydrodata_catalog.yaml"
-        with open(config_file_path, "r") as stream:
-            contents = stream.read()
-            result = yaml.safe_load(contents)
-    except:
-        logging.exception("Unable to load hydrodata_catalog.yaml")
-        result = None
-    if result is None:
-        result = {}
-    return result
+    data_model = load_data_model()
+    options = {"dataset": "huc_mapping", "variable": "huc_map", "grid": grid, "level": str(level)}
+    entry = get_catalog_entry(options)
+    variable = entry["dataset_var"]
+    with tempfile.TemporaryDirectory() as tempdirname:
+        file_path = f"{tempdirname}/huc.tiff"
+        get_raw_file(file_path, options)
 
+        # Open TIFF file
+        tiff_ds = xr.open_dataset(file_path).drop_vars(("x", "y"))[variable]
+        return tiff_ds
 
 def _collect_pfb_date_dimensions(
     time_values: List[str], data: np.ndarray, start_time_value: datetime.datetime
