@@ -462,7 +462,7 @@ def _construct_string_from_qparams(
 
 def get_citations(data_source, variable, temporal_resolution, aggregation, site_ids=None):
     """
-    Print and/or return specific citation information.
+    Return a dictionary with relevant citation information.
 
     Parameters
     ----------
@@ -486,8 +486,10 @@ def get_citations(data_source, variable, temporal_resolution, aggregation, site_
 
     Returns
     -------
-    None or DataFrame of site-specific DOIs
-        Nothing returned unless data_source == `ameriflux` and the parameter `site_ids` is provided.
+    Dictionary
+        The dictionary has keys of `data_source` and, if site-level information is requested, `each of
+        the requested site IDs. The dictionary values contain overall attribution instructions when the
+        key is `data_source` and site-level DOIs for each site ID key.
     """
     try:
         assert data_source in ["usgs_nwis", "usda_nrcs", "ameriflux"]
@@ -496,45 +498,49 @@ def get_citations(data_source, variable, temporal_resolution, aggregation, site_
             f"Unexpected value of data_source, {data_source}. Supported values include 'usgs_nwis', 'usda_nrcs', and 'ameriflux'"
         )
 
+    citation_dict = {}
+
     if data_source == "usgs_nwis":
-        print(
-            """Most U.S. Geological Survey (USGS) information resides in Public Domain 
-              and may be used without restriction, though they do ask that proper credit be given.
-              An example credit statement would be: "(Product or data name) courtesy of the U.S. Geological Survey"
-              Source: https://www.usgs.gov/information-policies-and-instructions/acknowledging-or-crediting-usgs"""
-        )
+        c = ('Most U.S. Geological Survey (USGS) information resides in Public Domain and '
+             'may be used without restriction, though they do ask that proper credit be given. '
+             'An example credit statement would be: "(Product or data name) courtesy of the U.S. Geological Survey". '
+             'Source: https://www.usgs.gov/information-policies-and-instructions/acknowledging-or-crediting-usgs')
+        print(c)
+        citation_dict[data_source] = c
 
     elif data_source == "usda_nrcs":
-        print(
-            """Most information presented on the USDA Web site is considered public domain information. 
-                Public domain information may be freely distributed or copied, but use of appropriate
-                byline/photo/image credits is requested. 
-                Attribution may be cited as follows: "U.S. Department of Agriculture"
-                Source: https://www.usda.gov/policies-and-links"""
-        )
+        c = ('Most information presented on the USDA Web site is considered public domain information. '
+             'Public domain information may be freely distributed or copied, but use of appropriate '
+             'byline/photo/image credits is requested. Attribution may be cited as follows: '
+             '"U.S. Department of Agriculture" Source: https://www.usda.gov/policies-and-links')
+        print(c)
+        citation_dict[data_source] = c
 
     elif data_source == "ameriflux":
-        print(
-            """All AmeriFlux sites provided by the HydroData service follow the CC-BY-4.0 License.
-                The CC-BY-4.0 license specifies that the data user is free to Share (copy and redistribute 
-                the material in any medium or format) and/or Adapt (remix, transform, and build upon the 
-                material) for any purpose.
-            
-                Users of this data must acknowledge the AmeriFlux data resource with the following statement:
-                "Funding for the AmeriFlux data portal was provided by the U.S. Department of Energy Office 
-                of Science."
-            
-                Additionally, for each AmeriFlux site used, you must provide a citation to the site's 
-                data product that includes the data product DOI. The DOI for each site is included in the 
-                full metadata query. Alternately, a site list can be provided to this get_citation_information
-                function to return each site-specific DOI.
-            
-                Source: https://ameriflux.lbl.gov/data/data-policy/"""
-        )
+        c = ('All AmeriFlux sites provided by the HydroData service follow the CC-BY-4.0 License. '
+             'The CC-BY-4.0 license specifies that the data user is free to Share (copy and '
+             'redistribute the material in any medium or format) and/or Adapt (remix, transform, '
+             'and build upon the material) for any purpose. '
+             'Users of this data must acknowledge the AmeriFlux data resource with the '
+             'following statement: "Funding for the AmeriFlux data portal was provided by the U.S. '
+             'Department of Energy Office of Science." '
+             'Additionally, for each AmeriFlux site used, you must provide a citation to the site '
+             'data product that includes the data product DOI. The DOI for each site is included in the '
+             'full metadata query. Alternately, a site list can be provided to this get_citations '
+             'function to return each site-specific DOI. '
+             'Source: https://ameriflux.lbl.gov/data/data-policy/')
+        print(c)
+        citation_dict[data_source] = c
 
         if site_ids is not None:
             metadata_df = get_metadata(data_source, variable, temporal_resolution, aggregation, site_ids=site_ids)
-        return metadata_df[['site_id', 'doi']]
+            for i in range(len(metadata_df)):
+                site_id = metadata_df.loc[i, 'site_id']
+                doi = metadata_df.loc[i, 'doi']
+                print(f"Site: {site_id}, DOI: {doi}")
+                citation_dict[site_id] = doi
+
+    return citation_dict
 
 
 def _validate_user():

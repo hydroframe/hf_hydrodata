@@ -880,15 +880,25 @@ def test_polygon_filter_fail():
             polygon=f'{TEST_DATA_DIR}/raritan_watershed.shp')
 
 
-def test_get_citations():
+def test_get_citations_usgs():
     """Test for get_citations function with return DataFrame."""
-    doi_df = point.get_citations(data_source='ameriflux', variable='latent heat flux',
+    c_dict = point.get_citations(data_source='usgs_nwis', variable='streamflow',
+                                 temporal_resolution='daily', aggregation='average')
+
+    assert len(c_dict.keys()) == 1
+    assert 'usgs_nwis' in c_dict
+
+
+def test_get_citations_ameriflux():
+    """Test for get_citations function with return DataFrame."""
+    c_dict = point.get_citations(data_source='ameriflux', variable='latent heat flux',
                                  temporal_resolution='hourly', aggregation='total',
                                  site_ids=['US-Act', 'US-Bar'])
 
-    assert doi_df.shape == (2, 2)
-    assert 'site_id' in doi_df.columns
-    assert 'doi' in doi_df.columns
+    assert len(c_dict.keys()) == 3
+    assert 'ameriflux' in c_dict
+    assert 'US-Act' in c_dict
+    assert 'US-Bar' in c_dict
 
 
 if __name__ == "__main__":
