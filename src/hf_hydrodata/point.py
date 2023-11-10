@@ -334,7 +334,7 @@ def _get_data_from_api(
     return data_df
 
 
-def get_registered_api_pin() -> Tuple[str, str]:
+def _get_registered_api_pin() -> Tuple[str, str]:
     """
     Get the email and pin registered by the current user.
 
@@ -392,12 +392,6 @@ def _convert_params_to_string_dict(options):
         if key == "site_networks":
             if not isinstance(value, str):
                 options[key] = str(value)
-        # Don't need below anymore?  Check with Amy D.
-        """
-        if key == "all_attributes":
-            if not isinstance(value, str):
-                options[key] = str(value)
-        """
     return options
 
 
@@ -430,13 +424,6 @@ def _convert_strings_to_type(options):
         if key == "min_num_obs":
             if isinstance(value, str):
                 options[key] = int(value)
-        # Don't need below anymore?  Check with Amy D.
-        """
-        if key == "all_attributes":
-            if isinstance(value, str):
-                options[key] = bool(value)
-        """
-
     return options
 
 
@@ -550,43 +537,8 @@ def get_citations(data_source, variable, temporal_resolution, aggregation, site_
         return metadata_df[['site_id', 'doi']]
 
 
-def _convert_params_to_string_dict(options):
-    """
-    Converts types other than strings to strings.
-
-    Parameters
-    ----------
-    options : dictionary
-        request options.
-    """
-
-    for key, value in options.items():
-        if key == "depth_level":
-            if not isinstance(value, str):
-                options[key] = str(value)
-        if key == "latitude_range":
-            if not isinstance(value, str):
-                options[key] = str(value)
-        if key == "longitude_range":
-            if not isinstance(value, str):
-                options[key] = str(value)
-        if key == "site_ids":
-            if not isinstance(value, str):
-                options[key] = str(value)
-        if key == "min_num_obs":
-            if not isinstance(value, str):
-                options[key] = str(value)
-        if key == "return_metadata":
-            if not isinstance(value, str):
-                options[key] = str(value)
-        if key == "all_attributes":
-            if not isinstance(value, str):
-                options[key] = str(value)
-    return options
-
-
 def _validate_user():
-    email, pin = get_registered_api_pin()
+    email, pin = _get_registered_api_pin()
     url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
     response = requests.get(url_security, headers=None, timeout=15)
     if not response.status_code == 200:
@@ -609,35 +561,6 @@ def _validate_user():
     headers = {}
     headers["Authorization"] = f"Bearer {jwt_token}"
     return headers
-
-
-def get_registered_api_pin() -> Tuple[str, str]:
-    """
-    Get the email and pin registered by the current user.
-
-    Returns:
-        A tuple (email, pin)
-    Raises:
-        ValueError if no email/pin was registered
-    """
-
-    pin_dir = os.path.expanduser("~/.hydrodata")
-    pin_path = f"{pin_dir}/pin.json"
-    if not os.path.exists(pin_path):
-        raise ValueError(
-            "No email/pin was registered. Use the register_api() method to register the pin you created at the website."
-        )
-    try:
-        with open(pin_path, "r") as stream:
-            contents = stream.read()
-            parsed_contents = json.loads(contents)
-            email = parsed_contents.get("email")
-            pin = parsed_contents.get("pin")
-            return (email, pin)
-    except Exception as e:
-        raise ValueError(
-            "No email/pin was registered. Use the register_api() method to register the pin you created at the website."
-        ) from e
 
 
 def _check_inputs(data_source, variable, temporal_resolution, aggregation, *args, **kwargs):
