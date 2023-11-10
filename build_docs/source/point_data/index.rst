@@ -1,6 +1,6 @@
 .. _point_data_index:
 
-Point Data
+Point Observations
 ======================
 
 The ``hf_hydrodata.point`` module provides functionality to compile site-level observations data for a 
@@ -10,8 +10,6 @@ of the available parameters.
 
 Note that raw hourly data is saved in UTC while raw daily data is saved with respect to the local site time zone. 
 
-*Coming soon*: the ability for a user to specify whether data gets returned in UTC or local time, regardless of 
-how the raw data is structured.
 
 .. toctree::
    :maxdepth: 1

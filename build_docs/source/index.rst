@@ -6,7 +6,7 @@ important to hydrologic research. Some of these files have been accumulated from
 while others have been derived by our team of scientists and software engineers.
 
 :ref:`getting_started` contains installation instructions and a quick-start guide for obtaining 
-gridded and point datasets. The secions on :ref:`gridded_data` and :ref:`point_data_index` provide more
+gridded datasets and point observations. The sections on :ref:`gridded_data` and :ref:`point_data_index` provide more
 detail on the datasets and fields that are available. Full example workflows are in :ref:`examples_index`
 and the :ref:`api` contains the full list of available functions.
 

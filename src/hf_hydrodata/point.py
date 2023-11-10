@@ -876,6 +876,8 @@ def _get_sites(conn, data_source, variable, temporal_resolution, aggregation, *a
         Two-letter postal code state abbreviation.
     polygon : str
         Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
+    polygon_crs : str
+        CRS definition accepted by `pyproj.CRS.from_user_input()`.
     site_networks: list
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise

@@ -1,7 +1,7 @@
 .. _data_collection:
 
-Point Data Sources
-==================
+Point Observations Sources
+=============================
 
 Data Sources
 -------------

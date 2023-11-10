@@ -39,12 +39,12 @@ returning the data. See the sub-section :ref:`gridded_data` for details about th
 that can be passed to the functions to filter data by space and/or time.
 
 
-Accessing Point Data
-------------------------
-You can use the ``point`` module to read site-level data from the hydrodata repository to get a 
+Accessing Point Observations
+------------------------------
+You can use the ``point`` module to read site-level observations data from the hydrodata repository to get a 
 pandas DataFrame.
 
-hf_hydrodata supports access to a collection of site-level data from a variety of sources. 
+``hf_hydrodata`` supports access to a collection of site-level data from a variety of sources. 
 Please see :ref:`data_collection` for a full list of what is available and details on our 
 data collection process.
 
@@ -73,3 +73,5 @@ of (-75, -50). ::
                             latitude_range = (45, 50),
                             longitude_range = (-75, -50))
     metadata.head(5)
+
+Please see :ref:`examples_index` for additional example workflows.

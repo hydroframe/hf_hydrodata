@@ -80,9 +80,19 @@ used to further filter requests on time and/or geography.
   from this date forward (inclusive).
 * ``date_end``: A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned
   up through this date (inclusive). 
-* ``latitude_range``: 
-* ``longitude_range``:
-* ``site_ids``: 
-* ``state``:
-* ``site_networks``:
-* ``min_num_obs``:
+* ``latitude_range``: A tuple where the values represent the minimum and maximum degrees latitude, respectively
+  (example: ``(45, 50)``).
+* ``longitude_range``: A tuple where the two values represent the minimum and maximum degress longitude, respectively
+  (example: ``(-75, -50)``).
+* ``site_ids``: A list of string values repsenting one or multiple specific site IDs (example: ``['01011000']``).
+* ``state``: The 2-digit state postal code (example: ``'NJ'``).
+* ``polygon``: The path to a ``.shp`` shapefile containing a single shape geometry. This file must be readable by
+  PyShp's ``shapefile.Reader()``.
+* ``polygon_crs``: If ``polygon`` is provided, a user must also provide its associated CRS. This must be in a format 
+  accepted by ``pyproj.CRS.from_user_input()``.
+* ``site_networks``: A list containing strings that represent common site networks. 
+  When ``data_source=='usgs_nwis`` and ``variable=='streamflow'``, options include 'gagesii', 'gagesii_reference', 
+  'hcdn2009', and 'camels'. when ``data_source == 'usgs_nwis'`` and ``variable=='wtd'``, options include 
+  'climate_response_network'.
+* ``min_num_obs``: A positive integer value. If provided, data will be returned only for sites that have at least
+  this number of non-NaN observation records within the requested date range (if supplied).
