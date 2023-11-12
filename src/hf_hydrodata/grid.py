@@ -16,8 +16,8 @@ def to_latlon(grid: str, *args) -> List[float]:
     Convert grid x,y coordinates to lat,lon.
 
     Args:
-        grid:       The name of a grid dimension from the data catalog grid table (e.g. conus1 or conus2).
-        args:       A list of numbers of (x,y) values that are coordinates in the grid (may be int or float).
+        grid:       The name of a hf_hydrodata grid (e.g. conus1 or conus2).
+        args:       A list of (x,y) numbers of that are coordinates in the grid (may be int or float).
     Returns:
         An array of lat,lon points converted from each of the (x,y) grid coordinates in args.
 
@@ -25,11 +25,10 @@ def to_latlon(grid: str, *args) -> List[float]:
 
     This conversion is fast. It is about 100K+ points/second.
 
-    For an example,
+    Examples:
+        >>>
         (lat, lon) = to_latlon("conus1", 10, 10)
-
         latlon_bounds = to_latlon("conus1", *[0, 0, 20, 20])
-
         (lat, lon) = to_latlon("conus1", 10.5, 10.5)
     """
     result = []
@@ -59,8 +58,8 @@ def from_latlon(grid: str, *args) -> List[float]:
     Convert grid lat,lon coordinates to x,y float values in grid resolution coordinates from the grid origin.
 
     Args:
-        grid:       The name of a grid dimension from the data catalog grid table (e.g. conus1 or conus2).
-        args:       A list of floating pairs if (lat,lon) values.
+        grid:       The name of a hf_hydrodata grid (e.g. conus1 or conus2).
+        args:       A list of (lat,lon) floating pairs of values.
     Returns:
         An array of x,y integer points converted from each of the (lat,lon) grid coordinates in args.
 
@@ -68,9 +67,9 @@ def from_latlon(grid: str, *args) -> List[float]:
 
     This conversion is fast. It is about 100K+ points/second.
 
-    For example,
+    Examples:
+        >>>
         (x, y) = from_latlon("conus1", 31.759219, -115.902573)
-
         latlon_bounds = from_latlon("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     """    
     result = []
@@ -102,18 +101,18 @@ def to_meters(grid: str, *args) -> List[float]:
     Convert grid lat,lon coordinates to x,y in meters from grid origin.
 
     Args:
-        grid:       The name of a grid dimension from the data catalog grid table (e.g. conus1 or conus2).
-        args:       A list of floating pairs if (lat,lon) values.
+        grid:       The name of a hf_hydrodata grid (e.g. conus1 or conus2).
+        args:       A list of floating pairs of lat,lon values.
     Returns:
-        An array of x,y integer points converted from each of the (lat,lon) grid coordinates in args.
+        An array of (x,y) integer points converted from each of the (lat,lon) grid coordinates in args.
 
     Note, this may be used to convert a single point or a bounds of 2 points or a large array of points.
 
     This conversion is fast. It is about 100K+ points/second.
 
-    For example,
+    Examples:
+        >>>
         (x, y) = to_meters("conus1", 31.759219, -115.902573)
-
         latlon_bounds = to_meters("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     """
     result = []
@@ -136,9 +135,13 @@ def to_ij(grid: str, *args) -> List[int]:
     """
         Convert grid lat,lon coordinates to i,j integers in grid resolution coordinates from grid origin.
 
-        For example,
-            (i, j) = to_ij("conus1", 31.759219, -115.902573)
+        Args:
+            grid:       The name of a hf_hydrodata grid (e.g. conus1 or conus2).
+            args:       A list of floating pairs of lat,lon values.
 
+        Examples:
+            >>>
+            (i, j) = to_ij("conus1", 31.759219, -115.902573)
             ij_bounds = to_ij("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])        
     """
 
@@ -147,11 +150,15 @@ def to_ij(grid: str, *args) -> List[int]:
 
 def to_xy(grid: str, *args) -> List[float]:
     """
-    Convert grid lat,lon coordinates to x,y float values in grid resolution coordinates from grid origin.
+    Convert grid lat,lon coordinates to (x,y) float values in grid resolution coordinates from grid origin.
 
-    For example,
+    Args:
+        grid:       The name of a hf_hydrodata grid (e.g. conus1 or conus2).
+        args:       A list of floating pairs of lat,lon values.
+        
+    For example:
+        >>>
         (x, y) = to_xy("conus1", 31.759219, -115.902573)
-
         xy_bounds = to_xy("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])      
     """
 
