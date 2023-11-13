@@ -986,36 +986,6 @@ def _get_sites(conn, data_source, variable, temporal_resolution, aggregation, *a
                     to specify this shape's CRS.""")
 
         clipped_df = _filter_on_polygon(df, options['polygon'], options['polygon_crs'])
-        # # Read in shapefile
-        # shp = shapefile.Reader(options['polygon'])
-
-        # # Convert features to shapely geometries
-        # try:
-        #     assert len(shp.shapeRecords()) == 1
-        # except:
-        #     raise Exception("Please make sure your input shapefile contains only a single shape feature.")
-
-        # feature = shp.shapeRecords()[0].shape.__geo_interface__
-        # shp_geom = shape(feature)
-
-        # # Make sure CRS aligns between polygon and lat/lon points
-        # try:
-        #     assert 'polygon_crs' in options and options['polygon_crs'] is not None
-        # except:
-        #     raise Exception(
-        #         """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
-        #            to specify this shape's CRS.""")
-
-        # shp_crs = pyproj.CRS.from_user_input(options['polygon_crs'])
-
-        # project = pyproj.Transformer.from_crs(
-        #     shp_crs, pyproj.CRS('EPSG:4326'), always_xy=True).transform
-        # shp_geom_crs = transform(project, shp_geom)
-
-        # # Clip points to only those within the polygon
-        # df['clip'] = df.apply(lambda x: contains_xy(shp_geom_crs, x['longitude'], x['latitude']), axis=1)
-        # clipped_df = df[df['clip'] == True].reset_index().drop(columns=['index', 'clip'])
-
         return clipped_df
 
     else:
