@@ -73,6 +73,8 @@ def get_data(data_source, variable, temporal_resolution, aggregation, *args, **k
         Two-letter postal code state abbreviation.
     polygon : str
         Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
+    polygon_crs : str
+        CRS definition accepted by `pyproj.CRS.from_user_input()`.
     site_networks: list
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise
@@ -233,6 +235,8 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
         Two-letter postal code state abbreviation.
     polygon : str
         Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
+    polygon_crs : str
+        CRS definition accepted by `pyproj.CRS.from_user_input()`.
     site_networks: list
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise
@@ -378,6 +382,224 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
 
     conn.close()
     return metadata_df
+
+
+def get_site_variables(*args, **kwargs):
+    """
+    Return DataFrame with available sites, variables, and the period of record.
+    Parameters
+    ----------
+    \*args :
+        Optional positional parameters that must be a dict with filter options. See 'Keyword Arguments' below.
+    \**kwargs :
+        Supports multiple named parameters with filter option values. See 'Keyword Arguments' below.
+    Keyword Arguments
+    --------------------
+    data_source : str
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
+        'ameriflux'.
+    variable : str
+        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
+        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
+        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+    temporal_resolution : str
+        Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
+        Please see the documentation for allowable combinations with `variable`.
+    aggregation : str
+        Additional information specifying the aggregation method for the variable to be returned.
+        Options include descriptors such as 'average' and 'total'. Please see the documentation
+        for allowable combinations with `variable`.
+    date_start : str; default=None
+        'YYYY-MM-DD' date indicating beginning of time range.
+    date_end : str; default=None
+        'YYYY-MM-DD' date indicating end of time range.
+    latitude_range : tuple; default=None
+        Latitude range bounds for the geographic domain; lesser value is provided first.
+    longitude_range : tuple; default=None
+        Longitude range bounds for the geographic domain; lesser value is provided first.
+    site_ids : list; default=None
+        List of desired (string) site identifiers.
+    state : str; default=None
+        Two-letter postal code state abbreviation.
+    polygon : str
+        Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
+    polygon_crs : str
+        CRS definition accepted by `pyproj.CRS.from_user_input()`.
+    site_networks: list
+        List of names of site networks. Can be a list with a single network name.
+        Each network must have matching .csv file with a list of site ID values that comprise
+        the network. This .csv file must be located under network_lists/{data_source}/{variable}
+        in the package directory and named as 'network_name'.csv. Eg: `site_networks=['gagesii']`
+    Returns
+    -------
+    DataFrame
+        DataFrame unique by site_id and variable_name with site- and variable-level metadata.
+    """
+    if len(args) > 0 and isinstance(args[0], dict):
+        options = args[0]
+    else:
+        options = kwargs
+
+    # Raise error immediately if no filtering parameters supplied (return DataFrame would be too large).
+    if len(options.keys()) == 0:
+        raise ValueError(
+            "You did not provide any filtering parameters. Please provide some filtering parameters to narrow down your search.")
+
+    # Create database connection
+    conn = sqlite3.connect(DB_PATH)
+
+    # Initialize parameter list to SQL queries
+    param_list = []
+
+    # Data source
+    if 'data_source' in options and options['data_source'] is not None:
+        try:
+            assert options['data_source'] in ['usgs_nwis', 'usda_nrcs', 'ameriflux']
+        except:
+            raise ValueError(
+                f"data_source must be one of 'usgs_nwis', 'usda_nrcs', 'ameriflux'. You provided {options['data_source']}")
+
+        data_source_query = """ AND agency == ?"""
+
+        if options['data_source'] == 'usgs_nwis':
+            param_list.append('USGS')
+        elif options['data_source'] == 'usda_nrcs':
+            param_list.append('NRCS')
+        elif options['data_source'] == 'ameriflux':
+            param_list.append('AmeriFlux')
+    else:
+        data_source_query = """"""
+
+    # Date start
+    if 'date_start' in options and options['date_start'] is not None:
+        date_start_query = """ AND last_date_data_available >= ?"""
+        param_list.append(options['date_start'])
+    else:
+        date_start_query = """"""
+
+    # Date end
+    if 'date_end' in options and options['date_end'] is not None:
+        date_end_query = """ AND first_date_data_available <= ?"""
+        param_list.append(options['date_end'])
+    else:
+        date_end_query = """"""
+
+    # Latitude
+    if 'latitude_range' in options and options['latitude_range'] is not None:
+        lat_query = """ AND latitude BETWEEN ? AND ?"""
+        param_list.append(options['latitude_range'][0])
+        param_list.append(options['latitude_range'][1])
+    else:
+        lat_query = """"""
+
+    # Longitude
+    if 'longitude_range' in options and options['longitude_range'] is not None:
+        lon_query = """ AND longitude BETWEEN ? AND ?"""
+        param_list.append(options['longitude_range'][0])
+        param_list.append(options['longitude_range'][1])
+    else:
+        lon_query = """"""
+
+    # Site ID
+    if 'site_ids' in options and options['site_ids'] is not None:
+        site_query = """ AND s.site_id IN (%s)""" % ','.join('?'*len(options['site_ids']))
+        for s in options['site_ids']:
+            param_list.append(s)
+    else:
+        site_query = """"""
+
+    # State
+    if 'state' in options and options['state'] is not None:
+        state_query = """ AND state == ?"""
+        param_list.append(options['state'])
+    else:
+        state_query = """"""
+
+    # Site Networks
+    if 'site_networks' in options and options['site_networks'] is not None:
+        try:
+            assert 'data_source' in options and options['data_source'] is not None
+            assert 'variable' in options and options['variable'] is not None
+        except:
+            raise ValueError("Please provide parameter values for data_source and variable if specifying site_networks")
+        network_site_list = _get_network_site_list(
+            options['data_source'],
+            options['variable'],
+            options['site_networks'])
+        network_query = """ AND s.site_id IN (%s)""" % ','.join('?'*len(network_site_list))
+        for s in network_site_list:
+            param_list.append(s)
+    else:
+        network_query = """"""
+
+    query = """
+            SELECT s.site_id, s.site_name, s.site_type, s.agency, s.state,
+                   o.var_id, o.first_date_data_available,
+                   o.last_date_data_available, o.record_count,
+                   s.latitude, s.longitude,  s.site_query_url,
+                   s.date_metadata_last_updated, s.tz_cd, s.doi
+            FROM sites s
+            INNER JOIN observations o
+            ON s.site_id = o.site_id
+            WHERE first_date_data_available <> 'None'
+            """ + data_source_query + date_start_query + date_end_query + lat_query + lon_query + site_query + state_query + network_query
+
+    df = pd.read_sql_query(query, conn, params=param_list)
+
+    # Polygon shapefile provided
+    if 'polygon' in options and options['polygon'] is not None:
+
+        # Make sure CRS aligns between polygon and lat/lon points
+        try:
+            assert 'polygon_crs' in options and options['polygon_crs'] is not None
+        except:
+            raise Exception(
+                """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input() 
+                   to specify this shape's CRS.""")
+
+        clipped_df = _filter_on_polygon(df, options['polygon'], options['polygon_crs'])
+        df = clipped_df.copy()
+
+    # Map var_id into variable, temporal_resolution, aggregation
+    variables = _get_variables(conn)
+    conn.close()
+    merged = pd.merge(df, variables, on='var_id', how='left')
+
+    # Add filter based on variable name
+    if 'variable' in options and options['variable'] is not None:
+        merged = merged.loc[merged['variable'] == options['variable']]
+
+    # Add filter based on temporal_resolution
+    if 'temporal_resolution' in options and options['temporal_resolution'] is not None:
+        merged = merged.loc[merged['temporal_resolution'] == options['temporal_resolution']]
+
+    if 'aggregation' in options and options['aggregation'] is not None:
+        merged = merged.loc[merged['aggregation'] == options['aggregation']]
+
+    # Drop extra columns
+    final_df = merged.drop(columns=['var_id', 'temporal_resolution', 'variable_type',
+                           'variable', 'aggregation', 'data_source', 'depth_level'])
+
+    # Re-order final columns
+    ordered_cols = ['site_id',
+                    'site_name',
+                    'site_type',
+                    'agency',
+                    'state',
+                    'variable_name',
+                    'units',
+                    'first_date_data_available',
+                    'last_date_data_available',
+                    'record_count',
+                    'latitude',
+                    'longitude',
+                    'site_query_url',
+                    'date_metadata_last_updated',
+                    'tz_cd',
+                    'doi']
+
+    final_df = final_df[ordered_cols]
+    return final_df
 
 
 def _get_data_from_api(
@@ -641,6 +863,26 @@ def _validate_user():
     return headers
 
 
+def _get_variables(conn):
+    """
+    Get list of stored variables.
+    Parameters
+    ----------
+    conn : Connection object
+        The Connection object associated with the SQLite database to query from. 
+    Returns
+    -------
+    DataFrame
+        DataFrame containing the entries from the variables SQLite table.
+    """
+    query = """
+            SELECT *
+            FROM variables
+            """
+    variables = pd.read_sql_query(query, conn)
+    return variables
+
+
 def _check_inputs(data_source, variable, temporal_resolution, aggregation, *args, **kwargs):
     """
     Checks on inputs to get_observations function.
@@ -721,8 +963,7 @@ def _get_var_id(conn, data_source, variable, temporal_resolution, aggregation, *
     Parameters
     ----------
     conn : Connection object
-        The Connection object associated with the SQLite database to 
-        query from. 
+        The Connection object associated with the SQLite database to query from. 
     data_source : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs', 
         'ameriflux'.    
@@ -986,36 +1227,6 @@ def _get_sites(conn, data_source, variable, temporal_resolution, aggregation, *a
                     to specify this shape's CRS.""")
 
         clipped_df = _filter_on_polygon(df, options['polygon'], options['polygon_crs'])
-        # # Read in shapefile
-        # shp = shapefile.Reader(options['polygon'])
-
-        # # Convert features to shapely geometries
-        # try:
-        #     assert len(shp.shapeRecords()) == 1
-        # except:
-        #     raise Exception("Please make sure your input shapefile contains only a single shape feature.")
-
-        # feature = shp.shapeRecords()[0].shape.__geo_interface__
-        # shp_geom = shape(feature)
-
-        # # Make sure CRS aligns between polygon and lat/lon points
-        # try:
-        #     assert 'polygon_crs' in options and options['polygon_crs'] is not None
-        # except:
-        #     raise Exception(
-        #         """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
-        #            to specify this shape's CRS.""")
-
-        # shp_crs = pyproj.CRS.from_user_input(options['polygon_crs'])
-
-        # project = pyproj.Transformer.from_crs(
-        #     shp_crs, pyproj.CRS('EPSG:4326'), always_xy=True).transform
-        # shp_geom_crs = transform(project, shp_geom)
-
-        # # Clip points to only those within the polygon
-        # df['clip'] = df.apply(lambda x: contains_xy(shp_geom_crs, x['longitude'], x['latitude']), axis=1)
-        # clipped_df = df[df['clip'] == True].reset_index().drop(columns=['index', 'clip'])
-
         return clipped_df
 
     else:
@@ -1101,7 +1312,8 @@ def _filter_on_polygon(data_df, polygon, polygon_crs):
     shp_geom_crs = transform(project, shp_geom)
 
     # Clip points to only those within the polygon
-    data_df['clip'] = data_df.apply(lambda x: contains_xy(shp_geom_crs, x['longitude'], x['latitude']), axis=1)
+    data_df['clip'] = data_df.apply(lambda x: contains_xy(
+        shp_geom_crs, float(x['longitude']), float(x['latitude'])), axis=1)
     clipped_df = data_df[data_df['clip'] == True].reset_index().drop(columns=['index', 'clip'])
 
     return clipped_df
