@@ -1738,7 +1738,7 @@ def _get_pfb_boundary_constraints(grid: str, options: dict) -> dict:
     grid_point = options.get("grid_point")
     latlon_point = options.get("latlon_point")
     x = options.get("x")
-    y = options.get("t")
+    y = options.get("y")
     z = options.get("z")
 
     if latlng_bounds:
