@@ -97,6 +97,28 @@ def get_data(data_source, variable, temporal_resolution, aggregation, *args, **k
     run_remote = not os.path.exists(HYDRODATA)
 
     if run_remote:
+
+        # Cannot pass local shapefile to API; pass bounding box instead
+        if 'polygon' in options and options['polygon'] is not None:
+            try:
+                assert 'polygon_crs' in options and options['polygon_crs'] is not None
+            except:
+                raise Exception(
+                    """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input() 
+                   to specify this shape's CRS.""")
+            latitude_range, longitude_range = _get_bbox_from_shape(options['polygon'], options['polygon_crs'])
+
+            # Send bounding box to API; remove polygon filters from API options
+            polygon = options['polygon']
+            polygon_crs = options['polygon_crs']
+            polygon_filter = True
+            del options['polygon']
+            del options['polygon_crs']
+            options['latitude_range'] = latitude_range
+            options['longitude_range'] = longitude_range
+        else:
+            polygon_filter = False
+
         data_df = _get_data_from_api(
             "data_only",
             data_source,
@@ -105,6 +127,29 @@ def get_data(data_source, variable, temporal_resolution, aggregation, *args, **k
             aggregation,
             options,
         )
+
+        # Re-filter on shapefile to trim bounding box
+        if polygon_filter == True:
+
+            # Use metadata call to get latitude/longitude for the sites
+            metadata_df = _get_data_from_api(
+                "metadata_only",
+                data_source,
+                variable,
+                temporal_resolution,
+                aggregation,
+                options,
+            )
+
+            # Clip metadata to polygon. Use this new list of sites to filter data_df.
+            clipped_metadata_df = _filter_on_polygon(metadata_df, polygon, polygon_crs)
+
+            metadata_site_ids = list(clipped_metadata_df['site_id'])
+            data_site_ids = list(data_df.columns)[1:]
+            site_ids_to_drop = [s for s in data_site_ids if s not in metadata_site_ids]
+
+            clipped_df = data_df.drop(columns=site_ids_to_drop)
+            return clipped_df
 
         return data_df
 
@@ -208,6 +253,28 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
     run_remote = not os.path.exists(HYDRODATA)
 
     if run_remote:
+
+        # Cannot pass local shapefile to API; pass bounding box instead
+        if 'polygon' in options and options['polygon'] is not None:
+            try:
+                assert 'polygon_crs' in options and options['polygon_crs'] is not None
+            except:
+                raise Exception(
+                    """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input() 
+                   to specify this shape's CRS.""")
+            latitude_range, longitude_range = _get_bbox_from_shape(options['polygon'], options['polygon_crs'])
+
+            # Send bounding box to API; remove polygon filters from API options
+            polygon = options['polygon']
+            polygon_crs = options['polygon_crs']
+            polygon_filter = True
+            del options['polygon']
+            del options['polygon_crs']
+            options['latitude_range'] = latitude_range
+            options['longitude_range'] = longitude_range
+        else:
+            polygon_filter = False
+
         data_df = _get_data_from_api(
             "metadata_only",
             data_source,
@@ -216,6 +283,11 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
             aggregation,
             options,
         )
+
+        # Re-filter on shapefile to trim bounding box
+        if polygon_filter == True:
+            clipped_df = _filter_on_polygon(data_df, polygon, polygon_crs)
+            return clipped_df
 
         return data_df
 
@@ -334,7 +406,7 @@ def _get_data_from_api(
     return data_df
 
 
-def get_registered_api_pin() -> Tuple[str, str]:
+def _get_registered_api_pin() -> Tuple[str, str]:
     """
     Get the email and pin registered by the current user.
 
@@ -392,12 +464,6 @@ def _convert_params_to_string_dict(options):
         if key == "site_networks":
             if not isinstance(value, str):
                 options[key] = str(value)
-        # Don't need below anymore?  Check with Amy D.
-        """
-        if key == "all_attributes":
-            if not isinstance(value, str):
-                options[key] = str(value)
-        """
     return options
 
 
@@ -430,13 +496,6 @@ def _convert_strings_to_type(options):
         if key == "min_num_obs":
             if isinstance(value, str):
                 options[key] = int(value)
-        # Don't need below anymore?  Check with Amy D.
-        """
-        if key == "all_attributes":
-            if isinstance(value, str):
-                options[key] = bool(value)
-        """
-
     return options
 
 
@@ -475,7 +534,7 @@ def _construct_string_from_qparams(
 
 def get_citations(data_source, variable, temporal_resolution, aggregation, site_ids=None):
     """
-    Print and/or return specific citation information.
+    Return a dictionary with relevant citation information.
 
     Parameters
     ----------
@@ -499,8 +558,10 @@ def get_citations(data_source, variable, temporal_resolution, aggregation, site_
 
     Returns
     -------
-    None or DataFrame of site-specific DOIs
-        Nothing returned unless data_source == `ameriflux` and the parameter `site_ids` is provided.
+    Dictionary
+        The dictionary has keys of `data_source` and, if site-level information is requested, `each of
+        the requested site IDs. The dictionary values contain overall attribution instructions when the
+        key is `data_source` and site-level DOIs for each site ID key.
     """
     try:
         assert data_source in ["usgs_nwis", "usda_nrcs", "ameriflux"]
@@ -509,84 +570,53 @@ def get_citations(data_source, variable, temporal_resolution, aggregation, site_
             f"Unexpected value of data_source, {data_source}. Supported values include 'usgs_nwis', 'usda_nrcs', and 'ameriflux'"
         )
 
+    citation_dict = {}
+
     if data_source == "usgs_nwis":
-        print(
-            """Most U.S. Geological Survey (USGS) information resides in Public Domain 
-              and may be used without restriction, though they do ask that proper credit be given.
-              An example credit statement would be: "(Product or data name) courtesy of the U.S. Geological Survey"
-              Source: https://www.usgs.gov/information-policies-and-instructions/acknowledging-or-crediting-usgs"""
-        )
+        c = ('Most U.S. Geological Survey (USGS) information resides in Public Domain and '
+             'may be used without restriction, though they do ask that proper credit be given. '
+             'An example credit statement would be: "(Product or data name) courtesy of the U.S. Geological Survey". '
+             'Source: https://www.usgs.gov/information-policies-and-instructions/acknowledging-or-crediting-usgs')
+        print(c)
+        citation_dict[data_source] = c
 
     elif data_source == "usda_nrcs":
-        print(
-            """Most information presented on the USDA Web site is considered public domain information. 
-                Public domain information may be freely distributed or copied, but use of appropriate
-                byline/photo/image credits is requested. 
-                Attribution may be cited as follows: "U.S. Department of Agriculture"
-                Source: https://www.usda.gov/policies-and-links"""
-        )
+        c = ('Most information presented on the USDA Web site is considered public domain information. '
+             'Public domain information may be freely distributed or copied, but use of appropriate '
+             'byline/photo/image credits is requested. Attribution may be cited as follows: '
+             '"U.S. Department of Agriculture" Source: https://www.usda.gov/policies-and-links')
+        print(c)
+        citation_dict[data_source] = c
 
     elif data_source == "ameriflux":
-        print(
-            """All AmeriFlux sites provided by the HydroData service follow the CC-BY-4.0 License.
-                The CC-BY-4.0 license specifies that the data user is free to Share (copy and redistribute 
-                the material in any medium or format) and/or Adapt (remix, transform, and build upon the 
-                material) for any purpose.
-            
-                Users of this data must acknowledge the AmeriFlux data resource with the following statement:
-                "Funding for the AmeriFlux data portal was provided by the U.S. Department of Energy Office 
-                of Science."
-            
-                Additionally, for each AmeriFlux site used, you must provide a citation to the site's 
-                data product that includes the data product DOI. The DOI for each site is included in the 
-                full metadata query. Alternately, a site list can be provided to this get_citation_information
-                function to return each site-specific DOI.
-            
-                Source: https://ameriflux.lbl.gov/data/data-policy/"""
-        )
+        c = ('All AmeriFlux sites provided by the HydroData service follow the CC-BY-4.0 License. '
+             'The CC-BY-4.0 license specifies that the data user is free to Share (copy and '
+             'redistribute the material in any medium or format) and/or Adapt (remix, transform, '
+             'and build upon the material) for any purpose. '
+             'Users of this data must acknowledge the AmeriFlux data resource with the '
+             'following statement: "Funding for the AmeriFlux data portal was provided by the U.S. '
+             'Department of Energy Office of Science." '
+             'Additionally, for each AmeriFlux site used, you must provide a citation to the site '
+             'data product that includes the data product DOI. The DOI for each site is included in the '
+             'full metadata query. Alternately, a site list can be provided to this get_citations '
+             'function to return each site-specific DOI. '
+             'Source: https://ameriflux.lbl.gov/data/data-policy/')
+        print(c)
+        citation_dict[data_source] = c
 
         if site_ids is not None:
             metadata_df = get_metadata(data_source, variable, temporal_resolution, aggregation, site_ids=site_ids)
-        return metadata_df[['site_id', 'doi']]
+            for i in range(len(metadata_df)):
+                site_id = metadata_df.loc[i, 'site_id']
+                doi = metadata_df.loc[i, 'doi']
+                print(f"Site: {site_id}, DOI: {doi}")
+                citation_dict[site_id] = doi
 
-
-def _convert_params_to_string_dict(options):
-    """
-    Converts types other than strings to strings.
-
-    Parameters
-    ----------
-    options : dictionary
-        request options.
-    """
-
-    for key, value in options.items():
-        if key == "depth_level":
-            if not isinstance(value, str):
-                options[key] = str(value)
-        if key == "latitude_range":
-            if not isinstance(value, str):
-                options[key] = str(value)
-        if key == "longitude_range":
-            if not isinstance(value, str):
-                options[key] = str(value)
-        if key == "site_ids":
-            if not isinstance(value, str):
-                options[key] = str(value)
-        if key == "min_num_obs":
-            if not isinstance(value, str):
-                options[key] = str(value)
-        if key == "return_metadata":
-            if not isinstance(value, str):
-                options[key] = str(value)
-        if key == "all_attributes":
-            if not isinstance(value, str):
-                options[key] = str(value)
-    return options
+    return citation_dict
 
 
 def _validate_user():
-    email, pin = get_registered_api_pin()
+    email, pin = _get_registered_api_pin()
     url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
     response = requests.get(url_security, headers=None, timeout=15)
     if not response.status_code == 200:
@@ -609,35 +639,6 @@ def _validate_user():
     headers = {}
     headers["Authorization"] = f"Bearer {jwt_token}"
     return headers
-
-
-def get_registered_api_pin() -> Tuple[str, str]:
-    """
-    Get the email and pin registered by the current user.
-
-    Returns:
-        A tuple (email, pin)
-    Raises:
-        ValueError if no email/pin was registered
-    """
-
-    pin_dir = os.path.expanduser("~/.hydrodata")
-    pin_path = f"{pin_dir}/pin.json"
-    if not os.path.exists(pin_path):
-        raise ValueError(
-            "No email/pin was registered. Use the register_api() method to register the pin you created at the website."
-        )
-    try:
-        with open(pin_path, "r") as stream:
-            contents = stream.read()
-            parsed_contents = json.loads(contents)
-            email = parsed_contents.get("email")
-            pin = parsed_contents.get("pin")
-            return (email, pin)
-    except Exception as e:
-        raise ValueError(
-            "No email/pin was registered. Use the register_api() method to register the pin you created at the website."
-        ) from e
 
 
 def _check_inputs(data_source, variable, temporal_resolution, aggregation, *args, **kwargs):
@@ -976,54 +977,134 @@ def _get_sites(conn, data_source, variable, temporal_resolution, aggregation, *a
     # Polygon shapefile provided
     if 'polygon' in options and options['polygon'] is not None:
 
-        # Read in shapefile
-        shp = shapefile.Reader(options['polygon'])
-
-        # Convert features to shapely geometries
-        try:
-            assert len(shp.shapeRecords()) == 1
-        except:
-            raise Exception("Please make sure your input shapefile contains only a single shape feature.")
-
-        feature = shp.shapeRecords()[0].shape.__geo_interface__
-        shp_geom = shape(feature)
-
         # Make sure CRS aligns between polygon and lat/lon points
         try:
             assert 'polygon_crs' in options and options['polygon_crs'] is not None
         except:
             raise Exception(
                 """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input() 
-                   to specify this shape's CRS.""")
+                    to specify this shape's CRS.""")
 
-        shp_crs = pyproj.CRS.from_user_input(options['polygon_crs'])
+        clipped_df = _filter_on_polygon(df, options['polygon'], options['polygon_crs'])
+        # # Read in shapefile
+        # shp = shapefile.Reader(options['polygon'])
 
-        project = pyproj.Transformer.from_crs(
-            shp_crs, pyproj.CRS('EPSG:4326'), always_xy=True).transform
-        shp_geom_crs = transform(project, shp_geom)
+        # # Convert features to shapely geometries
+        # try:
+        #     assert len(shp.shapeRecords()) == 1
+        # except:
+        #     raise Exception("Please make sure your input shapefile contains only a single shape feature.")
 
-        # Clip points to only those within the polygon
-        df['clip'] = df.apply(lambda x: contains_xy(shp_geom_crs, x['longitude'], x['latitude']), axis=1)
-        clipped_df = df[df['clip'] == True].reset_index().drop(columns=['index', 'clip'])
+        # feature = shp.shapeRecords()[0].shape.__geo_interface__
+        # shp_geom = shape(feature)
+
+        # # Make sure CRS aligns between polygon and lat/lon points
+        # try:
+        #     assert 'polygon_crs' in options and options['polygon_crs'] is not None
+        # except:
+        #     raise Exception(
+        #         """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
+        #            to specify this shape's CRS.""")
+
+        # shp_crs = pyproj.CRS.from_user_input(options['polygon_crs'])
+
+        # project = pyproj.Transformer.from_crs(
+        #     shp_crs, pyproj.CRS('EPSG:4326'), always_xy=True).transform
+        # shp_geom_crs = transform(project, shp_geom)
+
+        # # Clip points to only those within the polygon
+        # df['clip'] = df.apply(lambda x: contains_xy(shp_geom_crs, x['longitude'], x['latitude']), axis=1)
+        # clipped_df = df[df['clip'] == True].reset_index().drop(columns=['index', 'clip'])
 
         return clipped_df
 
-        # gdf = gpd.GeoDataFrame(
-        #     df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
-        # mask = gpd.read_file(options['polygon'])
-
-        # try:
-        #     assert mask.crs is not None
-        #     mask_proj = mask.to_crs('EPSG:4326')
-        # except:
-        #     raise Exception('Please make sure the referenced shapefile has a crs defined.')
-
-        # clipped_points = gpd.clip(gdf, mask_proj)
-        # clipped_df = pd.DataFrame(clipped_points.drop(columns='geometry'))
-        # return clipped_df
-
     else:
         return df
+
+
+def _get_bbox_from_shape(polygon, polygon_crs):
+    """
+    Construct transformed latitude and longitude ranges representing a shape's bounding box.
+
+    Parameters
+    ----------
+    polygon : str
+        Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
+    polygon_crs : str
+        CRS definition accepted by `pyproj.CRS.from_user_input()`.
+
+    Returns
+    -------
+    Tuple : (latitude_range, longitude_range)
+    """
+
+    # Read in shapefile, obtain bounding box
+    shp = shapefile.Reader(polygon)
+    bbox = shp.bbox
+
+    # Create series of corner points (lat/lon values) based on the bounding box
+    # bbox = [lon, lat, lon, lat]
+    bbox_df = pd.DataFrame(data={'lon': [bbox[0], bbox[0], bbox[2], bbox[2]],
+                                 'lat': [bbox[1], bbox[3], bbox[1], bbox[3]]})
+    bbox_df['geometry'] = bbox_df.apply(lambda row: Point(row['lon'], row['lat']), axis=1)
+
+    # Transform the corner points into the lat/lon projection
+    shp_crs = pyproj.CRS.from_user_input(polygon_crs)
+
+    project = pyproj.Transformer.from_crs(shp_crs, pyproj.CRS('EPSG:4326'), always_xy=True).transform
+    bbox_df['transform'] = bbox_df.apply(lambda x: transform(project, x['geometry']), axis=1)
+    bbox_df['transform_x'] = bbox_df['transform'].apply(lambda x: x.x)
+    bbox_df['transform_y'] = bbox_df['transform'].apply(lambda x: x.y)
+
+    # Save transformed bounding box as latitude_range, longitude_range
+    latitude_range = (bbox_df['transform_y'].min(), bbox_df['transform_y'].max())
+    longitude_range = (bbox_df['transform_x'].min(), bbox_df['transform_x'].max())
+
+    return (latitude_range, longitude_range)
+
+
+def _filter_on_polygon(data_df, polygon, polygon_crs):
+    """
+    Filter site-level DataFrame on being within Polygon bounds.
+
+    Parameters
+    ----------
+    data_df : DataFrame
+        DataFrame containing site-level information including 'latitude' and 'longitude'.
+    polygon : str
+        Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
+    polygon_crs : str
+        CRS definition accepted by `pyproj.CRS.from_user_input()`.
+
+    Returns
+    -------
+    clipped_df : DataFrame
+        DataFrame subset to only sites within the Polygon bounds.
+    """
+
+    # Read in shapefile
+    shp = shapefile.Reader(polygon)
+
+    # Convert features to shapely geometries
+    try:
+        assert len(shp.shapeRecords()) == 1
+    except:
+        raise Exception("Please make sure your input shapefile contains only a single shape feature.")
+
+    feature = shp.shapeRecords()[0].shape.__geo_interface__
+    shp_geom = shape(feature)
+
+    shp_crs = pyproj.CRS.from_user_input(polygon_crs)
+
+    project = pyproj.Transformer.from_crs(
+        shp_crs, pyproj.CRS('EPSG:4326'), always_xy=True).transform
+    shp_geom_crs = transform(project, shp_geom)
+
+    # Clip points to only those within the polygon
+    data_df['clip'] = data_df.apply(lambda x: contains_xy(shp_geom_crs, x['longitude'], x['latitude']), axis=1)
+    clipped_df = data_df[data_df['clip'] == True].reset_index().drop(columns=['index', 'clip'])
+
+    return clipped_df
 
 
 def _get_network_site_list(data_source, variable, site_networks):
