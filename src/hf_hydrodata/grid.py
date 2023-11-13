@@ -25,8 +25,10 @@ def to_latlon(grid: str, *args) -> List[float]:
 
     This conversion is fast. It is about 100K+ points/second.
 
-    Examples:
-        >>>
+    Example:
+
+    .. code-block:: python
+
         (lat, lon) = to_latlon("conus1", 10, 10)
         latlon_bounds = to_latlon("conus1", *[0, 0, 20, 20])
         (lat, lon) = to_latlon("conus1", 10.5, 10.5)
@@ -67,8 +69,10 @@ def from_latlon(grid: str, *args) -> List[float]:
 
     This conversion is fast. It is about 100K+ points/second.
 
-    Examples:
-        >>>
+    Example:
+
+    .. code-block:: python
+
         (x, y) = from_latlon("conus1", 31.759219, -115.902573)
         latlon_bounds = from_latlon("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     """    
@@ -110,8 +114,10 @@ def to_meters(grid: str, *args) -> List[float]:
 
     This conversion is fast. It is about 100K+ points/second.
 
-    Examples:
-        >>>
+    Example:
+ 
+    .. code-block:: python
+
         (x, y) = to_meters("conus1", 31.759219, -115.902573)
         latlon_bounds = to_meters("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     """
@@ -133,16 +139,18 @@ def to_meters(grid: str, *args) -> List[float]:
 
 def to_ij(grid: str, *args) -> List[int]:
     """
-        Convert grid lat,lon coordinates to i,j integers in grid resolution coordinates from grid origin.
+    Convert grid lat,lon coordinates to i,j integers in grid resolution coordinates from grid origin.
 
-        Args:
-            grid:       The name of a hf_hydrodata grid (e.g. conus1 or conus2).
-            args:       A list of floating pairs of lat,lon values.
+    Args:
+        grid:       The name of a hf_hydrodata grid (e.g. conus1 or conus2).
+        args:       A list of floating pairs of lat,lon values.
 
-        Examples:
-            >>>
-            (i, j) = to_ij("conus1", 31.759219, -115.902573)
-            ij_bounds = to_ij("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])        
+    Example:
+
+    .. code-block:: python
+
+        (i, j) = to_ij("conus1", 31.759219, -115.902573)
+        ij_bounds = to_ij("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])        
     """
 
     result = [round(v) for v in from_latlon(grid, *args)]
@@ -156,8 +164,10 @@ def to_xy(grid: str, *args) -> List[float]:
         grid:       The name of a hf_hydrodata grid (e.g. conus1 or conus2).
         args:       A list of floating pairs of lat,lon values.
         
-    For example:
-        >>>
+    Example:
+
+    .. code-block:: python
+
         (x, y) = to_xy("conus1", 31.759219, -115.902573)
         xy_bounds = to_xy("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])      
     """
