@@ -14,7 +14,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../s
 from hf_hydrodata import point  # noqa
 
 REMOTE_TEST_DATA_DIR = '/hydrodata/national_obs/tools/test_data'
-LOCAL_TEST_DATA_DIR = 'test_data'
+LOCAL_TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
 
 
 class MockResponseMetadata:
@@ -840,7 +840,7 @@ def test_polygon_filter_data_remote():
         "average",
         date_start="2002-01-01",
         date_end="2002-01-05",
-        polygon=f'{LOCAL_TEST_DATA_DIR}/raritan_watershed.shp',
+        polygon=f'{str(LOCAL_TEST_DATA_DIR)}/raritan_watershed.shp',
         polygon_crs="""GEOGCS["GCS_North_American_1983",
                         DATUM["D_North_American_1983",
                         SPHEROID["GRS_1980",6378137.0,298.257222101]],
@@ -862,7 +862,7 @@ def test_polygon_filter_metadata_remote():
         "average",
         date_start="2002-01-01",
         date_end="2002-01-05",
-        polygon=f'{LOCAL_TEST_DATA_DIR}/raritan_watershed.shp',
+        polygon=f'{str(LOCAL_TEST_DATA_DIR)}/raritan_watershed.shp',
         polygon_crs="""GEOGCS["GCS_North_American_1983",
                         DATUM["D_North_American_1983",
                         SPHEROID["GRS_1980",6378137.0,298.257222101]],
@@ -883,7 +883,7 @@ def test_polygon_filter_fail():
             "average",
             date_start="2002-01-01",
             date_end="2002-01-05",
-            polygon=f'{LOCAL_TEST_DATA_DIR}/raritan_watershed.shp')
+            polygon=f'{str(LOCAL_TEST_DATA_DIR)}/raritan_watershed.shp')
 
 
 def test_get_citations_usgs():
