@@ -16,10 +16,15 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../s
 
 import hf_hydrodata.gridded
 
+
 @pytest.fixture(autouse=True)
 def patch_api(mocker):
-    mocker.patch("hf_hydrodata.data_model_access._load_model_from_api", return_value=None)
-    
+    """Mock api call to load model from API."""
+    mocker.patch(
+        "hf_hydrodata.data_model_access._load_model_from_api", return_value=None
+    )
+
+
 class MockResponse:
     """Mock the flask.request response."""
 
@@ -316,6 +321,7 @@ def test_paths_hourly_files():
         paths[95]
         == "/hydrodata/PFCLM/CONUS1_baseline/simulations/2006/raw_outputs/pressure/CONUS.2006.out.press.00048.pfb"
     )
+
 
 def test_files_exist():
     """Test that the files found in every data_catalog_entry exist."""
@@ -951,43 +957,11 @@ def test_latlng_to_grid():
     assert round(y) == 1888
 
 
-def test_get_huc_from_point():
-    """Unit test for get_huc_from_latlng and get_huc_from_xy"""
-
-    hf_hydrodata.gridded.HYDRODATA = "/hydrodata"
-    grid = "conus1"
-    (lat, lng) = hf_hydrodata.grid.to_latlon("conus1", 1078, 722)
-    huc_id = hf_hydrodata.grid.get_huc_from_latlon(grid, 10, lat, lng)
-    assert huc_id == "1019000404"
-
-    huc_id = hf_hydrodata.grid.get_huc_from_xy(grid, 10, 1078, 722)
-    assert huc_id == "1019000404"
-
-    huc_id = hf_hydrodata.grid.get_huc_from_xy(grid, 10, 1078, 1999)
-    assert huc_id is None
-
-
-def test_get_huc_bbox_conus1():
-    """Unit test for get_huc_bbox for conus1"""
-
-    hf_hydrodata.gridded.HYDRODATA = "/hydrodata"
-    with pytest.raises(ValueError):
-        hf_hydrodata.gridded.get_huc_bbox("bad grid", ["1019000404"])
-    with pytest.raises(ValueError):
-        hf_hydrodata.gridded.get_huc_bbox("conus1", ["1019000404", "123"])
-
-    bbox = hf_hydrodata.gridded.get_huc_bbox("conus1", ["1019000404"])
-    assert bbox == (1076, 720, 1124, 739)
-
-    bbox = hf_hydrodata.gridded.get_huc_bbox("conus1", ["1102001002", "1102001003"])
-    assert bbox == (1088, 415, 1132, 453)
-
-
 def test_get_huc_bbox_conus2():
     """Unit test for get_huc_bbox for conus2"""
 
     hf_hydrodata.gridded.HYDRODATA = "/hydrodata"
-    bbox = hf_hydrodata.grid.get_huc_bbox("conus2", ["1019000404"])
+    bbox = hf_hydrodata.gridded.get_huc_bbox("conus2", ["1019000404"])
     assert bbox == (1468, 1664, 1550, 1693)
 
 
@@ -1211,6 +1185,7 @@ def test_timezone():
     )
     assert data.shape[0] == 7
 
+
 def test_get_date_range():
     """Test get_date_range."""
 
@@ -1237,6 +1212,7 @@ def test_ambiguous_filter():
     with pytest.raises(ValueError) as info:
         hf_hydrodata.gridded.get_catalog_entry(options)
     assert "variable = 'precipitation' or 'downward_longwave" in str(info.value)
+
 
 def test_get_huc_from_point():
     """Unit test for get_huc_from_latlon and get_huc_from_xy"""
@@ -1268,11 +1244,37 @@ def test_get_huc_bbox_conus1():
     assert bbox == (1088, 415, 1132, 453)
 
 
-def test_get_huc_bbox_conus2():
-    """Unit test for get_huc_bbox for conus2"""
+def test_filter_errors():
+    """Unit test to check for filter error messages."""
+    hf_hydrodata.gridded.HYDRODATA = "/hydrodata"
+    if not os.path.exists("/hydrodata"):
+        # Just skip test if this is run on a machine without /hydrodata access
+        return
 
-    bbox = hf_hydrodata.gridded.get_huc_bbox("conus2", ["1019000404"])
-    assert bbox == (1468, 1664, 1550, 1693)
+    options = {
+        "dataset": "NLDAS2",
+        "file_type": "pfb",
+        "variable": "north_windspeed",
+        "period": "hourly",
+        "start_time": "2005-01-01 11:00:00",
+        "grid_bounds": [5000, 200, 50010, 300],
+    }
+    with pytest.raises(ValueError) as info:
+        hf_hydrodata.gridded.get_numpy(options)
+    assert "is outside the grid shape 3342, 1888" in str(info.value)
+
+    options = {
+        "dataset": "NLDAS2",
+        "file_type": "pfb",
+        "variable": "north_windspeed",
+        "period": "hourly",
+        "start_time": "2005-01-01 11:00:00",
+        "grid_point": [200, 2000],
+    }
+    with pytest.raises(ValueError) as info:
+        hf_hydrodata.gridded.get_numpy(options)
+    assert "is outside the grid shape 3342, 1888" in str(info.value)
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

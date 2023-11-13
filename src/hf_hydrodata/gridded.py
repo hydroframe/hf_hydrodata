@@ -2,7 +2,7 @@
 Functions to access gridded data from the data catalog index of the GPFS files.
 """
 
-# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732
+# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702
 import os
 import datetime
 import io
@@ -131,7 +131,7 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files.
         site_id:        Used when reading data associated with an observation site.
-       
+
     Returns:
         A list of ModelTableRow entries that match the filter options.
 
@@ -208,7 +208,7 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files.
         site_id:        Used when reading data associated with an observation site.
-       
+
     Returns:
         A single ModelTableRow entry that match the filter options or None if no entry is found.
 
@@ -314,10 +314,10 @@ def _ambiguous_error_message(entry_1: dict, entry_2: dict) -> str:
 def get_table_names() -> List[str]:
     """
     Get the list of table names in the data model.
-    
+
     Returns:
         List of of all the table names in the hf_hydrodata data catalog model.
-    
+
     Example:
         >>>
         names  = get_table_names()
@@ -495,7 +495,7 @@ def _construct_string_from_qparams(entry, options):
     return result_string
 
 
-def get_paths(*args, **kwargs)->List[str]:
+def get_paths(*args, **kwargs) -> List[str]:
     """
     Get the file paths within data catalog for the filter options.
 
@@ -517,7 +517,7 @@ def get_paths(*args, **kwargs)->List[str]:
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files.
         site_id:        Used when reading data associated with an observation site.
-    
+
     Returns:
         An list of absolute path names to the file location on the GPFS file system.
     Raises:
@@ -555,7 +555,9 @@ def get_paths(*args, **kwargs)->List[str]:
                     if end_time_value is None:
                         end_time_value = start_time_value + datetime.timedelta(days=1)
                     while time_value < end_time_value:
-                        datapath = _substitute_datapath(path, entry, options, time_value=time_value)
+                        datapath = _substitute_datapath(
+                            path, entry, options, time_value=time_value
+                        )
                         if datapath not in result:
                             result.append(datapath)
                         time_value = time_value + datetime.timedelta(days=1)
@@ -565,7 +567,9 @@ def get_paths(*args, **kwargs)->List[str]:
                     if end_time_value is None:
                         end_time_value = start_time_value + datetime.timedelta(hours=1)
                     while time_value < end_time_value:
-                        datapath = _substitute_datapath(path, entry, options, time_value=time_value)
+                        datapath = _substitute_datapath(
+                            path, entry, options, time_value=time_value
+                        )
                         if datapath not in result:
                             result.append(datapath)
                         time_value = time_value + datetime.timedelta(hours=1)
@@ -574,15 +578,20 @@ def get_paths(*args, **kwargs)->List[str]:
                     if end_time_value is None:
                         end_time_value = start_time_value + relativedelta(months=1)
                     while time_value < end_time_value:
-                        datapath = _substitute_datapath(path, entry, options, time_value=time_value)
+                        datapath = _substitute_datapath(
+                            path, entry, options, time_value=time_value
+                        )
                         if datapath not in result:
                             result.append(datapath)
                         time_value = time_value + relativedelta(months=1)
                 else:
                     time_value = start_time_value
-                    datapath = _substitute_datapath(path, entry, options, time_value=time_value)
+                    datapath = _substitute_datapath(
+                        path, entry, options, time_value=time_value
+                    )
                     result.append(datapath)
     return result
+
 
 def get_path(*args, **kwargs) -> str:
     """
@@ -606,7 +615,7 @@ def get_path(*args, **kwargs) -> str:
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files.
         site_id:        Used when reading data associated with an observation site.
-    
+
     Returns:
         An absolute path name to the file location on the GPFS file system.
     Raises:
@@ -615,7 +624,7 @@ def get_path(*args, **kwargs) -> str:
     Examples:
         >>>
         options = {
-            "dataset": "NLDAS2", "period": "daily", "variable": "precipitation", 
+            "dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
             "start_time":"2005-09-30"
         }
         path = get_path(options)
@@ -630,20 +639,6 @@ def get_file_path(entry, *args, **kwargs) -> str:
     This function is deprecated.
 
     Use the function get_path() instead.
-    """
-    """Get the file path within /hydrodata for a data catalog entry.
-
-    Args:
-        entry:          Either a ModelTableRow or the ID number of a data_catalog_entry. If None use the entry found by the filters.
-        args:           Optional positional parameter that must be a dict with data filter options.
-        kwargs:         Supports multiple named parameters with data filter option values.
-
-    Returns:
-        A single path path for the data catalog entry
-
-    Raises:
-        ValueError:     If there is no path or multiple paths for the data catalog entry.
-
     """
     paths = get_file_paths(entry, *args, **kwargs)
     if len(paths) == 0:
@@ -677,7 +672,7 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
         level:          A HUC level integer when reading HUC boundary files.
         site_id:        Used when reading data associated with an observation site.
         time_values:    Optional. An empty array that will be populated with time dimension values of returned data.
-    
+
     Returns:
         A numpy ndarray containing the data loaded from the files identified by the entry and sliced by the data filter options.
     Raises:
@@ -777,12 +772,18 @@ def _write_file_from_api(filepath, options):
                 response_json = json.loads(content)
                 message = response_json.get("message")
                 raise ValueError(message)
+            if response.status_code == 502:
+                raise ValueError(
+                    "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filter."
+                )
             raise ValueError(
                 f"The datafile_url {datafile_url} returned error code {response.status_code}."
             )
 
     except requests.exceptions.Timeout as e:
-        raise ValueError(f"The datafile_url {datafile_url} has timed out.") from e
+        raise ValueError(
+            f"The datafile_url {datafile_url} has timed out. Try again later or try to reduce the size of data in the API request using time or space filter."
+        ) from e
 
     file_obj = io.BytesIO(response.content)
     with open(filepath, "wb") as output_file:
@@ -939,19 +940,19 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
 
 def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
     """
-        Get a HUC id at a lat/lon point for a given grid and level.
+    Get a HUC id at a lat/lon point for a given grid and level.
 
-        Args:
-            grid:   grid name (e.g. conus1 or conus2)
-            level:  HUC level (length of HUC id to be returned)
-            lat:    lattitude of point
-            lon:    longitude of point
-        Returns:
-            The HUC id string containing the lat/lon point or None.
-        Example:
-            >>>
-            huc_id = get_huc_from_latlon("conus1", 6, 34.48, -115.63)
-            assert huc_id == "181001"
+    Args:
+        grid:   grid name (e.g. conus1 or conus2)
+        level:  HUC level (length of HUC id to be returned)
+        lat:    lattitude of point
+        lon:    longitude of point
+    Returns:
+        The HUC id string containing the lat/lon point or None.
+    Example:
+        >>>
+        huc_id = get_huc_from_latlon("conus1", 6, 34.48, -115.63)
+        assert huc_id == "181001"
     """
     huc_id = None
     tiff_ds = __get_geotiff(grid, level)
@@ -968,19 +969,19 @@ def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
 
 def get_huc_from_xy(grid: str, level: int, x: int, y: int) -> str:
     """
-        Get a HUC id at an xy point for a given grid and level.
+    Get a HUC id at an xy point for a given grid and level.
 
-        Args:
-            grid:   grid name (e.g. conus1 or conus2)
-            level:  HUC level (length of HUC id to be returned)
-            x:      x coordinate in the grid
-            y:      y coordinate in the grid
-        Returns:
-            The HUC id string containing the lat/lon point or None.
+    Args:
+        grid:   grid name (e.g. conus1 or conus2)
+        level:  HUC level (length of HUC id to be returned)
+        x:      x coordinate in the grid
+        y:      y coordinate in the grid
+    Returns:
+        The HUC id string containing the lat/lon point or None.
 
-        Example:
-            huc_id = get_huc_from_xy("conus1", 6, 300, 100)
-            assert huc_id == "181001"
+    Example:
+        huc_id = get_huc_from_xy("conus1", 6, 300, 100)
+        assert huc_id == "181001"
     """
     tiff_ds = __get_geotiff(grid, level)
     data = np.flip(tiff_ds[0].to_numpy(), 0)
@@ -1102,9 +1103,21 @@ def _convert_strings_to_json(options):
         if key == "latlng_bounds":
             if isinstance(value, str):
                 options[key] = json.loads(value)
+        if key == "latlon_bounds":
+            if isinstance(value, str):
+                options["latlng_bounds"] = json.loads(value)
         if key == "grid_bounds":
             if isinstance(value, str):
                 options[key] = json.loads(value)
+        if key == "grid_point":
+            if isinstance(value, str):
+                options[key] = json.loads(value)
+        if key == "latlon_point":
+            if isinstance(value, str):
+                options[key] = json.loads(value)
+        if key == "latlng_point":
+            if isinstance(value, str):
+                options["latlon_point"] = json.loads(value)
         if key == "time_values":
             if isinstance(value, str):
                 options[key] = json.loads(value)
@@ -1130,6 +1143,18 @@ def _convert_json_to_strings(options):
         if key == "latlng_bounds":
             if not isinstance(value, str):
                 options[key] = json.dumps(value)
+        if key == "latlon_bounds":
+            if not isinstance(value, str):
+                options["latlng_bounds"] = json.dumps(value)
+        if key == "grid_point":
+            if not isinstance(value, str):
+                options[key] = json.dumps(value)
+        if key == "latlon_point":
+            if not isinstance(value, str):
+                options[key] = json.dumps(value)
+        if key == "latlng_point":
+            if not isinstance(value, str):
+                options["latlon"] = json.dumps(value)
         if key == "time_values":
             if not isinstance(value, str):
                 options[key] = json.dumps(value)
@@ -1171,15 +1196,24 @@ def _get_ndarray_from_api(entry, options, time_values):
                     response_json = json.loads(content)
                     message = response_json.get("message")
                     raise ValueError(message)
+                if response.status_code == 502:
+                    raise ValueError(
+                        "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filter."
+                    )
                 raise ValueError(
                     f"The  {gridded_data_url} returned error code {response.status_code}."
                 )
 
         except requests.exceptions.Timeout as e:
             raise ValueError(
-                f"The gridded_data_url {gridded_data_url} has timed out."
+                f"The gridded_data_url {gridded_data_url} has timed out. Try again later or try to reduce the size of data in the API request using time or space filter."
             ) from e
 
+        content = response.content
+        if content is None or len(content) == 0:
+            raise ValueError(
+                "Timeout response from server. Try again later or try to reduce the size of data in the API request using time or space filter."
+            )
         file_obj = io.BytesIO(response.content)
         netcdf_dataset = xr.open_dataset(file_obj)
         variable = entry["variable"]
@@ -1377,14 +1411,7 @@ def _read_and_filter_pfb_files(
     for path in paths:
         if not os.path.exists(path):
             raise ValueError(f"File {path} does not exist.")
-    boundary_constraints = _get_pfb_boundary_constraints(
-        entry["grid"],
-        options.get("grid_bounds"),
-        options.get("latlng_bounds"),
-        options.get("x"),
-        options.get("y"),
-        options.get("z"),
-    )
+    boundary_constraints = _get_pfb_boundary_constraints(entry["grid"], options)
     boundary_constraints = _add_pfb_time_constraint(
         boundary_constraints, entry, start_time_value, end_time_value
     )
@@ -1415,14 +1442,7 @@ def _read_and_filter_c_pfb_files(
     start_time_value = _parse_time(options.get("start_time"))
     end_time_value = _parse_time(options.get("end_time"))
     paths = get_file_paths(entry, options)
-    boundary_constraints = _get_pfb_boundary_constraints(
-        entry["grid"],
-        options.get("grid_bounds"),
-        options.get("latlng_bounds"),
-        options.get("x"),
-        options.get("y"),
-        options.get("z"),
-    )
+    boundary_constraints = _get_pfb_boundary_constraints(entry["grid"], options)
     if boundary_constraints is None:
         # No boundary constraint specified in input arguments
         # So default to full grid so we can add the z constraint for the C.pfb data filter
@@ -1472,9 +1492,7 @@ def _read_and_filter_pfmetadata_files(
     dataset_var = entry["dataset_var"]
     ds = xr.open_dataset(paths[0])
     da = ds[dataset_var]
-    da = _slice_da_bounds(
-        da, entry["grid"], options.get("grid_bounds"), options.get("latlng_bounds")
-    )
+    da = _slice_da_bounds(da, entry["grid"], options)
     data = da
     _collect_pfb_date_dimensions(time_values, data, start_time_value)
     return data
@@ -1607,7 +1625,6 @@ def __get_geotiff(grid: str, level: int) -> xr.Dataset:
         An xarray dataset with the contents of the geotiff file for the grid and level.
     """
 
-    data_model = load_data_model()
     options = {
         "dataset": "huc_mapping",
         "variable": "huc_map",
@@ -1662,16 +1679,42 @@ def _match_filename_wild_card(data_path: str) -> str:
     return data_path
 
 
-def _slice_da_bounds(
-    da: xr.DataArray,
-    grid: str = None,
-    grid_bounds: List[float] = None,
-    latlng_bounds: List[float] = None,
-) -> xr.DataArray:
-    if grid_bounds and latlng_bounds:
-        raise ValueError("Cannot specify both grid_bounds and latlng_bounds")
+def _slice_da_bounds(da: xr.DataArray, grid: str, options: dict) -> xr.DataArray:
+    grid_bounds = options.get("grid_bounds")
+    latlng_bounds = options.get("latlng_bounds")
+    latlon_bounds = options.get("latlon_bounds")
+    grid_point = options.get("grid_point")
+    latlon_point = options.get("latlon_point")
+
     if latlng_bounds:
-        grid_bounds = to_ij(grid, *latlng_bounds)
+        latlon_bounds = latlng_bounds
+    if grid_point and grid_bounds:
+        raise ValueError("Cannot specify both grid_bounds and grid_point")
+    if grid_bounds and latlon_bounds:
+        raise ValueError("Cannot specify both grid_bounds and latlon_bounds")
+    if latlon_bounds:
+        grid_bounds = to_ij(grid, *latlon_bounds)
+    if latlon_point:
+        grid_point = to_ij(grid, *latlon_point)
+    if grid_point:
+        grid_bounds = [
+            grid_point[0],
+            grid_point[1],
+            grid_point[0] + 1,
+            grid_point[1] + 1,
+        ]
+    grid_row = get_table_row("grid", id=grid.lower())
+    if grid_row is None:
+        raise ValueError(f"No such grid {grid} available.")
+    grid_shape = grid_row["shape"]
+    if (
+        len(grid_shape) >= 3
+        and (grid_bounds[0] < 0 or grid_bounds[0] > grid_shape[2])
+        or (grid_bounds[1] < 0 or grid_bounds[3] > grid_shape[1])
+    ):
+        raise ValueError(
+            f"grid_bounds {grid_bounds[0]},{grid_bounds[1]} is outside the grid shape {grid_shape[2]}, {grid_shape[1]}."
+        )
 
     if grid_bounds:
         result = da[:, grid_bounds[1] : grid_bounds[3], grid_bounds[0] : grid_bounds[2]]
@@ -1680,24 +1723,13 @@ def _slice_da_bounds(
     return result
 
 
-def _get_pfb_boundary_constraints(
-    grid: str = None,
-    grid_bounds: List[float] = None,
-    latlng_bounds: List[float] = None,
-    x: int = None,
-    y: int = None,
-    z: int = None,
-) -> dict:
+def _get_pfb_boundary_constraints(grid: str, options: dict) -> dict:
     """
     Get a PFB boundary constraint given either a grid_bounds or latlng_bounds
 
     Args:
         grid:           The name of a grid from the data catalog.
-        grid_bounds:    An array of [left, bottom, right, top] in the xy coordinates of the grid.
-        latlng_bounds:  An array of [left, bottom, right, top] in the latlng coordinates.
-        x:              x coordinate in the xy coordinates of the grid
-        y:              y coordinate in the xy coordinates of the grid
-        z:              z coordinate in the xy coordinates of the grid
+        options:        The options dict containing grid_bounds, latlon_bounds, grid_point, latlon_point, x, y, z attributes.
     Returns:
         A PFB boundary constraint dict with attributes: x, y, z or None if no bounds is specified.
     Raises:
@@ -1705,23 +1737,64 @@ def _get_pfb_boundary_constraints(
     If x,y,z are specified then the boundary is filter to include only the point at that location.
     If x,y are specified, but not z then z is filtered to include only point 0.
     """
+    grid_bounds = options.get("grid_bounds")
+    latlng_bounds = options.get("latlng_bounds")
+    latlon_bounds = options.get("latlon_bounds")
+    grid_point = options.get("grid_point")
+    latlon_point = options.get("latlon_point")
+    x = options.get("x")
+    y = options.get("t")
+    z = options.get("z")
 
-    if grid_bounds and latlng_bounds:
-        raise ValueError("Cannot specify both grid_bounds and latlng_bounds")
     if latlng_bounds:
-        grid_bounds = to_ij(grid, *latlng_bounds)
+        latlon_bounds = latlng_bounds
+    if grid_point and grid_bounds:
+        raise ValueError("Cannot specify both grid_bounds and grid_point")
+    if grid_bounds and latlon_bounds:
+        raise ValueError("Cannot specify both grid_bounds and latlon_bounds")
+    if latlon_bounds:
+        grid_bounds = to_ij(grid, *latlon_bounds)
+    if latlon_point:
+        grid_point = to_ij(grid, *latlon_point)
+    if grid_point:
+        grid_bounds = [
+            grid_point[0],
+            grid_point[1],
+            grid_point[0] + 1,
+            grid_point[1] + 1,
+        ]
+    grid_row = get_table_row("grid", id=grid.lower())
+    if grid_row is None:
+        raise ValueError(f"No such grid {grid} available.")
+    grid_shape = grid_row["shape"]
 
     result = None
     if x is not None:
         if y is None:
             raise ValueError("If x point is specified then y must be specified")
         z = int(z) if z is not None else 0
+        if (
+            len(grid_shape) >= 3
+            and (x < 0 or x > grid_shape[2])
+            or (y < 0 or y > grid_shape[1])
+        ):
+            raise ValueError(
+                f"Point {x},{y} is outside the grid shape {grid_shape[2]}, {grid_shape[1]}."
+            )
         result = {
             "x": {"start": int(x), "stop": int(x)},
             "y": {"start": int(y), "stop": int(y)},
             "z": {"start": z, "stop": z},
         }
     elif grid_bounds:
+        if (
+            len(grid_shape) >= 3
+            and (grid_bounds[0] < 0 or grid_bounds[0] > grid_shape[2])
+            or (grid_bounds[1] < 0 or grid_bounds[3] > grid_shape[1])
+        ):
+            raise ValueError(
+                f"grid_bounds {grid_bounds[0]},{grid_bounds[1]} is outside the grid shape {grid_shape[2]}, {grid_shape[1]}."
+            )
         result = {
             "x": {"start": int(grid_bounds[0]), "stop": int(grid_bounds[2])},
             "y": {"start": int(grid_bounds[1]), "stop": int(grid_bounds[3])},
@@ -1751,6 +1824,7 @@ def _add_pfb_time_constraint(
     period = entry["period"]
     variable = entry["variable"]
     variable_row = get_table_row("variable", id=variable)
+
     if (
         not (variable_row is not None and variable_row["has_z"].lower() == "true")
         and start_time_value is not None
