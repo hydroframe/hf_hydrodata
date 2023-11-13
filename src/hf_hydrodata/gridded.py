@@ -52,8 +52,16 @@ def register_api_pin(email: str, pin: str):
     """
     Register the email and pin that was created with the website in the users home directory.
 
-    This creates a file in the users home directory in ~/.hydrodata/pin.json.
-    This file is only visible by the user and allows authenticated access to remote data.
+    Args:
+        email:      Email address used to create an API pin.
+        pin:        The 4 digit pin registered to be able to use the API.
+
+    This only needs to be execute once per machine to register the pin. You can create a pin
+    using the URL https://hydrogen.princeton.edu/pin.
+
+    Examples:
+        >>>
+        register_api_pin("dummy@gmail.com", "1234")
     """
 
     pin_dir = os.path.expanduser("~/.hydrodata")
@@ -73,11 +81,12 @@ def get_registered_api_pin() -> Tuple[str, str]:
     Get the email and pin registered by the current user on the current machine.
 
     Returns:
-        A tuple (email, pin)
+        A tuple (email, pin).
     Raises:
-        ValueError if no email/pin was registered
+        ValueError:  if no email/pin was registered.
 
-    For example,
+    Examples:
+        >>>
         (email, pin) = get_registered_api_pin()
     """
 
@@ -104,31 +113,57 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
     """
     Get data catalog entry rows selected by filter options.
 
+    The parameters to the function can be specified either by passing a dict with the parameter values
+    or by passing named parameters to the function.
+
     Args:
-        args:           Optional positional parameter that must be a dict with filter options.
-        kwargs:         Supports multiple named parameters with filter option values.
+        dataset:        A dataset name (see Gridded Data documentation).
+        variable:       A variable from a dataset.
+        period:         A period (e.g. hourly, daily, weekly, monthly) from a dataset variable.
+        grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
+        aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
+        start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
+        end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
+        grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.
+        latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
+        grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
+        latlng_point:   An array (or string representing an array) of points [lat, long] in lat/lng coordinates of a point in the grid.
+        z:              A value of the z dimension to be used as a filter for this dismension when loading data.
+        level:          A HUC level integer when reading HUC boundary files.
+        site_id:        Used when reading data associated with an observation site.
+       
     Returns:
         A list of ModelTableRow entries that match the filter options.
 
-    A filter option is any column name in the data_catalog_entry table.
-    The value of the filter option argument must be a value of that column in the table.
+    A ModelTableRow contains the attributes of the hf_hydrodata model of a data catalog entry.
+    The attributes can be accessed by indexing by the attribute name (e.g. entry["dataset"]).
+    You can get the attribute names of an entry using column_names() (e.g. entry.column_names()).
 
-    The filter options are the same options as provided to the get_numpy() function.
+    ModelTableRow metadata attributes:
+        * dataset:          A dataset name (see Gridded Data documentation).
+        * variable:         A variable from a dataset.
+        * period:           A period (e.g. hourly, daily, weekly, monthly) from a dataset variable.
+        * grid:             A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
+        * aggregation:      One of mean, max, min. Normally, only needed for temperature variables.
+        * entry_start_date: Earliest available date of data.
+        * entry_end_date:   Latest available date of data.
+        * units:            Units of the data.
+        * file_type:        Type of file of hf_hydrodata GPFS.
+        * dataset_type:     A classification type of the dataset.
+        * paper_dois:       A space seperate list of DOI references to published papers.
+        * structure_type:   Gridded or Point
+        * description:      Short description of the dataset containing the data.
+        * summary           Longer summary of the dataset containing the data.
 
-    For example,
-
+    Examples:
+        >>>
         entries = get_catalog_entries(dataset="NLDAS2", period="daily")
 
-            or
-
+        >>>
         options = {"dataset": "NLDAS2", "period": "daily"}
-
         entries = get_catalog_entries(options)
-
         assert len(entries) == 20
-
         entry = entries[0]
-
         assert entry["dataset"] == "NLDAS2"
     """
 
@@ -155,21 +190,60 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
     """
     Get a single data catalog entry row selected by filter options.
 
-    Args:
-        args:           Optional positional parameters that must be a dict with filter options.
-        kwargs:         Supports multiple named parameters with filter option values.
-    Returns:
-        A single of ModelTableRow entries that matches the filter options or None if no entry matches the filter options.
-    Raises:
-        ValueError      If the filter options do not uniquely select a single data_catalog_entry.
+    The parameters to the function can be specified either by passing a dict with the parameter values
+    or by passing named parameters to the function.
 
-    This method is the same as get_catalog_entries() except returns a single row rather than a list of rows.
-    For example,
+    Args:
+        dataset:        A dataset name (see Gridded Data documentation).
+        variable:       A variable from a dataset.
+        period:         A period (e.g. hourly, daily, weekly, monthly) from a dataset variable.
+        grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
+        aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
+        start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
+        end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
+        grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.
+        latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
+        grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
+        latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
+        z:              A value of the z dimension to be used as a filter for this dismension when loading data.
+        level:          A HUC level integer when reading HUC boundary files.
+        site_id:        Used when reading data associated with an observation site.
+       
+    Returns:
+        A single ModelTableRow entry that match the filter options or None if no entry is found.
+
+    Raises:
+        ValueError:     If the filter options do not uniquely identify a single entry.
+
+    A ModelTableRow contains the attributes of the hf_hydrodata model of a data catalog entry.
+    The attributes can be accessed by indexing by the attribute name (e.g. entry["dataset"]).
+    You can get the attribute names of an entry using column_names() (e.g. entry.column_names()).
+
+    ModelTableRow metadata attributes:
+        * dataset:          A dataset name (see Gridded Data documentation).
+        * variable:         A variable from a dataset.
+        * period:           A period (e.g. hourly, daily, weekly, monthly) from a dataset variable.
+        * grid:             A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
+        * aggregation:      One of mean, max, min. Normally, only needed for temperature variables.
+        * entry_start_date: Earliest available date of data.
+        * entry_end_date:   Latest available date of data.
+        * units:            Units of the data.
+        * file_type:        Type of file of hf_hydrodata GPFS.
+        * dataset_type:     A classification type of the dataset.
+        * paper_dois:       A space seperate list of DOI references to published papers.
+        * structure_type:   Gridded or Point
+        * description:      Short description of the dataset containing the data.
+        * summary           Longer summary of the dataset containing the data.
+
+    Examples:
+        >>>
         options = {
             "dataset": "NLDAS2", "period": "daily",
-            "variable": "precipitation", "start_time": "2005-7-1"}
-
+            "variable": "precipitation", "start_time": "2005-7-1"
+        }
         entry = get_catalog_entry(options)
+
+
     """
 
     entries = get_catalog_entries(*args, **kwargs)
@@ -185,7 +259,7 @@ def _get_preferred_catalog_entry(entries: List[dict]) -> dict:
     Returns:
         The preferred catalog entry or None if the entries are empty.
     Raises:
-        ValueError if there is more than one entry with the same file_type.
+        ValueError: If there is more than one entry with the same file_type.
     """
     if len(entries) == 0:
         result = None
@@ -238,7 +312,16 @@ def _ambiguous_error_message(entry_1: dict, entry_2: dict) -> str:
 
 
 def get_table_names() -> List[str]:
-    """Return the list of table names in the data model."""
+    """
+    Get the list of table names in the data model.
+    
+    Returns:
+        List of of all the table names in the hf_hydrodata data catalog model.
+    
+    Example:
+        >>>
+        names  = get_table_names()
+    """
 
     data_model = load_data_model()
     return data_model.table_names
@@ -255,11 +338,10 @@ def get_table_rows(table_name: str, *args, **kwargs) -> List[ModelTableRow]:
     Returns:
         A list of ModelTableRow entries of the specified table_name that match the filter options.
 
-    For example,
+    Examples:
+        >>>
         rows = get_table_rows("variable", variable_type="atmospheric")
-
         assert len(rows) == 8
-
         assert rows[0]["id"] == "air_temp"
     """
 
@@ -288,8 +370,9 @@ def get_table_row(table_name: str, *args, **kwargs) -> ModelTableRow:
     Returns:
         A single of ModelTableRow entries of the specified table_name that match the filter options or None if now row is found.
     Raises:
-        ValueError if the filter options are ambiguous and this matches more than one row.
-    For example,
+        ValueError:     If the filter options are ambiguous and this matches more than one row.
+    Example:
+        >>>
         row = get_table_row("variable", variable_type="atmospheric", unit_type="pressure")
         assert row["id"] == "atmospheric_pressure"
     """
@@ -306,31 +389,9 @@ def get_table_row(table_name: str, *args, **kwargs) -> ModelTableRow:
 
 def get_file_paths(entry, *args, **kwargs) -> List[str]:
     """
-    Get a list of file paths from the data catalog identified by the filter options.
+    This function is deprecated.
 
-    Args:
-        entry:          Either a ModelTableRow or the ID number of a data_catalog_entry.
-        args:           Optional positional parameter that must be a dict with data filter options.
-        kwargs:         Supports multiple named parameters with data filter option values.
-    Returns:
-        A list of absolute path names to files of the data catalog entry
-        after looping through time range and replacing substitution keys.
-
-    A data filter option must be one of the following:
-        * start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
-        * end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
-        * site_id:        An observation point site id.
-
-    If only start_time is specified then only the data at that time is used to substitute into path names.
-    If both start_time and end_time is specified then dates in the date range are used to substitute into path names.
-
-    For example, get 3 daily files bewteen 9/30/2021 and 10/3/2021.
-        entry = get_catalog_entry(dataset="NLDAS2", period="daily",
-                  variable="precipitation", start_time="2021-09-30", end_time="2021-10-03")
-
-        paths = get_file_paths(entry, start_time="2021-09-30", end_time="2021-10-03")
-
-        assert len(paths) == 3
+    Use the function get_paths() instead.
     """
     result = []
     if isinstance(entry, ModelTableRow):
@@ -434,18 +495,129 @@ def _construct_string_from_qparams(entry, options):
     return result_string
 
 
+def get_paths(*args, **kwargs)->List[str]:
+    """
+    Get the file paths within data catalog for the filter options.
+
+    The parameters to the function can be specified either by passing a dict with the parameter values
+    or by passing named parameters to the function.
+
+    Args:
+        dataset:        A dataset name (see Gridded Data documentation).
+        variable:       A variable from a dataset.
+        period:         A period (e.g. hourly, daily, weekly, monthly) from a dataset variable.
+        grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
+        aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
+        start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
+        end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
+        grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.
+        latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
+        grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
+        latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
+        z:              A value of the z dimension to be used as a filter for this dismension when loading data.
+        level:          A HUC level integer when reading HUC boundary files.
+        site_id:        Used when reading data associated with an observation site.
+    
+    Returns:
+        An list of absolute path names to the file location on the GPFS file system.
+    Raises:
+        ValueError:     If no data data catalog entry is found for the filter options provided.
+
+    Examples:
+        >>>
+        options = {
+            "dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
+             "start_time":"2005-09-30", "end_time": "2005-10-3"
+        }
+        paths = get_paths(options)
+        assert len(paths) == 5    # 5 days
+    """
+    result = []
+    if len(args) > 0 and isinstance(args[0], dict):
+        options = args[0]
+    else:
+        options = kwargs
+
+    entries = get_catalog_entries(*args, **kwargs)
+    if entries is not None:
+        for entry in entries:
+            path = entry["path"]
+            period = entry["period"]
+            if path:
+                # Get option parameters
+                start_time_value = _parse_time(options.get("start_time"))
+                end_time_value = _parse_time(options.get("end_time"))
+
+                # Populate result path names with path names for each time value in time period
+                if period in ["daily"] and start_time_value:
+                    # Both daily and hourly are stored in files by day, but hourly just uses different substitution
+                    time_value = start_time_value
+                    if end_time_value is None:
+                        end_time_value = start_time_value + datetime.timedelta(days=1)
+                    while time_value < end_time_value:
+                        datapath = _substitute_datapath(path, entry, options, time_value=time_value)
+                        if datapath not in result:
+                            result.append(datapath)
+                        time_value = time_value + datetime.timedelta(days=1)
+                elif period in ["hourly"] and start_time_value:
+                    # Both daily and hourly are stored in files by day, but hourly just uses different substitution
+                    time_value = start_time_value
+                    if end_time_value is None:
+                        end_time_value = start_time_value + datetime.timedelta(hours=1)
+                    while time_value < end_time_value:
+                        datapath = _substitute_datapath(path, entry, options, time_value=time_value)
+                        if datapath not in result:
+                            result.append(datapath)
+                        time_value = time_value + datetime.timedelta(hours=1)
+                elif period == "monthly" and start_time_value:
+                    time_value = start_time_value
+                    if end_time_value is None:
+                        end_time_value = start_time_value + relativedelta(months=1)
+                    while time_value < end_time_value:
+                        datapath = _substitute_datapath(path, entry, options, time_value=time_value)
+                        if datapath not in result:
+                            result.append(datapath)
+                        time_value = time_value + relativedelta(months=1)
+                else:
+                    time_value = start_time_value
+                    datapath = _substitute_datapath(path, entry, options, time_value=time_value)
+                    result.append(datapath)
+    return result
+
 def get_path(*args, **kwargs) -> str:
     """
     Get the file path within data catalog for the filter options.
 
+    The parameters to the function can be specified either by passing a dict with the parameter values
+    or by passing named parameters to the function.
+
+    Args:
+        dataset:        A dataset name (see Gridded Data documentation).
+        variable:       A variable from a dataset.
+        period:         A period (e.g. hourly, daily, weekly, monthly) from a dataset variable.
+        grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
+        aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
+        start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
+        end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
+        grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.
+        latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
+        grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
+        latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
+        z:              A value of the z dimension to be used as a filter for this dismension when loading data.
+        level:          A HUC level integer when reading HUC boundary files.
+        site_id:        Used when reading data associated with an observation site.
+    
     Returns:
         An absolute path name to the file location on the GPFS file system.
     Raises:
-        ValueError if no data data catalog entry is found for the filter options provided.
+        ValueError      If no data data catalog entry is found for the filter options provided.
 
-    For example,
-        options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation", "start_time":"2005-09-30"}
-
+    Examples:
+        >>>
+        options = {
+            "dataset": "NLDAS2", "period": "daily", "variable": "precipitation", 
+            "start_time":"2005-09-30"
+        }
         path = get_path(options)
     """
 
@@ -454,16 +626,23 @@ def get_path(*args, **kwargs) -> str:
 
 
 def get_file_path(entry, *args, **kwargs) -> str:
+    """
+    This function is deprecated.
+
+    Use the function get_path() instead.
+    """
     """Get the file path within /hydrodata for a data catalog entry.
 
     Args:
         entry:          Either a ModelTableRow or the ID number of a data_catalog_entry. If None use the entry found by the filters.
         args:           Optional positional parameter that must be a dict with data filter options.
         kwargs:         Supports multiple named parameters with data filter option values.
+
     Returns:
         A single path path for the data catalog entry
+
     Raises:
-        ValueError      if there is no path or multiple paths for the data catalog entry.
+        ValueError:     If there is no path or multiple paths for the data catalog entry.
 
     """
     paths = get_file_paths(entry, *args, **kwargs)
@@ -478,33 +657,33 @@ def get_file_path(entry, *args, **kwargs) -> str:
 def get_numpy(*args, **kwargs) -> np.ndarray:
     """
     Get a numpy ndarray from files in /hydroframe. with the applied data filters.
-    If a time_values data filter option is provided as an arrat this array will be populated with the
-    date strings of the date dimentions of the ndarray that is returned. This is used for graphing use cases.
+
+    The parameters to the function can be specified either by passing a dict with the parameter values
+    or by passing named parameters to the function.
 
     Args:
-        entry:          Either a ModelTableRow or the ID number of a data_catalog_entry. If None then get entry from options.
-        args:           Optional positional parameter that must be a dict with data filter options.
-        kwargs:         Supports multiple named parameters with data filter option values.
+        dataset:        A dataset name (see Gridded Data documentation).
+        variable:       A variable from a dataset.
+        period:         A period (e.g. hourly, daily, weekly, monthly) from a dataset variable.
+        grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
+        aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
+        start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
+        end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
+        grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.
+        latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
+        grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
+        latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
+        z:              A value of the z dimension to be used as a filter for this dismension when loading data.
+        level:          A HUC level integer when reading HUC boundary files.
+        site_id:        Used when reading data associated with an observation site.
+        time_values:    Optional. An empty array that will be populated with time dimension values of returned data.
+    
     Returns:
         A numpy ndarray containing the data loaded from the files identified by the entry and sliced by the data filter options.
     Raises:
-        ValueError if both grid_bounds and latlng_bounds are specified as data filters.
-
-    A data filter option must be one of the following:
-        * dataset:        A dataset name (see Gridded Data documentation).
-        * variable:       A variable from a dataset.
-        * period:         A period (e.g. hourly, daily, weekly, monthly) from a dataset variable.
-        * grid:           A grid (e.g. conus1 or conus2), normally this is determined by the dataset.
-        * aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
-        * start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
-        * end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
-        * site_id:        An observation point site id.
-        * grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.
-        * latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
-        * depth:          A number 0-n of the depth index of the data to return.
-        * z:              A value of the z dimension to be used as a filter to remove this dismension.
-        * level:          A HUC level integer when reading HUC boundary files.
-        * site_id:        Used when reading data associated with an observation site.
+        ValueError:  If both grid_bounds and latlng_bounds are specified as data filters.
+        ValueError:  If no data catalog entry is found associated with the filter parameters.
+        ValueError:  If any filter parameters are invalid.
 
     For gridded results the returned numpy array has dimensions:
         * [hour, y, x]                    period is hourly without z dimension
@@ -525,19 +704,25 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
     The start_time is inclusive the end_time is exclusive (data returned less than that time).
 
     If either grid_bounds or latlng_bounds is specified then the result is sliced by the x,y values in the bounds.
+    If grid_point or latlon_point is specified this is mapped to a grid_bounds of size 1x1 at that point.
 
     If z is specified then the result is sliced by the z dimension.
 
     For example, to get data from the 3 daily files bewteen 9/30/2005 and 10/3/2005.
-        options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
-                    "start_time":"2005-09-30", "end_time":"2005-10-03", "grid_bounds":[200, 200, 300, 250]}
+
+    Examples:
+        >>>
+        options = {
+            "dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
+            "start_time":"2005-09-30", "end_time":"2005-10-03",
+            "grid_bounds":[200, 200, 300, 250]
+        }
+        # The result has 3 days in the time dimension
+        # The result is sliced to x,y size 100x50 in the conus1 grid.
+        data = get_numpy(options)
+        assert data.shape == (3, 50, 100)
 
         metadata = get_catalog_entry(options)
-        data = get_numpy(options)
-
-        # The result has 3 days in the time dimension and sliced to x,y shape 100x50 at origin 200, 200 in the conus1 grid.
-
-        assert data.shape == (3, 50, 100)
     """
 
     result = get_ndarray(None, *args, **kwargs)
@@ -613,7 +798,14 @@ def get_raw_file(filepath, *args, **kwargs):
     Returns:
         None
     Raises:
-        ValueError      if there are multiple paths selected from hydroframe.
+        ValueError:        If there are multiple paths selected from hydroframe.
+
+    Example:
+        >>>
+        options = {
+            "dataset": "huc_mapping", "grid": "conus2"}
+        }
+        get_raw_file("huc4.tiff", options)
     """
     if len(args) > 0 and isinstance(args[0], dict):
         # The filter options are being passed using a dict
@@ -635,20 +827,24 @@ def get_raw_file(filepath, *args, **kwargs):
 def get_date_range(*args, **kwargs) -> Tuple[datetime.datetime, datetime.datetime]:
     """Get the date range of the dataset specified by the options.
 
+    The parameters to the function can be specified either by passing a dict with the parameter values
+    or by passing named parameters to the function.
+    You can pass any parameters used by get_numpy() or get_data_catalog_entry(), but only the dataset option is used.
+
     Args:
-        args:           Optional positional parameter that must be a dict with data filter options.
-        kwargs:         Supports multiple named parameters with data filter option values.
+        dataset:        A dataset name (see Gridded Data documentation).
+
     Returns:
         A tuple with (dataset_start_date, dataset_end_date) or None if no date range is available.
 
-    For example,
+    Example:
+        >>>
         options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
-                    "start_time":"2005-09-30", "end_time":"2005-10-03", "grid_bounds":[200, 200, 300, 250]}
-
+                   "start_time":"2005-09-30", "end_time":"2005-10-03",
+                   "grid_bounds":[200, 200, 300, 250]
+        }
         range = get_date_range(options)
-
         assert range[0] == datetime.datetime(2002, 10, 1)
-
         assert range[1] == datetime.datetime(2006, 9, 30)
     """
     result = None
@@ -677,18 +873,9 @@ def get_date_range(*args, **kwargs) -> Tuple[datetime.datetime, datetime.datetim
 
 def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
     """
-    Get a numpy ndarray from files in /hydroframe. with the applied data filters.
+    Deprecated.
 
-    Args:
-        entry:          Either a ModelTableRow or the ID number of a data_catalog_entry. If None then get entry from options.
-        args:           Optional positional parameter that must be a dict with data filter options.
-        kwargs:         Supports multiple named parameters with data filter option values.
-    Returns:
-        A numpy ndarray containing the data loaded from the files identified by the entry and sliced by the data filter options.
-    Raises:
-        ValueError if both grid_bounds and latlng_bounds are specified as data filters.
-
-    Filter options are the same as get_numpy().
+    Use get_numpy() instead.
     """
 
     if entry is not None and isinstance(entry, (int, str)):
@@ -756,15 +943,14 @@ def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
 
         Args:
             grid:   grid name (e.g. conus1 or conus2)
-            level:  HUC level (length of HUC id to be returned)\
+            level:  HUC level (length of HUC id to be returned)
             lat:    lattitude of point
             lon:    longitude of point
         Returns:
             The HUC id string containing the lat/lon point or None.
-
-        For example,
+        Example:
+            >>>
             huc_id = get_huc_from_latlon("conus1", 6, 34.48, -115.63)
-
             assert huc_id == "181001"
     """
     huc_id = None
@@ -786,15 +972,14 @@ def get_huc_from_xy(grid: str, level: int, x: int, y: int) -> str:
 
         Args:
             grid:   grid name (e.g. conus1 or conus2)
-            level:  HUC level (length of HUC id to be returned)\
+            level:  HUC level (length of HUC id to be returned)
             x:      x coordinate in the grid
             y:      y coordinate in the grid
         Returns:
             The HUC id string containing the lat/lon point or None.
 
-        For example,
+        Example:
             huc_id = get_huc_from_xy("conus1", 6, 300, 100)
-
             assert huc_id == "181001"
     """
     tiff_ds = __get_geotiff(grid, level)
@@ -813,16 +998,18 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
 
     Args:
         grid:           A grid id from the data catalog (e.g. conus1 or conus2)
+
         huc_id_list:    A list of HUC id strings of HUCs in the grid.
     Returns:
         A bounding box in grid coordinates as a list of int (i_min, j_min, i_max, j_max)
+
     Raises:
-        ValueError if all the HUC id are not at the same level (same length).
-        ValueError if grid is not valid.
+        ValueError:     if all the HUC id are not at the same level (same length).
+        ValueError:     if grid is not valid.
 
-    For example,
+    Example:
+        >>>
         bbox = get_huc_bbox("conus1", ["181001"])
-
         assert bbox == (1, 167, 180, 378)
     """
     # Make sure all HUC ids in the list are the same length
@@ -879,7 +1066,7 @@ def _verify_time_in_range(entry: dict, options: dict):
     """
     Verify that the start_time from the options is within the dataset allowed time range.
     Raises:
-        ValueError if the start time of the options request is not within the dataset allowed time range.
+        ValueError:  If the start time of the options request is not within the dataset allowed time range.
     """
     start_time = options.get("start_time")
     dataset_start_date = entry["dataset_start_date"]
@@ -1514,7 +1701,7 @@ def _get_pfb_boundary_constraints(
     Returns:
         A PFB boundary constraint dict with attributes: x, y, z or None if no bounds is specified.
     Raises:
-        ValueError if both grid_bounds and latlng_bounds are specified
+        ValueError:  If both grid_bounds and latlng_bounds are specified
     If x,y,z are specified then the boundary is filter to include only the point at that location.
     If x,y are specified, but not z then z is filtered to include only point 0.
     """
