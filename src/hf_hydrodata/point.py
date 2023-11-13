@@ -116,6 +116,8 @@ def get_data(data_source, variable, temporal_resolution, aggregation, *args, **k
             del options['polygon_crs']
             options['latitude_range'] = latitude_range
             options['longitude_range'] = longitude_range
+        else:
+            polygon_filter = False
 
         data_df = _get_data_from_api(
             "data_only",
@@ -127,7 +129,7 @@ def get_data(data_source, variable, temporal_resolution, aggregation, *args, **k
         )
 
         # Re-filter on shapefile to trim bounding box
-        if polygon_filter:
+        if polygon_filter == True:
 
             # Use metadata call to get latitude/longitude for the sites
             metadata_df = _get_data_from_api(
@@ -270,6 +272,8 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
             del options['polygon_crs']
             options['latitude_range'] = latitude_range
             options['longitude_range'] = longitude_range
+        else:
+            polygon_filter = False
 
         data_df = _get_data_from_api(
             "metadata_only",
@@ -281,7 +285,7 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
         )
 
         # Re-filter on shapefile to trim bounding box
-        if polygon_filter:
+        if polygon_filter == True:
             clipped_df = _filter_on_polygon(data_df, polygon, polygon_crs)
             return clipped_df
 
