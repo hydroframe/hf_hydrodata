@@ -1045,5 +1045,23 @@ def test_get_variables_networks_filter():
     assert '01367800' in list(df['site_id'])
 
 
+def test_get_variables_polygon_filter():
+    """Test get_variables filter for accepting a shapefile when the file is local to an end user and remote 
+    to /hydrodata and the API."""
+    df = point.get_site_variables(
+        state='NJ',
+        variable='streamflow',
+        temporal_resolution='daily',
+        polygon=f'{str(LOCAL_TEST_DATA_DIR)}/raritan_watershed.shp',
+        polygon_crs="""GEOGCS["GCS_North_American_1983",
+                        DATUM["D_North_American_1983",
+                        SPHEROID["GRS_1980",6378137.0,298.257222101]],
+                        PRIMEM["Greenwich",0.0],
+                        UNIT["Degree",0.0174532925199433]]"""
+    )
+    assert len(df) >= 56
+    assert '01396091' in list(df['site_id'])
+
+
 if __name__ == "__main__":
     pytest.main()
