@@ -97,6 +97,26 @@ def get_data(data_source, variable, temporal_resolution, aggregation, *args, **k
     run_remote = not os.path.exists(HYDRODATA)
 
     if run_remote:
+
+        # Cannot pass local shapefile to API; pass bounding box instead
+        if 'polygon' in options and options['polygon'] is not None:
+            try:
+                assert 'polygon_crs' in options and options['polygon_crs'] is not None
+            except:
+                raise Exception(
+                    """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input() 
+                   to specify this shape's CRS.""")
+            latitude_range, longitude_range = _get_bbox_from_shape(options['polygon'], options['polygon_crs'])
+
+            # Send bounding box to API; remove polygon filters from API options
+            polygon = options['polygon']
+            polygon_crs = options['polygon_crs']
+            polygon_filter = True
+            del options['polygon']
+            del options['polygon_crs']
+            options['latitude_range'] = latitude_range
+            options['longitude_range'] = longitude_range
+
         data_df = _get_data_from_api(
             "data_only",
             data_source,
@@ -105,6 +125,29 @@ def get_data(data_source, variable, temporal_resolution, aggregation, *args, **k
             aggregation,
             options,
         )
+
+        # Re-filter on shapefile to trim bounding box
+        if polygon_filter:
+
+            # Use metadata call to get latitude/longitude for the sites
+            metadata_df = _get_data_from_api(
+                "metadata_only",
+                data_source,
+                variable,
+                temporal_resolution,
+                aggregation,
+                options,
+            )
+
+            # Clip metadata to polygon. Use this new list of sites to filter data_df.
+            clipped_metadata_df = _filter_on_polygon(metadata_df, polygon, polygon_crs)
+
+            metadata_site_ids = list(clipped_metadata_df['site_id'])
+            data_site_ids = list(data_df.columns)[1:]
+            site_ids_to_drop = [s for s in data_site_ids if s not in metadata_site_ids]
+
+            clipped_df = data_df.drop(columns=site_ids_to_drop)
+            return clipped_df
 
         return data_df
 
@@ -208,6 +251,26 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
     run_remote = not os.path.exists(HYDRODATA)
 
     if run_remote:
+
+        # Cannot pass local shapefile to API; pass bounding box instead
+        if 'polygon' in options and options['polygon'] is not None:
+            try:
+                assert 'polygon_crs' in options and options['polygon_crs'] is not None
+            except:
+                raise Exception(
+                    """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input() 
+                   to specify this shape's CRS.""")
+            latitude_range, longitude_range = _get_bbox_from_shape(options['polygon'], options['polygon_crs'])
+
+            # Send bounding box to API; remove polygon filters from API options
+            polygon = options['polygon']
+            polygon_crs = options['polygon_crs']
+            polygon_filter = True
+            del options['polygon']
+            del options['polygon_crs']
+            options['latitude_range'] = latitude_range
+            options['longitude_range'] = longitude_range
+
         data_df = _get_data_from_api(
             "metadata_only",
             data_source,
@@ -216,6 +279,11 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
             aggregation,
             options,
         )
+
+        # Re-filter on shapefile to trim bounding box
+        if polygon_filter:
+            clipped_df = _filter_on_polygon(data_df, polygon, polygon_crs)
+            return clipped_df
 
         return data_df
 
@@ -905,54 +973,134 @@ def _get_sites(conn, data_source, variable, temporal_resolution, aggregation, *a
     # Polygon shapefile provided
     if 'polygon' in options and options['polygon'] is not None:
 
-        # Read in shapefile
-        shp = shapefile.Reader(options['polygon'])
-
-        # Convert features to shapely geometries
-        try:
-            assert len(shp.shapeRecords()) == 1
-        except:
-            raise Exception("Please make sure your input shapefile contains only a single shape feature.")
-
-        feature = shp.shapeRecords()[0].shape.__geo_interface__
-        shp_geom = shape(feature)
-
         # Make sure CRS aligns between polygon and lat/lon points
         try:
             assert 'polygon_crs' in options and options['polygon_crs'] is not None
         except:
             raise Exception(
                 """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input() 
-                   to specify this shape's CRS.""")
+                    to specify this shape's CRS.""")
 
-        shp_crs = pyproj.CRS.from_user_input(options['polygon_crs'])
+        clipped_df = _filter_on_polygon(df, options['polygon'], options['polygon_crs'])
+        # # Read in shapefile
+        # shp = shapefile.Reader(options['polygon'])
 
-        project = pyproj.Transformer.from_crs(
-            shp_crs, pyproj.CRS('EPSG:4326'), always_xy=True).transform
-        shp_geom_crs = transform(project, shp_geom)
+        # # Convert features to shapely geometries
+        # try:
+        #     assert len(shp.shapeRecords()) == 1
+        # except:
+        #     raise Exception("Please make sure your input shapefile contains only a single shape feature.")
 
-        # Clip points to only those within the polygon
-        df['clip'] = df.apply(lambda x: contains_xy(shp_geom_crs, x['longitude'], x['latitude']), axis=1)
-        clipped_df = df[df['clip'] == True].reset_index().drop(columns=['index', 'clip'])
+        # feature = shp.shapeRecords()[0].shape.__geo_interface__
+        # shp_geom = shape(feature)
+
+        # # Make sure CRS aligns between polygon and lat/lon points
+        # try:
+        #     assert 'polygon_crs' in options and options['polygon_crs'] is not None
+        # except:
+        #     raise Exception(
+        #         """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
+        #            to specify this shape's CRS.""")
+
+        # shp_crs = pyproj.CRS.from_user_input(options['polygon_crs'])
+
+        # project = pyproj.Transformer.from_crs(
+        #     shp_crs, pyproj.CRS('EPSG:4326'), always_xy=True).transform
+        # shp_geom_crs = transform(project, shp_geom)
+
+        # # Clip points to only those within the polygon
+        # df['clip'] = df.apply(lambda x: contains_xy(shp_geom_crs, x['longitude'], x['latitude']), axis=1)
+        # clipped_df = df[df['clip'] == True].reset_index().drop(columns=['index', 'clip'])
 
         return clipped_df
 
-        # gdf = gpd.GeoDataFrame(
-        #     df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
-        # mask = gpd.read_file(options['polygon'])
-
-        # try:
-        #     assert mask.crs is not None
-        #     mask_proj = mask.to_crs('EPSG:4326')
-        # except:
-        #     raise Exception('Please make sure the referenced shapefile has a crs defined.')
-
-        # clipped_points = gpd.clip(gdf, mask_proj)
-        # clipped_df = pd.DataFrame(clipped_points.drop(columns='geometry'))
-        # return clipped_df
-
     else:
         return df
+
+
+def _get_bbox_from_shape(polygon, polygon_crs):
+    """
+    Construct transformed latitude and longitude ranges representing a shape's bounding box.
+
+    Parameters
+    ----------
+    polygon : str
+        Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
+    polygon_crs : str
+        CRS definition accepted by `pyproj.CRS.from_user_input()`.
+
+    Returns
+    -------
+    Tuple : (latitude_range, longitude_range)
+    """
+
+    # Read in shapefile, obtain bounding box
+    shp = shapefile.Reader(polygon)
+    bbox = shp.bbox
+
+    # Create series of corner points (lat/lon values) based on the bounding box
+    # bbox = [lon, lat, lon, lat]
+    bbox_df = pd.DataFrame(data={'lon': [bbox[0], bbox[0], bbox[2], bbox[2]],
+                                 'lat': [bbox[1], bbox[3], bbox[1], bbox[3]]})
+    bbox_df['geometry'] = bbox_df.apply(lambda row: Point(row['lon'], row['lat']), axis=1)
+
+    # Transform the corner points into the lat/lon projection
+    shp_crs = pyproj.CRS.from_user_input(polygon_crs)
+
+    project = pyproj.Transformer.from_crs(shp_crs, pyproj.CRS('EPSG:4326'), always_xy=True).transform
+    bbox_df['transform'] = bbox_df.apply(lambda x: transform(project, x['geometry']), axis=1)
+    bbox_df['transform_x'] = bbox_df['transform'].apply(lambda x: x.x)
+    bbox_df['transform_y'] = bbox_df['transform'].apply(lambda x: x.y)
+
+    # Save transformed bounding box as latitude_range, longitude_range
+    latitude_range = (bbox_df['transform_y'].min(), bbox_df['transform_y'].max())
+    longitude_range = (bbox_df['transform_x'].min(), bbox_df['transform_x'].max())
+
+    return (latitude_range, longitude_range)
+
+
+def _filter_on_polygon(data_df, polygon, polygon_crs):
+    """
+    Filter site-level DataFrame on being within Polygon bounds.
+
+    Parameters
+    ----------
+    data_df : DataFrame
+        DataFrame containing site-level information including 'latitude' and 'longitude'.
+    polygon : str
+        Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
+    polygon_crs : str
+        CRS definition accepted by `pyproj.CRS.from_user_input()`.
+
+    Returns
+    -------
+    clipped_df : DataFrame
+        DataFrame subset to only sites within the Polygon bounds.
+    """
+
+    # Read in shapefile
+    shp = shapefile.Reader(polygon)
+
+    # Convert features to shapely geometries
+    try:
+        assert len(shp.shapeRecords()) == 1
+    except:
+        raise Exception("Please make sure your input shapefile contains only a single shape feature.")
+
+    feature = shp.shapeRecords()[0].shape.__geo_interface__
+    shp_geom = shape(feature)
+
+    shp_crs = pyproj.CRS.from_user_input(polygon_crs)
+
+    project = pyproj.Transformer.from_crs(
+        shp_crs, pyproj.CRS('EPSG:4326'), always_xy=True).transform
+    shp_geom_crs = transform(project, shp_geom)
+
+    # Clip points to only those within the polygon
+    data_df['clip'] = data_df.apply(lambda x: contains_xy(shp_geom_crs, x['longitude'], x['latitude']), axis=1)
+    clipped_df = data_df[data_df['clip'] == True].reset_index().drop(columns=['index', 'clip'])
+
+    return clipped_df
 
 
 def _get_network_site_list(data_source, variable, site_networks):

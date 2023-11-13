@@ -13,7 +13,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../s
 
 from hf_hydrodata import point  # noqa
 
-TEST_DATA_DIR = '/hydrodata/national_obs/tools/test_data'
+REMOTE_TEST_DATA_DIR = '/hydrodata/national_obs/tools/test_data'
+LOCAL_TEST_DATA_DIR = 'test_data'
 
 
 class MockResponseMetadata:
@@ -829,8 +830,9 @@ def test_get_data_min_num_obs_filter():
     assert list(df.columns) == ['date', '01377500', '01378500', '01445000']
 
 
-def test_polygon_filter():
-    """Test filter for accepting a shapefile."""
+def test_polygon_filter_data_remote():
+    """Test data filter for accepting a shapefile when the file is local to an end user and remote 
+    to /hydrodata and the API."""
     df = point.get_data(
         "usgs_nwis",
         "streamflow",
@@ -838,7 +840,7 @@ def test_polygon_filter():
         "average",
         date_start="2002-01-01",
         date_end="2002-01-05",
-        polygon=f'{TEST_DATA_DIR}/raritan_watershed.shp',
+        polygon=f'{LOCAL_TEST_DATA_DIR}/raritan_watershed.shp',
         polygon_crs="""GEOGCS["GCS_North_American_1983",
                         DATUM["D_North_American_1983",
                         SPHEROID["GRS_1980",6378137.0,298.257222101]],
@@ -849,6 +851,10 @@ def test_polygon_filter():
     assert len(df.columns) >= 25
     assert '01401000' in df.columns
 
+
+def test_polygon_filter_metadata_remote():
+    """Test metadata filter for accepting a shapefile when the file is local to an end user and remote 
+    to /hydrodata and the API."""
     metadata_df = point.get_metadata(
         "usgs_nwis",
         "streamflow",
@@ -856,7 +862,7 @@ def test_polygon_filter():
         "average",
         date_start="2002-01-01",
         date_end="2002-01-05",
-        polygon=f'{TEST_DATA_DIR}/raritan_watershed.shp',
+        polygon=f'{LOCAL_TEST_DATA_DIR}/raritan_watershed.shp',
         polygon_crs="""GEOGCS["GCS_North_American_1983",
                         DATUM["D_North_American_1983",
                         SPHEROID["GRS_1980",6378137.0,298.257222101]],
@@ -877,7 +883,7 @@ def test_polygon_filter_fail():
             "average",
             date_start="2002-01-01",
             date_end="2002-01-05",
-            polygon=f'{TEST_DATA_DIR}/raritan_watershed.shp')
+            polygon=f'{LOCAL_TEST_DATA_DIR}/raritan_watershed.shp')
 
 
 def test_get_citations_usgs():
