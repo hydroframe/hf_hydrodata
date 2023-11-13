@@ -131,7 +131,6 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files.
         site_id:        Used when reading data associated with an observation site.
-
     Returns:
         A list of ModelTableRow entries that match the filter options.
 
@@ -208,7 +207,6 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files.
         site_id:        Used when reading data associated with an observation site.
-
     Returns:
         A single ModelTableRow entry that match the filter options or None if no entry is found.
 
@@ -517,7 +515,6 @@ def get_paths(*args, **kwargs) -> List[str]:
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files.
         site_id:        Used when reading data associated with an observation site.
-
     Returns:
         An list of absolute path names to the file location on the GPFS file system.
     Raises:
@@ -615,7 +612,6 @@ def get_path(*args, **kwargs) -> str:
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files.
         site_id:        Used when reading data associated with an observation site.
-
     Returns:
         An absolute path name to the file location on the GPFS file system.
     Raises:
@@ -672,7 +668,6 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
         level:          A HUC level integer when reading HUC boundary files.
         site_id:        Used when reading data associated with an observation site.
         time_values:    Optional. An empty array that will be populated with time dimension values of returned data.
-
     Returns:
         A numpy ndarray containing the data loaded from the files identified by the entry and sliced by the data filter options.
     Raises:
