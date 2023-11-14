@@ -63,7 +63,9 @@ def register_api_pin(email: str, pin: str):
     
     .. code-block:: python
 
-        register_api_pin("dummy@gmail.com", "1234")
+        import hf_hydrodata as hf
+
+        hf.register_api_pin("dummy@gmail.com", "1234")
     """
 
     pin_dir = os.path.expanduser("~/.hydrodata")
@@ -91,7 +93,8 @@ def get_registered_api_pin() -> Tuple[str, str]:
 
     .. code-block:: python
 
-        (email, pin) = get_registered_api_pin()
+        import hf_hydrodata as hf
+        (email, pin) = hf.get_registered_api_pin()
     """
 
     pin_dir = os.path.expanduser("~/.hydrodata")
@@ -162,10 +165,12 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
 
     .. code-block:: python
 
-        entries = get_catalog_entries(dataset="NLDAS2", period="daily")
+        import hf_hydrodata as hf
+
+        entries = hf.get_catalog_entries(dataset="NLDAS2", period="daily")
 
         options = {"dataset": "NLDAS2", "period": "daily"}
-        entries = get_catalog_entries(options)
+        entries = hf.get_catalog_entries(options)
         assert len(entries) == 20
         entry = entries[0]
         assert entry["dataset"] == "NLDAS2"
@@ -242,13 +247,13 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
 
     .. code-block:: python
 
+        import hf_hydrodata as hf
+
         options = {
             "dataset": "NLDAS2", "period": "daily",
             "variable": "precipitation", "start_time": "2005-7-1"
         }
-        entry = get_catalog_entry(options)
-
-
+        entry = hf.get_catalog_entry(options)
     """
 
     entries = get_catalog_entries(*args, **kwargs)
@@ -327,7 +332,9 @@ def get_table_names() -> List[str]:
 
     .. code-block:: python
 
-        names  = get_table_names()
+        import hf_hydrodata as hf
+
+        names  = hf.get_table_names()
     """
 
     data_model = load_data_model()
@@ -349,7 +356,9 @@ def get_table_rows(table_name: str, *args, **kwargs) -> List[ModelTableRow]:
 
     .. code-block:: python
 
-        rows = get_table_rows("variable", variable_type="atmospheric")
+        import hf_hydrodata as hf
+
+        rows = hf.get_table_rows("variable", variable_type="atmospheric")
         assert len(rows) == 8
         assert rows[0]["id"] == "air_temp"
     """
@@ -385,7 +394,9 @@ def get_table_row(table_name: str, *args, **kwargs) -> ModelTableRow:
 
     .. code-block:: python
 
-        row = get_table_row("variable", variable_type="atmospheric", unit_type="pressure")
+        import hf_hydrodata as hf
+
+        row = hf.get_table_row("variable", variable_type="atmospheric", unit_type="pressure")
         assert row["id"] == "atmospheric_pressure"
     """
 
@@ -538,11 +549,13 @@ def get_paths(*args, **kwargs) -> List[str]:
 
     .. code-block:: python
 
+        import hf_hydrodata as hf
+
         options = {
             "dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
              "start_time":"2005-09-30", "end_time": "2005-10-3"
         }
-        paths = get_paths(options)
+        paths = hf.get_paths(options)
         assert len(paths) == 5    # 5 days
     """
     result = []
@@ -637,11 +650,13 @@ def get_path(*args, **kwargs) -> str:
 
     .. code-block:: python
 
+        import hf_hydrodata as hf
+
         options = {
             "dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
             "start_time":"2005-09-30"
         }
-        path = get_path(options)
+        path = hf.get_path(options)
     """
 
     result = get_file_path(None, *args, **kwargs)
@@ -722,6 +737,8 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
 
     .. code-block:: python
 
+        import hf_hydrodata as hf
+
         options = {
             "dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
             "start_time":"2005-09-30", "end_time":"2005-10-03",
@@ -729,10 +746,10 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
         }
         # The result has 3 days in the time dimension
         # The result is sliced to x,y size 100x50 in the conus1 grid.
-        data = get_numpy(options)
+        data = hf.get_numpy(options)
         assert data.shape == (3, 50, 100)
 
-        metadata = get_catalog_entry(options)
+        metadata = hf.get_catalog_entry(options)
     """
 
     result = get_ndarray(None, *args, **kwargs)
@@ -833,10 +850,12 @@ def get_raw_file(filepath, *args, **kwargs):
 
     .. code-block:: python
 
+        import hf_hydrodata as hf
+
         options = {
             "dataset": "huc_mapping", "grid": "conus2"}
         }
-        get_raw_file("huc4.tiff", options)
+        hf.get_raw_file("huc4.tiff", options)
     """
     if len(args) > 0 and isinstance(args[0], dict):
         # The filter options are being passed using a dict
@@ -872,11 +891,13 @@ def get_date_range(*args, **kwargs) -> Tuple[datetime.datetime, datetime.datetim
 
     .. code-block:: python
 
+        import hf_hydrodata as hf
+
         options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
                    "start_time":"2005-09-30", "end_time":"2005-10-03",
                    "grid_bounds":[200, 200, 300, 250]
         }
-        range = get_date_range(options)
+        range = hf.get_date_range(options)
         assert range[0] == datetime.datetime(2002, 10, 1)
         assert range[1] == datetime.datetime(2006, 9, 30)
     """
@@ -986,7 +1007,9 @@ def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
 
     .. code-block:: python
 
-        huc_id = get_huc_from_latlon("conus1", 6, 34.48, -115.63)
+        import hf_hydrodata as hf
+
+        huc_id = hf.get_huc_from_latlon("conus1", 6, 34.48, -115.63)
         assert huc_id == "181001"
     """
     huc_id = None
@@ -1018,7 +1041,9 @@ def get_huc_from_xy(grid: str, level: int, x: int, y: int) -> str:
     
     .. code-block:: python
 
-        huc_id = get_huc_from_xy("conus1", 6, 300, 100)
+        import hf_hydrodata as hf
+
+        huc_id = hf.get_huc_from_xy("conus1", 6, 300, 100)
         assert huc_id == "181001"
     """
     tiff_ds = __get_geotiff(grid, level)
@@ -1050,7 +1075,9 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
     
     .. code-block:: python
 
-        bbox = get_huc_bbox("conus1", ["181001"])
+        import hf_hydrodata as hf
+
+        bbox = hf.get_huc_bbox("conus1", ["181001"])
         assert bbox == (1, 167, 180, 378)
     """
     # Make sure all HUC ids in the list are the same length
