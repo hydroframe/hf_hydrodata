@@ -440,6 +440,45 @@ def get_site_variables(*args, **kwargs):
     else:
         options = kwargs
 
+    run_remote = not os.path.exists(HYDRODATA)
+
+    if run_remote:
+
+        # Cannot pass local shapefile to API; pass bounding box instead
+        if 'polygon' in options and options['polygon'] is not None:
+            try:
+                assert 'polygon_crs' in options and options['polygon_crs'] is not None
+            except:
+                raise Exception(
+                    """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input() 
+                   to specify this shape's CRS.""")
+            latitude_range, longitude_range = _get_bbox_from_shape(options['polygon'], options['polygon_crs'])
+
+            # Send bounding box to API; remove polygon filters from API options
+            polygon = options['polygon']
+            polygon_crs = options['polygon_crs']
+            polygon_filter = True
+            del options['polygon']
+            del options['polygon_crs']
+            options['latitude_range'] = latitude_range
+            options['longitude_range'] = longitude_range
+        else:
+            polygon_filter = False
+
+        data_df = _get_siteid_data_from_api(
+            options,
+        )
+
+        # Re-filter on shapefile to trim bounding box
+        if polygon_filter == True:
+            # Clip metadata to polygon. Use this new list of sites to filter data_df.
+            clipped_df = _filter_on_polygon(data_df, polygon, polygon_crs)
+            return clipped_df
+
+        return data_df
+
+    kwargs = _convert_strings_to_type(options)
+
     # Raise error immediately if no filtering parameters supplied (return DataFrame would be too large).
     if len(options.keys()) == 0:
         raise ValueError(
@@ -602,6 +641,30 @@ def get_site_variables(*args, **kwargs):
     return final_df
 
 
+def _get_siteid_data_from_api(options):
+    options = _convert_params_to_string_dict(options)
+
+    q_params = _construct_siteids_string_from_qparams(
+        options
+    )
+
+    point_data_url = f"{HYDRODATA_URL}/api/site-variables-dataframe?{q_params}"
+
+    try:
+        headers = _validate_user()
+        response = requests.get(point_data_url, headers=headers, timeout=180)
+        if response.status_code != 200:
+            raise ValueError(
+                f"{response.content}."
+            )
+
+    except requests.exceptions.Timeout as e:
+        raise ValueError(f"The point_data_url {point_data_url} has timed out.") from e
+
+    data_df = pd.read_pickle(io.BytesIO(response.content))
+    return data_df
+
+
 def _get_data_from_api(
     data_type, data_source, variable, temporal_resolution, aggregation, options
 ):
@@ -719,6 +782,32 @@ def _convert_strings_to_type(options):
             if isinstance(value, str):
                 options[key] = int(value)
     return options
+
+
+def _construct_siteids_string_from_qparams(options):
+    """
+    Constructs the query parameters from the entry and options provided.
+
+    Parameters
+    ----------
+    entry : hydroframe.data_catalog.data_model_access.ModelTableRow
+        variable to be downloaded.
+    options : dictionary
+        datast to which the variable belongs.
+
+    Returns
+    -------
+    data : numpy array
+        the requested data.
+    """
+
+    qparam_values = options
+
+    string_parts = [
+        f"{name}={value}" for name, value in options.items() if value is not None
+    ]
+    result_string = "&".join(string_parts)
+    return result_string
 
 
 def _construct_string_from_qparams(
