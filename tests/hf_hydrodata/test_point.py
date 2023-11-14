@@ -30,7 +30,6 @@ class MockResponseMetadata:
 
         # Create a DataFrame with specified column names
         df = pd.DataFrame(data)
-        print("The dataframe is:", df)
         buffer = io.BytesIO()
         df.to_pickle(buffer)
         data_bytes = buffer.getvalue()
@@ -909,9 +908,26 @@ def test_get_citations_ameriflux():
 
 def test_get_variables_lat_lon():
     """Test get_site_variables function with lat/lon filter"""
+
     df = point.get_site_variables(
         latitude_range=(47, 50),
         longitude_range=(-75, -60))
+
+    # Bounds are flexible for if more sites are added
+    assert (len(df) >= 36) & (len(df) <= 50)
+    assert '01011000' in list(df['site_id'])
+    assert 'stream gauge' in list(df['site_type'])
+    assert 'groundwater well' in list(df['site_type'])
+
+
+def test_get_variables_lat_lon():
+    """Test get_site_variables function with lat/lon filter"""
+    #query_parameters = {'latitude_range': '(47, 50)', 'longitude_range': '(-75, -60)'}
+
+    query_parameters = {'latitude_range': '(47, 50)', 'longitude_range': '(-75, -60)'}
+
+    df = point.get_site_variables(
+        query_parameters)
 
     # Bounds are flexible for if more sites are added
     assert (len(df) >= 36) & (len(df) <= 50)
