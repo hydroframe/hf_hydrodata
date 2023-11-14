@@ -1,5 +1,9 @@
 """
-Functions using a data catalog grid to perform conversions.
+Functions to perform lat/lon to x,y conversions using hf_hydrodata grids.
+
+The conversion functions in this class are verified against pyproj answers
+and is the same within .001 meters, but the conversion is much faster.
+It evaluates the lambert conformal projection formulas using projection constants.
 """
 
 # pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632
@@ -62,6 +66,9 @@ def from_latlon(grid: str, *args) -> List[float]:
         args:       A list of (lat,lon) floating pairs of values.
     Returns:
         An array of x,y integer points converted from each of the (lat,lon) grid coordinates in args.
+
+    Raises:
+        ValueError:     If x,y point is outside the bounds of the grid.
 
     Note, this may be used to convert a single point or a bounds of 2 points or a large array of points.
 
@@ -147,6 +154,9 @@ def to_ij(grid: str, *args) -> List[int]:
         grid:       The name of a hf_hydrodata grid (e.g. conus1 or conus2).
         args:       A list of floating pairs of lat,lon values.
 
+    Raises:
+        ValueError:     If i,j point is outside the bounds of the grid.
+
     Example:
 
     .. code-block:: python
@@ -167,6 +177,9 @@ def to_xy(grid: str, *args) -> List[float]:
         grid:       The name of a hf_hydrodata grid (e.g. conus1 or conus2).
         args:       A list of floating pairs of lat,lon values.
 
+    Raises:
+        ValueError:     If x,y point is outside the bounds of the grid.
+
     Example:
 
     .. code-block:: python
@@ -181,7 +194,7 @@ def to_xy(grid: str, *args) -> List[float]:
 
 def meters_to_ij(grid: str, *args) -> List[int]:
     """
-    Convert conic meters coordinates to (i, j) float values in grid resolution coordinates from grid origin.
+    Convert conic meter coordinates to (i, j) int values in grid resolution coordinates from grid origin.
 
     Args:
         grid:       The name of a hf_hydrodata grid (e.g. conus1 or conus2).
@@ -222,13 +235,13 @@ def meters_to_ij(grid: str, *args) -> List[int]:
 
 def meters_to_xy(grid: str, *args) -> List[float]:
     """
-    Convert conic meters coordinates to (x,y) float values in grid resolution coordinates from grid origin.
+    Convert conic meter coordinates to (x,y) float values in grid resolution coordinates from grid origin.
 
     Args:
         grid:       The name of a hf_hydrodata grid (e.g. conus1 or conus2).
         args:       A list of floating pairs returned from to_meters() function.
 
-    This is similar to the function to_ij(), but does not throw an error if the points are outside the grid.
+    This is similar to the function to_xy(), but does not throw an error if the points are outside the grid.
 
     Examples:
 
