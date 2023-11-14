@@ -300,12 +300,14 @@ def _load_model_from_api(data_model: DataModel):
 
     url = f"{HYDRODATA_URL}/api/config/data_catalog_model"
     try:
-        response = requests.get(url, timeout=5)
+        response = requests.get(url, timeout=120)
         if response.status_code == 200:
             response_json = json.loads(response.text)
             data_model.import_from_dict(response_json)
         else:
             warn("Unable to update model from API (no internet access?) Error %s from '%s'", response.status_code, url)
             # Do not cache data model if an API error occurred
+    except requests.exceptions.ReadTimeout as te:
+        raise ValueError(f"Timeout while trying to load latest model from server. Try again later.")
     except Exception as e:
         logging.exception("Error loading data catalog model from API '%s'", url)

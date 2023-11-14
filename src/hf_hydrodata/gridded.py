@@ -123,7 +123,7 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
     Args:
         dataset:        A dataset name (see Gridded Data documentation).
         variable:       A variable from a dataset.
-        period:         A period (e.g. hourly, daily, weekly, monthly) from a dataset variable.
+        period:         The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
         start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
@@ -145,16 +145,16 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
     ModelTableRow metadata attributes:
         * dataset:          A dataset name (see Gridded Data documentation).
         * variable:         A variable from a dataset.
-        * period:           A period (e.g. hourly, daily, weekly, monthly) from a dataset variable.
+        * period:           The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         * grid:             A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         * aggregation:      One of mean, max, min. Normally, only needed for temperature variables.
         * entry_start_date: Earliest available date of data.
         * entry_end_date:   Latest available date of data.
         * units:            Units of the data.
-        * file_type:        Type of file of hf_hydrodata GPFS.
+        * file_type:        Type of file in hf_hydrodata GPFS.
         * dataset_type:     A classification type of the dataset.
         * paper_dois:       A space seperate list of DOI references to published papers.
-        * structure_type:   Gridded or Point
+        * structure_type:   Structure of the data: gridded or point.
         * description:      Short description of the dataset containing the data.
         * summary           Longer summary of the dataset containing the data.
 
@@ -200,7 +200,7 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
     Args:
         dataset:        A dataset name (see Gridded Data documentation).
         variable:       A variable from a dataset.
-        period:         A period (e.g. hourly, daily, weekly, monthly) from a dataset variable.
+        period:         The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
         start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
@@ -225,16 +225,16 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
     ModelTableRow metadata attributes:
         * dataset:          A dataset name (see Gridded Data documentation).
         * variable:         A variable from a dataset.
-        * period:           A period (e.g. hourly, daily, weekly, monthly) from a dataset variable.
+        * period:           The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         * grid:             A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         * aggregation:      One of mean, max, min. Normally, only needed for temperature variables.
         * entry_start_date: Earliest available date of data.
         * entry_end_date:   Latest available date of data.
         * units:            Units of the data.
-        * file_type:        Type of file of hf_hydrodata GPFS.
+        * file_type:        Type of file in hf_hydrodata GPFS.
         * dataset_type:     A classification type of the dataset.
         * paper_dois:       A space seperate list of DOI references to published papers.
-        * structure_type:   Gridded or Point
+        * structure_type:   Structure of the data: gridded or point.
         * description:      Short description of the dataset containing the data.
         * summary           Longer summary of the dataset containing the data.
 
@@ -517,7 +517,7 @@ def get_paths(*args, **kwargs) -> List[str]:
     Args:
         dataset:        A dataset name (see Gridded Data documentation).
         variable:       A variable from a dataset.
-        period:         A period (e.g. hourly, daily, weekly, monthly) from a dataset variable.
+        period:         The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
         start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
@@ -616,7 +616,7 @@ def get_path(*args, **kwargs) -> str:
     Args:
         dataset:        A dataset name (see Gridded Data documentation).
         variable:       A variable from a dataset.
-        period:         A period (e.g. hourly, daily, weekly, monthly) from a dataset variable.
+        period:         The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
         start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
@@ -673,7 +673,7 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
     Args:
         dataset:        A dataset name (see Gridded Data documentation).
         variable:       A variable from a dataset.
-        period:         A period (e.g. hourly, daily, weekly, monthly) from a dataset variable.
+        period:         The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
         start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
@@ -789,18 +789,35 @@ def _write_file_from_api(filepath, options):
                 raise ValueError(message)
             if response.status_code == 502:
                 raise ValueError(
-                    "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filter."
+                    "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
                 )
             raise ValueError(
                 f"The datafile_url {datafile_url} returned error code {response.status_code}."
             )
 
-    except requests.exceptions.Timeout as e:
+    except requests.exceptions.Timeout as te:
         raise ValueError(
-            f"The datafile_url {datafile_url} has timed out. Try again later or try to reduce the size of data in the API request using time or space filter."
-        ) from e
+            "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+        ) from te
+    except requests.exceptions.ChunkedEncodingError as ce:
+        raise ValueError(
+            f"The gridded_data_url {gridded_data_url} has timed out. Try again later or try to reduce the size of data in the API request using time or space filters."
+        ) from ce
+    except Exception as e:
+        print(e)
+        print(type(e))
+        raise e
 
-    file_obj = io.BytesIO(response.content)
+    file_obj = io.BytesIO()
+    for chunk in response.iter_content(10000):
+        if chunk:
+            file_obj.write(chunk)
+    content = file_obj.getvalue()
+    if content is None or len(content) == 0:
+        raise ValueError(
+            "Timeout response from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+        )
+    file_obj = io.BytesIO(content)
     with open(filepath, "wb") as output_file:
         output_file.write(file_obj.read())
 
@@ -1225,26 +1242,37 @@ def _get_ndarray_from_api(entry, options, time_values):
                     raise ValueError(message)
                 if response.status_code == 502:
                     raise ValueError(
-                        "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filter."
+                        "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
                     )
                 raise ValueError(
                     f"The  {gridded_data_url} returned error code {response.status_code}."
                 )
 
-        except requests.exceptions.Timeout as e:
+        except requests.exceptions.ChunkedEncodingError as ce:
             raise ValueError(
-                f"The gridded_data_url {gridded_data_url} has timed out. Try again later or try to reduce the size of data in the API request using time or space filter."
-            ) from e
+                f"Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+            ) from ce
+        except requests.exceptions.Timeout as te:
+            raise ValueError(
+                f"Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+            ) from te
+        except Exception as e:
+            print(e)
+            print(type(e))
+            raise e
 
-        content = response.content
+        file_obj = io.BytesIO()
+        for chunk in response.iter_content(10000):
+            file_obj.write(chunk)
+        content = file_obj.getvalue()
         if content is None or len(content) == 0:
             raise ValueError(
-                "Timeout response from server. Try again later or try to reduce the size of data in the API request using time or space filter."
+                "Timeout response from server. Try again later or try to reduce the size of data in the API request using time or space filters."
             )
-        file_obj = io.BytesIO(response.content)
+        file_obj = io.BytesIO(content)
         netcdf_dataset = xr.open_dataset(file_obj)
         variable = entry["variable"]
-        netcdf_variable = netcdf_dataset[f"{variable}"]
+        netcdf_variable = netcdf_dataset[variable]
         data = netcdf_variable.values
 
         # Add time values if the data is not static
