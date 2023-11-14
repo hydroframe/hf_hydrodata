@@ -804,15 +804,11 @@ def _write_file_from_api(filepath, options):
             f"The gridded_data_url {gridded_data_url} has timed out. Try again later or try to reduce the size of data in the API request using time or space filters."
         ) from ce
     except Exception as e:
-        print(e)
-        print(type(e))
-        raise e
+        raise ValueError(
+            f"Error while reading gridded_data from {gridded_data_url}. Try again later or try to reduce the size of data in the API request using time or space filters."
+        ) from e
 
-    file_obj = io.BytesIO()
-    for chunk in response.iter_content(10000):
-        if chunk:
-            file_obj.write(chunk)
-    content = file_obj.getvalue()
+    content = response.content
     if content is None or len(content) == 0:
         raise ValueError(
             "Timeout response from server. Try again later or try to reduce the size of data in the API request using time or space filters."
@@ -1257,14 +1253,11 @@ def _get_ndarray_from_api(entry, options, time_values):
                 f"Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
             ) from te
         except Exception as e:
-            print(e)
-            print(type(e))
-            raise e
+            raise ValueError(
+                f"Error while reading gridded_data from {gridded_data_url}. Try again later or try to reduce the size of data in the API request using time or space filters."
+            ) from e
 
-        file_obj = io.BytesIO()
-        for chunk in response.iter_content(10000):
-            file_obj.write(chunk)
-        content = file_obj.getvalue()
+        content = response.content
         if content is None or len(content) == 0:
             raise ValueError(
                 "Timeout response from server. Try again later or try to reduce the size of data in the API request using time or space filters."
