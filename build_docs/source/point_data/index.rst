@@ -1,7 +1,7 @@
 .. _point_data_index:
 
-Point Observations
-======================
+Working with Point Observations
+==================================
 
 The ``hf_hydrodata.point`` module provides functionality to compile site-level observations data for a 
 variety of hydrologic variables. All source data comes from public sources that have been compiled in order

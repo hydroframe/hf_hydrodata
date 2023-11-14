@@ -1,6 +1,6 @@
 .. _examples_index:
 
-Examples
+How To
 ======================
 This section contains a set of example workflows that utilize different capabilities of ``hf_hydrodata``.
 
