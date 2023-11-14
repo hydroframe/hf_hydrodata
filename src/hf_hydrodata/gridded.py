@@ -59,8 +59,10 @@ def register_api_pin(email: str, pin: str):
     This only needs to be execute once per machine to register the pin. You can create a pin
     using the URL https://hydrogen.princeton.edu/pin.
 
-    Examples:
-        >>>
+    Example:
+    
+    .. code-block:: python
+
         register_api_pin("dummy@gmail.com", "1234")
     """
 
@@ -85,8 +87,10 @@ def get_registered_api_pin() -> Tuple[str, str]:
     Raises:
         ValueError:  if no email/pin was registered.
 
-    Examples:
-        >>>
+    Example:
+
+    .. code-block:: python
+
         (email, pin) = get_registered_api_pin()
     """
 
@@ -154,11 +158,12 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
         * description:      Short description of the dataset containing the data.
         * summary           Longer summary of the dataset containing the data.
 
-    Examples:
-        >>>
+    Example:
+
+    .. code-block:: python
+
         entries = get_catalog_entries(dataset="NLDAS2", period="daily")
 
-        >>>
         options = {"dataset": "NLDAS2", "period": "daily"}
         entries = get_catalog_entries(options)
         assert len(entries) == 20
@@ -233,8 +238,10 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
         * description:      Short description of the dataset containing the data.
         * summary           Longer summary of the dataset containing the data.
 
-    Examples:
-        >>>
+    Example:
+
+    .. code-block:: python
+
         options = {
             "dataset": "NLDAS2", "period": "daily",
             "variable": "precipitation", "start_time": "2005-7-1"
@@ -317,7 +324,9 @@ def get_table_names() -> List[str]:
         List of of all the table names in the hf_hydrodata data catalog model.
 
     Example:
-        >>>
+
+    .. code-block:: python
+
         names  = get_table_names()
     """
 
@@ -336,8 +345,10 @@ def get_table_rows(table_name: str, *args, **kwargs) -> List[ModelTableRow]:
     Returns:
         A list of ModelTableRow entries of the specified table_name that match the filter options.
 
-    Examples:
-        >>>
+    Example:
+
+    .. code-block:: python
+
         rows = get_table_rows("variable", variable_type="atmospheric")
         assert len(rows) == 8
         assert rows[0]["id"] == "air_temp"
@@ -369,8 +380,11 @@ def get_table_row(table_name: str, *args, **kwargs) -> ModelTableRow:
         A single of ModelTableRow entries of the specified table_name that match the filter options or None if now row is found.
     Raises:
         ValueError:     If the filter options are ambiguous and this matches more than one row.
+    
     Example:
-        >>>
+
+    .. code-block:: python
+
         row = get_table_row("variable", variable_type="atmospheric", unit_type="pressure")
         assert row["id"] == "atmospheric_pressure"
     """
@@ -520,8 +534,10 @@ def get_paths(*args, **kwargs) -> List[str]:
     Raises:
         ValueError:     If no data data catalog entry is found for the filter options provided.
 
-    Examples:
-        >>>
+    Example:
+
+    .. code-block:: python
+
         options = {
             "dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
              "start_time":"2005-09-30", "end_time": "2005-10-3"
@@ -617,8 +633,10 @@ def get_path(*args, **kwargs) -> str:
     Raises:
         ValueError      If no data data catalog entry is found for the filter options provided.
 
-    Examples:
-        >>>
+    Example:
+
+    .. code-block:: python
+
         options = {
             "dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
             "start_time":"2005-09-30"
@@ -700,8 +718,10 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
 
     For example, to get data from the 3 daily files bewteen 9/30/2005 and 10/3/2005.
 
-    Examples:
-        >>>
+    Example:
+
+    .. code-block:: python
+
         options = {
             "dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
             "start_time":"2005-09-30", "end_time":"2005-10-03",
@@ -797,7 +817,9 @@ def get_raw_file(filepath, *args, **kwargs):
         ValueError:        If there are multiple paths selected from hydroframe.
 
     Example:
-        >>>
+
+    .. code-block:: python
+
         options = {
             "dataset": "huc_mapping", "grid": "conus2"}
         }
@@ -834,7 +856,9 @@ def get_date_range(*args, **kwargs) -> Tuple[datetime.datetime, datetime.datetim
         A tuple with (dataset_start_date, dataset_end_date) or None if no date range is available.
 
     Example:
-        >>>
+
+    .. code-block:: python
+
         options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
                    "start_time":"2005-09-30", "end_time":"2005-10-03",
                    "grid_bounds":[200, 200, 300, 250]
@@ -944,8 +968,11 @@ def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
         lon:    longitude of point
     Returns:
         The HUC id string containing the lat/lon point or None.
+    
     Example:
-        >>>
+
+    .. code-block:: python
+
         huc_id = get_huc_from_latlon("conus1", 6, 34.48, -115.63)
         assert huc_id == "181001"
     """
@@ -975,6 +1002,9 @@ def get_huc_from_xy(grid: str, level: int, x: int, y: int) -> str:
         The HUC id string containing the lat/lon point or None.
 
     Example:
+    
+    .. code-block:: python
+
         huc_id = get_huc_from_xy("conus1", 6, 300, 100)
         assert huc_id == "181001"
     """
@@ -1004,7 +1034,9 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
         ValueError:     if grid is not valid.
 
     Example:
-        >>>
+    
+    .. code-block:: python
+
         bbox = get_huc_bbox("conus1", ["181001"])
         assert bbox == (1, 167, 180, 378)
     """
@@ -1738,7 +1770,7 @@ def _get_pfb_boundary_constraints(grid: str, options: dict) -> dict:
     grid_point = options.get("grid_point")
     latlon_point = options.get("latlon_point")
     x = options.get("x")
-    y = options.get("t")
+    y = options.get("y")
     z = options.get("z")
 
     if latlng_bounds:
@@ -1768,6 +1800,8 @@ def _get_pfb_boundary_constraints(grid: str, options: dict) -> dict:
         if y is None:
             raise ValueError("If x point is specified then y must be specified")
         z = int(z) if z is not None else 0
+        x = float(x)
+        y = float(y)
         if (
             len(grid_shape) >= 3
             and (x < 0 or x > grid_shape[2])
