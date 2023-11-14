@@ -1800,6 +1800,8 @@ def _get_pfb_boundary_constraints(grid: str, options: dict) -> dict:
         if y is None:
             raise ValueError("If x point is specified then y must be specified")
         z = int(z) if z is not None else 0
+        x = float(x)
+        y = float(y)
         if (
             len(grid_shape) >= 3
             and (x < 0 or x > grid_shape[2])

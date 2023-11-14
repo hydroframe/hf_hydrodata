@@ -68,7 +68,21 @@ def test_latlng_to_grid():
     assert x2 == 487
     assert y2 == 329
 
+def test_meters_to_ij():
+    """Unit test the meters_to_ij() and to_meters() functions."""
 
+    meters = hf_hydrodata.grid.to_meters("conus1", 31.759219, -115.902573)
+    (x, y) = hf_hydrodata.grid.meters_to_ij("conus1", *meters)
+    assert round(x) == 10
+    assert round(y) == 10
+
+    (x, y) = hf_hydrodata.grid.meters_to_ij("conus1", meters[0], meters[1])
+    assert x == 10
+    assert y == 10
+
+    (x, y) = hf_hydrodata.grid.meters_to_xy("conus1", meters[0], meters[1])
+    assert round(x) == 10
+    assert round(y) == 10
 
 def test_latlng_to_grid_out_of_bounds():
     """Unit tests for when latlng is out of bounds of conus1."""

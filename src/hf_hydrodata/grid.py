@@ -3,10 +3,7 @@ Functions using a data catalog grid to perform conversions.
 """
 
 # pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632
-import os
 from typing import List
-import numpy as np
-import xarray as xr
 from hf_hydrodata.data_model_access import load_data_model
 from hf_hydrodata.projection import to_conic, from_conic
 
@@ -55,6 +52,7 @@ def to_latlon(grid: str, *args) -> List[float]:
         result.append(lon)
     return result
 
+
 def from_latlon(grid: str, *args) -> List[float]:
     """
     Convert grid lat,lon coordinates to x,y float values in grid resolution coordinates from the grid origin.
@@ -75,7 +73,7 @@ def from_latlon(grid: str, *args) -> List[float]:
 
         (x, y) = from_latlon("conus1", 31.759219, -115.902573)
         latlon_bounds = from_latlon("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
-    """    
+    """
     result = []
     data_model = load_data_model()
     table = data_model.get_table("grid")
@@ -95,10 +93,13 @@ def from_latlon(grid: str, *args) -> List[float]:
             bounds_x = float(shape[2])
             bounds_y = float(shape[1])
             if not (0 <= round(x) <= bounds_x and 0 <= round(y) <= bounds_y):
-                raise ValueError(f"The lat/lon point maps to {x},{y} which is outside of grid bounds {bounds_x}, {bounds_y}")
+                raise ValueError(
+                    f"The lat/lon point maps to {int(x)},{int(y)} which is outside of grid bounds {bounds_x}, {bounds_y}"
+                )
         result.append(x)
         result.append(y)
-    return result  
+    return result
+
 
 def to_meters(grid: str, *args) -> List[float]:
     """
@@ -115,7 +116,7 @@ def to_meters(grid: str, *args) -> List[float]:
     This conversion is fast. It is about 100K+ points/second.
 
     Example:
- 
+
     .. code-block:: python
 
         (x, y) = to_meters("conus1", 31.759219, -115.902573)
@@ -137,6 +138,7 @@ def to_meters(grid: str, *args) -> List[float]:
         result.append(y)
     return result
 
+
 def to_ij(grid: str, *args) -> List[int]:
     """
     Convert grid lat,lon coordinates to i,j integers in grid resolution coordinates from grid origin.
@@ -150,11 +152,12 @@ def to_ij(grid: str, *args) -> List[int]:
     .. code-block:: python
 
         (i, j) = to_ij("conus1", 31.759219, -115.902573)
-        ij_bounds = to_ij("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])        
+        ij_bounds = to_ij("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     """
 
     result = [round(v) for v in from_latlon(grid, *args)]
     return result
+
 
 def to_xy(grid: str, *args) -> List[float]:
     """
@@ -163,15 +166,96 @@ def to_xy(grid: str, *args) -> List[float]:
     Args:
         grid:       The name of a hf_hydrodata grid (e.g. conus1 or conus2).
         args:       A list of floating pairs of lat,lon values.
-        
+
     Example:
 
     .. code-block:: python
 
         (x, y) = to_xy("conus1", 31.759219, -115.902573)
-        xy_bounds = to_xy("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])      
+        xy_bounds = to_xy("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     """
 
     result = from_latlon(grid, *args)
     return result
 
+
+def meters_to_ij(grid: str, *args) -> List[int]:
+    """
+    Convert conic meters coordinates to (i, j) float values in grid resolution coordinates from grid origin.
+
+    Args:
+        grid:       The name of a hf_hydrodata grid (e.g. conus1 or conus2).
+        args:       A list of floating pairs returned from to_meters() function.
+
+    This is similar to the function to_ij(), but does not throw an error if the points are outside the grid.
+
+    Examples:
+
+    .. code-block:: python
+
+        meters = to_meters("conus1", 31.759219, -115.902573)
+
+        (i, j) = meters_to_ij("conus1", *meters)
+        assert i == 10
+        assert y == 10
+
+        (i, j) = meters_to_ij("conus1", meters[0], meters[1])
+        assert i == 10
+        assert j == 10
+    """
+    result = []
+    data_model = load_data_model()
+    table = data_model.get_table("grid")
+    grid_row = table.get_row(grid.lower())
+    if grid_row is None:
+        raise ValueError(f"No such grid {grid} available.")
+    grid_resolution = float(grid_row["resolution_meters"])
+    for index in range(0, len(args), 2):
+        x = args[index]
+        y = args[index + 1]
+        x = float(x) / grid_resolution
+        y = float(y) / grid_resolution
+        result.append(round(x))
+        result.append(round(y))
+    return result
+
+
+def meters_to_xy(grid: str, *args) -> List[float]:
+    """
+    Convert conic meters coordinates to (x,y) float values in grid resolution coordinates from grid origin.
+
+    Args:
+        grid:       The name of a hf_hydrodata grid (e.g. conus1 or conus2).
+        args:       A list of floating pairs returned from to_meters() function.
+
+    This is similar to the function to_ij(), but does not throw an error if the points are outside the grid.
+
+    Examples:
+
+    .. code-block:: python
+
+        meters = to_meters("conus1", 31.759219, -115.902573)
+
+        (x, y) = meters_to_xy("conus1", *meters)
+        assert round(x) == 10
+        assert round(y) == 10
+
+        (x, y) = meters_to_xy("conus1", meters[0], meters[1])
+        assert round(x) == 10
+        assert round(y) == 10
+    """
+    result = []
+    data_model = load_data_model()
+    table = data_model.get_table("grid")
+    grid_row = table.get_row(grid.lower())
+    if grid_row is None:
+        raise ValueError(f"No such grid {grid} available.")
+    grid_resolution = float(grid_row["resolution_meters"])
+    for index in range(0, len(args), 2):
+        x = args[index]
+        y = args[index + 1]
+        x = float(x) / grid_resolution
+        y = float(y) / grid_resolution
+        result.append(x)
+        result.append(y)
+    return result
