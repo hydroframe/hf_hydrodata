@@ -47,6 +47,8 @@ translates to collecting data for only the previous week (7 days for daily data,
 Because of the sparsity of the USGS `temporal_resolution='instantaneous'` groundwater measurements, those are 
 not included in this weekly schedule. We plan to query that source for new observations roughly every few months.
 
+Note that raw hourly data is saved in UTC while raw daily data is saved with respect to the local site time zone. 
+
 To maintain the integrety and traceability back to the original sources, our team conducts very limited data 
 manipulation on the queried data. This includes the following:
 

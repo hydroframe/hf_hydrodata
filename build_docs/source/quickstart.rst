@@ -20,7 +20,7 @@ features.
 
 The user can also request the metadata for the specified file. This includes information on the 
 variable units, time zone, overall time availability for this data source, any relevant DOI citations,
-and many other fields. A full description of the metadata returned can be found in :ref:`gridded_data` ::
+and many other fields. A full description of the metadata returned can be found in :ref:`gridded_data_index` ::
 
     # Import package
     from hf_hydrodata.gridded import get_numpy, get_catalog_entry
@@ -35,7 +35,7 @@ and many other fields. A full description of the metadata returned can be found 
     print(metadata)
 
 Many of the files are very large so parameters can be provided to subset the files by space and/or time before
-returning the data. See the sub-section :ref:`gridded_data` for details about the available parameters
+returning the data. See the sub-section :ref:`gridded_data_index` for details about the available parameters
 that can be passed to the functions to filter data by space and/or time.
 
 
