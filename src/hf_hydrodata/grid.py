@@ -2,7 +2,7 @@
 Functions to perform lat/lon to x,y conversions using hf_hydrodata grids.
 
 The conversion functions in this class are verified against pyproj answers
-and is the same within .001 meters, but the conversion is much faster.
+and is the same within .01 meters, but the conversion is much faster.
 It evaluates the lambert conformal projection formulas using projection constants.
 """
 
