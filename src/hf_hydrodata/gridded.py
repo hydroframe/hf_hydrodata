@@ -60,10 +60,12 @@ def register_api_pin(email: str, pin: str):
     using the URL https://hydrogen.princeton.edu/pin.
 
     Example:
-    
+
     .. code-block:: python
 
-        register_api_pin("dummy@gmail.com", "1234")
+        import hf_hydrodata as hf
+
+        hf.register_api_pin("dummy@gmail.com", "1234")
     """
 
     pin_dir = os.path.expanduser("~/.hydrodata")
@@ -91,7 +93,8 @@ def get_registered_api_pin() -> Tuple[str, str]:
 
     .. code-block:: python
 
-        (email, pin) = get_registered_api_pin()
+        import hf_hydrodata as hf
+        (email, pin) = hf.get_registered_api_pin()
     """
 
     pin_dir = os.path.expanduser("~/.hydrodata")
@@ -162,10 +165,12 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
 
     .. code-block:: python
 
-        entries = get_catalog_entries(dataset="NLDAS2", period="daily")
+        import hf_hydrodata as hf
+
+        entries = hf.get_catalog_entries(dataset="NLDAS2", period="daily")
 
         options = {"dataset": "NLDAS2", "period": "daily"}
-        entries = get_catalog_entries(options)
+        entries = hf.get_catalog_entries(options)
         assert len(entries) == 20
         entry = entries[0]
         assert entry["dataset"] == "NLDAS2"
@@ -242,13 +247,13 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
 
     .. code-block:: python
 
+        import hf_hydrodata as hf
+
         options = {
             "dataset": "NLDAS2", "period": "daily",
             "variable": "precipitation", "start_time": "2005-7-1"
         }
-        entry = get_catalog_entry(options)
-
-
+        entry = hf.get_catalog_entry(options)
     """
 
     entries = get_catalog_entries(*args, **kwargs)
@@ -327,7 +332,9 @@ def get_table_names() -> List[str]:
 
     .. code-block:: python
 
-        names  = get_table_names()
+        import hf_hydrodata as hf
+
+        names  = hf.get_table_names()
     """
 
     data_model = load_data_model()
@@ -349,7 +356,9 @@ def get_table_rows(table_name: str, *args, **kwargs) -> List[ModelTableRow]:
 
     .. code-block:: python
 
-        rows = get_table_rows("variable", variable_type="atmospheric")
+        import hf_hydrodata as hf
+
+        rows = hf.get_table_rows("variable", variable_type="atmospheric")
         assert len(rows) == 8
         assert rows[0]["id"] == "air_temp"
     """
@@ -380,12 +389,14 @@ def get_table_row(table_name: str, *args, **kwargs) -> ModelTableRow:
         A single of ModelTableRow entries of the specified table_name that match the filter options or None if now row is found.
     Raises:
         ValueError:     If the filter options are ambiguous and this matches more than one row.
-    
+
     Example:
 
     .. code-block:: python
 
-        row = get_table_row("variable", variable_type="atmospheric", unit_type="pressure")
+        import hf_hydrodata as hf
+
+        row = hf.get_table_row("variable", variable_type="atmospheric", unit_type="pressure")
         assert row["id"] == "atmospheric_pressure"
     """
 
@@ -538,11 +549,13 @@ def get_paths(*args, **kwargs) -> List[str]:
 
     .. code-block:: python
 
+        import hf_hydrodata as hf
+
         options = {
             "dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
              "start_time":"2005-09-30", "end_time": "2005-10-3"
         }
-        paths = get_paths(options)
+        paths = hf.get_paths(options)
         assert len(paths) == 5    # 5 days
     """
     result = []
@@ -551,58 +564,56 @@ def get_paths(*args, **kwargs) -> List[str]:
     else:
         options = kwargs
 
-    entries = get_catalog_entries(*args, **kwargs)
-    if entries is not None:
-        for entry in entries:
-            path = entry["path"]
-            period = entry["period"]
-            if path:
-                # Get option parameters
-                start_time_value = _parse_time(options.get("start_time"))
-                end_time_value = _parse_time(options.get("end_time"))
+    entry = get_catalog_entry(*args, **kwargs)
+    if entry is None:
+        raise ValueError("No data catalog entry found.")
+    path = entry["path"]
+    period = entry["period"]
+    if path:
+        # Get option parameters
+        start_time_value = _parse_time(options.get("start_time"))
+        end_time_value = _parse_time(options.get("end_time"))
 
-                # Populate result path names with path names for each time value in time period
-                if period in ["daily"] and start_time_value:
-                    # Both daily and hourly are stored in files by day, but hourly just uses different substitution
-                    time_value = start_time_value
-                    if end_time_value is None:
-                        end_time_value = start_time_value + datetime.timedelta(days=1)
-                    while time_value < end_time_value:
-                        datapath = _substitute_datapath(
-                            path, entry, options, time_value=time_value
-                        )
-                        if datapath not in result:
-                            result.append(datapath)
-                        time_value = time_value + datetime.timedelta(days=1)
-                elif period in ["hourly"] and start_time_value:
-                    # Both daily and hourly are stored in files by day, but hourly just uses different substitution
-                    time_value = start_time_value
-                    if end_time_value is None:
-                        end_time_value = start_time_value + datetime.timedelta(hours=1)
-                    while time_value < end_time_value:
-                        datapath = _substitute_datapath(
-                            path, entry, options, time_value=time_value
-                        )
-                        if datapath not in result:
-                            result.append(datapath)
-                        time_value = time_value + datetime.timedelta(hours=1)
-                elif period == "monthly" and start_time_value:
-                    time_value = start_time_value
-                    if end_time_value is None:
-                        end_time_value = start_time_value + relativedelta(months=1)
-                    while time_value < end_time_value:
-                        datapath = _substitute_datapath(
-                            path, entry, options, time_value=time_value
-                        )
-                        if datapath not in result:
-                            result.append(datapath)
-                        time_value = time_value + relativedelta(months=1)
-                else:
-                    time_value = start_time_value
-                    datapath = _substitute_datapath(
-                        path, entry, options, time_value=time_value
-                    )
+        # Populate result path names with path names for each time value in time period
+        if period in ["daily"] and start_time_value:
+            # Both daily and hourly are stored in files by day, but hourly just uses different substitution
+            time_value = start_time_value
+            if end_time_value is None:
+                end_time_value = start_time_value + datetime.timedelta(days=1)
+            while time_value < end_time_value:
+                datapath = _substitute_datapath(
+                    path, entry, options, time_value=time_value
+                )
+                if datapath not in result:
                     result.append(datapath)
+                time_value = time_value + datetime.timedelta(days=1)
+        elif period in ["hourly"] and start_time_value:
+            # Both daily and hourly are stored in files by day, but hourly just uses different substitution
+            time_value = start_time_value
+            if end_time_value is None:
+                end_time_value = start_time_value + datetime.timedelta(hours=1)
+            while time_value < end_time_value:
+                datapath = _substitute_datapath(
+                    path, entry, options, time_value=time_value
+                )
+                if datapath not in result:
+                    result.append(datapath)
+                time_value = time_value + datetime.timedelta(hours=1)
+        elif period == "monthly" and start_time_value:
+            time_value = start_time_value
+            if end_time_value is None:
+                end_time_value = start_time_value + relativedelta(months=1)
+            while time_value < end_time_value:
+                datapath = _substitute_datapath(
+                    path, entry, options, time_value=time_value
+                )
+                if datapath not in result:
+                    result.append(datapath)
+                time_value = time_value + relativedelta(months=1)
+        else:
+            time_value = start_time_value
+            datapath = _substitute_datapath(path, entry, options, time_value=time_value)
+            result.append(datapath)
     return result
 
 
@@ -637,14 +648,21 @@ def get_path(*args, **kwargs) -> str:
 
     .. code-block:: python
 
+        import hf_hydrodata as hf
+
         options = {
             "dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
             "start_time":"2005-09-30"
         }
-        path = get_path(options)
+        path = hf.get_path(options)
     """
 
-    result = get_file_path(None, *args, **kwargs)
+    paths = get_paths(*args, **kwargs)
+    if len(paths) == 0:
+        raise ValueError("No file path found for data catalog entry")
+    if len(paths) > 1:
+        raise ValueError("More than one file path for data catalog entry")
+    result = paths[0]
     return result
 
 
@@ -722,6 +740,8 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
 
     .. code-block:: python
 
+        import hf_hydrodata as hf
+
         options = {
             "dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
             "start_time":"2005-09-30", "end_time":"2005-10-03",
@@ -729,10 +749,10 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
         }
         # The result has 3 days in the time dimension
         # The result is sliced to x,y size 100x50 in the conus1 grid.
-        data = get_numpy(options)
+        data = hf.get_numpy(options)
         assert data.shape == (3, 50, 100)
 
-        metadata = get_catalog_entry(options)
+        metadata = hf.get_catalog_entry(options)
     """
 
     result = get_ndarray(None, *args, **kwargs)
@@ -833,10 +853,12 @@ def get_raw_file(filepath, *args, **kwargs):
 
     .. code-block:: python
 
+        import hf_hydrodata as hf
+
         options = {
             "dataset": "huc_mapping", "grid": "conus2"}
         }
-        get_raw_file("huc4.tiff", options)
+        hf.get_raw_file("huc4.tiff", options)
     """
     if len(args) > 0 and isinstance(args[0], dict):
         # The filter options are being passed using a dict
@@ -851,7 +873,7 @@ def get_raw_file(filepath, *args, **kwargs):
         _write_file_from_api(filepath, options)
 
     else:
-        hydro_filepath = get_file_path(None, options)
+        hydro_filepath = get_path(options)
         shutil.copy(hydro_filepath, filepath)
 
 
@@ -872,11 +894,13 @@ def get_date_range(*args, **kwargs) -> Tuple[datetime.datetime, datetime.datetim
 
     .. code-block:: python
 
+        import hf_hydrodata as hf
+
         options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
                    "start_time":"2005-09-30", "end_time":"2005-10-03",
                    "grid_bounds":[200, 200, 300, 250]
         }
-        range = get_date_range(options)
+        range = hf.get_date_range(options)
         assert range[0] == datetime.datetime(2002, 10, 1)
         assert range[1] == datetime.datetime(2006, 9, 30)
     """
@@ -935,6 +959,17 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
         args = " ".join([f"{k}={options[k]}" for k in options.keys()])
         raise ValueError(f"No entry found in data catalog for {args}.")
 
+    # For backward compatibility between get_ndarray and get_numpy
+    time_values = options.get("time_values")
+    options = _convert_json_to_strings(options)
+    options["dataset"] = entry["dataset"]
+    options["variable"] = entry["variable"]
+    options["period"] = entry["period"]
+    options["aggregation"] = entry["aggregation"]
+    options["grid"] = entry["grid"]
+    options["file_type"] = entry["file_type"]
+    options["time_values"] = time_values
+
     _verify_time_in_range(entry, options)
 
     # An optional empty array passed as an option to be populated with the time dimension for graphing.
@@ -981,12 +1016,14 @@ def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
         lon:    longitude of point
     Returns:
         The HUC id string containing the lat/lon point or None.
-    
+
     Example:
 
     .. code-block:: python
 
-        huc_id = get_huc_from_latlon("conus1", 6, 34.48, -115.63)
+        import hf_hydrodata as hf
+
+        huc_id = hf.get_huc_from_latlon("conus1", 6, 34.48, -115.63)
         assert huc_id == "181001"
     """
     huc_id = None
@@ -1015,10 +1052,12 @@ def get_huc_from_xy(grid: str, level: int, x: int, y: int) -> str:
         The HUC id string containing the lat/lon point or None.
 
     Example:
-    
+
     .. code-block:: python
 
-        huc_id = get_huc_from_xy("conus1", 6, 300, 100)
+        import hf_hydrodata as hf
+
+        huc_id = hf.get_huc_from_xy("conus1", 6, 300, 100)
         assert huc_id == "181001"
     """
     tiff_ds = __get_geotiff(grid, level)
@@ -1047,10 +1086,12 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
         ValueError:     if grid is not valid.
 
     Example:
-    
+
     .. code-block:: python
 
-        bbox = get_huc_bbox("conus1", ["181001"])
+        import hf_hydrodata as hf
+
+        bbox = hf.get_huc_bbox("conus1", ["181001"])
         assert bbox == (1, 167, 180, 378)
     """
     # Make sure all HUC ids in the list are the same length
@@ -1362,13 +1403,8 @@ def _adjust_dimensions(data: np.ndarray, entry: ModelTableRow) -> np.ndarray:
     period = period if period in ["hourly", "daily", "monthly", "weekly"] else "static"
     variable_row = get_table_row("variable", id=variable)
     dataset_row = get_table_row("dataset", id=dataset)
-    has_z = False
+    has_z = variable_row is not None and variable_row["has_z"].lower() == "true"
     has_ensemble = False
-    if variable_row is not None:
-        has_z = (
-            variable_row["has_z"] is not None
-            and variable_row["has_z"].lower() == "true"
-        )
     if dataset_row is not None:
         has_ensemble = (
             dataset_row["has_ensemble"] is not None
@@ -1455,7 +1491,7 @@ def _read_and_filter_pfb_files(
 
     start_time_value = _parse_time(options.get("start_time"))
     end_time_value = _parse_time(options.get("end_time"))
-    paths = get_file_paths(entry, options)
+    paths = get_paths(options)
     for path in paths:
         if not os.path.exists(path):
             raise ValueError(f"File {path} does not exist.")
@@ -1464,8 +1500,22 @@ def _read_and_filter_pfb_files(
         boundary_constraints, entry, start_time_value, end_time_value
     )
     data = read_pfb_sequence(paths, boundary_constraints)
+    data = _remove_unused_z_dimension(data, entry)
     _collect_pfb_date_dimensions(time_values, data, start_time_value)
 
+    return data
+
+
+def _remove_unused_z_dimension(data: np.ndarray, entry: dict) -> np.ndarray:
+    """Remove the z dimension from the data if the variable does not have z dimension."""
+
+    variable = entry["variable"]
+    period = entry["period"]
+    variable_row = get_table_row("variable", id=variable)
+    uses_z_as_time = period in ["hourly", "monthly", "weekly"]
+    has_z = variable_row is not None and variable_row["has_z"].lower() == "true"
+    if not uses_z_as_time and not has_z and len(data.shape) == 4:
+        data = data[:, 0, :, :]
     return data
 
 
@@ -1489,7 +1539,7 @@ def _read_and_filter_c_pfb_files(
 
     start_time_value = _parse_time(options.get("start_time"))
     end_time_value = _parse_time(options.get("end_time"))
-    paths = get_file_paths(entry, options)
+    paths = get_paths(options)
     boundary_constraints = _get_pfb_boundary_constraints(entry["grid"], options)
     if boundary_constraints is None:
         # No boundary constraint specified in input arguments
@@ -1535,7 +1585,7 @@ def _read_and_filter_pfmetadata_files(
     """
 
     start_time_value = _parse_time(options.get("start_time"))
-    paths = get_file_paths(entry, options)
+    paths = get_paths(options)
 
     dataset_var = entry["dataset_var"]
     ds = xr.open_dataset(paths[0])
@@ -1559,7 +1609,7 @@ def _read_and_filter_vegm_files(
     Returns:
         An numpy ndarray of the filtered contents of the pfb vegm files.
     """
-    paths = get_file_paths(entry, options)
+    paths = get_paths(options)
     file_path = paths[0]
     #    data = read_clm(file_path, type="vegm")
 
@@ -1601,7 +1651,7 @@ def _read_and_filter_netcdf_files(
     only populated the time values after filtering the data.
     """
 
-    paths = get_file_paths(entry, options)
+    paths = get_paths(options)
     if len(paths) == 0:
         raise ValueError(f"No file path found for {entry['id']}")
     file_path = paths[0]
@@ -1651,7 +1701,7 @@ def _read_and_filter_tiff_files(
     Returns:
         An numpy ndarray of the filtered contents of the pfb files.
     """
-    paths = get_file_paths(entry, options)
+    paths = get_paths(options)
     file_path = paths[0]
     variable = entry["dataset_var"]
     data_ds = xr.open_dataset(file_path)
@@ -1874,9 +1924,11 @@ def _add_pfb_time_constraint(
     period = entry["period"]
     variable = entry["variable"]
     variable_row = get_table_row("variable", id=variable)
-
+    uses_z_as_time = period in ["hourly", "monthly", "weekly"]
+    has_z = variable_row is not None and variable_row["has_z"].lower() == "true"
     if (
-        not (variable_row is not None and variable_row["has_z"].lower() == "true")
+        uses_z_as_time
+        and not has_z
         and start_time_value is not None
         and period in ["daily", "hourly", "monthly", "weekly"]
     ):

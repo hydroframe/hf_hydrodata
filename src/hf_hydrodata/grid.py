@@ -2,7 +2,7 @@
 Functions to perform lat/lon to x,y conversions using hf_hydrodata grids.
 
 The conversion functions in this class are verified against pyproj answers
-and is the same within .001 meters, but the conversion is much faster.
+and is the same within .01 meters, but the conversion is much faster.
 It evaluates the lambert conformal projection formulas using projection constants.
 """
 
@@ -30,9 +30,11 @@ def to_latlon(grid: str, *args) -> List[float]:
 
     .. code-block:: python
 
-        (lat, lon) = to_latlon("conus1", 10, 10)
-        latlon_bounds = to_latlon("conus1", *[0, 0, 20, 20])
-        (lat, lon) = to_latlon("conus1", 10.5, 10.5)
+        import hf_hydrodata as hf
+
+        (lat, lon) = hf.to_latlon("conus1", 10, 10)
+        latlon_bounds = hf.to_latlon("conus1", *[0, 0, 20, 20])
+        (lat, lon) = hf.to_latlon("conus1", 10.5, 10.5)
     """
     result = []
     data_model = load_data_model()
@@ -78,8 +80,10 @@ def from_latlon(grid: str, *args) -> List[float]:
 
     .. code-block:: python
 
-        (x, y) = from_latlon("conus1", 31.759219, -115.902573)
-        latlon_bounds = from_latlon("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
+        import hf_hydrodata as hf
+
+        (x, y) = hf.from_latlon("conus1", 31.759219, -115.902573)
+        latlon_bounds = hf.from_latlon("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     """
     result = []
     data_model = load_data_model()
@@ -126,8 +130,10 @@ def to_meters(grid: str, *args) -> List[float]:
 
     .. code-block:: python
 
-        (x, y) = to_meters("conus1", 31.759219, -115.902573)
-        latlon_bounds = to_meters("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
+        import hf_hydrodata as hf
+
+        (x, y) = hf.to_meters("conus1", 31.759219, -115.902573)
+        latlon_bounds = hf.to_meters("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     """
     result = []
     if len(args) == 0:
@@ -161,8 +167,10 @@ def to_ij(grid: str, *args) -> List[int]:
 
     .. code-block:: python
 
-        (i, j) = to_ij("conus1", 31.759219, -115.902573)
-        ij_bounds = to_ij("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
+        import hf_hydrodata as hf
+
+        (i, j) = hf.to_ij("conus1", 31.759219, -115.902573)
+        ij_bounds = hf.to_ij("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     """
 
     result = [round(v) for v in from_latlon(grid, *args)]
@@ -184,8 +192,10 @@ def to_xy(grid: str, *args) -> List[float]:
 
     .. code-block:: python
 
-        (x, y) = to_xy("conus1", 31.759219, -115.902573)
-        xy_bounds = to_xy("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
+        import hf_hydrodata as hf
+
+        (x, y) = hf.to_xy("conus1", 31.759219, -115.902573)
+        xy_bounds = hf.to_xy("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     """
 
     result = from_latlon(grid, *args)
@@ -206,13 +216,15 @@ def meters_to_ij(grid: str, *args) -> List[int]:
 
     .. code-block:: python
 
-        meters = to_meters("conus1", 31.759219, -115.902573)
+        import hf_hydrodata as hf
 
-        (i, j) = meters_to_ij("conus1", *meters)
+        meters = hf.to_meters("conus1", 31.759219, -115.902573)
+
+        (i, j) = hf.meters_to_ij("conus1", *meters)
         assert i == 10
         assert y == 10
 
-        (i, j) = meters_to_ij("conus1", meters[0], meters[1])
+        (i, j) = hf.meters_to_ij("conus1", meters[0], meters[1])
         assert i == 10
         assert j == 10
     """
@@ -247,13 +259,15 @@ def meters_to_xy(grid: str, *args) -> List[float]:
 
     .. code-block:: python
 
-        meters = to_meters("conus1", 31.759219, -115.902573)
+        import hf_hydrodata as hf
 
-        (x, y) = meters_to_xy("conus1", *meters)
+        meters = hf.to_meters("conus1", 31.759219, -115.902573)
+
+        (x, y) = hf.meters_to_xy("conus1", *meters)
         assert round(x) == 10
         assert round(y) == 10
 
-        (x, y) = meters_to_xy("conus1", meters[0], meters[1])
+        (x, y) = hf.meters_to_xy("conus1", meters[0], meters[1])
         assert round(x) == 10
         assert round(y) == 10
     """
