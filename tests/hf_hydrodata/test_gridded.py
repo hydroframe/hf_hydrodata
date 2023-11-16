@@ -15,6 +15,7 @@ from parflow import read_pfb_sequence
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 
 import hf_hydrodata.gridded
+import hf_hydrodata as hf
 
 
 @pytest.fixture(autouse=True)
@@ -1242,6 +1243,12 @@ def test_get_huc_bbox_conus1():
 
     bbox = hf_hydrodata.gridded.get_huc_bbox("conus1", ["1102001002", "1102001003"])
     assert bbox == (1088, 415, 1132, 453)
+
+def test_getndarray_site_id():
+    """Test for a bug using get_ndarray and site_id variable."""
+
+    entry = hf.get_catalog_entry(site_type="streamflow", dataset="obs_anomalies", variable="site_id", period="daily")
+    data = hf_hydrodata.gridded.get_ndarray(entry, start_time="2002-03-1")
 
 
 def test_filter_errors():

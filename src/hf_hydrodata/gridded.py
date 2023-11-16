@@ -306,7 +306,7 @@ def _ambiguous_error_message(entry_1: dict, entry_2: dict) -> str:
     """Returns an error message describing who entry_1 and entry_2 are ambiguous."""
 
     diff_list = []
-    key_variables = ["dataset", "period", "aggregation", "grid", "variable"]
+    key_variables = ["dataset", "period", "aggregation", "grid", "variable", "site_type"]
     for variable in key_variables:
         value_1 = entry_1[variable]
         value_2 = entry_2[variable]
@@ -507,6 +507,7 @@ def _construct_string_from_qparams(entry, options):
     qparam_values["file_type"] = entry["file_type"]
     qparam_values["grid"] = entry["grid"]
     qparam_values["structure_type"] = entry["structure_type"]
+    qparam_values["site_type"] = entry["site_type"]
     # Prevents latitude and longitude coordinates from
     # being returned to speed up download
     qparam_values["return_coordinates"] = "False"
@@ -967,6 +968,7 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
     options["period"] = entry["period"]
     options["aggregation"] = entry["aggregation"]
     options["grid"] = entry["grid"]
+    options["site_type"] = entry["site_type"]
     options["file_type"] = entry["file_type"]
     options["time_values"] = time_values
 
