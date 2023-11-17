@@ -23,7 +23,7 @@ def main():
 def generate_datasets():
     """Generate the documentation of datasets (not used now)"""
 
-    directory = "./source"
+    directory = os.path.abspath(os.path.join(os.path.dirname(__file__), "source"))
     (dataset_type_ids, dataset_ids) = _collect_visible_datasets()
 
     gen_dataset_list_path = f"{directory}/gen_dataset_list.rst"

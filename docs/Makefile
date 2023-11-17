@@ -3,7 +3,8 @@
 # You can set these variables from the command line.
 SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
-SPHINXPROJ    = hydroframe
+SPHINXAPIDOC = ?= spinx-apidoc
+SPHINXPROJ    = hf_hydroframe
 SOURCEDIR     = source
 BUILDDIR      = .
 
