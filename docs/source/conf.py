@@ -11,9 +11,8 @@ import sys
 from inspect import getsourcefile
 import pypandoc
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "../src")))
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "../src", "hydroframe")))
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(
-    __file__), "..", "../src", "hydroframe", "data_catalog")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+import generate_docs
 
 # Get path to directory containing this file, conf.py.
 DOCS_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
@@ -39,7 +38,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "*data_model_access*", "*projection.*", "*generate_hydrodata_catalog_yaml.*"]
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -64,5 +63,6 @@ def ensure_pandoc_installed(_):
     )
 
 def setup(app):
+    generate_docs.main()
     app.add_css_file("css/custom.css")
     app.connect("builder-inited", ensure_pandoc_installed)

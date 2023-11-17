@@ -3,8 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 **/*.bkp
+**/*.swp
 build_docs/source/bin
 deploy_docs
+docs/source/gen_*
+docs/html
+docs/doctrees
+docs/source/bin
 
 # C extensions
 *.so
