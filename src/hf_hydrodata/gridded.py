@@ -116,7 +116,7 @@ def get_registered_api_pin() -> Tuple[str, str]:
 
 def get_datasets(*args, **kwargs) -> List[str]:
     """
-    Get avilable datasets.
+    Get available datasets.
 
     The parameters to the function can be specified either by passing a dict with the parameter values
     or by passing named parameters to the function.
@@ -165,7 +165,7 @@ def get_datasets(*args, **kwargs) -> List[str]:
         
 def get_variables(*args, **kwargs) -> List[str]:
     """
-    Get avilable variables.
+    Get available variables.
 
     The parameters to the function can be specified either by passing a dict with the parameter values
     or by passing named parameters to the function.

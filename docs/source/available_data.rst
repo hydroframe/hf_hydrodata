@@ -1,6 +1,6 @@
 .. _available_data:
 
-Available datasets and data products
+Available Datasets and Data Products
 ========================================
 Gridded data is data that can be represented in a grid such as a numpy array.
 The gridded data stored in the hydrodata repository is accessed using attributes that can be used

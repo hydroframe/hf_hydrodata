@@ -50,7 +50,7 @@ def _generate_dataset_type_docs(
         dataset_type_row = dataset_type_table.get_row(dataset_type_id)
         dataset_type_description = dataset_type_row["description"]
         gen_dataset_list_path = f"{directory}/gen_dataset_list.rst"
-        stream.write(f"Dataset Type: {dataset_type_id}\n")
+        stream.write(f"{dataset_type_id}\n")
         stream.write("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n")
         stream.write("\n")
         stream.write(dataset_type_description)
@@ -60,7 +60,7 @@ def _generate_dataset_type_docs(
         stream.write("    :widths: 25 100\n")
         stream.write("    :header-rows: 1\n")
         stream.write("\n")
-        stream.write("    * - Dateset Attribute Key\n")
+        stream.write("    * - Dateset\n")
         stream.write("      - Description\n")
         for dataset_id in dataset_table.row_ids:
             if dataset_id in dataset_ids:
@@ -120,7 +120,7 @@ def _generate_variable_docs(dataset_row, stream):
     variables = _collect_variables_in_dataset(dataset_row)
     if not variables:
         return
-    stream.write(f"Data Variables in Dataset\n")
+    stream.write(f"Variables in Dataset\n")
     stream.write("^^^^^^^^^^^^^^^^^^\n")
     stream.write("\n")
     stream.write("This describes the available variables of the dataset.\n")
