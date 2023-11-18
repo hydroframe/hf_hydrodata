@@ -47,7 +47,6 @@ JWT_TOKEN = None
 USER_ROLES = None
 THREAD_LOCK = threading.Lock()
 
-
 def register_api_pin(email: str, pin: str):
     """
     Register the email and pin that was created with the website in the users home directory.
@@ -115,6 +114,103 @@ def get_registered_api_pin() -> Tuple[str, str]:
             "No email/pin was registered'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'."
         ) from e
 
+def get_datasets(*args, **kwargs) -> List[str]:
+    """
+    Get available datasets.
+
+    The parameters to the function can be specified either by passing a dict with the parameter values
+    or by passing named parameters to the function.
+
+    Args:
+        dataset:        A dataset name (see Gridded Data documentation).
+        variable:       A variable from a dataset.
+        period:         The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
+        grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
+        aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
+    Returns:
+        A list of dataset names that contain a data catalog entry filtered by the parameters. If no options are provided returns all available datasets.
+
+    Examples:
+       .. code-block:: python
+
+        import hf_hydrodata as hf
+
+        datasets = hf.get_datasets()
+        assert len(datasets) == 13
+        assert datasets[0] == "CW3E"
+
+        datasets = hf.get_datasets(variable = "air_temp")
+        assert len(datasets) == 5
+        assert datasets[0] == "CW3E"
+
+        datasets = hf.get_datasets(grid = "conus2")
+        assert len(datasets) == 5
+        assert datasets[0] == "CW3E"
+
+        options = {"variable": "air_temp", "grid": "conus1"}
+        datasets = hf.get_datasets(options)
+        assert len(datasets) == 3
+        assert datasets[0] == "NLDAS2"
+
+    """
+
+    result = []
+    entries = get_catalog_entries(*args, **kwargs)
+    for entry in entries:
+        dataset = entry["dataset"]
+        if dataset not in result:
+            result.append(dataset)
+    result.sort()
+    return result
+        
+def get_variables(*args, **kwargs) -> List[str]:
+    """
+    Get available variables.
+
+    The parameters to the function can be specified either by passing a dict with the parameter values
+    or by passing named parameters to the function.
+
+    Args:
+        dataset:        A dataset name (see Gridded Data documentation).
+        variable:       A variable from a dataset.
+        period:         The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
+        grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
+        aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
+    Returns:
+        A list of variable names that contain a data catalog entry filtered by the parameters. If no options are provided returns all available variables.
+
+    Examples:
+       .. code-block:: python
+
+        import hf_hydrodata as hf
+
+        variables = hf.get_variables()
+        assert len(variables) == 63
+        assert variables[0] == "air_temp"
+
+        variables = hf.get_variables(dataset = "CW3E")
+        assert len(variables) == 8
+        assert variables[0] == "air_temp"
+
+        variables = hf.get_variables(grid = "conus2")
+        assert len(variables) == 30
+        assert variables[0] == "air_temp"
+
+        options = {"dataset": "NLDAS2", "grid": "conus1"}
+        variables = hf.get_variables(options)
+        assert len(variables) == 8
+        assert variables[0] == "air_temp"    
+
+    """
+
+    result = []
+    entries = get_catalog_entries(*args, **kwargs)
+    for entry in entries:
+        dataset = entry["variable"]
+        if dataset not in result:
+            result.append(dataset)
+    result.sort()
+    return result
 
 def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
     """

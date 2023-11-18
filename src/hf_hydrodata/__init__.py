@@ -24,4 +24,6 @@ from hf_hydrodata.gridded import (
     get_paths,
     register_api_pin,
     get_registered_api_pin,
+    get_datasets,
+    get_variables
 )

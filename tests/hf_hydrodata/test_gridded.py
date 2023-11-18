@@ -1282,6 +1282,43 @@ def test_filter_errors():
         hf_hydrodata.gridded.get_numpy(options)
     assert "is outside the grid shape 3342, 1888" in str(info.value)
 
+def test_get_datasets():
+    """Test get_datasets."""
+
+    datasets = hf.get_datasets()
+    assert len(datasets) == 13
+    assert datasets[0] == "CW3E"
+
+    datasets = hf.get_datasets(variable = "air_temp")
+    assert len(datasets) == 5
+    assert datasets[0] == "CW3E"
+
+    datasets = hf.get_datasets(grid = "conus2")
+    assert len(datasets) == 5
+    assert datasets[0] == "CW3E"
+
+    options = {"variable": "air_temp", "grid": "conus1"}
+    datasets = hf.get_datasets(options)
+    assert len(datasets) == 3
+    assert datasets[0] == "NLDAS2"
+
+def test_get_variables():
+    """Test get_variables."""
+
+    variables = hf.get_variables()
+    assert len(variables) == 63
+    assert variables[0] == "air_temp"
+    variables = hf.get_variables(dataset = "CW3E")
+    assert len(variables) == 8
+    assert variables[0] == "air_temp"
+    variables = hf.get_variables(grid = "conus2")
+    assert len(variables) == 30
+    assert variables[0] == "air_temp"
+
+    options = {"dataset": "NLDAS2", "grid": "conus1"}
+    variables = hf.get_variables(options)
+    assert len(variables) == 8
+    assert variables[0] == "air_temp"    
 
 if __name__ == "__main__":
     pytest.main([__file__])
