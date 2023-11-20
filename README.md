@@ -1,6 +1,6 @@
 # hf_hydrodata
 
-Tools and utility to access data in the hydrodata hydrology file share.
+Python component to access data in the hydrodata hydrology file share.
 
 ## Installation
 
@@ -9,51 +9,41 @@ latest stable release with fully-supported features:
 
     pip install hf_hydrodata
 
-You can also install the latest development version by cloning the GitHub repository and using pip
-to install from the local directory:  
+## Documentation
 
-    pip install git+https://github.com/hydroframe/hf_hydrodata.git
+You can view the documentation at [ReadTheDocs](https://hf-hydrodata.readthedocs.io).
 
 ## Usage
 
-### Accessing Gridded Data
 
-You can use the ``gridded`` module to read gridded data and select site-level data from the 
-hydrodata repository to get a NumPy array. 
+You can use `hf_hydrodata` to get access to both gridded and point observation data from various
+datasets available in hy_hydrodata.
 
-The below syntax will return daily NLDAS2 precipitation files for March 1, 2005. Without specification,
-gridded data will be returned on the CONUS1 grid (citation?/reference?) but a different grid or grid subset
-can be specified by the user. Please see the [Python API Reference](https://maurice.princeton.edu/hydroframe/docs/api_reference.html) for a full list of available parameters and supported
-features.
+You can view the available datasets and variables from [the documentation](https://hf-hydrodata.readthedocs.io)
+or you can get the list of dataset and variables from functions.
 
-The user can also request the metadata for the specified file. This includes information on the 
-variable units, time zone, overall time availability for this data source, any relevant DOI citations,
-and many other fields. A full description of the metadata returned can be found in the gridded section of the package [documentation](https://maurice.princeton.edu/hydroframe/docs/gridded_data/index.html).
 
-    # Import package
-    from hf_hydrodata.gridded import get_numpy, get_catalog_entry
+    import hf_hydrodata as hf
 
-    # Define filters and return as NumPy array
-    filters = {"dataset":"NLDAS2", "variable":"precipitation", "period":"daily", "start_time": "2005-03-01"}
-    data = get_numpy(filters)
-    print(data.shape)
+    datasets = hf.get_datasets()
+    variables = hf_get_variables()
 
-    # Get the metadata about the returned data
-    metadata = get_catalog_entry(filters)
-    print(metadata)
+    variables = hf.get_variables("dataset": "NLDAS2", "grid": "conus1")
 
-Many of the files are very large so parameters can be provided to subset the files by space and/or time before
-returning the data. See the [documentation](https://maurice.princeton.edu/hydroframe/docs/gridded_data/index.html) for details about the available parameters
-that can be passed to the functions to filter data by space and/or time.
+You can get gridded data using the get_numpy() function.
 
-### Accessing Point Observations
+    import hf_hydrodata as hf
+
+    options = {
+      "dataset": "NLDAS2", "variable": "precipitation", "period": "hourly",
+      "start_time": "2005-10-1", "end_time": "2005-10-2", "grid_bounds": [100, 100, 200, 200]
+    }
+    data = hf.get_numpy(options)
 
 You can use the ``point`` module to read site-level observations data from the hydrodata repository to get a 
 pandas DataFrame.
 
 ``hf_hydrodata`` supports access to a collection of site-level data from a variety of sources. 
-Please see the [documentation](https://maurice.princeton.edu/hydroframe/docs/point_data/index.html) for a full list of what is available and details on our 
-data collection process.
 
 The below syntax will return daily USGS streamflow data from January 1, 2022 through January 5, 2022 
 for sites that are within the bounding box with latitude bounds of (45, 50) and longitude bounds
@@ -81,7 +71,6 @@ of (-75, -50).
                             longitude_range = (-75, -50))
     metadata.head(5)
 
-Please see the [How To](https://maurice.princeton.edu/hydroframe/docs/examples/index.html) section of our documentation for additional example workflows.
 
 ## Build Instructions
 
@@ -90,17 +79,16 @@ the required components. Install the required components with:
 
     pip install -r requirements.txt
 
-Edit the python components in src/hf_hydrodata and the unit tests in tests/hf_hydrodata and the data catalog model CSV files in src/hf_hydrodata/model.
+Edit the python components in `src/hf_hydrodata` and the unit tests in `tests/hf_hydrodata` and the data catalog model CSV files in `src/hf_hydrodata/model`.
 Use Excel to edit the CSV files so that files are saved in standard CSV format.
 
 Generate the documentation with:
 
-    cd build_docs
-    bash build.sh
+    cd docs
+    make html
 
 This will validate the model CSV files and 
-generate the read-the-docs html into deploy_docs folder.
-After committing to the main branch the CI/CD job will copy the deploy_docs folder to the public website for the documentation.
+generate the read-the-docs html into the html folder.
 
 ## License
 
