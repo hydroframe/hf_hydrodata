@@ -1320,5 +1320,26 @@ def test_get_variables():
     assert len(variables) == 8
     assert variables[0] == "air_temp"    
 
+def test_get_catalog_bug():
+    """Test bug in getting catalog entries with typo."""
+
+    bounds = [100, 100, 200, 200]
+    entries = hf_hydrodata.gridded.get_catalog_entries(
+            dataset="conus1_baseline_85", file_type="pfb", period="hourly", variable="precipitation"
+    )
+    assert len(entries) == 0
+    entry = hf_hydrodata.gridded.get_catalog_entry(
+            dataset="conus1_baseline_85", file_type="pfb", period="hourly", variable="precipitation"
+    )
+    assert entry is None
+
+    start_time = datetime.datetime.strptime("2005-09-01", "%Y-%m-%d")
+    end_time = start_time + datetime.timedelta(hours=24)
+    with pytest.raises(ValueError) as info:
+        hf_hydrodata.gridded.get_ndarray(
+            entry, start_time=start_time, end_time=end_time, grid_bounds=bounds,
+        )
+    assert str(info.value) == "The entry parameter is None. Possibly because the dataset and variable used did not exist."
+
 if __name__ == "__main__":
     pytest.main([__file__])

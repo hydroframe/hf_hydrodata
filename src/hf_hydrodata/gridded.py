@@ -1050,6 +1050,8 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
         if data_catalog_entry_id is not None:
             entry = get_table_row("data_catalog_entry", id=data_catalog_entry_id)
         else:
+            if not options.get("dataset"):
+                raise ValueError("The entry parameter is None. Possibly because the dataset and variable used did not exist.")
             entry = get_catalog_entry(*args, **kwargs)
 
     if entry is None:
