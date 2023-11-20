@@ -50,45 +50,38 @@ def get_data(data_source, variable, temporal_resolution, aggregation, *args, **k
         Additional information specifying the aggregation method for the variable to be returned.
         Options include descriptors such as 'average' and 'total'. Please see the documentation
         for allowable combinations with `variable`.
-    \*args :
-        Optional positional parameters that must be a dict with filter options. See 'Keyword Arguments' below.
-    \**kwargs :
-        Supports multiple named parameters with filter option values. See 'Keyword Arguments' below.
-
-    Keyword Arguments
-    --------------------
-    depth_level : int
+    depth_level : int, optional
         Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
-    date_start : str; default=None
+    date_start : str, optional
         'YYYY-MM-DD' date indicating beginning of time range.
-    date_end : str; default=None
+    date_end : str, optional
         'YYYY-MM-DD' date indicating end of time range.
-    latitude_range : tuple; default=None
+    latitude_range : tuple, optional
         Latitude range bounds for the geographic domain; lesser value is provided first.
-    longitude_range : tuple; default=None
+    longitude_range : tuple, optional
         Longitude range bounds for the geographic domain; lesser value is provided first.
-    site_ids : list; default=None
+    site_ids : list, optional
         List of desired (string) site identifiers.
-    state : str; default=None
+    state : str, optional
         Two-letter postal code state abbreviation.
-    polygon : str
+    polygon : str, optional
         Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
-    polygon_crs : str
+    polygon_crs : str, optional
         CRS definition accepted by `pyproj.CRS.from_user_input()`.
-    site_networks: list
+    site_networks: list, optional
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise
         the network. This .csv file must be located under network_lists/{data_source}/{variable}
         in the package directory and named as 'network_name'.csv. Eg: `site_networks=['gagesii']`
-    min_num_obs : int; default=1
+    min_num_obs : int, optional
         Value for the minimum number of observations desired for a site to have.
 
     Returns
     -------
     data_df : DataFrame
-        Stacked observations data for a single variable, filtered to only sites that
-        (optionally) have the minimum number of observations specified, within the
-        defined geographic and/or date range.
+        DataFrame with columns for each site_id satisfying input filters. Rows represent
+        the date range requested from date_start and/or date_end, or the broadest range of 
+        data available for returned sites if no date range is explicitly requested.
     """
 
     if len(args) > 0 and isinstance(args[0], dict):
@@ -212,32 +205,25 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
         Additional information specifying the aggregation method for the variable to be returned.
         Options include descriptors such as 'average' and 'total'. Please see the documentation
         for allowable combinations with `variable`.
-    \*args :
-        Optional positional parameters that must be a dict with filter options. See 'Keyword Arguments' below.
-    \**kwargs :
-        Supports multiple named parameters with filter option values. See 'Keyword Arguments' below.
-
-    Keyword Arguments
-    --------------------
-    depth_level : int
+    depth_level : int, optional
         Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
-    date_start : str; default=None
+    date_start : str, optional
         'YYYY-MM-DD' date indicating beginning of time range.
-    date_end : str; default=None
+    date_end : str, optional
         'YYYY-MM-DD' date indicating end of time range.
-    latitude_range : tuple; default=None
+    latitude_range : tuple, optional
         Latitude range bounds for the geographic domain; lesser value is provided first.
-    longitude_range : tuple; default=None
+    longitude_range : tuple, optional
         Longitude range bounds for the geographic domain; lesser value is provided first.
-    site_ids : list; default=None
+    site_ids : list, optional
         List of desired (string) site identifiers.
-    state : str; default=None
+    state : str, optional
         Two-letter postal code state abbreviation.
-    polygon : str
+    polygon : str, optional
         Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
-    polygon_crs : str
+    polygon_crs : str, optional
         CRS definition accepted by `pyproj.CRS.from_user_input()`.
-    site_networks: list
+    site_networks: list, optional
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise
         the network. This .csv file must be located under network_lists/{data_source}/{variable}
@@ -389,43 +375,37 @@ def get_site_variables(*args, **kwargs):
     Return DataFrame with available sites, variables, and the period of record.
     Parameters
     ----------
-    \*args :
-        Optional positional parameters that must be a dict with filter options. See 'Keyword Arguments' below.
-    \**kwargs :
-        Supports multiple named parameters with filter option values. See 'Keyword Arguments' below.
-    Keyword Arguments
-    --------------------
-    data_source : str
+    data_source : str, optional
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
         'ameriflux'.
-    variable : str
+    variable : str, optional
         Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
         'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
         'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
-    temporal_resolution : str
+    temporal_resolution : str, optional
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
         Please see the documentation for allowable combinations with `variable`.
-    aggregation : str
+    aggregation : str, optional
         Additional information specifying the aggregation method for the variable to be returned.
         Options include descriptors such as 'average' and 'total'. Please see the documentation
         for allowable combinations with `variable`.
-    date_start : str; default=None
+    date_start : str, optional
         'YYYY-MM-DD' date indicating beginning of time range.
-    date_end : str; default=None
+    date_end : str, optional
         'YYYY-MM-DD' date indicating end of time range.
-    latitude_range : tuple; default=None
+    latitude_range : tuple, optional
         Latitude range bounds for the geographic domain; lesser value is provided first.
-    longitude_range : tuple; default=None
+    longitude_range : tuple, optional
         Longitude range bounds for the geographic domain; lesser value is provided first.
-    site_ids : list; default=None
+    site_ids : list, optional
         List of desired (string) site identifiers.
-    state : str; default=None
+    state : str, optional
         Two-letter postal code state abbreviation.
-    polygon : str
+    polygon : str, optional
         Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
-    polygon_crs : str
+    polygon_crs : str, optional
         CRS definition accepted by `pyproj.CRS.from_user_input()`.
-    site_networks: list
+    site_networks: list, optional
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise
         the network. This .csv file must be located under network_lists/{data_source}/{variable}
@@ -433,7 +413,7 @@ def get_site_variables(*args, **kwargs):
     Returns
     -------
     DataFrame
-        DataFrame unique by site_id and variable_name with site- and variable-level metadata.
+        DataFrame unique by site_id and variable_name containing site- and variable-level metadata.
     """
     if len(args) > 0 and isinstance(args[0], dict):
         options = args[0]
