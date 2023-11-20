@@ -14,7 +14,7 @@ to access data via the ``hf_hydrodata.point`` module:
 * ``aggregation`` 
 
 
-Note that the parameter, ``depth_level``, needs only be provided when querying soil 
+Note that the parameter ``depth_level`` only needs to be provided when querying soil 
 moisture data. Returned variable units are provided here for reference.
 
 Please see the next section, :ref:`data_collection`, for descriptions on our data sources and data collection
