@@ -918,11 +918,11 @@ def _write_file_from_api(filepath, options):
         ) from te
     except requests.exceptions.ChunkedEncodingError as ce:
         raise ValueError(
-            f"The gridded_data_url {gridded_data_url} has timed out. Try again later or try to reduce the size of data in the API request using time or space filters."
+            f"The gridded_data_url {datafile_url} has timed out. Try again later or try to reduce the size of data in the API request using time or space filters."
         ) from ce
     except Exception as e:
         raise ValueError(
-            f"Error while reading gridded_data from {gridded_data_url}. Try again later or try to reduce the size of data in the API request using time or space filters."
+            f"Error while reading gridded_data: {e}"
         ) from e
 
     content = response.content
@@ -1395,7 +1395,7 @@ def _get_ndarray_from_api(entry, options, time_values):
             ) from te
         except Exception as e:
             raise ValueError(
-                f"Error while reading gridded_data from {gridded_data_url}. Try again later or try to reduce the size of data in the API request using time or space filters."
+                f"Error while reading gridded_data: {e}"
             ) from e
 
         content = response.content
