@@ -83,6 +83,11 @@ def get_point_data(*args, **kwargs):
         the date range requested from date_start and/or date_end, or the broadest range of 
         data available for returned sites if no date range is explicitly requested.
     """
+    if len(args) > 0 and isinstance(args[0], dict):
+        options = args[0]
+    else:
+        options = kwargs
+
     # Confirm that the "mandatory" inputs are all provided
     if (
         options['dataset'] is None
@@ -93,11 +98,6 @@ def get_point_data(*args, **kwargs):
         raise ValueError(
             "You must specify a dataset, variable, temporal_resolution, and aggregation.  One or more of these query parameters is missing."
         )
-
-    if len(args) > 0 and isinstance(args[0], dict):
-        options = args[0]
-    else:
-        options = kwargs
 
     run_remote = not os.path.exists(HYDRODATA)
 
@@ -396,6 +396,11 @@ def get_point_metadata(*args, **kwargs):
     DataFrame
         Site-level DataFrame of site-level metadata.
     """
+    if len(args) > 0 and isinstance(args[0], dict):
+        options = args[0]
+    else:
+        options = kwargs
+
     # Confirm that the "mandatory" inputs are all provided
     if (
         options['dataset'] is None
@@ -406,11 +411,6 @@ def get_point_metadata(*args, **kwargs):
         raise ValueError(
             "You must specify a dataset, variable, temporal_resolution, and aggregation.  One or more of these query parameters is missing."
         )
-
-    if len(args) > 0 and isinstance(args[0], dict):
-        options = args[0]
-    else:
-        options = kwargs
 
     run_remote = not os.path.exists(HYDRODATA)
 
@@ -1305,7 +1305,7 @@ def _get_variables(conn):
     return variables
 
 
-def _check_inputs(dataset, variable, temporal_resolution, aggregation, options):
+def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **kwargs):
     """
     Checks on inputs to get_observations function.
 
@@ -1338,10 +1338,10 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, options):
     -------
     None
     """
-    # if len(args) > 0 and isinstance(args[0], dict):
-    #     options = args[0]
-    # else:
-    #     options = kwargs
+    if len(args) > 0 and isinstance(args[0], dict):
+        options = args[0]
+    else:
+        options = kwargs
 
     try:
         assert temporal_resolution in ['daily', 'hourly', 'instantaneous']
@@ -1378,7 +1378,7 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, options):
                 "Please provide depth_level with one of the supported values. Please see the documentation for allowed values.")
 
 
-def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, options):
+def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args, **kwargs):
     """
     Return mapped var_id.
 
@@ -1415,10 +1415,10 @@ def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, optio
         Integer variable ID associated with combination of `data_source`, `variable`, `temporal_resolution`,
         and `aggregation`.
     """
-    # if len(args) > 0 and isinstance(args[0], dict):
-    #     options = args[0]
-    # else:
-    #     options = kwargs
+    if len(args) > 0 and isinstance(args[0], dict):
+        options = args[0]
+    else:
+        options = kwargs
 
     if variable == 'soil moisture':
         query = """
@@ -1494,7 +1494,7 @@ def _get_dirpath(var_id):
     return dirpath_map[var_id]
 
 
-def _get_sites(conn, dataset, variable, temporal_resolution, aggregation, options):
+def _get_sites(conn, dataset, variable, temporal_resolution, aggregation, *args, **kwargs):
     """
     Build DataFrame with site attribute metadata information.
 
@@ -1553,10 +1553,10 @@ def _get_sites(conn, dataset, variable, temporal_resolution, aggregation, option
     (space and time) are included. The record count does not reflect any filtering 
     at the data/observation level.
     """
-    # if len(args) > 0 and isinstance(args[0], dict):
-    #     options = args[0]
-    # else:
-    #     options = kwargs
+    if len(args) > 0 and isinstance(args[0], dict):
+        options = args[0]
+    else:
+        options = kwargs
 
     # Get associated variable IDs for requested data types and time periods
     var_id = _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, options)
