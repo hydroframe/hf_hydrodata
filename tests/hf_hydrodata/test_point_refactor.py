@@ -1079,5 +1079,33 @@ def test_get_variables_polygon_filter():
     assert '01396091' in list(df['site_id'])
 
 
+def test_fail_data_parameter_missing():
+    """Test that error gets raised if required parameters are not included"""
+    with pytest.raises(Exception):
+        df = point.get_point_data(
+            variable="wtd",
+            temporal_resolution="hourly",
+            aggregation="average",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            latitude_range=(49, 50),
+            longitude_range=(-75, -74)
+        )
+
+
+def test_fail_metadata_parameter_missing():
+    """Test that error gets raised if required parameters are not included"""
+    with pytest.raises(Exception):
+        df = point.get_point_metadata(
+            dataset="usgs_nwis",
+            variable="wtd",
+            aggregation="average",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            latitude_range=(49, 50),
+            longitude_range=(-75, -74)
+        )
+
+
 if __name__ == "__main__":
     pytest.main()

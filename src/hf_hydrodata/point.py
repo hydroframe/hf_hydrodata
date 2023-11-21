@@ -90,10 +90,10 @@ def get_point_data(*args, **kwargs):
 
     # Confirm that the "mandatory" inputs are all provided
     if (
-        options['dataset'] is None
-        or options['variable'] is None
-        or options['temporal_resolution'] is None
-        or options['aggregation'] is None
+        'dataset' not in options
+        or 'variable' not in options
+        or 'temporal_resolution' not in options
+        or 'aggregation' not in options
     ):
         raise ValueError(
             "You must specify a dataset, variable, temporal_resolution, and aggregation.  One or more of these query parameters is missing."
@@ -403,10 +403,10 @@ def get_point_metadata(*args, **kwargs):
 
     # Confirm that the "mandatory" inputs are all provided
     if (
-        options['dataset'] is None
-        or options['variable'] is None
-        or options['temporal_resolution'] is None
-        or options['aggregation'] is None
+        'dataset' not in options
+        or 'variable' not in options
+        or 'temporal_resolution' not in options
+        or 'aggregation' not in options
     ):
         raise ValueError(
             "You must specify a dataset, variable, temporal_resolution, and aggregation.  One or more of these query parameters is missing."
