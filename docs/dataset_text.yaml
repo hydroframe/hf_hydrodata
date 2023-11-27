@@ -1,0 +1,22 @@
+# Contains custom text for various entries in the generated ReadTheDocs documention
+#
+# Each entry is associated with a key that is injected into the documentation generated
+# from the data model .csv files.
+
+datasets:
+  "conus1_domain":
+    summary: >
+      The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
+      The domain extent and projection are based off of the National Water Model Grid. 
+      Manual corrections were made along the coastline to get rid of cells that were water 
+      and to prune any orphan cells (i.e. cells attached to the domain only by a corner).
+
+    processing_notes: >
+      These are notes.
+
+  "conus2_domain":
+    summary: >
+      The CONUS2 domain covers the entire contiguous US and areas draining to it.
+      The domain extent and projection are based off of the National Water Model Grid. 
+      Manual corrections were made along the coastline to get rid of cells that were water 
+      and to prune any orphan cells (i.e. cells attached to the domain only by a corner).

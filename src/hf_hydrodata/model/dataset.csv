@@ -1,20 +1,18 @@
-id,dataset_type,description,summary,paper_dois,dataset_dois,dataset_start_date,dataset_end_date,structure_type,time_zone,documentation_link,has_ensemble
-conus1_baseline_85,parflow,WY 1985 Baseline CONUS1 simulation,,10.1126/science.aaf7891; 10.5194/hess-21-1117-2017,,10/1/84,9/30/06,gridded,UTC−06:00,,
-conus1_baseline_mod,parflow,Modern CONUS1 simulations WY 2003-2006,,10.5194/gmd-14-7223-2021,,10/1/02,9/30/06,gridded,UTC−0:00,,
-conus1_domain,parameters,Inputs for baseline CONUS1 ParFlow Simulations,"The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
-The domain extent and projection are based off of the National Water Model Grid. 
-Manual corrections were made along the coastline to get rid of cells that were water 
-and to prune any orphan cells (i.e. cells attached to the domain only by a corner).",10.5194/gmd-8-923-2015; 10.1016/j.advwatres.2015.04.008; 10.1002/2014WR016774; 10.1002/2015GL066916,,,,gridded,,,
-conus2_domain,parameters,Inputs for baseline CONUS2 ParFlow Simulations,"The CONUS2 domain covers the entire contiguous US and areas draining to it.
-The domain extent and projection are based off of the National Water Model Grid. 
-Manual corrections were made along the coastline to get rid of cells that were water 
-and to prune any orphan cells (i.e. cells attached to the domain only by a corner).",,,,,gridded,,,
-NLDAS2,forcing,National Land Data Assimilation Product V2,,10.5194/gmd-14-7223-2021; 10.1002/2016GL069964,,10/1/02,9/30/06,gridded,UTC−0:00,,
+id,dataset_type,description,datasource,paper_dois,dataset_dois,dataset_start_date,dataset_end_date,structure_type,time_zone,documentation_link,has_ensemble
+conus1_baseline_85,parflow,WY 1985 Baseline CONUS1 simulation,hydroframe,10.1126/science.aaf7891; 10.5194/hess-21-1117-2017,,10/1/84,9/30/06,gridded,UTC−06:00,,
+conus1_baseline_mod,parflow,Modern CONUS1 simulations WY 2003-2006,hydroframe,10.5194/gmd-14-7223-2021,,10/1/02,9/30/06,gridded,UTC−0:00,,
+conus1_domain,parameters,Inputs for baseline CONUS1 ParFlow Simulations,hydroframe,10.5194/gmd-8-923-2015; 10.1016/j.advwatres.2015.04.008; 10.1002/2014WR016774; 10.1002/2015GL066916,,,,gridded,,,
+conus2_domain,parameters,Inputs for baseline CONUS2 ParFlow Simulations,hydroframe,,,,,gridded,,,
+NLDAS2,forcing,National Land Data Assimilation Product V2,nasa,10.5194/gmd-14-7223-2021; 10.1002/2016GL069964,,10/1/02,9/30/06,gridded,UTC−0:00,,
 NLDAS2_85,forcing,National Land Data Assimilation Product V2  - Water Year 1985,,10.1002/2016GL069964,,10/1/84,9/30/85,gridded,UTC−06:00,,
 CW3E,forcing,,,,,10/1/79,9/30/22,gridded,,,
 huc_mapping,parameters,Mapping Grid to HUC,,,,,,gridded,,,
-nasa_smap,remote_sensing,NASA Soil Moisture,,,,10/1/22,,gridded,UTC-00:00,,
+nasa_smap,remote_sensing,NASA Soil Moisture,nasa,,,10/1/22,,gridded,UTC-00:00,,
 conus1_current_conditions,current_conditions,Current Conditions Conus1,,,,,,gridded,UTC−0:00,,
 conus2_current_conditions,current_conditions,Current Conditions Conus2,,,,,,gridded,UTC−0:00,,
-observations,point_observations,Observation Point,,,,,,point,UTC−0:00,,
-obs_anomalies,point_observations,Observation Anomolies,,,,,,point,UTC-06:00,,
+observations,point_observations,Observation Points (deprecated),,,,,,point,UTC−0:00,,
+obs_anomalies,point_observations,Observation Anomolies (deprecated),,,,,,point,UTC-06:00,,
+usgs_nwis,point_observations,National Water Information Service,usgs,,,,,point,UTC-00:00,,
+snotel,point_observations,Snow Telemetry,usda,,,,,point,UTC-00:00,,
+scan,point_observations,Soil Climate Analysis Network,usda,,,,,point,UTC-00:00,,
+ameriflux,point_observations,Ameriflux,ameriflux,,,,,point,UTC-00:00,,

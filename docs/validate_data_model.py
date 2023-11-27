@@ -40,7 +40,12 @@ def _validate_data_model(data_model: DataModel):
     found_error = False
     for table_name in data_model.table_names:
         entry_table = data_model.get_table(table_name)
+        unique_id_map = {}
         for entry_table_id in entry_table.row_ids:
+            if unique_id_map.get(entry_table_id):
+                print(f"Duplicate id '{entry_table_id} in table '{table_name}'")
+                found_error = True
+            unique_id_map[entry_table_id] = True
             row = entry_table.get_row(entry_table_id)
             for column_name in entry_table.column_names:
                 row_value = row.get_value(column_name)

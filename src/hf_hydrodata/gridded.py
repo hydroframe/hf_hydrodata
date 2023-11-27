@@ -124,7 +124,7 @@ def get_datasets(*args, **kwargs) -> List[str]:
     Args:
         dataset:        A dataset name (see Gridded Data documentation).
         variable:       A variable from a dataset.
-        period:         The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
+        temporal_resolution:  The temporal_resolution (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
     Returns:
@@ -173,7 +173,7 @@ def get_variables(*args, **kwargs) -> List[str]:
     Args:
         dataset:        A dataset name (see Gridded Data documentation).
         variable:       A variable from a dataset.
-        period:         The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
+        temporal_resolution:         The temporal_resolution (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
     Returns:
@@ -222,7 +222,7 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
     Args:
         dataset:        A dataset name (see Gridded Data documentation).
         variable:       A variable from a dataset.
-        period:         The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
+        temporal_resolution:         The temporal_resolution (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
         start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
@@ -244,7 +244,7 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
     ModelTableRow metadata attributes:
         * dataset:          A dataset name (see Gridded Data documentation).
         * variable:         A variable from a dataset.
-        * period:           The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
+        * temporal_resolution:           The temporal_resolution (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         * grid:             A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         * aggregation:      One of mean, max, min. Normally, only needed for temperature variables.
         * entry_start_date: Earliest available date of data.
@@ -263,9 +263,9 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
 
         import hf_hydrodata as hf
 
-        entries = hf.get_catalog_entries(dataset="NLDAS2", period="daily")
+        entries = hf.get_catalog_entries(dataset="NLDAS2", temporal_resolution="daily")
 
-        options = {"dataset": "NLDAS2", "period": "daily"}
+        options = {"dataset": "NLDAS2", "temporal_resolution": "daily"}
         entries = hf.get_catalog_entries(options)
         assert len(entries) == 20
         entry = entries[0]
@@ -301,7 +301,7 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
     Args:
         dataset:        A dataset name (see Gridded Data documentation).
         variable:       A variable from a dataset.
-        period:         The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
+        temporal_resolution:         The temporal_resolution (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
         start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
@@ -326,7 +326,7 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
     ModelTableRow metadata attributes:
         * dataset:          A dataset name (see Gridded Data documentation).
         * variable:         A variable from a dataset.
-        * period:           The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
+        * temporal_resolution:           The temporal_resolution (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         * grid:             A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         * aggregation:      One of mean, max, min. Normally, only needed for temperature variables.
         * entry_start_date: Earliest available date of data.
@@ -346,7 +346,7 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
         import hf_hydrodata as hf
 
         options = {
-            "dataset": "NLDAS2", "period": "daily",
+            "dataset": "NLDAS2", "temporal_resolution": "daily",
             "variable": "precipitation", "start_time": "2005-7-1"
         }
         entry = hf.get_catalog_entry(options)
@@ -513,15 +513,16 @@ def get_file_paths(entry, *args, **kwargs) -> List[str]:
     Use the function get_paths() instead.
     """
     result = []
+    period = None
     if isinstance(entry, ModelTableRow):
         path = entry["path"]
-        period = entry["period"]
+        period = entry["temporal_resolution"] if entry["temporal_resolution"] else entry["period"]
     elif isinstance(entry, (int, str)):
         data_model = load_data_model()
         table = data_model.get_table("data_catalog_entry")
         entry = table.get_row(str(entry))
         path = entry["path"]
-        period = entry["period"]
+        period = entry["temporal_resolution"] if entry["temporal_resolution"] else entry["period"]
     if len(args) > 0 and isinstance(args[0], dict):
         options = args[0]
     else:
@@ -530,11 +531,11 @@ def get_file_paths(entry, *args, **kwargs) -> List[str]:
         data_catalog_entry_id = options.get("data_catalog_entry_id")
         if data_catalog_entry_id is not None:
             entry = get_table_row("data_catalog_entry", id=data_catalog_entry_id)
-            period = entry["period"]
+            period = entry["temporal_resolution"] if entry["temporal_resolution"] else entry["period"]
             path = entry["path"]
         else:
             entry = get_catalog_entry(*args, **kwargs)
-            period = entry["period"]
+            period = entry["temporal_resolution"] if entry["temporal_resolution"] else entry["period"]
             path = entry["path"]
     if entry is None:
         raise ValueError("No data catalog entry provided")
@@ -598,6 +599,7 @@ def _construct_string_from_qparams(entry, options):
     """
     qparam_values = options
     qparam_values["dataset"] = entry["dataset"]
+    qparam_values["temporal_resolution"] = entry["temporal_resolution"]
     qparam_values["period"] = entry["period"]
     qparam_values["variable"] = entry["variable"]
     qparam_values["file_type"] = entry["file_type"]
@@ -625,7 +627,7 @@ def get_paths(*args, **kwargs) -> List[str]:
     Args:
         dataset:        A dataset name (see Gridded Data documentation).
         variable:       A variable from a dataset.
-        period:         The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
+        temporal_resolution:         The temporal_resolution (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
         start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
@@ -649,7 +651,7 @@ def get_paths(*args, **kwargs) -> List[str]:
         import hf_hydrodata as hf
 
         options = {
-            "dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
+            "dataset": "NLDAS2", "temporal_resolution": "daily", "variable": "precipitation",
              "start_time":"2005-09-30", "end_time": "2005-10-3"
         }
         paths = hf.get_paths(options)
@@ -724,7 +726,7 @@ def get_path(*args, **kwargs) -> str:
     Args:
         dataset:        A dataset name (see Gridded Data documentation).
         variable:       A variable from a dataset.
-        period:         The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
+        temporal_resolution:         The temporal_resolution (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
         start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
@@ -748,7 +750,7 @@ def get_path(*args, **kwargs) -> str:
         import hf_hydrodata as hf
 
         options = {
-            "dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
+            "dataset": "NLDAS2", "temporal_resolution": "daily", "variable": "precipitation",
             "start_time":"2005-09-30"
         }
         path = hf.get_path(options)
@@ -788,7 +790,7 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
     Args:
         dataset:        A dataset name (see Gridded Data documentation).
         variable:       A variable from a dataset.
-        period:         The period (e.g. hourly, daily, weekly, monthly) of a dataset variable.
+        temporal_resolution:         The temporal_resolution (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
         start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
@@ -809,15 +811,15 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
         ValueError:  If any filter parameters are invalid.
 
     For gridded results the returned numpy array has dimensions:
-        * [hour, y, x]                    period is hourly without z dimension
-        * [day, y, x]                     period is daily without z dimension
-        * [month, y, x]                   period is monthly without z dimension
-        * [y, x]                          period is static or blank without z dimension
+        * [hour, y, x]                    temporal_resolution is hourly without z dimension
+        * [day, y, x]                     temporal_resolution is daily without z dimension
+        * [month, y, x]                   temporal_resolution is monthly without z dimension
+        * [y, x]                          temporal_resolution is static or blank without z dimension
 
-        * [hour, z, y, x]                 period is hourly with z dimension
-        * [day, z, y, x]                  period is daily with z dimension
-        * [month, z, y, x]                period is monthly with z dimension
-        * [z, y, x]                       period is static or blank with z dimension
+        * [hour, z, y, x]                 temporal_resolution is hourly with z dimension
+        * [day, z, y, x]                  temporal_resolution is daily with z dimension
+        * [month, z, y, x]                temporal_resolution is monthly with z dimension
+        * [z, y, x]                       temporal_resolution is static or blank with z dimension
 
     If the dataset has ensembles then there is an ensemble dimension at the beginning.
 
@@ -840,7 +842,7 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
         import hf_hydrodata as hf
 
         options = {
-            "dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
+            "dataset": "NLDAS2", "temporal_resolution": "daily", "variable": "precipitation",
             "start_time":"2005-09-30", "end_time":"2005-10-03",
             "grid_bounds":[200, 200, 300, 250]
         }
@@ -909,7 +911,7 @@ def _write_file_from_api(filepath, options):
                     "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
                 )
             raise ValueError(
-                f"The datafile_url {datafile_url} returned error code {response.status_code}."
+                f"The {datafile_url} returned error code {response.status_code}."
             )
 
     except requests.exceptions.Timeout as te:
@@ -918,7 +920,7 @@ def _write_file_from_api(filepath, options):
         ) from te
     except requests.exceptions.ChunkedEncodingError as ce:
         raise ValueError(
-            f"The gridded_data_url {gridded_data_url} has timed out. Try again later or try to reduce the size of data in the API request using time or space filters."
+            f"The {datafile_url} has timed out. Try again later or try to reduce the size of data in the API request using time or space filters."
         ) from ce
 
     content = response.content
@@ -989,7 +991,7 @@ def get_date_range(*args, **kwargs) -> Tuple[datetime.datetime, datetime.datetim
 
         import hf_hydrodata as hf
 
-        options = {"dataset": "NLDAS2", "period": "daily", "variable": "precipitation",
+        options = {"dataset": "NLDAS2", "temporal_resolution": "daily", "variable": "precipitation",
                    "start_time":"2005-09-30", "end_time":"2005-10-03",
                    "grid_bounds":[200, 200, 300, 250]
         }
@@ -1467,23 +1469,23 @@ def _get_api_headers() -> dict:
 
 def _adjust_dimensions(data: np.ndarray, entry: ModelTableRow) -> np.ndarray:
     """
-    Reshape the dimensions of the data array to match the conventions for the entry period and expected variable.
+    Reshape the dimensions of the data array to match the conventions for the entry temporal_resolution and expected variable.
     Args:
         data:       An numpy array to be returned by get_ndarray.
-        entry:      A data catalog entry that contains period and variable attributes.
+        entry:      A data catalog entry that contains temporal_resolution and variable attributes.
     Returns:
         A reshaped nd array with the same data, but possible different number of dimensions.
 
     Reshape dimensions to:
-        * [hour, y, x]                    period is hourly without z dimension
-        * [day, y, x]                     period is daily without z dimension
-        * [month, y, x]                   period is monthly without z dimension
-        * [y, x]                          period is static or blank without z dimension
+        * [hour, y, x]                    temporal_resolution is hourly without z dimension
+        * [day, y, x]                     temporal_resolution is daily without z dimension
+        * [month, y, x]                   temporal_resolution is monthly without z dimension
+        * [y, x]                          temporal_resolution is static or blank without z dimension
 
-        * [hour, z, y, x]                 period is hourly with z dimension
-        * [day, z, y, x]                  period is daily with z dimension
-        * [month, z, y, x]                period is monthly with z dimension
-        * [z, y, x]                       period is static or blank with z dimension
+        * [hour, z, y, x]                 temporal_resolution is hourly with z dimension
+        * [day, z, y, x]                  temporal_resolution is daily with z dimension
+        * [month, z, y, x]                temporal_resolution is monthly with z dimension
+        * [z, y, x]                       temporal_resolution is static or blank with z dimension
     If the dataset has ensembles then there is an ensemble dimension at the beginning.
     """
     period = entry["period"]
