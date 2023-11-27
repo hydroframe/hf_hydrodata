@@ -1107,5 +1107,48 @@ def test_fail_metadata_parameter_missing():
         )
 
 
+def test_fail_unsupported_parameter1():
+    """Test that error gets raised if unrecognized parameter supplied."""
+    with pytest.raises(Exception):
+        df = point.get_point_metadata(
+            dataset="usgs_nwis",
+            variable="wtd",
+            aggregation="average",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            latituderange=(49, 50),
+            longituderange=(-75, -74)
+        )
+
+
+def test_fail_unsupported_parameter2():
+    """Test that error gets raised if unrecognized parameter supplied."""
+    with pytest.raises(Exception):
+        df = point.get_point_metadata(
+            dataset="usgs_nwis",
+            varaible="wtd",
+            aggregation="average",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            latitude_range=(49, 50),
+            longitude_range=(-75, -74)
+        )
+
+
+def test_fail_unsupported_parameter3():
+    """Test that error gets raised if unrecognized parameter supplied."""
+    with pytest.raises(Exception):
+        df = point.get_point_metadata(
+            dataset="usgs_nwis",
+            variable="wtd",
+            aggregation="average",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            latitude_range=(49, 50),
+            longitude_range=(-75, -74),
+            min_num_obsv=1
+        )
+
+
 if __name__ == "__main__":
     pytest.main()
