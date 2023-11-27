@@ -25,7 +25,7 @@ HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev.princeton.edu")
 NETWORK_LISTS_PATH = f"/{HYDRODATA}/national_obs/tools/network_lists"
 
 # Use this to check that user-supplied parameters are being used
-SUPPORTED_FILTERS = ['dataset', 'variable', 'temporal_resolution', 'aggregation',
+SUPPORTED_FILTERS = ['dataset', 'variable', 'temporal_resolution', 'aggregation', 'depth_level',
                      'date_start', 'date_end', 'latitude_range', 'longitude_range',
                      'site_ids', 'state', 'polygon', 'polygon_crs', 'site_networks',
                      'min_num_obs']
