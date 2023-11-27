@@ -24,6 +24,12 @@ DB_PATH = f"{HYDRODATA}/national_obs/point_obs.sqlite"
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev.princeton.edu")
 NETWORK_LISTS_PATH = f"/{HYDRODATA}/national_obs/tools/network_lists"
 
+# Use this to check that user-supplied parameters are being used
+SUPPORTED_FILTERS = ['dataset', 'variable', 'temporal_resolution', 'aggregation',
+                     'date_start', 'date_end', 'latitude_range', 'longitude_range',
+                     'site_ids', 'state', 'polygon', 'polygon_crs', 'site_networks',
+                     'min_num_obs']
+
 
 def get_point_data(*args, **kwargs):
     """
@@ -98,6 +104,13 @@ def get_point_data(*args, **kwargs):
         raise ValueError(
             "You must specify a dataset, variable, temporal_resolution, and aggregation.  One or more of these query parameters is missing."
         )
+
+    # Raise error if unrecognized parameter input
+    for k in options.keys():
+        if k not in SUPPORTED_FILTERS:
+            raise ValueError(
+                f"Supplied parameter {k} is not recognized. Please visit the package API documentation to see a description of supported parameters."
+            )
 
     run_remote = not os.path.exists(HYDRODATA)
 
@@ -411,6 +424,13 @@ def get_point_metadata(*args, **kwargs):
         raise ValueError(
             "You must specify a dataset, variable, temporal_resolution, and aggregation.  One or more of these query parameters is missing."
         )
+
+    # Raise error if unrecognized parameter input
+    for k in options.keys():
+        if k not in SUPPORTED_FILTERS:
+            raise ValueError(
+                f"Supplied parameter {k} is not recognized. Please visit the package API documentation to see a description of supported parameters."
+            )
 
     run_remote = not os.path.exists(HYDRODATA)
 
