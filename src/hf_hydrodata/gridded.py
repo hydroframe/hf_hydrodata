@@ -1552,7 +1552,7 @@ def _get_api_headers() -> dict:
             response = requests.get(url_security, timeout=1200)
             if not response.status_code == 200:
                 raise ValueError(
-                    f"No registered PIN for email '{email}'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'."
+                    f"No registered PIN for email '{email}'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'hf_hydrodata.register_api_pin()'."
                 )
             json_string = response.content.decode("utf-8")
             jwt_json = json.loads(json_string)
