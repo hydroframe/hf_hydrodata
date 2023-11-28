@@ -22,7 +22,7 @@ from shapely.ops import transform
 HYDRODATA = "/hydrodata"
 DB_PATH = f"{HYDRODATA}/national_obs/point_obs.sqlite"
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev.princeton.edu")
-NETWORK_LISTS_PATH = f"/{HYDRODATA}/national_obs/tools/network_lists"
+NETWORK_LISTS_PATH = f"{HYDRODATA}/national_obs/tools/network_lists"
 
 # Use this to check that user-supplied parameters are being used
 SUPPORTED_FILTERS = ['dataset', 'variable', 'temporal_resolution', 'aggregation', 'depth_level',
@@ -66,19 +66,20 @@ def get_point_data(*args, **kwargs):
         Latitude range bounds for the geographic domain; lesser value is provided first.
     longitude_range : tuple, optional
         Longitude range bounds for the geographic domain; lesser value is provided first.
-    site_ids : list, optional
-        List of desired (string) site identifiers.
+    site_ids : str or list of strings, optional
+        Single site ID string or list of desired (string) site identifiers.
     state : str, optional
         Two-letter postal code state abbreviation.
     polygon : str, optional
         Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     polygon_crs : str, optional
         CRS definition accepted by `pyproj.CRS.from_user_input()`.
-    site_networks: list, optional
-        List of names of site networks. Can be a list with a single network name.
-        Each network must have matching .csv file with a list of site ID values that comprise
-        the network. This .csv file must be located under network_lists/{data_source}/{variable}
-        in the package directory and named as 'network_name'.csv. Eg: `site_networks=['gagesii']`
+    site_networks: str or list of strings, optional
+        Name(s) of site networks. Can be a string with a single network name, or a list of strings
+        containing strings for multiple available networks. There are currently supported networks for
+        stream gages (dataset=='usgs_nwis', variable='streamflow') and groundwater wells (dataset=='usgs_nwis',
+        variable='water_table_depth'). For streamflow, options include: 'gagesii', 'gagesii_reference', 'hcdn2009',
+        and 'camels'. For water table depth, options include: 'climate_response_network'.
     min_num_obs : int, optional
         Value for the minimum number of observations desired for a site to have.
 
@@ -86,7 +87,7 @@ def get_point_data(*args, **kwargs):
     -------
     data_df : DataFrame
         DataFrame with columns for each site_id satisfying input filters. Rows represent
-        the date range requested from date_start and/or date_end, or the broadest range of 
+        the date range requested from date_start and/or date_end, or the broadest range of
         data available for returned sites if no date range is explicitly requested.
     """
     if len(args) > 0 and isinstance(args[0], dict):
@@ -122,7 +123,7 @@ def get_point_data(*args, **kwargs):
                 assert 'polygon_crs' in options and options['polygon_crs'] is not None
             except:
                 raise Exception(
-                    """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input() 
+                    """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
                    to specify this shape's CRS.""")
             latitude_range, longitude_range = _get_bbox_from_shape(options['polygon'], options['polygon_crs'])
 
@@ -255,7 +256,7 @@ def get_data(data_source, variable, temporal_resolution, aggregation, *args, **k
     -------
     data_df : DataFrame
         DataFrame with columns for each site_id satisfying input filters. Rows represent
-        the date range requested from date_start and/or date_end, or the broadest range of 
+        the date range requested from date_start and/or date_end, or the broadest range of
         data available for returned sites if no date range is explicitly requested.
     """
 
@@ -274,7 +275,7 @@ def get_data(data_source, variable, temporal_resolution, aggregation, *args, **k
                 assert 'polygon_crs' in options and options['polygon_crs'] is not None
             except:
                 raise Exception(
-                    """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input() 
+                    """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
                    to specify this shape's CRS.""")
             latitude_range, longitude_range = _get_bbox_from_shape(options['polygon'], options['polygon_crs'])
 
@@ -390,19 +391,20 @@ def get_point_metadata(*args, **kwargs):
         Latitude range bounds for the geographic domain; lesser value is provided first.
     longitude_range : tuple, optional
         Longitude range bounds for the geographic domain; lesser value is provided first.
-    site_ids : list, optional
-        List of desired (string) site identifiers.
+    site_ids : str or list of strings, optional
+        Single site ID string or list of desired (string) site identifiers.
     state : str, optional
         Two-letter postal code state abbreviation.
     polygon : str, optional
         Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     polygon_crs : str, optional
         CRS definition accepted by `pyproj.CRS.from_user_input()`.
-    site_networks: list, optional
-        List of names of site networks. Can be a list with a single network name.
-        Each network must have matching .csv file with a list of site ID values that comprise
-        the network. This .csv file must be located under network_lists/{data_source}/{variable}
-        in the package directory and named as 'network_name'.csv. Eg: `site_networks=['gagesii']`
+    site_networks: str or list of strings, optional
+        Name(s) of site networks. Can be a string with a single network name, or a list of strings
+        containing strings for multiple available networks. There are currently supported networks for
+        stream gages (dataset=='usgs_nwis', variable='streamflow') and groundwater wells (dataset=='usgs_nwis',
+        variable='water_table_depth'). For streamflow, options include: 'gagesii', 'gagesii_reference', 'hcdn2009',
+        and 'camels'. For water table depth, options include: 'climate_response_network'.
 
     Returns
     -------
@@ -442,7 +444,7 @@ def get_point_metadata(*args, **kwargs):
                 assert 'polygon_crs' in options and options['polygon_crs'] is not None
             except:
                 raise Exception(
-                    """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input() 
+                    """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
                    to specify this shape's CRS.""")
             latitude_range, longitude_range = _get_bbox_from_shape(options['polygon'], options['polygon_crs'])
 
@@ -623,7 +625,7 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
                 assert 'polygon_crs' in options and options['polygon_crs'] is not None
             except:
                 raise Exception(
-                    """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input() 
+                    """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
                    to specify this shape's CRS.""")
             latitude_range, longitude_range = _get_bbox_from_shape(options['polygon'], options['polygon_crs'])
 
@@ -770,19 +772,20 @@ def get_site_variables(*args, **kwargs):
         Latitude range bounds for the geographic domain; lesser value is provided first.
     longitude_range : tuple, optional
         Longitude range bounds for the geographic domain; lesser value is provided first.
-    site_ids : list, optional
-        List of desired (string) site identifiers.
+    site_ids : str or list of strings, optional
+        Single site ID string or list of desired (string) site identifiers.
     state : str, optional
         Two-letter postal code state abbreviation.
     polygon : str, optional
         Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     polygon_crs : str, optional
         CRS definition accepted by `pyproj.CRS.from_user_input()`.
-    site_networks: list, optional
-        List of names of site networks. Can be a list with a single network name.
-        Each network must have matching .csv file with a list of site ID values that comprise
-        the network. This .csv file must be located under network_lists/{data_source}/{variable}
-        in the package directory and named as 'network_name'.csv. Eg: `site_networks=['gagesii']`
+    site_networks: str or list of strings, optional
+        Name(s) of site networks. Can be a string with a single network name, or a list of strings
+        containing strings for multiple available networks. There are currently supported networks for
+        stream gages (dataset=='usgs_nwis', variable='streamflow') and groundwater wells (dataset=='usgs_nwis',
+        variable='water_table_depth'). For streamflow, options include: 'gagesii', 'gagesii_reference', 'hcdn2009',
+        and 'camels'. For water table depth, options include: 'climate_response_network'.
     Returns
     -------
     DataFrame
@@ -803,7 +806,7 @@ def get_site_variables(*args, **kwargs):
                 assert 'polygon_crs' in options and options['polygon_crs'] is not None
             except:
                 raise Exception(
-                    """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input() 
+                    """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
                    to specify this shape's CRS.""")
             latitude_range, longitude_range = _get_bbox_from_shape(options['polygon'], options['polygon_crs'])
 
@@ -894,9 +897,16 @@ def get_site_variables(*args, **kwargs):
 
     # Site ID
     if 'site_ids' in options and options['site_ids'] is not None:
-        site_query = """ AND s.site_id IN (%s)""" % ','.join('?'*len(options['site_ids']))
-        for s in options['site_ids']:
-            param_list.append(s)
+        if type(options['site_ids']) == list:
+            site_query = """ AND s.site_id IN (%s)""" % ','.join('?'*len(options['site_ids']))
+            for s in options['site_ids']:
+                param_list.append(s)
+        elif type(options['site_ids']) == str:
+            print(f"site_ids {options['site_ids']}")
+            site_query = """ AND s.site_id == ?"""
+            param_list.append(options['site_ids'])
+        else:
+            raise ValueError("Parameter site_ids must be either a single site ID string, or a list of site ID strings")
     else:
         site_query = """"""
 
@@ -946,7 +956,7 @@ def get_site_variables(*args, **kwargs):
             assert 'polygon_crs' in options and options['polygon_crs'] is not None
         except:
             raise Exception(
-                """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input() 
+                """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
                    to specify this shape's CRS.""")
 
         clipped_df = _filter_on_polygon(df, options['polygon'], options['polygon_crs'])
@@ -1002,7 +1012,7 @@ def _get_siteid_data_from_api(options):
     )
 
     point_data_url = f"{HYDRODATA_URL}/api/site-variables-dataframe?{q_params}"
-
+    print('point_data_url: ', point_data_url)
     try:
         headers = _validate_user()
         response = requests.get(point_data_url, headers=headers, timeout=180)
@@ -1127,10 +1137,16 @@ def _convert_strings_to_type(options):
                 options[key] = ast.literal_eval(value)
         if key == "site_ids":
             if isinstance(value, str):
-                options[key] = ast.literal_eval(value)
+                try:
+                    options[key] = ast.literal_eval(value)
+                except:
+                    options[key] = value     # when site_id is a single str
         if key == "site_networks":
             if isinstance(value, str):
-                options[key] = ast.literal_eval(value)
+                try:
+                    options[key] = ast.literal_eval(value)
+                except:
+                    options[key] = value    # when site_networks is a single str
         if key == "min_num_obs":
             if isinstance(value, str):
                 options[key] = int(value)
@@ -1312,7 +1328,7 @@ def _get_variables(conn):
     Parameters
     ----------
     conn : Connection object
-        The Connection object associated with the SQLite database to query from. 
+        The Connection object associated with the SQLite database to query from.
     Returns
     -------
     DataFrame
@@ -1333,16 +1349,16 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
     Parameters
     ----------
     dataset : str
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs', 
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
         'ameriflux'.
     variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe', 
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux', 
+        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
+        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
         'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
     aggregation : str
-        Additional information specifying the aggregation method for the variable to be returned. 
+        Additional information specifying the aggregation method for the variable to be returned.
         Options include descriptors such as 'average' and 'total'. Please see the documentation
         for allowable combinations with `variable`.
     args :
@@ -1406,18 +1422,18 @@ def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args
     Parameters
     ----------
     conn : Connection object
-        The Connection object associated with the SQLite database to query from. 
+        The Connection object associated with the SQLite database to query from.
     dataset : str
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs', 
-        'ameriflux'.    
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
+        'ameriflux'.
     variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe', 
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux', 
+        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
+        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
         'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
     aggregation : str
-        Additional information specifying the aggregation method for the variable to be returned. 
+        Additional information specifying the aggregation method for the variable to be returned.
         Options include descriptors such as 'average' and 'total'. Please see the documentation
         for allowable combinations with `variable`.
     args :
@@ -1443,7 +1459,7 @@ def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args
 
     if variable == 'soil moisture':
         query = """
-                SELECT var_id 
+                SELECT var_id
                 FROM variables
                 WHERE data_source = ?
                     AND variable = ?
@@ -1455,7 +1471,7 @@ def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args
 
     else:
         query = """
-                SELECT var_id 
+                SELECT var_id
                 FROM variables
                 WHERE data_source = ?
                     AND variable = ?
@@ -1479,7 +1495,7 @@ def _get_dirpath(var_id):
     Parameters
     ----------
     var_id : int
-        Integer variable ID associated with combination of `data_source`, 
+        Integer variable ID associated with combination of `data_source`,
         `variable`, `temporal_resolution`, and `aggregation`.
 
     Returns
@@ -1522,20 +1538,20 @@ def _get_sites(conn, dataset, variable, temporal_resolution, aggregation, *args,
     Parameters
     ----------
     conn : Connection object
-        The Connection object associated with the SQLite database to 
-        query from. 
+        The Connection object associated with the SQLite database to
+        query from.
     dataset : str
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs', 
-        'ameriflux'.   
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
+        'ameriflux'.
     variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe', 
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux', 
+        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
+        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
         'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str
-        Additional information specifying the aggregation method for the variable to be returned. 
+        Additional information specifying the aggregation method for the variable to be returned.
         Options include descriptors such as 'average' and 'total'. Please see the documentation
         for allowable combinations with `variable`.
     depth_level : int, optional
@@ -1548,19 +1564,21 @@ def _get_sites(conn, dataset, variable, temporal_resolution, aggregation, *args,
         Latitude range bounds for the geographic domain; lesser value is provided first.
     longitude_range : tuple, optional
         Longitude range bounds for the geographic domain; lesser value is provided first.
-    site_ids : list, optional
-        List of desired (string) site identifiers.
+    site_ids : str or list of strings, optional
+        Single site ID string or list of desired (string) site identifiers.
     state : str, optional
         Two-letter postal code state abbreviation.
     polygon : str, optional
         Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     polygon_crs : str, optional
         CRS definition accepted by `pyproj.CRS.from_user_input()`.
-    site_networks: list, optional
-        List of names of site networks. Can be a list with a single network name.
-        Each network must have matching .csv file with a list of site ID values that comprise
-        the network. This .csv file must be located under network_lists/{data_source}/{variable}
-        in the package directory and named as 'network_name'.csv. Eg: `site_networks=['gagesii']`
+    site_networks: str or list of strings, optional
+        Name(s) of site networks. Can be a string with a single network name, or a list of strings
+        containing strings for multiple available networks. There are currently supported networks for
+        stream gages (dataset=='usgs_nwis', variable='streamflow') and groundwater wells (dataset=='usgs_nwis',
+        variable='water_table_depth'). For streamflow, options include: 'gagesii', 'gagesii_reference', 'hcdn2009',
+        and 'camels'. For water table depth, options include: 'climate_response_network'.
+
 
     Returns
     -------
@@ -1569,9 +1587,9 @@ def _get_sites(conn, dataset, variable, temporal_resolution, aggregation, *args,
 
     Notes
     -----
-    The returned field 'record_count' is OVERALL record count. Filtering of metadata 
-    only applies at the site level, so only sites within the provided bounds 
-    (space and time) are included. The record count does not reflect any filtering 
+    The returned field 'record_count' is OVERALL record count. Filtering of metadata
+    only applies at the site level, so only sites within the provided bounds
+    (space and time) are included. The record count does not reflect any filtering
     at the data/observation level.
     """
     if len(args) > 0 and isinstance(args[0], dict):
@@ -1616,9 +1634,15 @@ def _get_sites(conn, dataset, variable, temporal_resolution, aggregation, *args,
 
     # Site ID
     if 'site_ids' in options and options['site_ids'] is not None:
-        site_query = """ AND s.site_id IN (%s)""" % ','.join('?'*len(options['site_ids']))
-        for s in options['site_ids']:
-            param_list.append(s)
+        if type(options['site_ids']) == list:
+            site_query = """ AND s.site_id IN (%s)""" % ','.join('?'*len(options['site_ids']))
+            for s in options['site_ids']:
+                param_list.append(s)
+        elif type(options['site_ids']) == str:
+            site_query = """ AND s.site_id == ?"""
+            param_list.append(options['site_ids'])
+        else:
+            raise ValueError("Parameter site_ids must be either a single site ID string, or a list of site ID strings")
     else:
         site_query = """"""
 
@@ -1659,7 +1683,7 @@ def _get_sites(conn, dataset, variable, temporal_resolution, aggregation, *args,
             assert 'polygon_crs' in options and options['polygon_crs'] is not None
         except:
             raise Exception(
-                """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input() 
+                """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
                     to specify this shape's CRS.""")
 
         clipped_df = _filter_on_polygon(df, options['polygon'], options['polygon_crs'])
@@ -1762,13 +1786,13 @@ def _get_network_site_list(dataset, variable, site_networks):
     Parameters
     ----------
     dataset : str
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs', 
-        'ameriflux'.   
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
+        'ameriflux'.
     variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe', 
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux', 
+        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
+        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
         'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
-    site_networks: list
+    site_networks: str or list or strings
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise
         the network. This .csv file must be located under network_lists/{data_source}/{variable}
@@ -1786,6 +1810,9 @@ def _get_network_site_list(dataset, variable, site_networks):
     site_list = []
 
     # Append sites from desired network(s)
+    if type(site_networks) == str:
+        site_networks = [site_networks]
+
     for network in site_networks:
         try:
             assert network in network_options[dataset][variable]
@@ -1838,8 +1865,8 @@ def _convert_to_pandas(ds):
     Parameters
     ----------
     ds : DataSet
-        xarray DataSet containing stacked observations data for a 
-        single variable. 
+        xarray DataSet containing stacked observations data for a
+        single variable.
     var_id : int
         Integer variable ID associated with combination of `variable`, `temporal_resolution`,
         and `aggregation`.
@@ -1869,7 +1896,7 @@ def _filter_min_num_obs(df, min_num_obs):
     Filter to only sites which have a minimum number of observations.
 
     This filtering is done after the observations are subset by time, so these
-    observation counts will only filter out sites if the number of observations *within 
+    observation counts will only filter out sites if the number of observations *within
     that time range* is not satisfied.
 
     Parameters
@@ -1998,10 +2025,10 @@ def _get_data_sql(conn, var_id, *args, **kwargs):
     Parameters
     ----------
     conn : Connection object
-        The Connection object associated with the SQLite database to 
-        query from. 
+        The Connection object associated with the SQLite database to
+        query from.
     var_id : int
-        Integer variable ID associated with combination of `data_source`, 
+        Integer variable ID associated with combination of `data_source`,
         `variable`, `temporal_resolution`, and `aggregation`.
     args :
         Optional positional parameters that must be a dict with filter options.
