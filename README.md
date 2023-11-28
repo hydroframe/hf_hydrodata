@@ -30,7 +30,7 @@ or you can get the list of dataset and variables from functions.
 
     variables = hf.get_variables("dataset": "NLDAS2", "grid": "conus1")
 
-You can get gridded data using the get_numpy() function.
+You can get gridded data using the get_gridded_data() function.
 
     import hf_hydrodata as hf
 
@@ -38,7 +38,7 @@ You can get gridded data using the get_numpy() function.
       "dataset": "NLDAS2", "variable": "precipitation", "period": "hourly",
       "start_time": "2005-10-1", "end_time": "2005-10-2", "grid_bounds": [100, 100, 200, 200]
     }
-    data = hf.get_numpy(options)
+    data = hf.get_gridded_data(options)
 
 You can use the ``point`` module to read site-level observations data from the hydrodata repository to get a 
 pandas DataFrame.

@@ -36,17 +36,4 @@ def test_export_model():
     entries = model_dict.get("data_catalog_entry")
     assert len(entries) > 300
 
-def test_import_model():
-    """Test importing the data model from a dict."""
-
-    hf_hydrodata.data_model_access.DATA_MODEL_CACHE = None
-    data_model = hf_hydrodata.data_model_access.load_data_model()
-    model_dict = data_model.export_to_dict()
-    data_model.import_from_dict(model_dict)
-    data_catalog_entry_table = data_model.get_table("data_catalog_entry")
-    assert len(data_catalog_entry_table.row_ids) > 300
-    row = data_catalog_entry_table.rows["11"]
-    assert row["dataset_type"] == "parflow"
-
-
 

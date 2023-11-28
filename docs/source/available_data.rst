@@ -2,12 +2,11 @@
 
 Available Datasets and Data Products
 ========================================
-Gridded data is data that can be represented in a grid such as a numpy array.
-The gridded data stored in the hydrodata repository is accessed using attributes that can be used
-to filter and slice the requested data.
+Data is accessed using attributes that can be used to filter and slice requested data.
+The attributes of both point data and gridded data are organized by datasets.
 
-Gridded data is organized by datasets. A dataset is a collection of data variables collected
-or generated together. Data can be identified by filtering by the dataset, variable and period as well
+A dataset is a collection of data variables collected
+or generated together. Data can be identified by filtering by the dataset, variable, temporal_resolution as well
 as other optional filters such as grid or aggregation to identify data. 
 
 Data can also be sliced by space using python parameters: 'grid_bounds' or 'latlon_bounds'.

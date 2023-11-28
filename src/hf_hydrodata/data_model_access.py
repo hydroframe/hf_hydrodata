@@ -15,17 +15,21 @@ Functions to load the csv files of the data catalog model into a DataModel objec
 
     print(data_model.table_names)
 """
-# pylint: disable=R0903,W0603,W1514,C0103,R0912,R0914
+# pylint: disable=R0903,W0603,W1514,C0103,R0912,R0914,W0718,W0707
 
 import os
 import sys
 import csv
 import json
-import requests
+import threading
 import logging
 from warnings import warn
+import requests
 
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev.princeton.edu")
+THREAD_LOCK = threading.Lock()
+DATA_MODEL_CACHE = None
+
 
 class ModelTableRow:
     """Represents one row in a model table."""
@@ -116,6 +120,9 @@ class DataModel:
     def import_from_dict(self, model: dict):
         """Import the latest data model from the dict created by export_to_dict."""
 
+        if model is None:
+            return
+
         # Clear out old rows from tables
         for table_name in model.keys():
             table = self.get_table(table_name)
@@ -144,9 +151,6 @@ class DataModel:
         self.table_names.sort()
 
 
-DATA_MODEL_CACHE = None
-
-
 def load_data_model(load_from_api=True) -> DataModel:
     """
     Load the data catalog model from CSV files.
@@ -156,51 +160,75 @@ def load_data_model(load_from_api=True) -> DataModel:
     """
 
     global DATA_MODEL_CACHE
-    if DATA_MODEL_CACHE is not None:
-        return DATA_MODEL_CACHE
-    data_model = DataModel()
+    with THREAD_LOCK:
+        if DATA_MODEL_CACHE is not None:
+            return DATA_MODEL_CACHE
+        data_model = DataModel()
 
-    model_dir = f"{os.path.abspath(os.path.dirname(__file__))}/model"
-    for file_name in os.listdir(model_dir):
-        if file_name.endswith(".csv"):
-            try:
-                table_name = file_name.replace(".csv", "")
-                data_model.table_names.append(table_name)
-                model_table = ModelTable()
-                data_model.table_index[table_name] = model_table
-                with open(f"{model_dir}/{file_name}") as csv_file:
-                    rows = csv.reader(csv_file, delimiter=",")
-                    for row_count, row in enumerate(list(rows)):
-                        if row_count == 0:
-                            for col_count, col in enumerate(list(row)):
-                                if col_count == 0:
-                                    model_table.column_names.append("id")
-                                else:
-                                    model_table.column_names.append(col)
-                        else:
-                            table_row = ModelTableRow()
-                            for col_count, col in enumerate(list(row)):
-                                if col_count == 0:
-                                    table_row.row_values["id"] = col
-                                    model_table.row_ids.append(col)
-                                    model_table.rows[col] = table_row
-                                else:
-                                    table_row.row_values[
-                                        model_table.column_names[col_count]
-                                    ] = _parse_column_value(col)
+        model_dir = f"{os.path.abspath(os.path.dirname(__file__))}/model"
+        for file_name in os.listdir(model_dir):
+            if file_name.endswith(".csv"):
+                try:
+                    table_name = file_name.replace(".csv", "")
+                    data_model.table_names.append(table_name)
+                    model_table = ModelTable()
+                    data_model.table_index[table_name] = model_table
+                    with open(f"{model_dir}/{file_name}") as csv_file:
+                        rows = csv.reader(csv_file, delimiter=",")
+                        for row_count, row in enumerate(list(rows)):
+                            if row_count == 0:
+                                for col_count, col in enumerate(list(row)):
+                                    if col_count == 0:
+                                        model_table.column_names.append("id")
+                                    else:
+                                        model_table.column_names.append(col)
+                            else:
+                                table_row = ModelTableRow()
+                                for col_count, col in enumerate(list(row)):
+                                    if col_count == 0:
+                                        table_row.row_values["id"] = col
+                                        model_table.row_ids.append(col)
+                                        model_table.rows[col] = table_row
+                                    else:
+                                        table_row.row_values[
+                                            model_table.column_names[col_count]
+                                        ] = _parse_column_value(col)
 
-            except Exception as e:
-                raise ValueError(f"Error reading '{file_name}' {str(e)}") from e
-    _add_columns_to_catalog_entry_table(data_model)
-    data_model.table_names.sort()
+                except Exception as e:
+                    raise ValueError(f"Error reading '{file_name}' {str(e)}") from e
+        _add_period_temporal_resolution_column(data_model)
+        _add_columns_to_catalog_entry_table(data_model)
+        data_model.table_names.sort()
 
-    DATA_MODEL_CACHE = data_model
-    if load_from_api:
-        # Replace the data model with the version from the API
-        sys.tracebacklimit=0
-        _load_model_from_api(data_model)
+        if load_from_api:
+            # Replace the data model with the version from the API
+            sys.tracebacklimit = 0
+            _load_model_from_api(data_model)
+        DATA_MODEL_CACHE = data_model
 
     return data_model
+
+
+def _add_period_temporal_resolution_column(data_model: DataModel):
+    """
+    Add column so data_catalog_entry table has both period and temporal_resolution columns.
+    """
+    data_catalog_entry_table = data_model.get_table("data_catalog_entry")
+    if (
+        "period" in data_catalog_entry_table.column_names
+        and "temporal_resolution" in data_catalog_entry_table.column_names
+    ):
+        return
+    data_catalog_entry_table.column_names.append("period")
+    for row_id in data_catalog_entry_table.row_ids:
+        row = data_catalog_entry_table.get_row(row_id)
+        if row["temporal_resolution"]:
+            period = row["temporal_resolution"]
+            row.set_value("period", period)
+        elif row["period"]:
+            period = row["period"]
+            row.set_value("temporal_resolution", period)
+
 
 def _add_columns_to_catalog_entry_table(data_model: DataModel):
     """
@@ -295,6 +323,7 @@ def _parse_column_value(column_value: str):
         return column_value
     return column_value
 
+
 def _load_model_from_api(data_model: DataModel):
     """Load the latest version of the model from model in the API."""
 
@@ -303,11 +332,20 @@ def _load_model_from_api(data_model: DataModel):
         response = requests.get(url, timeout=120)
         if response.status_code == 200:
             response_json = json.loads(response.text)
+            if "temporal_resolution" not in response_json.keys():
+                return
             data_model.import_from_dict(response_json)
+            _add_period_temporal_resolution_column(data_model)
         else:
-            warn("Unable to update model from API (no internet access?) Error %s from '%s'", response.status_code, url)
+            warn(
+                "Unable to update model from API (no internet access?) Error %s from '%s'",
+                response.status_code,
+                url,
+            )
             # Do not cache data model if an API error occurred
-    except requests.exceptions.ReadTimeout as te:
-        raise ValueError(f"Timeout while trying to load latest model from server. Try again later.")
-    except Exception as e:
+    except requests.exceptions.ReadTimeout:
+        raise ValueError(
+            "Timeout while trying to load latest model from server. Try again later."
+        )
+    except Exception:
         logging.exception("Error loading data catalog model from API '%s'", url)

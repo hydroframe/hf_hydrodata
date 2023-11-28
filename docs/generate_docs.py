@@ -6,6 +6,7 @@
 # pylint: disable=E0401,C0413,C0103,C0301,W1514,R0914,W1309
 import sys
 import os
+import yaml
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 from hf_hydrodata.data_model_access import load_data_model
@@ -49,6 +50,7 @@ def _generate_dataset_type_docs(
         dataset_table = data_model.get_table("dataset")
         dataset_type_row = dataset_type_table.get_row(dataset_type_id)
         dataset_type_description = dataset_type_row["description"]
+        dataset_text_map = _load_dataset_text_map()
         gen_dataset_list_path = f"{directory}/gen_dataset_list.rst"
         stream.write(f"{dataset_type_id}\n")
         stream.write("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n")
@@ -69,12 +71,12 @@ def _generate_dataset_type_docs(
                     dataset_description = dataset_row["description"]
                     stream.write(f"    * - :ref:`gen_{dataset_id}`\n")
                     stream.write(f"      - {dataset_description}\n")
-                    _generate_dataset_docs(dataset_id, directory)
+                    _generate_dataset_docs(dataset_id, dataset_text_map, directory)
         stream.write("\n")
         stream.write("\n")
 
 
-def _generate_dataset_docs(dataset_id, directory):
+def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
     """
     Generate rst file for documentation of the dataset.
     """
@@ -83,7 +85,9 @@ def _generate_dataset_docs(dataset_id, directory):
     dataset_table = data_model.get_table("dataset")
     dataset_row = dataset_table.get_row(dataset_id)
     dataset_description = dataset_row["description"]
-    dataset_summary = dataset_row["summary"]
+
+    dataset_text_entry = dataset_text_map.get(dataset_id)
+    dataset_summary = dataset_text_entry.get("summary") if dataset_text_entry else None
     gen_dataset_docs_path = f"{directory}/gen_{dataset_id}.rst"
     with open(gen_dataset_docs_path, "w+") as stream:
         stream.write(f".. _gen_{dataset_id}:\n")
@@ -117,6 +121,7 @@ def _generate_variable_docs(dataset_row, stream):
     data_model = load_data_model()
     variable_table = data_model.get_table("variable")
     dataset_id = dataset_row["id"]
+    structure_type = dataset_row["structure_type"]
     variables = _collect_variables_in_dataset(dataset_row)
     if not variables:
         return
@@ -125,7 +130,7 @@ def _generate_variable_docs(dataset_row, stream):
     stream.write("\n")
     stream.write("This describes the available variables of the dataset.\n")
     stream.write(
-        "Use the dataset, variables and periods in python access functions as described in the QuickStart Guide and Examples.\n\n"
+        "Use the dataset, variables and temporal_resolution in python access functions as described in the QuickStart Guide and Examples.\n\n"
     )
 
     variable_types = _collect_variable_types_of_variables(variables)
@@ -134,18 +139,22 @@ def _generate_variable_docs(dataset_row, stream):
 
         stream.write(f".. list-table:: {variable_type_name} Variables in Dataset\n")
         if _has_multiple_aggregations(dataset_row, variables):
-            stream.write("    :widths: 25 60 30 20 20 20 20\n")
+            stream.write("    :widths: 25 60 30 20 20 20")
         else:
-            stream.write("    :widths: 25 60 30 20 20 20\n")
+            stream.write("    :widths: 25 60 30 20 20")
+        if structure_type == "gridded":
+            stream.write(" 20")
+        stream.write("\n")
         stream.write("    :header-rows: 1\n\n")
-        stream.write(f"    * - Variable\n")
-        stream.write(f"      - Description\n")
-        stream.write(f"      - Periods\n")
-        stream.write(f"      - Units\n")
+        stream.write(f"    * - variable\n")
+        stream.write(f"      - description\n")
+        stream.write(f"      - temporal_resolution\n")
+        stream.write(f"      - units\n")
         if _has_multiple_aggregations(dataset_row, variables):
-            stream.write(f"      - Aggregation\n")
-        stream.write(f"      - Z Dim\n")
-        stream.write(f"      - Grids\n")
+            stream.write(f"      - aggregation\n")
+        if structure_type == "gridded":
+            stream.write(f"      - grid\n")
+        stream.write(f"      - Z\n")
         for variable_id in variables:
             variable_row = variable_table.get_row(variable_id)
             if variable_row["variable_type"] == variable_type_id:
@@ -169,8 +178,9 @@ def _generate_variable_docs(dataset_row, stream):
                 stream.write(f"      - {variable_units}\n")
                 if _has_multiple_aggregations(dataset_row, variables):
                     stream.write(f"      - {variable_aggregations}\n")
+                if structure_type == "gridded":
+                    stream.write(f"      - {variable_grids}\n")
                 stream.write(f"      - {z_dim}\n")
-                stream.write(f"      - {variable_grids}\n")
 
         stream.write("\n")
         stream.write("\n")
@@ -461,11 +471,12 @@ def _collect_visible_datasets():
                     data_catalog_entry_id
                 )
                 security_level = data_catalog_entry_row["security_level"]
-                if _is_entry_visible(security_level):
-                    if not dataset_type_id in dataset_type_ids:
-                        dataset_type_ids.append(dataset_type_id)
-                    if not dataset_id in dataset_ids:
-                        dataset_ids.append(dataset_id)
+                if dataset_id == data_catalog_entry_row["dataset"]:
+                    if _is_entry_visible(security_level):
+                        if not dataset_type_id in dataset_type_ids:
+                            dataset_type_ids.append(dataset_type_id)
+                        if not dataset_id in dataset_ids:
+                            dataset_ids.append(dataset_id)
     return (dataset_type_ids, dataset_ids)
 
 
@@ -474,6 +485,18 @@ def _is_entry_visible(security_level: str) -> bool:
     result = security_level in ["1", "2", "3"]
     return result
 
+def _load_dataset_text_map()->dict:
+    """
+    Load the dataset_text.yaml file
+    Returns:
+        A dict containing the dataset keys with the value of the a sub dict with summary, and processing_notes keys.
+    """
+    result = {}
+    path = os.path.abspath(os.path.join(os.path.dirname(__file__), "dataset_text.yaml"))
+    with open(path, "r") as stream:
+        result = yaml.safe_load(stream)
+        result = result.get("datasets")
+    return result
 
 if __name__ == "__main__":
     main()

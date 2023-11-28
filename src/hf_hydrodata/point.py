@@ -1185,6 +1185,7 @@ def _construct_string_from_qparams(
     qparam_values = options
     qparam_values["data_type"] = data_type
     qparam_values["data_source"] = data_source
+    qparam_values["dataset"] = data_source
     qparam_values["variable"] = variable
     qparam_values["temporal_resolution"] = temporal_resolution
     qparam_values["aggregation"] = aggregation

@@ -6,3 +6,4 @@ weekly,Weekly,
 static,static,variables that don't change with time
 monthly_clim,Monthly Climatology,long term monthly mean values
 annual_clim,Annual Climatology,long term annual mean values
+daily_of_week,Daily Over Week,Daily values aggregated over week
