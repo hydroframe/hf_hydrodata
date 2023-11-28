@@ -6969,6 +6969,16 @@ variable:
       title: "fractional distance from stream"
       description: "Shortest distance of a given cell to a stream divided by the distance from the stream cell to the nearest topographic divide (Values range from 0-1)"
       variable_type: "topography"
+  "vapor_pressure_deficit":
+      title: " Vapor Pressure Deficit"
+      description: " Vapor Pressure Deficit"
+      variable_type: "land_surface"
+      unit_type: "pressure"
+  "wind_speed":
+      title: " Wind Speed"
+      description: " Wind Speed"
+      variable_type: "atmospheric"
+      unit_type: "rate"
 
 variable_type:
   "atmospheric":
