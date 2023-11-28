@@ -743,8 +743,8 @@ def test_get_data_state_filter():
     assert len(df.columns) >= 64
 
 
-def test_get_data_site_filter():
-    """Test for using site_ids filter"""
+def test_get_data_site_filter_list():
+    """Test for using site_ids filter with a list"""
     df = point.get_point_data(
         dataset="usgs_nwis",
         variable="streamflow",
@@ -758,8 +758,37 @@ def test_get_data_site_filter():
     assert list(df.columns == ['date', '01011000', '01013500'])
 
 
-def test_site_networks_filter():
-    """Test for using site_networks filter"""
+def test_get_data_site_filter_str():
+    """Test for using site_ids filter with a string"""
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="average",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        site_ids='01011000'
+    )
+    assert len(df) == 5
+    assert list(df.columns == ['date', '01011000'])
+
+
+def test_get_data_site_filter_fail():
+    """Test for using site_ids filter with numeric fails"""
+    with pytest.raises(Exception):
+        df = point.get_point_data(
+            dataset="usgs_nwis",
+            variable="streamflow",
+            temporal_resolution="daily",
+            aggregation="average",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            site_ids=1011000
+        )
+
+
+def test_site_networks_filter_list():
+    """Test for using site_networks filter as a list"""
     data_df = point.get_point_data(
         dataset="usgs_nwis",
         variable="streamflow",
@@ -786,6 +815,38 @@ def test_site_networks_filter():
         latitude_range=(40, 41),
         longitude_range=(-75, -74),
         site_networks=['gagesii']
+    )
+    assert len(metadata_df) == 60
+
+
+def test_site_networks_filter_str():
+    """Test for using site_networks filter as a str"""
+    data_df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="average",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        state='NJ',
+        latitude_range=(40, 41),
+        longitude_range=(-75, -74),
+        site_networks='gagesii'
+    )
+    assert len(data_df) == 5
+    assert '01377500' in data_df.columns
+
+    metadata_df = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="average",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        state='NJ',
+        latitude_range=(40, 41),
+        longitude_range=(-75, -74),
+        site_networks='gagesii'
     )
     assert len(metadata_df) == 60
 
@@ -1012,8 +1073,8 @@ def test_get_variables_date_filter():
     assert 'groundwater well' in list(df['site_type'])
 
 
-def test_get_variables_site_filter():
-    """Test get_site_variables function with site_ids filter"""
+def test_get_variables_site_filter_list():
+    """Test get_site_variables function with site_ids filter as a list"""
     df = point.get_site_variables(
         site_ids=['01011000', '01013500'])
 
@@ -1021,6 +1082,18 @@ def test_get_variables_site_filter():
     assert len(df) == 4
     assert '01011000' in list(df['site_id'])
     assert '01013500' in list(df['site_id'])
+    assert 'Daily average streamflow' in list(df['variable_name'])
+    assert 'Hourly average streamflow' in list(df['variable_name'])
+
+
+def test_get_variables_site_filter_str():
+    """Test get_site_variables function with site_ids filter as a string"""
+    df = point.get_site_variables(
+        site_ids='01011000')
+
+    # Bounds are flexible for if more sites are added
+    assert len(df) == 2
+    assert '01011000' in list(df['site_id'])
     assert 'Daily average streamflow' in list(df['variable_name'])
     assert 'Hourly average streamflow' in list(df['variable_name'])
 
@@ -1048,14 +1121,27 @@ def test_get_variables_networks_filter_fail():
             site_networks='gagesii')
 
 
-def test_get_variables_networks_filter():
-    """Test get_site_variables function with site_networks filter"""
+def test_get_variables_networks_filter_list():
+    """Test get_site_variables function with site_networks filter as a list"""
     df = point.get_site_variables(
         state='NJ',
         data_source='usgs_nwis',
         variable='streamflow',
         temporal_resolution='daily',
         site_networks=['gagesii'])
+
+    assert len(df) == 121
+    assert '01367800' in list(df['site_id'])
+
+
+def test_get_variables_networks_filter_str():
+    """Test get_site_variables function with site_networks filter as a string"""
+    df = point.get_site_variables(
+        state='NJ',
+        data_source='usgs_nwis',
+        variable='streamflow',
+        temporal_resolution='daily',
+        site_networks='gagesii')
 
     assert len(df) == 121
     assert '01367800' in list(df['site_id'])
