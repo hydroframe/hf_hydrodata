@@ -101,7 +101,7 @@ def get_registered_api_pin() -> Tuple[str, str]:
     pin_path = f"{pin_dir}/pin.json"
     if not os.path.exists(pin_path):
         raise ValueError(
-            "No email/pin was registered'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'."
+            "No email/pin was registered'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'hf_hydrodata.register_api_pin()'."
         )
     try:
         with open(pin_path, "r") as stream:
@@ -112,7 +112,7 @@ def get_registered_api_pin() -> Tuple[str, str]:
             return (email, pin)
     except Exception as e:
         raise ValueError(
-            "No email/pin was registered'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'."
+            "No email/pin was registered'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'hf_hydrodata.register_api_pin()'."
         ) from e
 
 
