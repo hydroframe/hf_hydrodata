@@ -146,15 +146,15 @@ def _generate_variable_docs(dataset_row, stream):
             stream.write(" 20")
         stream.write("\n")
         stream.write("    :header-rows: 1\n\n")
-        stream.write(f"    * - Variable\n")
-        stream.write(f"      - Description\n")
-        stream.write(f"      - Temporal Resolution\n")
-        stream.write(f"      - Units\n")
+        stream.write(f"    * - variable\n")
+        stream.write(f"      - description\n")
+        stream.write(f"      - temporal_resolution\n")
+        stream.write(f"      - units\n")
         if _has_multiple_aggregations(dataset_row, variables):
-            stream.write(f"      - Aggregation\n")
-        stream.write(f"      - Z Dim\n")
+            stream.write(f"      - aggregation\n")
         if structure_type == "gridded":
-            stream.write(f"      - Grids\n")
+            stream.write(f"      - grid\n")
+        stream.write(f"      - Z\n")
         for variable_id in variables:
             variable_row = variable_table.get_row(variable_id)
             if variable_row["variable_type"] == variable_type_id:
@@ -178,9 +178,9 @@ def _generate_variable_docs(dataset_row, stream):
                 stream.write(f"      - {variable_units}\n")
                 if _has_multiple_aggregations(dataset_row, variables):
                     stream.write(f"      - {variable_aggregations}\n")
-                stream.write(f"      - {z_dim}\n")
                 if structure_type == "gridded":
                     stream.write(f"      - {variable_grids}\n")
+                stream.write(f"      - {z_dim}\n")
 
         stream.write("\n")
         stream.write("\n")

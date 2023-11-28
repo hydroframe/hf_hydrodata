@@ -813,6 +813,8 @@ def get_file_path(entry, *args, **kwargs) -> str:
 
 def get_numpy(*args, **kwargs) -> np.ndarray:
     """
+    Deprecated. Use get_gridded_data() instead.
+    
     Get a numpy ndarray from files in /hydroframe. with the applied data filters.
 
     The parameters to the function can be specified either by passing a dict with the parameter values
@@ -888,6 +890,82 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
     result = get_ndarray(None, *args, **kwargs)
     return result
 
+def get_gridded_data(*args, **kwargs) -> np.ndarray:
+    """
+    Get a numpy ndarray from files in /hydroframe. with the applied data filters.
+
+    The parameters to the function can be specified either by passing a dict with the parameter values
+    or by passing named parameters to the function.
+
+    Args:
+        dataset:        A dataset name (see Gridded Data documentation).
+        variable:       A variable from a dataset.
+        temporal_resolution:         The temporal_resolution (e.g. hourly, daily, weekly, monthly) of a dataset variable.
+        grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
+        aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
+        start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
+        end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
+        grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.
+        latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
+        grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
+        latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
+        z:              A value of the z dimension to be used as a filter for this dismension when loading data.
+        level:          A HUC level integer when reading HUC boundary files.
+        site_id:        Used when reading data associated with an observation site.
+        time_values:    Optional. An empty array that will be populated with time dimension values of returned data.
+    Returns:
+        A numpy ndarray containing the data loaded from the files identified by the entry and sliced by the data filter options.
+    Raises:
+        ValueError:  If both grid_bounds and latlng_bounds are specified as data filters.
+        ValueError:  If no data catalog entry is found associated with the filter parameters.
+        ValueError:  If any filter parameters are invalid.
+
+    For gridded results the returned numpy array has dimensions:
+        * [hour, y, x]                    temporal_resolution is hourly without z dimension
+        * [day, y, x]                     temporal_resolution is daily without z dimension
+        * [month, y, x]                   temporal_resolution is monthly without z dimension
+        * [y, x]                          temporal_resolution is static or blank without z dimension
+
+        * [hour, z, y, x]                 temporal_resolution is hourly with z dimension
+        * [day, z, y, x]                  temporal_resolution is daily with z dimension
+        * [month, z, y, x]                temporal_resolution is monthly with z dimension
+        * [z, y, x]                       temporal_resolution is static or blank with z dimension
+
+    If the dataset has ensembles then there is an ensemble dimension at the beginning.
+
+    Both start_time and end_time must be in the form "YYYY-MM-DD HH:MM:SS" or "YYYY-MM-DD" or a datetime object.
+
+    If only start_time is specified than only that month/day/hour is returned.
+    The start_time is inclusive the end_time is exclusive (data returned less than that time).
+
+    If either grid_bounds or latlng_bounds is specified then the result is sliced by the x,y values in the bounds.
+    If grid_point or latlon_point is specified this is mapped to a grid_bounds of size 1x1 at that point.
+
+    If z is specified then the result is sliced by the z dimension.
+
+    For example, to get data from the 3 daily files bewteen 9/30/2005 and 10/3/2005.
+
+    Example:
+
+    .. code-block:: python
+
+        import hf_hydrodata as hf
+
+        options = {
+            "dataset": "NLDAS2", "temporal_resolution": "daily", "variable": "precipitation",
+            "start_time":"2005-09-30", "end_time":"2005-10-03",
+            "grid_bounds":[200, 200, 300, 250]
+        }
+        # The result has 3 days in the time dimension
+        # The result is sliced to x,y size 100x50 in the conus1 grid.
+        data = hf.get_numpy(options)
+        assert data.shape == (3, 50, 100)
+
+        metadata = hf.get_catalog_entry(options)
+    """
+
+    result = get_ndarray(None, *args, **kwargs)
+    return result
 
 def _construct_string_from_options(qparam_values):
     """

@@ -12,6 +12,7 @@ from hf_hydrodata.gridded import (
     get_catalog_entries,
     get_catalog_entry,
     get_numpy,
+    get_gridded_data,
     get_raw_file,
     get_date_range,
     get_table_names,
@@ -26,6 +27,13 @@ from hf_hydrodata.gridded import (
     get_registered_api_pin,
     get_datasets,
     get_variables
+)
+
+from hf_hydrodata.point import (
+    get_point_data,
+    get_point_metadata,
+    get_site_variables,
+    get_citations
 )
 
 from hf_hydrodata.data_model_access import load_data_model

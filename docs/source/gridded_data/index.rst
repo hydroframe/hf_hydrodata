@@ -18,7 +18,7 @@ You can get the available datasets and variables using functions:
       import hf_hydrodata as hf
 
       datasets = hf.get_datasets()
-      variables = hf_get_variables()
+      variables = hf.get_variables()
 
 You can pass filter parameter using named parameters.
 
@@ -35,7 +35,7 @@ You can use pass filter parameters as dict options as well.
 
 Get Data
 --------
-You can get data from hydrodata as a numpy array using the get_numpy() function.
+You can get data from hydrodata as a numpy array using the get_gridded_data() function.
 
 .. code-block:: python
 
@@ -45,7 +45,7 @@ You can get data from hydrodata as a numpy array using the get_numpy() function.
             "dataset": "NLDAS2", "variable": "precipitation", "period": "hourly",
             "start_time": "2005-10-1", "end_time": "2005-10-2", "grid_bounds": [100, 100, 200, 200]
       }
-      data = hf.get_numpy(options)
+      data = hf.get_gridded_data(options)
 
 See the Python API Reference for a list of all the filter parameters that may be provided.
 
