@@ -7,7 +7,7 @@ This section contains a set of example workflows that utilize different capabili
 .. toctree::
    :maxdepth: 1
 
-   example_get_data.ipynb
    example_explore_data.ipynb
-   example_plot_data.ipynb
+   example_get_data.ipynb
    example_shapefile.ipynb
+   example_plot_data.ipynb  

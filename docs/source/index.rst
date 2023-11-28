@@ -15,9 +15,7 @@ Full example workflows are in :ref:`examples_index` and the :ref:`api` contains 
    :caption: Table of Contents
 
    getting_started
-   quickstart
    available_data
    gridded_data/index
    point_data/index
-   examples/index
    api_reference

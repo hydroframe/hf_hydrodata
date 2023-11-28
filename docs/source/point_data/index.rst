@@ -17,3 +17,4 @@ descriptions of the available methods.
    point_inputs
    data_collection
    metadata_definitions
+   examples/index

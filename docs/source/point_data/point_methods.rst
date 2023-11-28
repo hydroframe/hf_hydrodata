@@ -30,9 +30,9 @@ in :ref:`point_inputs`. ::
 
 * Examples using ``get_data``:  
 
-  * :ref:`/examples/example_get_data.ipynb`
-  * :ref:`/examples/example_plot_data.ipynb`
-  * :ref:`/examples/example_shapefile.ipynb`
+  * :ref:`/point_data/examples/example_get_data.ipynb`
+  * :ref:`/point_data/examples/example_plot_data.ipynb`
+  * :ref:`/point_data/examples/example_shapefile.ipynb`
 
 ``get_metadata``
 ------------------
@@ -61,9 +61,9 @@ workflow. Descriptions of the returned attributes are available in :ref:`Metadat
 
 * Examples using ``get_metadata``:  
 
-  * :ref:`/examples/example_get_data.ipynb`
-  * :ref:`/examples/example_plot_data.ipynb`
-  * :ref:`/examples/example_shapefile.ipynb`
+  * :ref:`/point_data/examples/example_get_data.ipynb`
+  * :ref:`/point_data/examples/example_plot_data.ipynb`
+  * :ref:`/point_data/examples/example_shapefile.ipynb`
 
 ``get_citations``
 -------------------
@@ -87,7 +87,7 @@ requires the same four mandatory input parameters as ``get_data`` and ``get_meta
 
 * Examples using ``get_citations``:  
 
-  * :ref:`/examples/example_get_data.ipynb`
+  * :ref:`/point_data/examples/example_get_data.ipynb`
 
 ``get_site_variables``
 ------------------------
@@ -108,4 +108,4 @@ Any of the input parameters available to ``get_data`` (either mandatory or optio
 
 * Examples using ``get_site_variables``: 
 
-  * :ref:`/examples/example_explore_data.ipynb`
+  * :ref:`/point_data/examples/example_explore_data.ipynb`
