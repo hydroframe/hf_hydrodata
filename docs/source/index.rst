@@ -19,5 +19,4 @@ Full example workflows are in :ref:`examples_index` and the :ref:`api` contains 
    available_data
    gridded_data/index
    point_data/index
-   examples/index
    api_reference
