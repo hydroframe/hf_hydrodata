@@ -1,6 +1,6 @@
 .. _Metadata Description:
 
-Metadata Definitions
+Metadata Descriptions
 ======================
 This sections provides users with information on what the fields are that get returned by ``hf_hydrodata.point.get_metadata()``
 and where they are sourced. 
