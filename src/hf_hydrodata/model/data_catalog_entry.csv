@@ -1,4 +1,4 @@
-id,dataset,file_type,variable,dataset_var,entry_start_date,entry_end_date,period,units,aggregation,grid,security_level,path,documentation_notes,site_type
+id,dataset,file_type,variable,dataset_var,entry_start_date,entry_end_date,temporal_resolution,units,aggregation,grid,security_level,path,documentation_notes,site_type
 1,conus1_baseline_85,pfmetadata,pressure_head,pressure,10/1/84,1/21/85,daily,m,mean,conus1,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/conus1_pfclm_daily_1985.pfmetadata,,
 2,conus1_baseline_85,pfb,pressure_head,pressure,10/1/84,1/21/85,daily,m,mean,conus1,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/WY{wy}/pressure.daily.mean.{wy_daynum:03d}.pfb,,
 3,conus1_baseline_mod,pfmetadata,evapotranspiration,et,,,daily,mm/d,sum,conus1,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/conus1_pfclm_daily_{wy}.pfmetadata,,

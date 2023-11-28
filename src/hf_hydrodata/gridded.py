@@ -47,6 +47,7 @@ JWT_TOKEN = None
 USER_ROLES = None
 THREAD_LOCK = threading.Lock()
 
+
 def register_api_pin(email: str, pin: str):
     """
     Register the email and pin that was created with the website in the users home directory.
@@ -114,6 +115,7 @@ def get_registered_api_pin() -> Tuple[str, str]:
             "No email/pin was registered'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'gridded.register_api_pin()'."
         ) from e
 
+
 def get_datasets(*args, **kwargs) -> List[str]:
     """
     Get available datasets.
@@ -162,7 +164,8 @@ def get_datasets(*args, **kwargs) -> List[str]:
             result.append(dataset)
     result.sort()
     return result
-        
+
+
 def get_variables(*args, **kwargs) -> List[str]:
     """
     Get available variables.
@@ -199,7 +202,7 @@ def get_variables(*args, **kwargs) -> List[str]:
         options = {"dataset": "NLDAS2", "grid": "conus1"}
         variables = hf.get_variables(options)
         assert len(variables) == 8
-        assert variables[0] == "air_temp"    
+        assert variables[0] == "air_temp"
 
     """
 
@@ -211,6 +214,7 @@ def get_variables(*args, **kwargs) -> List[str]:
             result.append(dataset)
     result.sort()
     return result
+
 
 def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
     """
@@ -402,7 +406,14 @@ def _ambiguous_error_message(entry_1: dict, entry_2: dict) -> str:
     """Returns an error message describing who entry_1 and entry_2 are ambiguous."""
 
     diff_list = []
-    key_variables = ["dataset", "period", "aggregation", "grid", "variable", "site_type"]
+    key_variables = [
+        "dataset",
+        "temporal_resolution",
+        "aggregation",
+        "grid",
+        "variable",
+        "site_type",
+    ]
     for variable in key_variables:
         value_1 = entry_1[variable]
         value_2 = entry_2[variable]
@@ -516,13 +527,21 @@ def get_file_paths(entry, *args, **kwargs) -> List[str]:
     period = None
     if isinstance(entry, ModelTableRow):
         path = entry["path"]
-        period = entry["temporal_resolution"] if entry["temporal_resolution"] else entry["period"]
+        period = (
+            entry["temporal_resolution"]
+            if entry["temporal_resolution"]
+            else entry["period"]
+        )
     elif isinstance(entry, (int, str)):
         data_model = load_data_model()
         table = data_model.get_table("data_catalog_entry")
         entry = table.get_row(str(entry))
         path = entry["path"]
-        period = entry["temporal_resolution"] if entry["temporal_resolution"] else entry["period"]
+        period = (
+            entry["temporal_resolution"]
+            if entry["temporal_resolution"]
+            else entry["period"]
+        )
     if len(args) > 0 and isinstance(args[0], dict):
         options = args[0]
     else:
@@ -531,11 +550,19 @@ def get_file_paths(entry, *args, **kwargs) -> List[str]:
         data_catalog_entry_id = options.get("data_catalog_entry_id")
         if data_catalog_entry_id is not None:
             entry = get_table_row("data_catalog_entry", id=data_catalog_entry_id)
-            period = entry["temporal_resolution"] if entry["temporal_resolution"] else entry["period"]
+            period = (
+                entry["temporal_resolution"]
+                if entry["temporal_resolution"]
+                else entry["period"]
+            )
             path = entry["path"]
         else:
             entry = get_catalog_entry(*args, **kwargs)
-            period = entry["temporal_resolution"] if entry["temporal_resolution"] else entry["period"]
+            period = (
+                entry["temporal_resolution"]
+                if entry["temporal_resolution"]
+                else entry["period"]
+            )
             path = entry["path"]
     if entry is None:
         raise ValueError("No data catalog entry provided")
@@ -667,7 +694,11 @@ def get_paths(*args, **kwargs) -> List[str]:
     if entry is None:
         raise ValueError("No data catalog entry found.")
     path = entry["path"]
-    period = entry["period"]
+    period = (
+        entry["temporal_resolution"]
+        if entry["temporal_resolution"]
+        else entry["period"]
+    )
     if path:
         # Get option parameters
         start_time_value = _parse_time(options.get("start_time"))
@@ -1049,7 +1080,9 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
             entry = get_table_row("data_catalog_entry", id=data_catalog_entry_id)
         else:
             if not options.get("dataset"):
-                raise ValueError("The entry parameter is None. Possibly because the dataset and variable used did not exist.")
+                raise ValueError(
+                    "The entry parameter is None. Possibly because the dataset and variable used did not exist."
+                )
             entry = get_catalog_entry(*args, **kwargs)
 
     if entry is None:
@@ -1062,6 +1095,7 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
     options["dataset"] = entry["dataset"]
     options["variable"] = entry["variable"]
     options["period"] = entry["period"]
+    options["temporal_resolution"] = entry["temporal_resolution"]
     options["aggregation"] = entry["aggregation"]
     options["grid"] = entry["grid"]
     options["site_type"] = entry["site_type"]
@@ -1089,7 +1123,7 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
         elif file_type == "pfmetadata":
             data = _read_and_filter_pfmetadata_files(entry, options, time_values)
         elif file_type == "vegm":
-            data = _read_and_filter_vegm_files(entry, options)
+            data = _read_and_filter_vegm_files(options)
         elif file_type == "netcdf":
             data = _read_and_filter_netcdf_files(entry, options, time_values)
         elif file_type == "tiff":
@@ -1385,11 +1419,11 @@ def _get_ndarray_from_api(entry, options, time_values):
 
         except requests.exceptions.ChunkedEncodingError as ce:
             raise ValueError(
-                f"Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+                "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
             ) from ce
         except requests.exceptions.Timeout as te:
             raise ValueError(
-                f"Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+                "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
             ) from te
 
         content = response.content
@@ -1431,8 +1465,7 @@ def _get_api_headers() -> dict:
 
     global JWT_TOKEN
     global USER_ROLES
-    THREAD_LOCK.acquire()
-    try:
+    with THREAD_LOCK:
         if not os.path.exists(HYDRODATA) and not JWT_TOKEN:
             # Only do this if we do not already have a JWT_TOKEN and this is running remote
 
@@ -1457,10 +1490,6 @@ def _get_api_headers() -> dict:
                     )
             JWT_TOKEN = jwt_json["jwt_token"]
             USER_ROLES = jwt_json.get("user_roles")
-        THREAD_LOCK.release()
-    except Exception as e:
-        THREAD_LOCK.release()
-        raise e
 
     headers = {}
     headers["Authorization"] = f"Bearer {JWT_TOKEN}"
@@ -1488,7 +1517,11 @@ def _adjust_dimensions(data: np.ndarray, entry: ModelTableRow) -> np.ndarray:
         * [z, y, x]                       temporal_resolution is static or blank with z dimension
     If the dataset has ensembles then there is an ensemble dimension at the beginning.
     """
-    period = entry["period"]
+    period = (
+        entry["temporal_resolution"]
+        if entry["temporal_resolution"]
+        else entry["period"]
+    )
     variable = entry["variable"]
     dataset = entry["dataset"]
     if entry["file_type"] == "vegm":
@@ -1604,7 +1637,11 @@ def _remove_unused_z_dimension(data: np.ndarray, entry: dict) -> np.ndarray:
     """Remove the z dimension from the data if the variable does not have z dimension."""
 
     variable = entry["variable"]
-    period = entry["period"]
+    period = (
+        entry["temporal_resolution"]
+        if entry["temporal_resolution"]
+        else entry["period"]
+    )
     variable_row = get_table_row("variable", id=variable)
     uses_z_as_time = period in ["hourly", "monthly", "weekly"]
     has_z = variable_row is not None and variable_row["has_z"].lower() == "true"
@@ -1691,14 +1728,12 @@ def _read_and_filter_pfmetadata_files(
 
 
 def _read_and_filter_vegm_files(
-    entry: ModelTableRow,
     options: dict,
 ) -> np.ndarray:
     """
     Read the vegm files in the file paths of the entry filter and filter the data.
 
     Args:
-        entry:          A modelTableRow containing the data catalog entry.
         options:        The options passed to get_ndarray as a dict.
     Returns:
         An numpy ndarray of the filtered contents of the pfb vegm files.
@@ -2015,7 +2050,11 @@ def _add_pfb_time_constraint(
     Returns:
         The updated boundary_constraints
     """
-    period = entry["period"]
+    period = (
+        entry["temporal_resolution"]
+        if entry["temporal_resolution"]
+        else entry["period"]
+    )
     variable = entry["variable"]
     variable_row = get_table_row("variable", id=variable)
     uses_z_as_time = period in ["hourly", "monthly", "weekly"]
@@ -2289,7 +2328,11 @@ def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -
     start_time_value = _parse_time(options.get("start_time"))
     end_time_value = _parse_time(options.get("end_time"))
     grid = entry["grid"]
-    period = entry["period"]
+    period = (
+        entry["temporal_resolution"]
+        if entry["temporal_resolution"]
+        else entry["period"]
+    )
     grid_bounds = options.get("grid_bounds")
     latlng_bounds = options.get("latlng_bounds")
     x = options.get("x")

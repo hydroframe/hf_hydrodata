@@ -27,3 +27,5 @@ from hf_hydrodata.gridded import (
     get_datasets,
     get_variables
 )
+
+from hf_hydrodata.data_model_access import load_data_model

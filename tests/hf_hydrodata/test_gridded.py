@@ -355,6 +355,10 @@ def test_files_exist():
             site_id = "351058106391002"
         elif site_type == "snotel":
             site_id = "348:UT:SNTL"
+        elif dataset == "scan":
+            site_id = "2109:MS:SCAN"
+        elif dataset == "ameriflux":
+            site_id = "US-HB2"
         elif dataset == "obs_anomolies":
             start_time = "2002-01-01"
         elif dataset == "conus1_current_conditions":
@@ -1244,11 +1248,18 @@ def test_get_huc_bbox_conus1():
     bbox = hf_hydrodata.gridded.get_huc_bbox("conus1", ["1102001002", "1102001003"])
     assert bbox == (1088, 415, 1132, 453)
 
+
 def test_getndarray_site_id():
     """Test for a bug using get_ndarray and site_id variable."""
 
-    entry = hf.get_catalog_entry(site_type="streamflow", dataset="obs_anomalies", variable="site_id", period="daily")
+    entry = hf.get_catalog_entry(
+        site_type="streamflow",
+        dataset="obs_anomalies",
+        variable="site_id",
+        period="daily",
+    )
     data = hf_hydrodata.gridded.get_ndarray(entry, start_time="2002-03-1")
+    assert data.shape[0] >= 8626
 
 
 def test_filter_errors():
@@ -1282,18 +1293,19 @@ def test_filter_errors():
         hf_hydrodata.gridded.get_numpy(options)
     assert "is outside the grid shape 3342, 1888" in str(info.value)
 
+
 def test_get_datasets():
     """Test get_datasets."""
 
     datasets = hf.get_datasets()
-    assert len(datasets) == 13
+    assert len(datasets) == 17
     assert datasets[0] == "CW3E"
 
-    datasets = hf.get_datasets(variable = "air_temp")
-    assert len(datasets) == 5
+    datasets = hf.get_datasets(variable="air_temp")
+    assert len(datasets) == 8
     assert datasets[0] == "CW3E"
 
-    datasets = hf.get_datasets(grid = "conus2")
+    datasets = hf.get_datasets(grid="conus2")
     assert len(datasets) == 5
     assert datasets[0] == "CW3E"
 
@@ -1302,34 +1314,42 @@ def test_get_datasets():
     assert len(datasets) == 3
     assert datasets[0] == "NLDAS2"
 
+
 def test_get_variables():
     """Test get_variables."""
 
     variables = hf.get_variables()
-    assert len(variables) == 63
+    assert len(variables) == 68
     assert variables[0] == "air_temp"
-    variables = hf.get_variables(dataset = "CW3E")
+    variables = hf.get_variables(dataset="CW3E")
     assert len(variables) == 8
     assert variables[0] == "air_temp"
-    variables = hf.get_variables(grid = "conus2")
+    variables = hf.get_variables(grid="conus2")
     assert len(variables) == 30
     assert variables[0] == "air_temp"
 
     options = {"dataset": "NLDAS2", "grid": "conus1"}
     variables = hf.get_variables(options)
     assert len(variables) == 8
-    assert variables[0] == "air_temp"    
+    assert variables[0] == "air_temp"
+
 
 def test_get_catalog_bug():
     """Test bug in getting catalog entries with typo."""
 
     bounds = [100, 100, 200, 200]
     entries = hf_hydrodata.gridded.get_catalog_entries(
-            dataset="conus1_baseline_85", file_type="pfb", period="hourly", variable="precipitation"
+        dataset="conus1_baseline_85",
+        file_type="pfb",
+        period="hourly",
+        variable="precipitation",
     )
     assert len(entries) == 0
     entry = hf_hydrodata.gridded.get_catalog_entry(
-            dataset="conus1_baseline_85", file_type="pfb", period="hourly", variable="precipitation"
+        dataset="conus1_baseline_85",
+        file_type="pfb",
+        period="hourly",
+        variable="precipitation",
     )
     assert entry is None
 
@@ -1337,9 +1357,34 @@ def test_get_catalog_bug():
     end_time = start_time + datetime.timedelta(hours=24)
     with pytest.raises(ValueError) as info:
         hf_hydrodata.gridded.get_ndarray(
-            entry, start_time=start_time, end_time=end_time, grid_bounds=bounds,
+            entry,
+            start_time=start_time,
+            end_time=end_time,
+            grid_bounds=bounds,
         )
-    assert str(info.value) == "The entry parameter is None. Possibly because the dataset and variable used did not exist."
+    assert (
+        str(info.value)
+        == "The entry parameter is None. Possibly because the dataset and variable used did not exist."
+    )
+
+
+def test_temporal_resolution():
+    """Test that temporal_resolution and period are both returned from data_catalog."""
+
+    entry = hf.get_catalog_entry(
+        dataset="NLDAS2", file_type="pfb", period="hourly", variable="precipitation"
+    )
+    assert entry["temporal_resolution"] == "hourly"
+    assert entry["period"] == "hourly"
+    entry = hf.get_catalog_entry(
+        dataset="NLDAS2",
+        file_type="pfb",
+        temporal_resolution="hourly",
+        variable="precipitation",
+    )
+    assert entry["temporal_resolution"] == "hourly"
+    assert entry["period"] == "hourly"
+
 
 if __name__ == "__main__":
     pytest.main([__file__])
