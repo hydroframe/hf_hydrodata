@@ -5,9 +5,18 @@ Working with Gridded Data
 
 The ``hf_hydrodata.gridded`` module provides functionality to get gridded data and metadata from the hydrodata data store.
 
+Gridded Observation Methods
+-----------------
+
+.. toctree::
+   :maxdepth: 1
+   :titlesonly:
+
+   gridded_methods
+
 Filter Parameters
 -----------------
-Most functions in the ``hf_hydrodata.gridded`` module accept filter parameters that identify data using
+Most gridded functions accept filter parameters that identify data using
 attributes that index the data. These filter parameters may be passed by name or using a python dict with filter parameters options.
 All the files are organized by dataset and variable (see ``Available Datasets and Data Products``).
 
@@ -33,7 +42,7 @@ You can use pass filter parameters as dict options as well.
       options = {"dataset": "NLDAS2", "grid": "conus1"}
       variables = hf.get_variables(options)
 
-Get Data
+Get Gridded Data
 --------
 You can get data from hydrodata as a numpy array using the get_gridded_data() function.
 
@@ -42,7 +51,7 @@ You can get data from hydrodata as a numpy array using the get_gridded_data() fu
       import hf_hydrodata as hf
 
       options = {
-            "dataset": "NLDAS2", "variable": "precipitation", "period": "hourly",
+            "dataset": "NLDAS2", "variable": "precipitation", "temporal_resolution": "hourly",
             "start_time": "2005-10-1", "end_time": "2005-10-2", "grid_bounds": [100, 100, 200, 200]
       }
       data = hf.get_gridded_data(options)
