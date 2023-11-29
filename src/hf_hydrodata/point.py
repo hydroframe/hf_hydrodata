@@ -43,8 +43,8 @@ def get_point_data(*args, **kwargs):
     Parameters
     ----------
     dataset : str, required
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
-        'ameriflux'.
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
+        'scan', 'ameriflux'.
     variable : str, required
         Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
         'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
@@ -213,8 +213,8 @@ def get_data(data_source, variable, temporal_resolution, aggregation, *args, **k
     Parameters
     ----------
     data_source : str
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
-        'ameriflux'.
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
+        'scan', 'ameriflux'.
     variable : str
         Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
         'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
@@ -368,8 +368,8 @@ def get_point_metadata(*args, **kwargs):
     Parameters
     ----------
     data_source : str, required
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
-        'ameriflux'.
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
+        'scan', 'ameriflux'.
     variable : str, required
         Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
         'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
@@ -567,8 +567,8 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
     Parameters
     ----------
     data_source : str
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
-        'ameriflux'.
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
+        'scan', 'ameriflux'.
     variable : str
         Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
         'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
@@ -751,8 +751,8 @@ def get_site_variables(*args, **kwargs):
     Parameters
     ----------
     data_source : str, optional
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
-        'ameriflux'.
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
+        'scan', 'ameriflux'.
     variable : str, optional
         Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
         'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
@@ -849,19 +849,23 @@ def get_site_variables(*args, **kwargs):
     # Data source
     if 'data_source' in options and options['data_source'] is not None:
         try:
-            assert options['data_source'] in ['usgs_nwis', 'usda_nrcs', 'ameriflux']
+            assert options['data_source'] in ['usgs_nwis', 'snotel', 'scan', 'ameriflux']
         except:
             raise ValueError(
-                f"data_source must be one of 'usgs_nwis', 'usda_nrcs', 'ameriflux'. You provided {options['data_source']}")
-
-        data_source_query = """ AND agency == ?"""
+                f"data_source must be one of 'usgs_nwis', 'snotel', 'scan', 'ameriflux'. You provided {options['data_source']}")
 
         if options['data_source'] == 'usgs_nwis':
+            data_source_query = """ AND agency == ?"""
             param_list.append('USGS')
-        elif options['data_source'] == 'usda_nrcs':
-            param_list.append('NRCS')
         elif options['data_source'] == 'ameriflux':
+            data_source_query = """ AND agency == ?"""
             param_list.append('AmeriFlux')
+        elif options['data_source'] == 'snotel':
+            data_source_query = """ AND site_type == ?"""
+            param_list.append('SNOTEL station')
+        elif options['data_source'] == 'scan':
+            data_source_query = """ AND site_type == ?"""
+            param_list.append('SCAN station')
     else:
         data_source_query = """"""
 
@@ -1220,8 +1224,8 @@ def get_citations(data_source, variable, temporal_resolution, aggregation, site_
     Parameters
     ----------
     data_source : str
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
-        'ameriflux'.
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
+        'scan', 'ameriflux'.
     variable : str
         Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
         'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
@@ -1245,10 +1249,10 @@ def get_citations(data_source, variable, temporal_resolution, aggregation, site_
         key is `data_source` and site-level DOIs for each site ID key.
     """
     try:
-        assert data_source in ["usgs_nwis", "usda_nrcs", "ameriflux"]
+        assert data_source in ["usgs_nwis", "snotel", "scan", "ameriflux"]
     except:
         raise ValueError(
-            f"Unexpected value of data_source, {data_source}. Supported values include 'usgs_nwis', 'usda_nrcs', and 'ameriflux'"
+            f"Unexpected value of data_source, {data_source}. Supported values include 'usgs_nwis', 'snotel', 'scan', and 'ameriflux'"
         )
 
     citation_dict = {}
@@ -1261,7 +1265,7 @@ def get_citations(data_source, variable, temporal_resolution, aggregation, site_
         print(c)
         citation_dict[data_source] = c
 
-    elif data_source == "usda_nrcs":
+    elif data_source in ["snotel", "scan"]:
         c = ('Most information presented on the USDA Web site is considered public domain information. '
              'Public domain information may be freely distributed or copied, but use of appropriate '
              'byline/photo/image credits is requested. Attribution may be cited as follows: '
@@ -1349,8 +1353,8 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
     Parameters
     ----------
     dataset : str
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
-        'ameriflux'.
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
+        'scan', 'ameriflux'.
     variable : str
         Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
         'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
@@ -1401,7 +1405,7 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
             f"Unexpected value for aggregation, {aggregation}. Please see the documentation for allowed values.")
 
     try:
-        assert dataset in ['usgs_nwis', 'usda_nrcs', 'ameriflux']
+        assert dataset in ['usgs_nwis', 'snotel', 'scan', 'ameriflux']
     except:
         raise ValueError(
             f"Unexpected value for dataset, {dataset} Please see the documentation for allowed values.")
@@ -1424,8 +1428,8 @@ def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args
     conn : Connection object
         The Connection object associated with the SQLite database to query from.
     dataset : str
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
-        'ameriflux'.
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
+        'scan', 'ameriflux'.
     variable : str
         Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
         'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
@@ -1457,6 +1461,11 @@ def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args
     else:
         options = kwargs
 
+    if dataset in ['snotel', 'scan']:
+        data_source = 'usda_nrcs'
+    else:
+        data_source = dataset
+
     if variable == 'soil moisture':
         query = """
                 SELECT var_id
@@ -1467,7 +1476,7 @@ def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args
                     AND aggregation = ?
                     AND depth_level = ?
                 """
-        param_list = [dataset, variable, temporal_resolution, aggregation, options['depth_level']]
+        param_list = [data_source, variable, temporal_resolution, aggregation, options['depth_level']]
 
     else:
         query = """
@@ -1478,14 +1487,14 @@ def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args
                     AND temporal_resolution = ?
                     AND aggregation = ?
                 """
-        param_list = [dataset, variable, temporal_resolution, aggregation]
+        param_list = [data_source, variable, temporal_resolution, aggregation]
 
     try:
         result = pd.read_sql_query(query, conn, params=param_list)
         return int(result['var_id'][0])
     except:
         raise ValueError(
-            'The provided combination of data_source, variable, temporal_resolution, and aggregation is not currently supported.')
+            'The provided combination of dataset, variable, temporal_resolution, and aggregation is not currently supported.')
 
 
 def _get_dirpath(var_id):
@@ -1541,8 +1550,8 @@ def _get_sites(conn, dataset, variable, temporal_resolution, aggregation, *args,
         The Connection object associated with the SQLite database to
         query from.
     dataset : str
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
-        'ameriflux'.
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
+        'scan', 'ameriflux'.
     variable : str
         Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
         'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
@@ -1601,6 +1610,16 @@ def _get_sites(conn, dataset, variable, temporal_resolution, aggregation, *args,
     var_id = _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, options)
 
     param_list = [var_id]
+
+    # Split site type by SNOTEL/SCAN station based on dataset
+    if dataset in ['snotel', 'scan']:
+        site_type_query = """ AND s.site_type == ?"""
+        if dataset == 'snotel':
+            param_list.append('SNOTEL station')
+        elif dataset == 'scan':
+            param_list.append('SCAN station')
+    else:
+        site_type_query = """"""
 
     # Date start
     if 'date_start' in options and options['date_start'] is not None:
@@ -1671,7 +1690,7 @@ def _get_sites(conn, dataset, variable, temporal_resolution, aggregation, *args,
             INNER JOIN observations o
             ON s.site_id = o.site_id AND o.var_id == ?
             WHERE first_date_data_available <> 'None'
-            """ + date_start_query + date_end_query + lat_query + lon_query + site_query + state_query + network_query
+            """ + site_type_query + date_start_query + date_end_query + lat_query + lon_query + site_query + state_query + network_query
 
     df = pd.read_sql_query(query, conn, params=param_list)
 
@@ -1786,8 +1805,8 @@ def _get_network_site_list(dataset, variable, site_networks):
     Parameters
     ----------
     dataset : str
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'usda_nrcs',
-        'ameriflux'.
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
+        'scan', 'ameriflux'.
     variable : str
         Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
         'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
