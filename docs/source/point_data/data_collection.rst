@@ -10,7 +10,7 @@ data with a single common Python syntax. This section describes each of those or
 
 usgs_nwis
 ^^^^^^^^^
-Data with ``data_source='usgs_nwis'`` comes from the United States Geological Survey (USGS) National
+Data with ``dataset='usgs_nwis'`` comes from the United States Geological Survey (USGS) National
 Water Information System (NWIS) `Water Services <https://waterservices.usgs.gov/>`_ platform.
 
 * Daily streamflow and water table depth data are obtained from the
@@ -26,16 +26,25 @@ Water Information System (NWIS) `Water Services <https://waterservices.usgs.gov/
   through this method only have a single point-in-time observation available.  
 
 
-usda_nrcs
+snotel
 ^^^^^^^^^ 
-Data with ``data_source='usda_nrcs'`` comes from the United States Department of Agriculture (USDA)
+Data with ``dataset='snotel'`` represents sites that are part of the `Snow Telemetry 
+(SNOTEL) network <https://www.nrcs.usda.gov/wps/portal/wcc/home/aboutUs/monitoringPrograms/automatedSnowMonitoring/#:~:text=SNOTEL%20sites%20are%20designed%20to,used%20to%20keep%20batteries%20charged.>`_.
+The data itself comes from the United States Department of Agriculture (USDA)
 Natural Resources Conservation Service (NRCS) `Air Water 
 Database <https://www.nrcs.usda.gov/wps/portal/wcc/home/dataAccessHelp/webService>`_.
 
+scan
+^^^^^^^^^ 
+Data with ``dataset='scan'`` represents sites that are part of the `Soil Climate Analysis Network
+(SCAN) <https://www.nrcs.usda.gov/resources/data-and-reports/soil-climate-analysis-network>`_.
+The data itself comes from the United States Department of Agriculture (USDA)
+Natural Resources Conservation Service (NRCS) `Air Water 
+Database <https://www.nrcs.usda.gov/wps/portal/wcc/home/dataAccessHelp/webService>`_.
 
 ameriflux
 ^^^^^^^^^
-Data with ``data_source='ameriflux'`` comes from the `AmeriFlux <https://ameriflux.lbl.gov/data/data-policy/>`_
+Data with ``dataset='ameriflux'`` comes from the `AmeriFlux <https://ameriflux.lbl.gov/data/data-policy/>`_
 network.
 
 

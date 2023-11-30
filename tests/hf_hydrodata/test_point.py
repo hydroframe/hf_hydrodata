@@ -170,7 +170,7 @@ def test_check_inputs():
     # Variable requested is soil moisture but no depth level provided.
     with pytest.raises(Exception):
         point.check_inputs(
-            data_source="usda_nrcs",
+            data_source="scan",
             variable="soil moisture",
             temporal_resolution="daily",
             aggregation="start-of-day",
@@ -179,7 +179,7 @@ def test_check_inputs():
     # Variable requested is soil moisture with unsupported depth level provided.
     with pytest.raises(Exception):
         point.check_inputs(
-            data_source="usda_nrcs",
+            data_source="scan",
             variable="soil moisture",
             temporal_resolution="daily",
             aggregation="start-of-day",
@@ -322,7 +322,7 @@ def test_get_data_wtd_instantaneous():
 def test_get_data_swe_daily():
     """Test for daily swe data"""
     df = point.get_data(
-        "usda_nrcs",
+        "snotel",
         "swe",
         "daily",
         "start-of-day",
@@ -338,7 +338,7 @@ def test_get_data_swe_daily():
 def test_get_data_precipitation_daily():
     """Tests for daily precipitation data"""
     accumulated_df = point.get_data(
-        "usda_nrcs",
+        "snotel",
         "precipitation",
         "daily",
         "accumulated",
@@ -351,7 +351,7 @@ def test_get_data_precipitation_daily():
     assert '340:NV:SNTL' in accumulated_df.columns
 
     total_df = point.get_data(
-        "usda_nrcs",
+        "snotel",
         "precipitation",
         "daily",
         "total",
@@ -365,7 +365,7 @@ def test_get_data_precipitation_daily():
     assert (accumulated_df['340:NV:SNTL'] > total_df['340:NV:SNTL']).all() == True
 
     total_adj_df = point.get_data(
-        "usda_nrcs",
+        "snotel",
         "precipitation",
         "daily",
         "total, snow-adjusted",
@@ -382,7 +382,7 @@ def test_get_data_precipitation_daily():
 def test_get_data_temperature_daily():
     """Tests for daily temperature data"""
     min_df = point.get_data(
-        "usda_nrcs",
+        "snotel",
         "temperature",
         "daily",
         "minimum",
@@ -395,7 +395,7 @@ def test_get_data_temperature_daily():
     assert '340:NV:SNTL' in min_df.columns
 
     max_df = point.get_data(
-        "usda_nrcs",
+        "snotel",
         "temperature",
         "daily",
         "maximum",
@@ -408,7 +408,7 @@ def test_get_data_temperature_daily():
     assert '340:NV:SNTL' in max_df.columns
 
     mean_df = point.get_data(
-        "usda_nrcs",
+        "snotel",
         "temperature",
         "daily",
         "average",
@@ -429,7 +429,7 @@ def test_get_soil_moisture_fail():
     """Make sure failure if required depth_level parameter not supplied."""
     with pytest.raises(Exception):
         df = point.get_data(
-            "usda_nrcs",
+            "scan",
             "soil moisture",
             "daily",
             "start-of-day",
@@ -443,7 +443,7 @@ def test_get_soil_moisture_fail():
 def test_get_data_soil_moisture_daily():
     """Tests for daily soil moisture data"""
     df_2 = point.get_data(
-        "usda_nrcs",
+        "snotel",
         "soil moisture",
         "daily",
         "start-of-day",
@@ -457,7 +457,7 @@ def test_get_data_soil_moisture_daily():
     assert '1242:NV:SNTL' in df_2.columns
 
     df_4 = point.get_data(
-        "usda_nrcs",
+        "scan",
         "soil moisture",
         "daily",
         "start-of-day",
@@ -471,7 +471,7 @@ def test_get_data_soil_moisture_daily():
     assert '2189:CA:SCAN' in df_4.columns
 
     df_8 = point.get_data(
-        "usda_nrcs",
+        "snotel",
         "soil moisture",
         "daily",
         "start-of-day",
@@ -485,7 +485,7 @@ def test_get_data_soil_moisture_daily():
     assert '1242:NV:SNTL' in df_8.columns
 
     df_20 = point.get_data(
-        "usda_nrcs",
+        "snotel",
         "soil moisture",
         "daily",
         "start-of-day",
@@ -499,7 +499,7 @@ def test_get_data_soil_moisture_daily():
     assert '1242:NV:SNTL' in df_20.columns
 
     df_40 = point.get_data(
-        "usda_nrcs",
+        "scan",
         "soil moisture",
         "daily",
         "start-of-day",
@@ -696,7 +696,7 @@ def test_get_metadata_wtd():
 def test_get_metadata_swe():
     """Test for swe metadata"""
     metadata_df = point.get_metadata(
-        "usda_nrcs",
+        "snotel",
         "swe",
         "daily",
         "start-of-day",
@@ -1017,7 +1017,7 @@ def test_get_variables_source_filter():
     df = point.get_site_variables(
         latitude_range=(39, 40),
         longitude_range=(-120, -119),
-        data_source='usda_nrcs')
+        data_source='snotel')
 
     # Bounds are flexible for if more sites are added
     assert (len(df) >= 40) & (len(df) <= 50)
@@ -1031,7 +1031,7 @@ def test_get_variables_aggregation_filter():
     df = point.get_site_variables(
         latitude_range=(39, 40),
         longitude_range=(-120, -119),
-        data_source='usda_nrcs',
+        data_source='snotel',
         variable='temperature',
         aggregation='average')
 
