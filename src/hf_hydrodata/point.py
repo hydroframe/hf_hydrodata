@@ -1016,7 +1016,7 @@ def _get_siteid_data_from_api(options):
     )
 
     point_data_url = f"{HYDRODATA_URL}/api/site-variables-dataframe?{q_params}"
-    print('point_data_url: ', point_data_url)
+
     try:
         headers = _validate_user()
         response = requests.get(point_data_url, headers=headers, timeout=180)
