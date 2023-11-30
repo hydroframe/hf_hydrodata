@@ -385,7 +385,7 @@ def test_get_data_temperature_daily():
         dataset="snotel",
         variable="air_temp",
         temporal_resolution="daily",
-        aggregation="minimum",
+        aggregation="min",
         date_start="2022-01-01",
         date_end="2022-01-04",
         latitude_range=(39, 40),
