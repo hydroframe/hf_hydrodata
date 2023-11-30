@@ -46,15 +46,15 @@ def get_point_data(*args, **kwargs):
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
     variable : str, required
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
+        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
+        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str, required
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str, required
         Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
+        Options include descriptors such as 'mean' and 'sum'. Please see the documentation
         for allowable combinations with `variable`.
     depth_level : int, optional
         Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
@@ -215,16 +215,16 @@ def get_data(data_source, variable, temporal_resolution, aggregation, *args, **k
     data_source : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
-    variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+    variable : str, required
+        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
+        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
+        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
+        Options include descriptors such as 'mean' and 'sum'. Please see the documentation
         for allowable combinations with `variable`.
     depth_level : int, optional
         Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
@@ -371,15 +371,15 @@ def get_point_metadata(*args, **kwargs):
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
     variable : str, required
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
+        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
+        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str, required
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str, required
         Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
+        Options include descriptors such as 'mean' and 'sum'. Please see the documentation
         for allowable combinations with `variable`.
     depth_level : int, optional
         Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
@@ -569,16 +569,16 @@ def get_metadata(data_source, variable, temporal_resolution, aggregation, *args,
     data_source : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
-    variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+    variable : str, required
+        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
+        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
+        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
+        Options include descriptors such as 'mean' and 'sum'. Please see the documentation
         for allowable combinations with `variable`.
     depth_level : int, optional
         Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
@@ -753,16 +753,16 @@ def get_site_variables(*args, **kwargs):
     data_source : str, optional
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
-    variable : str, optional
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+    variable : str, required
+        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
+        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
+        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str, optional
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str, optional
         Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
+        Options include descriptors such as 'mean' and 'sum'. Please see the documentation
         for allowable combinations with `variable`.
     date_start : str, optional
         'YYYY-MM-DD' date indicating beginning of time range.
@@ -1226,16 +1226,16 @@ def get_citations(data_source, variable, temporal_resolution, aggregation, site_
     data_source : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
-    variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+    variable : str, required
+        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
+        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
+        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
+        Options include descriptors such as 'mean' and 'sum'. Please see the documentation
         for allowable combinations with `variable`.
     site_ids : list; default None
         If provided, the specific list of sites to return site DOIs for. This is only
@@ -1355,15 +1355,15 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
-    variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+    variable : str, required
+        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
+        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
+        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
+        Options include descriptors such as 'mean' and 'sum'. Please see the documentation
         for allowable combinations with `variable`.
     args :
         Optional positional parameters that must be a dict with filter options.
@@ -1391,15 +1391,15 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
             f"Unexpected value for temporal_resolution, {temporal_resolution}. Please see the documentation for allowed values.")
 
     try:
-        assert variable in ['streamflow', 'wtd', 'swe', 'precipitation', 'temperature', 'soil moisture',
-                            'latent heat flux', 'sensible heat flux', 'shortwave radiation', 'longwave radiation',
-                            'vapor pressure deficit', 'wind speed']
+        assert variable in ['streamflow', 'water_table_depth', 'swe', 'precipitation', 'air_temp', 'soil_moisture',
+                            'latent_heat', 'sensible_heat', 'downward_shortwave', 'downward_longwave',
+                            'vapor_pressure_deficit', 'wind_speed']
     except:
         raise ValueError(f"Unexpected value for variable, {variable}. Please see the documentation for allowed values.")
 
     try:
-        assert aggregation in ['average', 'instantaneous', 'total', 'total, snow-adjusted',
-                               'start-of-day', 'accumulated', 'minimum', 'maximum']
+        assert aggregation in ['mean', 'instantaneous', 'sum', 'sum_snow_adjusted',
+                               'sod', 'accumulated', 'min', 'max']
     except:
         raise ValueError(
             f"Unexpected value for aggregation, {aggregation}. Please see the documentation for allowed values.")
@@ -1430,15 +1430,15 @@ def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
-    variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+    variable : str, required
+        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
+        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
+        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
+        Options include descriptors such as 'mean' and 'sum'. Please see the documentation
         for allowable combinations with `variable`.
     args :
         Optional positional parameters that must be a dict with filter options.
@@ -1448,12 +1448,12 @@ def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args
     Keyword Arguments
     --------------------
     depth_level : int
-        Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
+        Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil_moisture'.
 
     Returns
     -------
     var_id : int
-        Integer variable ID associated with combination of `data_source`, `variable`, `temporal_resolution`,
+        Integer variable ID associated with combination of `dataset`, `variable`, `temporal_resolution`,
         and `aggregation`.
     """
     if len(args) > 0 and isinstance(args[0], dict):
@@ -1466,7 +1466,7 @@ def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args
     else:
         data_source = dataset
 
-    if variable == 'soil moisture':
+    if variable == 'soil_moisture':
         query = """
                 SELECT var_id
                 FROM variables
@@ -1552,19 +1552,19 @@ def _get_sites(conn, dataset, variable, temporal_resolution, aggregation, *args,
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
-    variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+    variable : str, required
+        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
+        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
+        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
+        Options include descriptors such as 'mean' and 'sum'. Please see the documentation
         for allowable combinations with `variable`.
     depth_level : int, optional
-        Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
+        Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil_moisture'.
     date_start : str, optional
         'YYYY-MM-DD' date indicating beginning of time range.
     date_end : str, optional

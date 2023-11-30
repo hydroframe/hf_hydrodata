@@ -113,7 +113,7 @@ def test_get_dataframe():
             "usgs_nwis",
             "streamflow",
             "daily",
-            "average",
+            "mean",
             date_start="2020-01-01",
             date_end="2020-01-03",
             latitude_range=(45, 46),
@@ -136,7 +136,7 @@ def test_get_meta_dataframe():
             "usgs_nwis",
             "streamflow",
             "daily",
-            "average",
+            "mean",
             date_start="2020-01-01",
             date_end="2020-01-03",
             latitude_range=(45, 46),
@@ -155,7 +155,7 @@ def test_check_inputs():
             data_source="usgs_nwis",
             variable="steamflow",
             temporal_resolution="daily",
-            aggregation="average",
+            aggregation="mean",
         )
 
     # Parameter provided for temporal_resolution not in supported list.
@@ -164,25 +164,25 @@ def test_check_inputs():
             data_source="usgs_nwis",
             variable="streamflow",
             temporal_resolution="monthly",
-            aggregation="average",
+            aggregation="mean",
         )
 
     # Variable requested is soil moisture but no depth level provided.
     with pytest.raises(Exception):
         point.check_inputs(
             data_source="scan",
-            variable="soil moisture",
+            variable="soil_moisture",
             temporal_resolution="daily",
-            aggregation="start-of-day",
+            aggregation="sod",
         )
 
     # Variable requested is soil moisture with unsupported depth level provided.
     with pytest.raises(Exception):
         point.check_inputs(
             data_source="scan",
-            variable="soil moisture",
+            variable="soil_moisture",
             temporal_resolution="daily",
-            aggregation="start-of-day",
+            aggregation="sod",
             depth_level=6,
         )
 
@@ -212,9 +212,9 @@ def test_no_sites_error_message():
     with pytest.raises(Exception):
         df = point.get_data(
             "usgs_nwis",
-            "wtd",
+            "water_table_depth",
             "hourly",
-            "average",
+            "mean",
             date_start="2002-01-01",
             date_end="2002-01-05",
             latitude_range=(49, 50),
@@ -228,7 +228,7 @@ def test_get_data_streamflow_daily():
         "usgs_nwis",
         "streamflow",
         "daily",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         latitude_range=(47, 50),
@@ -244,7 +244,7 @@ def test_get_data_streamflow_daily_dict():
         "usgs_nwis",
         "streamflow",
         "daily",
-        "average",
+        "mean",
         {"date_start": "2002-01-01",
          "date_end": "2002-01-05",
          "latitude_range": (47, 50),
@@ -260,7 +260,7 @@ def test_get_data_streamflow_hourly():
         "usgs_nwis",
         "streamflow",
         "hourly",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         latitude_range=(45, 50),
@@ -274,9 +274,9 @@ def test_get_data_wtd_daily():
     """Test for daily wtd data"""
     df = point.get_data(
         "usgs_nwis",
-        "wtd",
+        "water_table_depth",
         "daily",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         latitude_range=(45, 50),
@@ -290,9 +290,9 @@ def test_get_data_wtd_hourly():
     """Test for hourly wtd data"""
     df = point.get_data(
         "usgs_nwis",
-        "wtd",
+        "water_table_depth",
         "hourly",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         latitude_range=(30, 40),
@@ -306,7 +306,7 @@ def test_get_data_wtd_instantaneous():
     """Test for instantaneous wtd data"""
     df = point.get_data(
         "usgs_nwis",
-        "wtd",
+        "water_table_depth",
         "instantaneous",
         "instantaneous",
         date_start="2002-01-01",
@@ -325,7 +325,7 @@ def test_get_data_swe_daily():
         "snotel",
         "swe",
         "daily",
-        "start-of-day",
+        "sod",
         date_start="2022-01-01",
         date_end="2022-01-04",
         latitude_range=(39, 40),
@@ -354,7 +354,7 @@ def test_get_data_precipitation_daily():
         "snotel",
         "precipitation",
         "daily",
-        "total",
+        "sum",
         date_start="2022-01-01",
         date_end="2022-01-04",
         latitude_range=(39, 40),
@@ -368,7 +368,7 @@ def test_get_data_precipitation_daily():
         "snotel",
         "precipitation",
         "daily",
-        "total, snow-adjusted",
+        "sum_snow_adjusted",
         date_start="2022-01-01",
         date_end="2022-01-04",
         latitude_range=(39, 40),
@@ -383,9 +383,9 @@ def test_get_data_temperature_daily():
     """Tests for daily temperature data"""
     min_df = point.get_data(
         "snotel",
-        "temperature",
+        "air_temp",
         "daily",
-        "minimum",
+        "min",
         date_start="2022-01-01",
         date_end="2022-01-04",
         latitude_range=(39, 40),
@@ -396,9 +396,9 @@ def test_get_data_temperature_daily():
 
     max_df = point.get_data(
         "snotel",
-        "temperature",
+        "air_temp",
         "daily",
-        "maximum",
+        "max",
         date_start="2022-01-01",
         date_end="2022-01-04",
         latitude_range=(39, 40),
@@ -409,9 +409,9 @@ def test_get_data_temperature_daily():
 
     mean_df = point.get_data(
         "snotel",
-        "temperature",
+        "air_temp",
         "daily",
-        "average",
+        "mean",
         date_start="2022-01-01",
         date_end="2022-01-04",
         latitude_range=(39, 40),
@@ -430,9 +430,9 @@ def test_get_soil_moisture_fail():
     with pytest.raises(Exception):
         df = point.get_data(
             "scan",
-            "soil moisture",
+            "soil_moisture",
             "daily",
-            "start-of-day",
+            "sod",
             date_start="2002-01-01",
             date_end="2002-01-05",
             latitude_range=(49, 50),
@@ -444,9 +444,9 @@ def test_get_data_soil_moisture_daily():
     """Tests for daily soil moisture data"""
     df_2 = point.get_data(
         "snotel",
-        "soil moisture",
+        "soil_moisture",
         "daily",
-        "start-of-day",
+        "sod",
         depth_level=2,
         date_start="2022-01-01",
         date_end="2022-01-03",
@@ -458,9 +458,9 @@ def test_get_data_soil_moisture_daily():
 
     df_4 = point.get_data(
         "scan",
-        "soil moisture",
+        "soil_moisture",
         "daily",
-        "start-of-day",
+        "sod",
         depth_level=4,
         date_start="2022-01-01",
         date_end="2022-01-03",
@@ -472,9 +472,9 @@ def test_get_data_soil_moisture_daily():
 
     df_8 = point.get_data(
         "snotel",
-        "soil moisture",
+        "soil_moisture",
         "daily",
-        "start-of-day",
+        "sod",
         depth_level=8,
         date_start="2022-01-01",
         date_end="2022-01-03",
@@ -486,9 +486,9 @@ def test_get_data_soil_moisture_daily():
 
     df_20 = point.get_data(
         "snotel",
-        "soil moisture",
+        "soil_moisture",
         "daily",
-        "start-of-day",
+        "sod",
         depth_level=20,
         date_start="2022-01-01",
         date_end="2022-01-03",
@@ -500,9 +500,9 @@ def test_get_data_soil_moisture_daily():
 
     df_40 = point.get_data(
         "scan",
-        "soil moisture",
+        "soil_moisture",
         "daily",
-        "start-of-day",
+        "sod",
         depth_level=40,
         date_start="2022-01-01",
         date_end="2022-01-03",
@@ -517,9 +517,9 @@ def test_get_data_latent_heat_flux():
     """Tests for hourly latent heat flux data"""
     df = point.get_data(
         "ameriflux",
-        "latent heat flux",
+        "latent_heat",
         "hourly",
-        "total",
+        "sum",
         date_start="2022-01-01",
         date_end="2022-01-02",
         latitude_range=(30, 40),
@@ -533,9 +533,9 @@ def test_get_data_sensible_heat_flux():
     """Tests for hourly sensible heat flux data"""
     df = point.get_data(
         "ameriflux",
-        "sensible heat flux",
+        "sensible_heat",
         "hourly",
-        "total",
+        "sum",
         date_start="2022-01-01",
         date_end="2022-01-02",
         latitude_range=(30, 40),
@@ -549,9 +549,9 @@ def test_get_data_sradiation():
     """Tests for hourly shortwave radiation data"""
     df = point.get_data(
         "ameriflux",
-        "shortwave radiation",
+        "downward_shortwave",
         "hourly",
-        "average",
+        "mean",
         date_start="2022-01-01",
         date_end="2022-01-02",
         latitude_range=(30, 40),
@@ -565,9 +565,9 @@ def test_get_data_lradiation():
     """Tests for hourly longwave radiation data"""
     df = point.get_data(
         "ameriflux",
-        "longwave radiation",
+        "downward_longwave",
         "hourly",
-        "average",
+        "mean",
         date_start="2022-01-01",
         date_end="2022-01-02",
         latitude_range=(30, 40),
@@ -581,9 +581,9 @@ def test_get_data_vpd():
     """Tests for hourly vapor pressure deficit data"""
     df = point.get_data(
         "ameriflux",
-        "vapor pressure deficit",
+        "vapor_pressure_deficit",
         "hourly",
-        "average",
+        "mean",
         date_start="2022-01-01",
         date_end="2022-01-02",
         latitude_range=(30, 40),
@@ -597,9 +597,9 @@ def test_get_data_temperature_fluxnet():
     """Tests for hourly temperature data"""
     df = point.get_data(
         "ameriflux",
-        "temperature",
+        "air_temp",
         "hourly",
-        "average",
+        "mean",
         date_start="2022-01-01",
         date_end="2022-01-02",
         latitude_range=(30, 40),
@@ -613,9 +613,9 @@ def test_get_data_wind_speed():
     """Tests for hourly wind speed data"""
     df = point.get_data(
         "ameriflux",
-        "wind speed",
+        "wind_speed",
         "hourly",
-        "average",
+        "mean",
         date_start="2022-01-01",
         date_end="2022-01-02",
         latitude_range=(30, 40),
@@ -631,7 +631,7 @@ def test_get_metadata_streamflow():
         "usgs_nwis",
         "streamflow",
         "daily",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         latitude_range=(47, 50),
@@ -648,7 +648,7 @@ def test_get_metadata_streamflow_dict():
         "usgs_nwis",
         "streamflow",
         "daily",
-        "average",
+        "mean",
         {"date_start": "2002-01-01",
          "date_end": "2002-01-05",
          "latitude_range": (47, 50),
@@ -665,7 +665,7 @@ def test_get_metadata_streamflow_hourly():
         "usgs_nwis",
         "streamflow",
         "hourly",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         latitude_range=(47, 50),
@@ -680,9 +680,9 @@ def test_get_metadata_wtd():
     """Test for wtd metadata"""
     metadata_df = point.get_metadata(
         "usgs_nwis",
-        "wtd",
+        "water_table_depth",
         "daily",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         latitude_range=(47, 50),
@@ -699,7 +699,7 @@ def test_get_metadata_swe():
         "snotel",
         "swe",
         "daily",
-        "start-of-day",
+        "sod",
         date_start="2002-01-01",
         date_end="2002-01-05",
         latitude_range=(39, 40),
@@ -714,9 +714,9 @@ def test_get_metadata_flux():
     """Test for ameriflux metadata"""
     metadata_df = point.get_metadata(
         "ameriflux",
-        "latent heat flux",
+        "latent_heat",
         "hourly",
-        "total",
+        "sum",
         date_start="2022-01-01",
         date_end="2022-01-02",
         latitude_range=(30, 40),
@@ -733,7 +733,7 @@ def test_get_data_state_filter():
         "usgs_nwis",
         "streamflow",
         "daily",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         state='ME'
@@ -749,7 +749,7 @@ def test_get_data_site_filter_list():
         "usgs_nwis",
         "streamflow",
         "daily",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         site_ids=['01011000', '01013500']
@@ -764,7 +764,7 @@ def test_get_data_site_filter_str():
         "usgs_nwis",
         "streamflow",
         "daily",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         site_ids='01011000'
@@ -779,7 +779,7 @@ def test_site_networks_filter_list():
         "usgs_nwis",
         "streamflow",
         "daily",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         state='NJ',
@@ -794,7 +794,7 @@ def test_site_networks_filter_list():
         "usgs_nwis",
         "streamflow",
         "daily",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         state='NJ',
@@ -811,7 +811,7 @@ def test_site_networks_filter_str():
         "usgs_nwis",
         "streamflow",
         "daily",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         state='NJ',
@@ -826,7 +826,7 @@ def test_site_networks_filter_str():
         "usgs_nwis",
         "streamflow",
         "daily",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         state='NJ',
@@ -843,7 +843,7 @@ def test_get_data_min_num_obs_filter():
         "usgs_nwis",
         "streamflow",
         "daily",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         site_ids=['01377500', '01378500', '01445000'],
@@ -855,7 +855,7 @@ def test_get_data_min_num_obs_filter():
         "usgs_nwis",
         "streamflow",
         "daily",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         site_ids=['01377500', '01378500', '01445000'],
@@ -868,7 +868,7 @@ def test_get_data_min_num_obs_filter():
         "usgs_nwis",
         "streamflow",
         "daily",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         site_ids=['01377500', '01378500', '01445000']
@@ -883,7 +883,7 @@ def test_polygon_filter_data_remote():
         "usgs_nwis",
         "streamflow",
         "daily",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         polygon=f'{str(LOCAL_TEST_DATA_DIR)}/raritan_watershed.shp',
@@ -905,7 +905,7 @@ def test_polygon_filter_metadata_remote():
         "usgs_nwis",
         "streamflow",
         "daily",
-        "average",
+        "mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         polygon=f'{str(LOCAL_TEST_DATA_DIR)}/raritan_watershed.shp',
@@ -926,7 +926,7 @@ def test_polygon_filter_fail():
             "usgs_nwis",
             "streamflow",
             "daily",
-            "average",
+            "mean",
             date_start="2002-01-01",
             date_end="2002-01-05",
             polygon=f'{str(LOCAL_TEST_DATA_DIR)}/raritan_watershed.shp')
@@ -935,7 +935,7 @@ def test_polygon_filter_fail():
 def test_get_citations_usgs():
     """Test for get_citations function with return DataFrame."""
     c_dict = point.get_citations(data_source='usgs_nwis', variable='streamflow',
-                                 temporal_resolution='daily', aggregation='average')
+                                 temporal_resolution='daily', aggregation='mean')
 
     assert len(c_dict.keys()) == 1
     assert 'usgs_nwis' in c_dict
@@ -943,8 +943,8 @@ def test_get_citations_usgs():
 
 def test_get_citations_ameriflux():
     """Test for get_citations function with return DataFrame."""
-    c_dict = point.get_citations(data_source='ameriflux', variable='latent heat flux',
-                                 temporal_resolution='hourly', aggregation='total',
+    c_dict = point.get_citations(data_source='ameriflux', variable='latent_heat',
+                                 temporal_resolution='hourly', aggregation='sum',
                                  site_ids=['US-Act', 'US-Bar'])
 
     assert len(c_dict.keys()) == 3
@@ -1032,8 +1032,8 @@ def test_get_variables_aggregation_filter():
         latitude_range=(39, 40),
         longitude_range=(-120, -119),
         data_source='snotel',
-        variable='temperature',
-        aggregation='average')
+        variable='air_temp',
+        aggregation='mean')
 
     # Bounds are flexible for if more sites are added
     assert (len(df) >= 4) & (len(df) <= 8)
