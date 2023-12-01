@@ -13,7 +13,16 @@ Data can also be sliced by space using python parameters: 'grid_bounds' or 'latl
 Data can be sliced by time using python parameters: 'start_time' and 'end_time'.
 See examples in the QuickStart Guide section.
 
-Click on a Dataset Attribute Key below to see the variables and description of each supported dataset.
+Click on sections below for more information about available attributes.
 
-.. include:: ./gen_dataset_list.rst
+.. toctree::
+   :maxdepth: 5
+   :titlesonly:
 
+   available_datasets
+   available_variables
+   available_grids
+   available_temporal_resolutions
+   available_aggregations
+   available_metadata
+   

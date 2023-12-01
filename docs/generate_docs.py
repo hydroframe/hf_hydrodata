@@ -22,28 +22,28 @@ def main():
 
 
 def generate_datasets():
-    """Generate the documentation of datasets (not used now)"""
+    """Generate the documentation of datasets"""
 
     directory = os.path.abspath(os.path.join(os.path.dirname(__file__), "source"))
-    (dataset_type_ids, dataset_ids) = _collect_visible_datasets()
+    (dataset_type_ids, dataset_ids, variable_ids, grid_ids, temporal_resolution_ids) = _collect_visible_ids()
 
     gen_dataset_list_path = f"{directory}/gen_dataset_list.rst"
-    with open(gen_dataset_list_path, "w+"):
+    with open(gen_dataset_list_path, "w+") as stream:
         pass
     for dataset_type_id in dataset_type_ids:
-        _generate_dataset_type_docs(
-            dataset_type_id, dataset_ids, directory, gen_dataset_list_path
-        )
-
+        _generate_dataset_type_docs(dataset_type_id, dataset_ids, directory)
+    _generate_variable_docs(variable_ids, directory)
+    _generate_grid_list_docs(directory)
+    generate_temporal_resolution_list_docs(directory)
 
 def _generate_dataset_type_docs(
-    dataset_type_id, dataset_ids, directory, gen_dataset_list_path
-):
+    dataset_type_id, dataset_ids, directory):
     """
     Generate files for each each dataset for the dataset type.
     Generate a file named gen_{dataset_id}.rst for each dataset in the type.
     Append a table with links to each dataset file to the file gen_dataset_list.rst.
     """
+    gen_dataset_list_path = f"{directory}/gen_dataset_list.rst"
     with open(gen_dataset_list_path, "a+") as stream:
         data_model = load_data_model()
         dataset_type_table = data_model.get_table("dataset_type")
@@ -51,14 +51,49 @@ def _generate_dataset_type_docs(
         dataset_type_row = dataset_type_table.get_row(dataset_type_id)
         dataset_type_description = dataset_type_row["description"]
         dataset_text_map = _load_dataset_text_map()
-        gen_dataset_list_path = f"{directory}/gen_dataset_list.rst"
-        stream.write(f"{dataset_type_id}\n")
-        stream.write("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n")
+
+        stream.write(f".. gen_dataset_type_{dataset_type_id}:\n\n")
+        stream.write(f"{dataset_type_description}\n")
+        stream.write("^^^^^^^^^^^^^^^^^^^\n")
         stream.write("\n")
-        stream.write(dataset_type_description)
+        stream.write(f".. list-table:: Datasets\n")
+        stream.write("    :widths: 25 100\n")
+        stream.write("    :header-rows: 1\n")
+        stream.write("\n")
+        stream.write("    * - Dateset\n")
+        stream.write("      - Description\n")
+        for dataset_id in dataset_table.row_ids:
+            if dataset_id in dataset_ids:
+                dataset_row = dataset_table.get_row(dataset_id)
+                if dataset_row["dataset_type"] == dataset_type_id:
+                    dataset_description = dataset_row["description"]
+                    stream.write(f"    * - :ref:`gen_{dataset_id}`\n")
+                    stream.write(f"      - {dataset_description}\n")
+                    _generate_dataset_docs(dataset_id, dataset_text_map, directory)
         stream.write("\n")
         stream.write("\n")
-        stream.write(f".. list-table:: Datasets of Type {dataset_type_id}\n")
+
+def _generate_dataset_type_doc(
+    dataset_type_id, dataset_ids, directory):
+    """
+    Generate a file for a dataset type containing all the datasets of that type.
+    Generate a file named gen_dataset_type_{dataset_type_id}.rst.
+    Generate a file named gen_{dataset_id}.rst for each dataset in the type.
+    """
+    gen_dataset_type_path = f"{directory}/gen_dataset_type_{dataset_type_id}.rst"
+    with open(gen_dataset_type_path, "w+") as stream:
+        data_model = load_data_model()
+        dataset_type_table = data_model.get_table("dataset_type")
+        dataset_table = data_model.get_table("dataset")
+        dataset_type_row = dataset_type_table.get_row(dataset_type_id)
+        dataset_type_description = dataset_type_row["description"]
+        dataset_text_map = _load_dataset_text_map()
+
+        stream.write(f".. gen_dataset_type_{dataset_type_id}:\n\n")
+        stream.write(f"{dataset_type_description}\n")
+        stream.write("^^^^^^^^^^^^^^^^^^^\n")
+        stream.write("\n")
+        stream.write(f".. list-table:: Datasets\n")
         stream.write("    :widths: 25 100\n")
         stream.write("    :header-rows: 1\n")
         stream.write("\n")
@@ -107,14 +142,14 @@ def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
         if dataset_start_date and not dataset_end_date:
             stream.write(f"Data is avaiable starting from date '{dataset_start_date}'.\n\n")
         elif dataset_start_date and dataset_end_date:
-            stream.write(f"Data is available between dates '{dataset_start_date}' and '{dataset_end_date}'.\n\n")
+            stream.write(f"Data is available between dates '{dataset_start_date}' to '{dataset_end_date}'.\n\n")
 
         _generate_references_docs(dataset_row, stream)
-        _generate_projection_docs(dataset_row, stream)
-        _generate_variable_docs(dataset_row, stream)
+        _generate_dataset_projection_docs(dataset_row, stream)
+        _generate_dataset_variable_docs(dataset_row, stream)
 
 
-def _generate_variable_docs(dataset_row, stream):
+def _generate_dataset_variable_docs(dataset_row, stream):
     """
     Generate documentation for variables of the dataset.
     """
@@ -130,7 +165,7 @@ def _generate_variable_docs(dataset_row, stream):
     stream.write("\n")
     stream.write("This describes the available variables of the dataset.\n")
     stream.write(
-        "Use the dataset, variables and temporal_resolution in python access functions as described in the QuickStart Guide and Examples.\n\n"
+        "Use the dataset, variables and temporal_resolution in python access functions as described in the Working with Gridded Data, and Working with Point Observations.\n\n"
     )
 
     variable_types = _collect_variable_types_of_variables(variables)
@@ -185,6 +220,98 @@ def _generate_variable_docs(dataset_row, stream):
         stream.write("\n")
         stream.write("\n")
 
+def _generate_variable_docs(variable_ids, directory):
+    """
+    Generate files for each each dataset for the dataset type.
+    Generate a file named gen_{dataset_id}.rst for each dataset in the type.
+    Append a table with links to each dataset file to the file gen_dataset_list.rst.
+    """
+    variable_type_ids = _collect_variable_types(variable_ids)
+    gen_variable_list_path = f"{directory}/gen_variable_list.rst"
+    with open(gen_variable_list_path, "w+") as stream:
+        data_model = load_data_model()
+        variable_table = data_model.get_table("variable")
+        variable_type_table = data_model.get_table("variable_type")
+        for variable_type_id in variable_type_ids:
+            variable_type_name = variable_type_id.strip().replace("_", " ").title()
+            stream.write(f"{variable_type_name}\n")
+            stream.write("----------------------\n\n")
+            stream.write(f".. list-table::\n")
+            stream.write("    :widths: 20 20 30 20 20 20")
+            if not variable_type_id == "point_observations":
+                stream.write(" 20")
+            stream.write("\n")
+            stream.write("    :class: longtable\n")
+            stream.write("    :header-rows: 1\n\n")
+            stream.write(f"    * - variable\n")
+            stream.write(f"      - description\n")
+            stream.write(f"      - datasets\n")
+            stream.write(f"      - temporal_resolutions\n")
+            stream.write(f"      - units\n")
+            stream.write(f"      - aggregations\n")
+            if not variable_type_id == "point_observations":
+                stream.write(f"      - grid\n")
+            for variable_id in variable_ids:
+                variable_row = variable_table.get_row(variable_id)
+                if variable_row["variable_type"] == variable_type_id:
+                    (dataset_ids, unit_ids, aggregation_ids, grid_ids, temporal_resolution_ids) = _collect_variable_ids(variable_id)
+                    variable_title = variable_row["title"]
+                    variable_description = variable_row["description"]
+                    variable_description = variable_description if variable_description.strip() else variable_title
+                    variable_description = (
+                        variable_description if variable_description else "No description"
+                    )
+                    variable_description = variable_description.strip().capitalize()
+                    temporal_resolution_list = ", ".join(temporal_resolution_ids)
+                    unit_lists = ", ".join(unit_ids)
+                    dataset_list = ", ".join(dataset_ids)
+                    aggregation_list = ", ".join(aggregation_ids)
+                    if not aggregation_list:
+                        aggregation_list = "na"
+                    grid_list = ", ".join(grid_ids)
+                    stream.write(f"    * - {variable_id}\n")
+                    stream.write(f"      - {variable_description}\n")
+                    stream.write(f"      - {dataset_list}\n")
+                    stream.write(f"      - {temporal_resolution_list}\n")
+                    stream.write(f"      - {unit_lists}\n")
+                    stream.write(f"      - {aggregation_list}\n")
+                    if not variable_type_id == "point_observations":
+                        stream.write(f"      - {grid_list}\n")                   
+
+def _generate_grid_list_docs(directory):
+    """
+    Generate documentation for all the grids in the data model.
+    """
+    gen_variable_list_path = f"{directory}/gen_grid_list.rst"
+    with open(gen_variable_list_path, "w+") as stream:
+        data_model = load_data_model()
+        grid_table = data_model.get_table("grid")
+        for grid_id in grid_table.row_ids:
+            stream.write(f"{grid_id}\n")
+            stream.write("-----------\n")
+            _generate_grid_docs(grid_id, stream)
+
+def generate_temporal_resolution_list_docs(directory):
+    """Generate the gen_temporal_resolution_list.rst file to document temporal resolutions"""
+
+    gen_temportal_resolution_list_path = f"{directory}/gen_temporal_resolution_list.rst"
+    data_model = load_data_model()
+    temporal_resolution_table = data_model.get_table("temporal_resolution")
+    with open(gen_temportal_resolution_list_path, "w+") as stream:
+        data_model = load_data_model()
+        temporal_resolution_table = data_model.get_table("temporal_resolution")
+
+        stream.write(".. list-table::\n")
+        stream.write("    :widths: 20 20\n")
+        stream.write("    :header-rows: 1\n\n")
+        stream.write("    * - temporal_resolution\n")
+        stream.write("      - description\n")
+        for temporal_resolution_id in temporal_resolution_table.row_ids:
+            temporal_resolution_row = temporal_resolution_table.get_row(temporal_resolution_id)
+            description = temporal_resolution_row["period_description"]
+            stream.write(f"    * - {temporal_resolution_id}\n")
+            stream.write(f"      - {description}.\n")
+
 
 def _has_multiple_aggregations(dataset_row, variables):
     """Determine if the any of the variables in the dataset has multiple aggregations"""
@@ -197,6 +324,59 @@ def _has_multiple_aggregations(dataset_row, variables):
             break
     return result
 
+def _collect_variable_ids(variable_id):
+    """
+    Collect ids associated with variable_id.
+    
+    Returns:
+        A tuple of arrays (dataset_ids, unit_ids, aggregation_ids, grid_ids, temporal_resolution_ids)
+    """
+
+    datasets = []
+    units = []
+    aggregations = []
+    grids = []
+    temporal_resolutions = []
+
+    data_model = load_data_model()
+    data_catalog_entry_table = data_model.get_table("data_catalog_entry")
+    for data_catalog_entry_id in data_catalog_entry_table.row_ids:
+        data_catalog_entry_row = data_catalog_entry_table.get_row(data_catalog_entry_id)
+        dataset_variable_id = data_catalog_entry_row["variable"]
+        dataset_id = data_catalog_entry_row["dataset"]
+        unit_id = data_catalog_entry_row["units"]
+        temporal_resolution_id = data_catalog_entry_row["temporal_resolution"]
+        aggregation_id = data_catalog_entry_row["aggregation"]
+        security_level = data_catalog_entry_row["security_level"]
+        grid_id = data_catalog_entry_row["grid"]
+        if dataset_variable_id == variable_id and _is_entry_visible(security_level):
+            if grid_id and grid_id not in grids:
+                grids.append(grid_id)
+            if unit_id and not unit_id == "None" and unit_id not in units:
+                if unit_id == "" or unit_id == "-":
+                    unit_id = "static"
+                if unit_id not in units:
+                    units.append(unit_id)
+            if temporal_resolution_id and temporal_resolution_id not in temporal_resolutions:
+                temporal_resolutions.append(temporal_resolution_id)
+            if aggregation_id and aggregation_id != "" and aggregation_id != "-" and aggregation_id not in aggregations:
+                aggregations.append(aggregation_id)
+            if dataset_id not in datasets:
+                datasets.append(dataset_id)
+    return (datasets, units, aggregations, grids, temporal_resolutions)
+
+def _collect_variable_types(variable_ids):
+    """Return the list of variable_type_ids that contain one of the variables in variable_ids."""
+
+    variable_types = []
+    data_model = load_data_model()
+    variable_table = data_model.get_table("variable")
+    for variable_id in variable_ids:
+        variable_row = variable_table.get_row(variable_id)
+        variable_type_id = variable_row["variable_type"]
+        if variable_type_id and variable_type_id not in variable_types:
+            variable_types.append(variable_type_id)
+    return variable_types
 
 def _collect_variable_periods(dataset_id, variable_id):
     periods = []
@@ -259,7 +439,7 @@ def _collect_variable_aggregation(dataset_row, variable_id):
     return aggregations
 
 
-def _generate_projection_docs(dataset_row, stream):
+def _generate_dataset_projection_docs(dataset_row, stream):
     """
     Generate documention of the projections used in the dataset into the stream of the rst document.
     """
@@ -287,6 +467,8 @@ def _generate_grid_docs(grid_id, stream):
     grid_table = data_model.get_table("grid")
 
     grid_row = grid_table.get_row(grid_id)
+    latlng_bounds = grid_row["latlng_bounds"]
+    resolution = grid_row["resolution_meters"]
     grid_crs = grid_row["crs"]
     grid_crs_dict = _parse_crs_to_dict(grid_crs)
     a = grid_crs_dict.get("a")
@@ -295,7 +477,10 @@ def _generate_grid_docs(grid_id, stream):
     lat2 = grid_crs_dict.get("lat_2")
     lat0 = grid_crs_dict.get("lat_0")
     lon0 = grid_crs_dict.get("lon_0")
-    stream.write("The projected coordinate system is Lambert Conformal Conic.\n\n")
+    stream.write(f"The projected coordinate system of '{grid_id}' is Lambert Conformal Conic.\n")
+    if resolution:
+        stream.write(f"The resolution is {resolution} meters.\n")
+    stream.write("\n")
     if not a or not b:
         return
     x0 = grid_crs_dict.get("x_0")
@@ -321,10 +506,14 @@ def _generate_grid_docs(grid_id, stream):
     x = shape[2]
     y = shape[1]
     z = shape[0]
-    stream.write(f"The grid '{grid_id}' has dimensions X={x},  Y={y},  Z={z}")
+    stream.write(f"The grid '{grid_id}' has dimensions X={x},  Y={y},  Z={z}.\n")
+    if latlng_bounds and len(latlng_bounds) == 4:
+        south = latlng_bounds[0]
+        west = latlng_bounds[1]
+        north = latlng_bounds[2]
+        east = latlng_bounds[3]
+        stream.write(f"\nThe grid has lat/lon bounds of south {south}, west {west}, north {north}, east {east}.\n")
     stream.write("\n")
-    stream.write("\n")
-
 
 def _parse_crs_to_dict(grid_crs: str) -> dict:
     """Parse the crs string into a dict of attributes."""
@@ -451,15 +640,18 @@ def _generate_references_docs(dataset_row, stream):
             )
 
 
-def _collect_visible_datasets():
+def _collect_visible_ids():
     """
     Collect the visible datasets and dataset types.
 
     Returns:
-        A tuple (dataset_types, datasets) with the list of ids of datset_types and datasets.
+        A tuple (dataset_types, datasets, variables, grids, temporal_resolutions) with the list of ids of datset_types and datasets.
     """
     dataset_type_ids = []
     dataset_ids = []
+    variable_ids = []
+    grid_ids = []
+    temporal_resolution_ids = []
     data_model = load_data_model()
     dataset_type_table = data_model.get_table("dataset_type")
     dataset_table = data_model.get_table("dataset")
@@ -471,13 +663,23 @@ def _collect_visible_datasets():
                     data_catalog_entry_id
                 )
                 security_level = data_catalog_entry_row["security_level"]
+                variable_id = data_catalog_entry_row["variable"]
+                grid_id = data_catalog_entry_row["grid"]
+                temporal_resolution_id = data_catalog_entry_row["temporal_resolution"]
                 if dataset_id == data_catalog_entry_row["dataset"]:
                     if _is_entry_visible(security_level):
                         if not dataset_type_id in dataset_type_ids:
                             dataset_type_ids.append(dataset_type_id)
                         if not dataset_id in dataset_ids:
                             dataset_ids.append(dataset_id)
-    return (dataset_type_ids, dataset_ids)
+                        if not variable_id in variable_ids:
+                            variable_ids.append(variable_id)
+                        if not grid_id in grid_id:
+                            grid_ids.append(grid_id)
+                        if not temporal_resolution_id in temporal_resolution_ids:
+                            temporal_resolution_ids.append(temporal_resolution_id)
+
+    return (dataset_type_ids, dataset_ids, variable_ids, grid_ids, temporal_resolution_ids)
 
 
 def _is_entry_visible(security_level: str) -> bool:
