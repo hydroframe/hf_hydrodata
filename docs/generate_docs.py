@@ -67,49 +67,11 @@ def _generate_dataset_type_docs(
                 dataset_row = dataset_table.get_row(dataset_id)
                 if dataset_row["dataset_type"] == dataset_type_id:
                     dataset_description = dataset_row["description"]
-                    stream.write(f"    * - :ref:`gen_{dataset_id}`\n")
+                    stream.write(f"    * - :doc:`{dataset_id} <gen_{dataset_id}>`\n")
                     stream.write(f"      - {dataset_description}\n")
                     _generate_dataset_docs(dataset_id, dataset_text_map, directory)
         stream.write("\n")
         stream.write("\n")
-
-def _generate_dataset_type_doc(
-    dataset_type_id, dataset_ids, directory):
-    """
-    Generate a file for a dataset type containing all the datasets of that type.
-    Generate a file named gen_dataset_type_{dataset_type_id}.rst.
-    Generate a file named gen_{dataset_id}.rst for each dataset in the type.
-    """
-    gen_dataset_type_path = f"{directory}/gen_dataset_type_{dataset_type_id}.rst"
-    with open(gen_dataset_type_path, "w+") as stream:
-        data_model = load_data_model()
-        dataset_type_table = data_model.get_table("dataset_type")
-        dataset_table = data_model.get_table("dataset")
-        dataset_type_row = dataset_type_table.get_row(dataset_type_id)
-        dataset_type_description = dataset_type_row["description"]
-        dataset_text_map = _load_dataset_text_map()
-
-        stream.write(f".. gen_dataset_type_{dataset_type_id}:\n\n")
-        stream.write(f"{dataset_type_description}\n")
-        stream.write("^^^^^^^^^^^^^^^^^^^\n")
-        stream.write("\n")
-        stream.write(f".. list-table:: Datasets\n")
-        stream.write("    :widths: 25 100\n")
-        stream.write("    :header-rows: 1\n")
-        stream.write("\n")
-        stream.write("    * - Dateset\n")
-        stream.write("      - Description\n")
-        for dataset_id in dataset_table.row_ids:
-            if dataset_id in dataset_ids:
-                dataset_row = dataset_table.get_row(dataset_id)
-                if dataset_row["dataset_type"] == dataset_type_id:
-                    dataset_description = dataset_row["description"]
-                    stream.write(f"    * - :ref:`gen_{dataset_id}`\n")
-                    stream.write(f"      - {dataset_description}\n")
-                    _generate_dataset_docs(dataset_id, dataset_text_map, directory)
-        stream.write("\n")
-        stream.write("\n")
-
 
 def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
     """
@@ -118,34 +80,74 @@ def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
 
     data_model = load_data_model()
     dataset_table = data_model.get_table("dataset")
+    grid_table = data_model.get_table("grid")
     dataset_row = dataset_table.get_row(dataset_id)
-    dataset_description = dataset_row["description"]
 
     dataset_text_entry = dataset_text_map.get(dataset_id)
     dataset_summary = dataset_text_entry.get("summary") if dataset_text_entry else None
+    processing_notes = dataset_text_entry.get("processing_notes") if dataset_text_entry else None
+    description = dataset_row["description"]
+    datasource = dataset_row["datasource"]
+    paper_dois = dataset_row["paper_dois"]
+    dataset_start_date = dataset_row["dataset_start_date"]
+    dataset_end_date = dataset_row["dataset_end_date"]
+    grids = _collect_grids_in_dataset(dataset_row)
     gen_dataset_docs_path = f"{directory}/gen_{dataset_id}.rst"
     with open(gen_dataset_docs_path, "w+") as stream:
         stream.write(f".. _gen_{dataset_id}:\n")
         stream.write("\n")
-        stream.write(f"{dataset_id}\n")
+        stream.write(f"{description}\n")
         stream.write("^^^^^^^^^^^^^^^^^^\n")
         stream.write("\n")
         if dataset_summary:
-            stream.write(f"{dataset_summary}")
-        else:
-            stream.write(f"{dataset_description}")
-        stream.write("\n")
-        stream.write("\n")
-        dataset_start_date = dataset_row["dataset_start_date"]
-        dataset_end_date = dataset_row["dataset_end_date"]
-        stream.write("\n\n")
-        if dataset_start_date and not dataset_end_date:
-            stream.write(f"Data is avaiable starting from date '{dataset_start_date}'.\n\n")
-        elif dataset_start_date and dataset_end_date:
-            stream.write(f"Data is available between dates '{dataset_start_date}' to '{dataset_end_date}'.\n\n")
+            stream.write(f"{dataset_summary}\n\n")
 
-        _generate_references_docs(dataset_row, stream)
-        _generate_dataset_projection_docs(dataset_row, stream)
+        stream.write(f"**Dataset**: {dataset_id}\n\n")
+        if datasource and len(datasource.split(" ")) == 1:
+            stream.write(f"**Data Source**: {datasource}\n\n")
+        if datasource and len(datasource.split(" ")) > 1:
+            stream.write(f"**Data Sources**: {datasource}\n\n")
+        if processing_notes:
+            stream.write("**Data Collection or Processing Notes:**\n\n")
+            for paragraph in processing_notes.split("\n"):
+                stream.write(f"    {paragraph}\n\n")
+        if paper_dois:
+            stream.write("**Citations:**\n\n")
+            stream.write("Please refer to the following citations for more information on this dataset and cite them if you use the data\n\n")
+            for entry in paper_dois.split(" "):
+                stream.write(f"* {entry}\n\n")
+
+        if dataset_start_date or len(grids) > 0:
+            stream.write("**Extent and Resolution**:\n\n")
+            stream.write("* Available Date Range: ")
+            if dataset_start_date:
+                stream.write(f"{dataset_start_date}")
+            if dataset_end_date:
+                stream.write(f" to {dataset_end_date}")
+            stream.write("\n\n")
+            for grid in grids:
+                grid_row = grid_table.get_row(grid)
+                resolution = grid_row["resolution_meters"]
+                resolution = f"{resolution} meters" if resolution else ""
+                shape = grid_row["shape"]
+                shape_x = shape[2] if shape else ""
+                shape_y = shape[1] if shape else ""
+                latlng_bounds = grid_row["latlng_bounds"]
+                if latlng_bounds:
+                    latlng_extent = f"{latlng_bounds[1]}, {latlng_bounds[0]},  {latlng_bounds[3]}, {latlng_bounds[2]}"
+                else:
+                    latlng_extent = ""
+                crs = grid_row["crs"]
+                crs = crs.strip() if crs else ""
+                stream.write(f"* Grid: {grid}\n\n")
+                stream.write(f"  - Spacial Resolution:  {resolution}\n\n")
+                if shape_x and shape_y:
+                    stream.write(f"  - XY Grid Spacial Extent:  {shape_x} x {shape_y}\n\n")
+                if latlng_extent:
+                    stream.write(f"  - Spacial Exent:  {latlng_extent}\n\n")
+                stream.write(f"  - Projection: {crs}\n\n")
+
+
         _generate_dataset_variable_docs(dataset_row, stream)
 
 
@@ -160,7 +162,7 @@ def _generate_dataset_variable_docs(dataset_row, stream):
     variables = _collect_variables_in_dataset(dataset_row)
     if not variables:
         return
-    stream.write(f"Variables in Dataset\n")
+    stream.write(f"Variables\n")
     stream.write("^^^^^^^^^^^^^^^^^^\n")
     stream.write("\n")
     stream.write("This describes the available variables of the dataset.\n")
