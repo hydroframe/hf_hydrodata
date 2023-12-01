@@ -3,7 +3,9 @@
 Working with Gridded Data
 ==================================
 
-The ``hf_hydrodata.gridded`` module provides functionality to get gridded data and metadata from the hydrodata data store.
+The ``hf_hydrodata`` module provides functionality to get gridded data and metadata from the hydrodata data store.
+This is a list of the most useful functions for working with gridded data.
+See the Python API Reference for details about each function.
 
 Gridded Observation Methods
 -----------------
@@ -56,7 +58,7 @@ You can get data from hydrodata as a numpy array using the get_gridded_data() fu
       }
       data = hf.get_gridded_data(options)
 
-See the Python API Reference for a list of all the filter parameters that may be provided.
+See the Python API Reference or the Available Datasets and Data Products for a list of all the filter parameters that may be provided.
 
 Get Meta Data
 -------------

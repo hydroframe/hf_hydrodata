@@ -1,9 +1,9 @@
 id,title,period_description
 daily,Daily,Daily values aggregated from midnight to midnight
-hourly,Hourly,
-monthly,Monthly,
-weekly,Weekly,
-static,static,variables that don't change with time
-monthly_clim,Monthly Climatology,long term monthly mean values
-annual_clim,Annual Climatology,long term annual mean values
+hourly,Hourly,Data recorded for each hour
+monthly,Monthly,Data value stored per month
+weekly,Weekly,Data values stored per week
+static,static,Variables that do not change with time
+monthly_clim,Monthly Climatology,Long term monthly mean values
+annual_clim,Annual Climatology,Long term annual mean values
 daily_of_week,Daily Over Week,Daily values aggregated over week
