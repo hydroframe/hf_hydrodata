@@ -102,7 +102,7 @@ def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
         if dataset_summary:
             stream.write(f"{dataset_summary}\n\n")
 
-        stream.write(f"**Dataset**: {dataset_id}\n\n")
+        stream.write(f"**Dataset Name**: {dataset_id}\n\n")
         if datasource and len(datasource.split(" ")) == 1:
             stream.write(f"**Data Source**: {datasource}\n\n")
         if datasource and len(datasource.split(" ")) > 1:
@@ -171,10 +171,11 @@ def _generate_dataset_variable_docs(dataset_row, stream):
     )
 
     variable_types = _collect_variable_types_of_variables(variables)
+    variable_types.sort()
     for variable_type_id in variable_types:
         variable_type_name = variable_type_id.strip().replace("_", " ").title()
 
-        stream.write(f".. list-table:: {variable_type_name} Variables in Dataset\n")
+        stream.write(f".. list-table:: {variable_type_name} Variables\n")
         if _has_multiple_aggregations(dataset_row, variables):
             stream.write("    :widths: 25 60 30 20 20 20")
         else:
@@ -191,7 +192,7 @@ def _generate_dataset_variable_docs(dataset_row, stream):
             stream.write(f"      - aggregation\n")
         if structure_type == "gridded":
             stream.write(f"      - grid\n")
-        stream.write(f"      - Z\n")
+        stream.write(f"      - 3D\n")
         for variable_id in variables:
             variable_row = variable_table.get_row(variable_id)
             if variable_row["variable_type"] == variable_type_id:
@@ -229,6 +230,7 @@ def _generate_variable_docs(variable_ids, directory):
     Append a table with links to each dataset file to the file gen_dataset_list.rst.
     """
     variable_type_ids = _collect_variable_types(variable_ids)
+    variable_type_ids.sort()
     gen_variable_list_path = f"{directory}/gen_variable_list.rst"
     with open(gen_variable_list_path, "w+") as stream:
         data_model = load_data_model()
@@ -240,19 +242,15 @@ def _generate_variable_docs(variable_ids, directory):
             stream.write("----------------------\n\n")
             stream.write(f".. list-table::\n")
             stream.write("    :widths: 20 20 30 20 20 20")
-            if not variable_type_id == "point_observations":
-                stream.write(" 20")
             stream.write("\n")
             stream.write("    :class: longtable\n")
             stream.write("    :header-rows: 1\n\n")
             stream.write(f"    * - variable\n")
             stream.write(f"      - description\n")
-            stream.write(f"      - datasets\n")
             stream.write(f"      - temporal_resolutions\n")
             stream.write(f"      - units\n")
             stream.write(f"      - aggregations\n")
-            if not variable_type_id == "point_observations":
-                stream.write(f"      - grid\n")
+            stream.write(f"      - datasets\n")
             for variable_id in variable_ids:
                 variable_row = variable_table.get_row(variable_id)
                 if variable_row["variable_type"] == variable_type_id:
@@ -269,16 +267,14 @@ def _generate_variable_docs(variable_ids, directory):
                     dataset_list = ", ".join(dataset_ids)
                     aggregation_list = ", ".join(aggregation_ids)
                     if not aggregation_list:
-                        aggregation_list = "na"
+                        aggregation_list = " "
                     grid_list = ", ".join(grid_ids)
                     stream.write(f"    * - {variable_id}\n")
                     stream.write(f"      - {variable_description}\n")
-                    stream.write(f"      - {dataset_list}\n")
                     stream.write(f"      - {temporal_resolution_list}\n")
                     stream.write(f"      - {unit_lists}\n")
                     stream.write(f"      - {aggregation_list}\n")
-                    if not variable_type_id == "point_observations":
-                        stream.write(f"      - {grid_list}\n")                   
+                    stream.write(f"      - {dataset_list}\n")
 
 def _generate_grid_list_docs(directory):
     """
