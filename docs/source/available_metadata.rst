@@ -24,7 +24,7 @@ The following are the additional metadata attributes describing a dataset.
       - The file type of the raw data file containing the data on the server.
     * - dataset_var
       - The netcdf variable name containg the data in the raw data file on the server.    
-    * - Description
+    * - description
       - A text description of the dataset containing the data.
     * - dataset_type
       - A catagory name associated with the dataset containing the data.
@@ -36,6 +36,8 @@ The following are the additional metadata attributes describing a dataset.
       - The earliest date of available data for the dataset.
     * - entry_end_date
       - The latest date of available data for the dataset.
+    * - file_grouping
+      - Indicates how files of the catalog entry are grouped on the server (wy, site_id, wy_daynum)
 
 
 

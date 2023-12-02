@@ -353,8 +353,12 @@ def test_files_exist():
             site_id = "05490600"
         elif site_type == "groundwater":
             site_id = "351058106391002"
-        elif site_type == "snotel":
+        elif dataset == "snotel":
             site_id = "348:UT:SNTL"
+            start_time = "2002-01-01"
+        elif dataset == "observations":
+            site_id = "348:UT:SNTL"
+            start_time = "2002-01-01"
         elif dataset == "scan":
             site_id = "2109:MS:SCAN"
         elif dataset == "ameriflux":
