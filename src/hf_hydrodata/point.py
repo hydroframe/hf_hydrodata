@@ -201,166 +201,6 @@ def get_point_data(*args, **kwargs):
     return data_df.reset_index().drop("index", axis=1)
 
 
-def get_data(data_source, variable, temporal_resolution, aggregation, *args, **kwargs):
-    """
-    Collect observations data into a Pandas DataFrame.
-
-    Observations collected from HydroData for the specified data source, variable, temporal
-    resolution, and aggregation. Optional arguments can be supplied for filters such as
-    date bounds, geography bounds, and/or the minimum number of per-site observations allowed.
-    Please see the package documentation for the full set of supported combinations.
-
-    Parameters
-    ----------
-    data_source : str
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux'.
-    variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
-    temporal_resolution : str
-        Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
-        Please see the documentation for allowable combinations with `variable`.
-    aggregation : str
-        Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
-        for allowable combinations with `variable`.
-    depth_level : int, optional
-        Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
-    date_start : str, optional
-        'YYYY-MM-DD' date indicating beginning of time range.
-    date_end : str, optional
-        'YYYY-MM-DD' date indicating end of time range.
-    latitude_range : tuple, optional
-        Latitude range bounds for the geographic domain; lesser value is provided first.
-    longitude_range : tuple, optional
-        Longitude range bounds for the geographic domain; lesser value is provided first.
-    site_ids : list, optional
-        List of desired (string) site identifiers.
-    state : str, optional
-        Two-letter postal code state abbreviation.
-    polygon : str, optional
-        Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
-    polygon_crs : str, optional
-        CRS definition accepted by `pyproj.CRS.from_user_input()`.
-    site_networks: list, optional
-        List of names of site networks. Can be a list with a single network name.
-        Each network must have matching .csv file with a list of site ID values that comprise
-        the network. This .csv file must be located under network_lists/{data_source}/{variable}
-        in the package directory and named as 'network_name'.csv. Eg: `site_networks=['gagesii']`
-    min_num_obs : int, optional
-        Value for the minimum number of observations desired for a site to have.
-
-    Returns
-    -------
-    data_df : DataFrame
-        DataFrame with columns for each site_id satisfying input filters. Rows represent
-        the date range requested from date_start and/or date_end, or the broadest range of
-        data available for returned sites if no date range is explicitly requested.
-    """
-
-    if len(args) > 0 and isinstance(args[0], dict):
-        options = args[0]
-    else:
-        options = kwargs
-
-    run_remote = not os.path.exists(HYDRODATA)
-
-    if run_remote:
-
-        # Cannot pass local shapefile to API; pass bounding box instead
-        if 'polygon' in options and options['polygon'] is not None:
-            try:
-                assert 'polygon_crs' in options and options['polygon_crs'] is not None
-            except:
-                raise Exception(
-                    """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
-                   to specify this shape's CRS.""")
-            latitude_range, longitude_range = _get_bbox_from_shape(options['polygon'], options['polygon_crs'])
-
-            # Send bounding box to API; remove polygon filters from API options
-            polygon = options['polygon']
-            polygon_crs = options['polygon_crs']
-            polygon_filter = True
-            del options['polygon']
-            del options['polygon_crs']
-            options['latitude_range'] = latitude_range
-            options['longitude_range'] = longitude_range
-        else:
-            polygon_filter = False
-
-        data_df = _get_data_from_api(
-            "data_only",
-            data_source,
-            variable,
-            temporal_resolution,
-            aggregation,
-            options,
-        )
-
-        # Re-filter on shapefile to trim bounding box
-        if polygon_filter == True:
-
-            # Use metadata call to get latitude/longitude for the sites
-            metadata_df = _get_data_from_api(
-                "metadata_only",
-                data_source,
-                variable,
-                temporal_resolution,
-                aggregation,
-                options,
-            )
-
-            # Clip metadata to polygon. Use this new list of sites to filter data_df.
-            clipped_metadata_df = _filter_on_polygon(metadata_df, polygon, polygon_crs)
-
-            metadata_site_ids = list(clipped_metadata_df['site_id'])
-            data_site_ids = list(data_df.columns)[1:]
-            site_ids_to_drop = [s for s in data_site_ids if s not in metadata_site_ids]
-
-            clipped_df = data_df.drop(columns=site_ids_to_drop)
-            return clipped_df
-
-        return data_df
-
-    kwargs = _convert_strings_to_type(options)
-
-    # Create database connection
-    conn = sqlite3.connect(DB_PATH)
-
-    # Validation checks on inputs
-    _check_inputs(
-        data_source, variable, temporal_resolution, aggregation, *args, **kwargs
-    )
-
-    # Get associated variable IDs for requested data types and time periods
-    var_id = _get_var_id(
-        conn, data_source, variable, temporal_resolution, aggregation, *args, **kwargs
-    )
-
-    # Get site list
-    sites_df = _get_sites(
-        conn, data_source, variable, temporal_resolution, aggregation, *args, **kwargs
-    )
-
-    if len(sites_df) == 0:
-        raise ValueError("There are zero sites that satisfy the given parameters.")
-
-    # Get data
-    site_list = list(sites_df["site_id"])
-
-    if (var_id in (1, 2, 3, 4)) | (var_id in range(6, 25)):
-        data_df = _get_data_nc(site_list, var_id, *args, **kwargs)
-
-    elif var_id == 5:
-        data_df = _get_data_sql(conn, var_id, *args, **kwargs)
-
-    conn.close()
-
-    return data_df.reset_index().drop("index", axis=1)
-
-
 def get_point_metadata(*args, **kwargs):
     """
     Return DataFrame with site metadata for the filtered sites.
@@ -478,191 +318,6 @@ def get_point_metadata(*args, **kwargs):
 
     metadata_df = _get_sites(
         conn, options['dataset'], options['variable'], options['temporal_resolution'], options['aggregation'], options
-    )
-
-    # Clean up HUC to string of appropriate length
-    metadata_df["huc8"] = metadata_df["huc"].apply(lambda x: _clean_huc(x))
-    metadata_df.drop(columns=["huc"], inplace=True)
-
-    # Merge on additional metadata attribute tables as needed
-    site_ids = list(metadata_df["site_id"])
-
-    if "stream gauge" in metadata_df["site_type"].unique():
-        attributes_df = pd.read_sql_query(
-            """SELECT site_id, conus1_x, conus1_y, conus2_x, conus2_y,
-                      gages_drainage_sqkm AS gagesii_drainage_area,
-                      class AS gagesii_class,
-                      site_elevation_meters AS gagesii_site_elevation,
-                      drain_area_va AS usgs_drainage_area
-               FROM streamgauge_attributes WHERE site_id IN (%s)"""
-            % ",".join("?" * len(site_ids)),
-            conn,
-            params=site_ids,
-        )
-        metadata_df = pd.merge(metadata_df, attributes_df, how="left", on="site_id")
-
-    if "groundwater well" in metadata_df["site_type"].unique():
-        attributes_df = pd.read_sql_query(
-            """SELECT site_id, conus1_x, conus1_y, conus2_x, conus2_y,
-                      nat_aqfr_cd AS usgs_nat_aqfr_cd,
-                      aqfr_cd AS usgs_aqfr_cd,
-                      aqfr_type_cd AS usgs_aqfr_type_cd,
-                      well_depth_va AS usgs_well_depth,
-                      hole_depth_va AS usgs_hole_depth,
-                      depth_src_cd AS usgs_hole_depth_src_cd
-               FROM well_attributes WHERE site_id IN (%s)"""
-            % ",".join("?" * len(site_ids)),
-            conn,
-            params=site_ids,
-        )
-        metadata_df = pd.merge(metadata_df, attributes_df, how="left", on="site_id")
-
-    if ('SNOTEL station' in metadata_df['site_type'].unique()) or ('SCAN station' in metadata_df['site_type'].unique()):
-        attributes_df = pd.read_sql_query(
-            """SELECT site_id, conus1_x, conus1_y, conus2_x, conus2_y,
-                      elevation AS usda_elevation
-               FROM snotel_station_attributes WHERE site_id IN (%s)"""
-            % ",".join("?" * len(site_ids)),
-            conn,
-            params=site_ids,
-        )
-        metadata_df = pd.merge(metadata_df, attributes_df, how="left", on="site_id")
-
-    if "flux tower" in metadata_df["site_type"].unique():
-        attributes_df = pd.read_sql_query(
-            """SELECT site_id, conus1_x, conus1_y, conus2_x, conus2_y,
-                      site_description AS ameriflux_site_description,
-                      elevation AS ameriflux_elevation,
-                      tower_type AS ameriflux_tower_type,
-                      igbp AS ameriflux_igbp,
-                      terrain AS ameriflux_terrain,
-                      site_snow_cover_days AS ameriflux_site_snow_cover_days,
-                      climate_koeppen AS ameriflux_climate_koeppen,
-                      mean_annual_temp AS ameriflux_mean_annual_temp,
-                      mean_annual_precip AS ameriflux_mean_annual_precip,
-                      team_member_name AS ameriflux_team_member_name,
-                      team_member_role AS ameriflux_team_member_role,
-                      team_member_email AS ameriflux_team_member_email,
-                      team_member_institution AS ameriflux_team_member_institution,
-                      site_funding AS ameriflux_site_funding,
-                      acknowledgement AS ameriflux_acknowledgement,
-                      acknowledgement_comment AS ameriflux_acknowledgement_comment,
-                      doi_citation AS ameriflux_doi_citation,
-                      alternate_url AS ameriflux_alternate_url
-               FROM flux_tower_attributes WHERE site_id IN (%s)"""
-            % ",".join("?" * len(site_ids)),
-            conn,
-            params=site_ids,
-        )
-        metadata_df = pd.merge(metadata_df, attributes_df, how="left", on="site_id")
-
-    conn.close()
-    return metadata_df
-
-
-def get_metadata(data_source, variable, temporal_resolution, aggregation, *args, **kwargs):
-    """
-    Return DataFrame with site metadata for the requested site IDs.
-
-    Parameters
-    ----------
-    data_source : str
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux'.
-    variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
-    temporal_resolution : str
-        Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
-        Please see the documentation for allowable combinations with `variable`.
-    aggregation : str
-        Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
-        for allowable combinations with `variable`.
-    depth_level : int, optional
-        Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
-    date_start : str, optional
-        'YYYY-MM-DD' date indicating beginning of time range.
-    date_end : str, optional
-        'YYYY-MM-DD' date indicating end of time range.
-    latitude_range : tuple, optional
-        Latitude range bounds for the geographic domain; lesser value is provided first.
-    longitude_range : tuple, optional
-        Longitude range bounds for the geographic domain; lesser value is provided first.
-    site_ids : list, optional
-        List of desired (string) site identifiers.
-    state : str, optional
-        Two-letter postal code state abbreviation.
-    polygon : str, optional
-        Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
-    polygon_crs : str, optional
-        CRS definition accepted by `pyproj.CRS.from_user_input()`.
-    site_networks: list, optional
-        List of names of site networks. Can be a list with a single network name.
-        Each network must have matching .csv file with a list of site ID values that comprise
-        the network. This .csv file must be located under network_lists/{data_source}/{variable}
-        in the package directory and named as 'network_name'.csv. Eg: `site_networks=['gagesii']`
-
-    Returns
-    -------
-    DataFrame
-        Site-level DataFrame of site-level metadata.
-    """
-
-    if len(args) > 0 and isinstance(args[0], dict):
-        options = args[0]
-    else:
-        options = kwargs
-
-    run_remote = not os.path.exists(HYDRODATA)
-
-    if run_remote:
-
-        # Cannot pass local shapefile to API; pass bounding box instead
-        if 'polygon' in options and options['polygon'] is not None:
-            try:
-                assert 'polygon_crs' in options and options['polygon_crs'] is not None
-            except:
-                raise Exception(
-                    """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
-                   to specify this shape's CRS.""")
-            latitude_range, longitude_range = _get_bbox_from_shape(options['polygon'], options['polygon_crs'])
-
-            # Send bounding box to API; remove polygon filters from API options
-            polygon = options['polygon']
-            polygon_crs = options['polygon_crs']
-            polygon_filter = True
-            del options['polygon']
-            del options['polygon_crs']
-            options['latitude_range'] = latitude_range
-            options['longitude_range'] = longitude_range
-        else:
-            polygon_filter = False
-
-        data_df = _get_data_from_api(
-            "metadata_only",
-            data_source,
-            variable,
-            temporal_resolution,
-            aggregation,
-            options,
-        )
-
-        # Re-filter on shapefile to trim bounding box
-        if polygon_filter == True:
-            clipped_df = _filter_on_polygon(data_df, polygon, polygon_crs)
-            return clipped_df
-
-        return data_df
-
-    options = _convert_strings_to_type(options)
-
-    # Create database connection
-    conn = sqlite3.connect(DB_PATH)
-
-    metadata_df = _get_sites(
-        conn, data_source, variable, temporal_resolution, aggregation, *args, **kwargs
     )
 
     # Clean up HUC to string of appropriate length
@@ -1033,12 +688,12 @@ def _get_siteid_data_from_api(options):
 
 
 def _get_data_from_api(
-    data_type, data_source, variable, temporal_resolution, aggregation, options
+    data_type, options
 ):
     options = _convert_params_to_string_dict(options)
 
     q_params = _construct_string_from_qparams(
-        data_type, data_source, variable, temporal_resolution, aggregation, options
+        data_type, options
     )
 
     point_data_url = f"{HYDRODATA_URL}/api/point-data-dataframe?{q_params}"
@@ -1143,6 +798,8 @@ def _convert_strings_to_type(options):
             if isinstance(value, str):
                 try:
                     options[key] = ast.literal_eval(value)
+                    if type(options[key]) is int:
+                        options[key] = value
                 except:
                     options[key] = value     # when site_id is a single str
         if key == "site_networks":
@@ -1184,7 +841,7 @@ def _construct_siteids_string_from_qparams(options):
 
 
 def _construct_string_from_qparams(
-    data_type, data_source, variable, temporal_resolution, aggregation, options
+    data_type, options
 ):
     """
     Constructs the query parameters from the entry and options provided.
@@ -1204,11 +861,6 @@ def _construct_string_from_qparams(
 
     qparam_values = options
     qparam_values["data_type"] = data_type
-    qparam_values["data_source"] = data_source
-    qparam_values["dataset"] = data_source
-    qparam_values["variable"] = variable
-    qparam_values["temporal_resolution"] = temporal_resolution
-    qparam_values["aggregation"] = aggregation
 
     string_parts = [
         f"{name}={value}" for name, value in options.items() if value is not None
@@ -1290,7 +942,7 @@ def get_citations(data_source, variable, temporal_resolution, aggregation, site_
         citation_dict[data_source] = c
 
         if site_ids is not None:
-            metadata_df = get_metadata(data_source, variable, temporal_resolution, aggregation, site_ids=site_ids)
+            metadata_df = get_point_metadata(dataset=data_source, variable=variable, temporal_resolution=temporal_resolution, aggregation=aggregation, site_ids=site_ids)
             for i in range(len(metadata_df)):
                 site_id = metadata_df.loc[i, 'site_id']
                 doi = metadata_df.loc[i, 'doi']

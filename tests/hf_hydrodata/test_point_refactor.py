@@ -109,11 +109,11 @@ def test_get_dataframe():
         new=mock_requests_get,
     ):
         point.HYDRODATA = "/empty"
-        data_df = point.get_data(
-            "usgs_nwis",
-            "streamflow",
-            "daily",
-            "average",
+        data_df = point.get_point_data(
+            dataset="usgs_nwis",
+            variable="streamflow",
+            temporal_resolution="daily",
+            aggregation="average",
             date_start="2020-01-01",
             date_end="2020-01-03",
             latitude_range=(45, 46),
@@ -132,11 +132,11 @@ def test_get_meta_dataframe():
         new=mock_requests_get_metadata,
     ):
         point.HYDRODATA = "/empty"
-        data_df = point.get_metadata(
-            "usgs_nwis",
-            "streamflow",
-            "daily",
-            "average",
+        data_df = point.get_point_metadata(
+            dataset="usgs_nwis",
+            variable="streamflow",
+            temporal_resolution="daily",
+            aggregation="average",
             date_start="2020-01-01",
             date_end="2020-01-03",
             latitude_range=(45, 46),
