@@ -3,7 +3,7 @@
 Metadata
 ========
 
-In addition to the dataset attributes that can be used to filter datasets (e.g. dataset, variable, temporal_resolution, aggregation, and grid), we provide additional metadata for every dataset. The specific metadata variables that are provided will vary based on the data source. For example many of the site specific metadata attributes are only available for the specific point datasets that they come from. The functions get_catalog_entry() and get_catalog_entries() can return a structure with all these attributes.
+In addition to the dataset attributes that can be used to filter datasets (e.g. dataset, variable, temporal_resolution, aggregation, and grid), we provide additional metadata for every dataset. The specific metadata variables that are provided will vary based on the data source. For example many of the site specific metadata attributes are only available for the specific point datasets that they come from. The functions `get_catalog_entry()` and `get_catalog_entries()` can return a structure with all these attributes.
 
 The following are the additional metadata attributes describing a dataset.
 
@@ -28,7 +28,7 @@ The following are the additional metadata attributes describing a dataset.
     * - structure_type
       - Distinguishes point data from gridded datasets.
     * - time_zone
-      - The time zone of the data on the server. UTC-00:00 is UTC time. UTC-06:00 is EST time.
+      - The time zone of the data on the server. UTC-00:00 is [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) time.  This is the timezone for the forcing data and other products. UTC-05:00 is EST time; (UTC-04:00 is EDT, e.g.).  *The user should check the time zone of the data and make sure they are intepreting this correctly in any simulations and analysis.*
     * - entry_start_date
       - The earliest date of available data for the dataset.
     * - entry_end_date
