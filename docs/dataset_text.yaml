@@ -1,4 +1,4 @@
-# Contains custom text for various entries in the generated ReadTheDocs documention
+# Contains custom text for various entries in the generated ReadTheDocs documentation
 #
 # Each entry is associated with a key that is injected into the documentation generated
 # from the data model .csv files.
@@ -6,17 +6,138 @@
 datasets:
   "conus1_domain":
     summary: >
-      The CONUS1 domain covers a large contiguous region in the US and areas draining to it.
-      The domain extent and projection are based off of the National Water Model Grid. 
-      Manual corrections were made along the coastline to get rid of cells that were water 
-      and to prune any orphan cells (i.e. cells attached to the domain only by a corner).
+      The ParFlow CONUS1 model is the first generation national ParFlow model. You can learn more about the domain and the model on the [HydroFrame Website](https://hydroframe.org/parflow-conus1/).The `conus1_domain` dataset contains all of the input fields for the model as well as additional pre and post processing files that can be useful for data analysis. If you are interested in building a ParFlow model off of this national template the `Subset Tools python package` can help you do that. Refer to the documentation [here](https://hydroframesubsettools.readthedocs.io/en/edit-docs/examples/index.html)
 
-    processing_notes: >
-      These are notes.
 
   "conus2_domain":
     summary: >
-      The CONUS2 domain covers the entire contiguous US and areas draining to it.
-      The domain extent and projection are based off of the National Water Model Grid. 
-      Manual corrections were made along the coastline to get rid of cells that were water 
-      and to prune any orphan cells (i.e. cells attached to the domain only by a corner).
+      The ParFlow CONUS2 model is the second generation national ParFlow model. The CONUS2 domain covers the entire contiguous US and areas draining to it. The domain extent and projection are based off of the National Water Model Grid. Manual corrections were made along the coastline to get rid of cells that were water and to prune any orphan cells (i.e. cells attached to the domain only by a corner).  You can learn more about the domain and the model on the [HydroFrame Website](https://hydroframe.org/parflow-conus2/).The `conus2_domain` dataset contains all of the input fields for the model as well as additional pre and post processing files that can be useful for data analysis. If you are interested in building a ParFlow model off of this national template the `Subset Tools python package` can help you do that. Refer to the documentation [here](https://hydroframesubsettools.readthedocs.io/en/edit-docs/examples/index.html)
+
+  "conus1_baseline_85":
+    summary: >
+      A simulation of water year 1985 completed with the ParFlow CONUS1 model.  This was the first transient simulation that was completed with the ParFlow CONUS1 model. The simulation was completed using the NLDAS2 forcing dataset at 1km resolution and a 1 hour time step.  This dataset contains all of the outputs from the simulation as well as the ParFlow and CLM run scripts.  The model inputs can be found in the `conus1_domain` dataset. Refer to the citations below for additional information on the model development and findings. 
+
+  "conus1_baseline_mod":
+    summary: >
+      A simulation of water years 2003-2006 completed with the ParFlow CONUS1 model.  This is the most recent transient simulation that was completed with the ParFlow CONUS1 model (i.e. after the conus_baseline_85 simulation). The simulation was completed using the NLDAS2 forcing dataset at 1km resolution and a 1 hour time step.  This dataset contains all of the outputs from the simulation as well as the ParFlow and CLM run scripts.  The model inputs can be found in the `conus1_domain` dataset. Refer to the citations below for additional information on the model development and findings. 
+
+  "NLDAS2":
+    summary: >
+      ...
+
+    processing_notes: >
+      ....
+
+  "NLDSAS2_1985":
+    summary: >
+      ...
+
+    processing_notes: >
+      ....
+
+  "CW3E":
+    summary: >
+      ...
+
+    processing_notes: >
+      ....
+
+  "huc_mapping":
+    summary: >
+      USGS Hydrologic unit codes have been mapped to the CONUS1 and CONUS2 grids. This mapping generally respects the boundaries provided in the USGS shape files however small adjustments were made to ensure that the watershed boundaries align with topographic boundaries in the CONUS1 nd CONUS2 domains.  This dataset contains mappings for ... 
+
+    processing_notes: >
+      ....
+
+  "conus1_current_conditions":
+    summary: >
+      ...
+
+    processing_notes: >
+      ....
+
+  "conus2_current_conditions":
+    summary: >
+      ...
+
+    processing_notes: >
+      ....
+
+  "nasa_smap":
+    summary: >
+      ...
+
+    processing_notes: >
+      ....
+
+  "usgs_nwis":
+    summary: >
+      Streamflow and groundwater data from the USGS National Water Information System (NWIS) database.
+      
+    * Daily streamflow and water table depth data are obtained from the
+    `Daily Values Service <https://waterservices.usgs.gov/docs/dv-service/daily-values-service-details/>`_.  
+
+    * Hourly streamflow and water table depth data are aggregated to the hourly level from the 
+    `Instantaneous Values Service <https://waterservices.usgs.gov/docs/instantaneous-values/instantaneous-values-details/>`_, which are frequently collected at 15-minute increments.   
+
+    * The water table depth data accessed with ``temporal_resolution='instantaneous'`` comes from the USGS`Groundwater Levels Service <https://waterservices.usgs.gov/docs/groundwater-levels/groundwater-levels-details/>`_. Note that these data usually do not have regular temporal coverage and many of the sites with data available through this method only have a single point-in-time observation available.  
+
+    processing_notes: >
+      We query data from the above sources weekly, early on Sunday mornings. Each weekly job collects all observations since the date through which we have existing data stored. For sites that are currently in operation, this translates to collecting data for only the previous week (7 days for daily data, 168 hours for hourly data). 
+      
+      Because of the sparsity of the `temporal_resolution='instantaneous'` groundwater measurements, those are not included in this weekly schedule. We plan to query that source for new observations roughly every few months.
+
+      Note that raw hourly data is saved in UTC while raw daily data is saved with respect to the local site time zone. 
+
+      To maintain the integrety and traceability back to the original sources, our team conducts very limited data manipulation on the queried data. This includes the following:
+
+      * Unit translation into SI units  
+      * Standardization of NaN/missing values
+        * For example, USGS will sometimes provide strings such as "Ice" or "Dry" to indicate reasons for why certain observations are missing. A full list of such fields is available `here <https://help.waterdata.usgs.gov/codes-and-parameters/instantaneous-and-daily-value-status-codes>`_.
+    
+        We standardize these values into the numeric numpy.NaN to allow the entireity of the series to be interpreted as numeric.
+    
+      * Consolidating multiple concurrent data series
+        * The USGS data sometimes provides multiple concurrent observation series for the same variable for the same site. In these cases, we consolidate the multiple series into a single series following these prioritizations:
+        * If one of the series has been verified, we prioritize that over provisional data
+        * If both series are identical values, we simply reduce down to a single set of observations
+        * If one of the series has non-missing data and the other series has missing data, we prioritize the non-missing data
+        * If multiple series remain with conflicting values, we take the average of the resulting non-missing values
+
+  "snotel":
+    summary: >
+      Snow measurements provided through through the  `Snow Telemetry (SNOTEL) network <https://www.nrcs.usda.gov/wps/portal/wcc/home/aboutUs/monitoringPrograms/automatedSnowMonitoring/#:~:text=SNOTEL%20sites%20are%20designed%20to,used%20to%20keep%20batteries%20charged.>`_.
+
+      Data are accessed through the United States Department of Agriculture (USDA) Natural Resources Conservation Service (NRCS) `Air Water Database <https://www.nrcs.usda.gov/wps/portal/wcc/home/dataAccessHelp/webService>`_.
+
+    processing_notes: >
+      We query data from the above sources weekly, early on Sunday mornings. Each weekly job collects all observations since the date through which we have existing data stored. For sites that are currently in operation, this translates to collecting data for only the previous week (7 days for daily data, 168 hours for hourly data). 
+      
+      Note that raw hourly data is saved in UTC while raw daily data is saved with respect to the local site time zone. 
+
+      To maintain the integrity and traceability back to the original sources, our team conducts very limited data manipulation on the queried data.
+
+
+  "scan":
+    summary: >
+      Observations of soil conditions from the `Soil Climate Analysis Network (SCAN) <https://www.nrcs.usda.gov/resources/data-and-reports/soil-climate-analysis-network>`_.
+
+      The data are obtained from the United States Department of Agriculture (USDA) Natural Resources Conservation Service (NRCS) `Air Water Database <https://www.nrcs.usda.gov/wps/portal/wcc/home/dataAccessHelp/webService>`_.
+
+    processing_notes: >
+      We query data from the above sources weekly, early on Sunday mornings. Each weekly job collects all observations since the date through which we have existing data stored. For sites that are currently in operation, this translates to collecting data for only the previous week (7 days for daily data, 168 hours for hourly data). 
+      
+      Note that raw hourly data is saved in UTC while raw daily data is saved with respect to the local site time zone. 
+
+      To maintain the integrity and traceability back to the original sources, our team conducts very limited data manipulation on the queried data.
+
+  "ameriflux":
+    summary: >
+      Observations of land energy fluxes from observation towers in the AmeriFlux network. Data are obtained  from the `AmeriFlux <https://ameriflux.lbl.gov/data/data-policy/>`_ network.
+
+    processing_notes: >
+      We query data from the above sources weekly, early on Sunday mornings. Each weekly job collects all observations since the date through which we have existing data stored. For sites that are currently in operation, this translates to collecting data for only the previous week (7 days for daily data, 168 hours for hourly data). 
+      
+      Note that raw hourly data is saved in UTC while raw daily data is saved with respect to the local site time zone. 
+
+      To maintain the integrity and traceability back to the original sources, our team conducts very limited data manipulation on the queried data.
