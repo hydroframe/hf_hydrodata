@@ -1,6 +1,6 @@
-Welcome to Hydrodata Documentation
+HydroData
 =======================================
-The HydroData data catalog and associated python library ``hf_hydrodata`` are products of the [HydroFrame project](https://hydroframe.org) and are designed to provide easy access to national hydrologic simulations generated using the National ParFlow model ([ParFlow-CONUS1](https://hydroframe.org/parflow-conus1) and [ParFlow-CONUS2](https://hydroframe.org/parflow-conus2)) as well as a variety of other gridded model input datasets and point observations.   Some of the datasets provided here are direct observations (e.g. USGS streamflow observations) while other are model outputs or data products (e.g. remote sensing products). 
+The HydroData data catalog, associated python functions ``hf_hydrodata``, and API are products of the [HydroFrame project](https://hydroframe.org) and are designed to provide easy access to national hydrologic simulations generated using the National ParFlow model ([ParFlow-CONUS1](https://hydroframe.org/parflow-conus1) and [ParFlow-CONUS2](https://hydroframe.org/parflow-conus2)) as well as a variety of other gridded model input datasets and point observations.   Some of the datasets provided here are direct observations (e.g. USGS streamflow observations) while other are model outputs (e.g. ParFlow-CONUS2) or data products (e.g. remote sensing products). 
 
 This documentation provides: 
 1. Details on all of the datasets and variables that are available in the HydroData catalog
@@ -11,7 +11,7 @@ Please note that to access any data you will need to first sign up for an accoun
 :ref:`getting_started` contains installation instructions and a quick-start guide for obtaining 
 gridded datasets and point observations. The sections on :ref:`available_data`, :ref:`gridded_data_index` 
 and :ref:`point_data_index` provide more detail on the datasets and fields that are available. 
-Full example jupyter workbook workflows are in `Working with Point Observations` :ref:`examples_index` and the :ref:`api` contains the full list of available functions.
+Full example jupyter workbook workflows are in `Working with point observations` :ref:`examples_index` and the :ref:`api` contains the full list of available functions.
 
 .. toctree::
    :maxdepth: 5
