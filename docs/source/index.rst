@@ -14,7 +14,7 @@ and :ref:`point_data_index` provide more detail on the datasets and fields that 
 Full example jupyter workbook workflows are in `Working with Point Observations` :ref:`examples_index` and the :ref:`api` contains the full list of available functions.
 
 .. toctree::
-   :maxdepth: 5
+   :maxdepth: 2
    :caption: Table of Contents
 
    getting_started
