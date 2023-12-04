@@ -152,7 +152,7 @@ def test_check_inputs():
     point.HYDRODATA = "/hydrodata"
     with pytest.raises(Exception):
         point.check_inputs(
-            data_source="usgs_nwis",
+            dataset="usgs_nwis",
             variable="steamflow",
             temporal_resolution="daily",
             aggregation="mean",
@@ -161,7 +161,7 @@ def test_check_inputs():
     # Parameter provided for temporal_resolution not in supported list.
     with pytest.raises(Exception):
         point.check_inputs(
-            data_source="usgs_nwis",
+            dataset="usgs_nwis",
             variable="streamflow",
             temporal_resolution="monthly",
             aggregation="mean",
@@ -170,7 +170,7 @@ def test_check_inputs():
     # Variable requested is soil moisture but no depth level provided.
     with pytest.raises(Exception):
         point.check_inputs(
-            data_source="scan",
+            dataset="scan",
             variable="soil_moisture",
             temporal_resolution="daily",
             aggregation="sod",
@@ -179,7 +179,7 @@ def test_check_inputs():
     # Variable requested is soil moisture with unsupported depth level provided.
     with pytest.raises(Exception):
         point.check_inputs(
-            data_source="scan",
+            dataset="scan",
             variable="soil_moisture",
             temporal_resolution="daily",
             aggregation="sod",
@@ -948,7 +948,7 @@ def test_polygon_filter_fail():
 
 def test_get_citations_usgs():
     """Test for get_citations function with return DataFrame."""
-    c_dict = point.get_citations(data_source='usgs_nwis', variable='streamflow',
+    c_dict = point.get_citations(dataset='usgs_nwis', variable='streamflow',
                                  temporal_resolution='daily', aggregation='mean')
 
     assert len(c_dict.keys()) == 1
@@ -957,7 +957,7 @@ def test_get_citations_usgs():
 
 def test_get_citations_ameriflux():
     """Test for get_citations function with return DataFrame."""
-    c_dict = point.get_citations(data_source='ameriflux', variable='latent_heat',
+    c_dict = point.get_citations(dataset='ameriflux', variable='latent_heat',
                                  temporal_resolution='hourly', aggregation='sum',
                                  site_ids=['US-Act', 'US-Bar'])
 
@@ -1027,11 +1027,11 @@ def test_get_variables_temporal_filter():
 
 
 def test_get_variables_source_filter():
-    """Test get_site_variables function with data_source filter"""
+    """Test get_site_variables function with dataset filter"""
     df = point.get_site_variables(
         latitude_range=(39, 40),
         longitude_range=(-120, -119),
-        data_source='snotel')
+        dataset='snotel')
 
     # Bounds are flexible for if more sites are added
     assert (len(df) >= 40) & (len(df) <= 50)
@@ -1045,7 +1045,7 @@ def test_get_variables_aggregation_filter():
     df = point.get_site_variables(
         latitude_range=(39, 40),
         longitude_range=(-120, -119),
-        data_source='snotel',
+        dataset='snotel',
         variable='air_temp',
         aggregation='mean')
 
@@ -1123,7 +1123,7 @@ def test_get_variables_networks_filter_list():
     """Test get_site_variables function with site_networks filter as a list"""
     df = point.get_site_variables(
         state='NJ',
-        data_source='usgs_nwis',
+        dataset='usgs_nwis',
         variable='streamflow',
         temporal_resolution='daily',
         site_networks=['gagesii'])
@@ -1136,7 +1136,7 @@ def test_get_variables_networks_filter_str():
     """Test get_site_variables function with site_networks filter as a string"""
     df = point.get_site_variables(
         state='NJ',
-        data_source='usgs_nwis',
+        dataset='usgs_nwis',
         variable='streamflow',
         temporal_resolution='daily',
         site_networks='gagesii')
