@@ -109,11 +109,11 @@ def test_get_dataframe():
         new=mock_requests_get,
     ):
         point.HYDRODATA = "/empty"
-        data_df = point.get_data(
-            "usgs_nwis",
-            "streamflow",
-            "daily",
-            "average",
+        data_df = point.get_point_data(
+            dataset="usgs_nwis",
+            variable="streamflow",
+            temporal_resolution="daily",
+            aggregation="average",
             date_start="2020-01-01",
             date_end="2020-01-03",
             latitude_range=(45, 46),
@@ -132,11 +132,11 @@ def test_get_meta_dataframe():
         new=mock_requests_get_metadata,
     ):
         point.HYDRODATA = "/empty"
-        data_df = point.get_metadata(
-            "usgs_nwis",
-            "streamflow",
-            "daily",
-            "average",
+        data_df = point.get_point_metadata(
+            dataset="usgs_nwis",
+            variable="streamflow",
+            temporal_resolution="daily",
+            aggregation="average",
             date_start="2020-01-01",
             date_end="2020-01-03",
             latitude_range=(45, 46),
@@ -210,11 +210,11 @@ def test_filter_min_num_obs():
 def test_no_sites_error_message():
     """Test that error gets raised if not sites fit filters"""
     with pytest.raises(Exception):
-        df = point.get_data(
-            "usgs_nwis",
-            "wtd",
-            "hourly",
-            "average",
+        df = point.get_point_data(
+            dataset="usgs_nwis",
+            variable="wtd",
+            temporal_resolution="hourly",
+            aggregation="average",
             date_start="2002-01-01",
             date_end="2002-01-05",
             latitude_range=(49, 50),
@@ -224,11 +224,11 @@ def test_no_sites_error_message():
 
 def test_get_data_streamflow_daily():
     """Test for daily streamflow data"""
-    df = point.get_data(
-        "usgs_nwis",
-        "streamflow",
-        "daily",
-        "average",
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         latitude_range=(47, 50),
@@ -240,12 +240,12 @@ def test_get_data_streamflow_daily():
 
 def test_get_data_streamflow_daily_dict():
     """Test for daily streamflow data using input dictionary"""
-    df = point.get_data(
-        "usgs_nwis",
-        "streamflow",
-        "daily",
-        "average",
-        {"date_start": "2002-01-01",
+    df = point.get_point_data(
+        {"dataset": "usgs_nwis",
+         "variable": "streamflow",
+         "temporal_resolution": "daily",
+         "aggregation": "average",
+         "date_start": "2002-01-01",
          "date_end": "2002-01-05",
          "latitude_range": (47, 50),
          "longitude_range": (-75, -50)}
@@ -256,11 +256,11 @@ def test_get_data_streamflow_daily_dict():
 
 def test_get_data_streamflow_hourly():
     """Test for hourly streamflow data"""
-    df = point.get_data(
-        "usgs_nwis",
-        "streamflow",
-        "hourly",
-        "average",
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="hourly",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         latitude_range=(45, 50),
@@ -272,11 +272,11 @@ def test_get_data_streamflow_hourly():
 
 def test_get_data_wtd_daily():
     """Test for daily wtd data"""
-    df = point.get_data(
-        "usgs_nwis",
-        "wtd",
-        "daily",
-        "average",
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="wtd",
+        temporal_resolution="daily",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         latitude_range=(45, 50),
@@ -288,11 +288,11 @@ def test_get_data_wtd_daily():
 
 def test_get_data_wtd_hourly():
     """Test for hourly wtd data"""
-    df = point.get_data(
-        "usgs_nwis",
-        "wtd",
-        "hourly",
-        "average",
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="wtd",
+        temporal_resolution="hourly",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         latitude_range=(30, 40),
@@ -304,11 +304,11 @@ def test_get_data_wtd_hourly():
 
 def test_get_data_wtd_instantaneous():
     """Test for instantaneous wtd data"""
-    df = point.get_data(
-        "usgs_nwis",
-        "wtd",
-        "instantaneous",
-        "instantaneous",
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="wtd",
+        temporal_resolution="instantaneous",
+        aggregation="instantaneous",
         date_start="2002-01-01",
         date_end="2002-01-01",
         latitude_range=(30, 35),
@@ -321,11 +321,11 @@ def test_get_data_wtd_instantaneous():
 
 def test_get_data_swe_daily():
     """Test for daily swe data"""
-    df = point.get_data(
-        "snotel",
-        "swe",
-        "daily",
-        "start-of-day",
+    df = point.get_point_data(
+        dataset="snotel",
+        variable="swe",
+        temporal_resolution="daily",
+        aggregation="start-of-day",
         date_start="2022-01-01",
         date_end="2022-01-04",
         latitude_range=(39, 40),
@@ -337,11 +337,11 @@ def test_get_data_swe_daily():
 
 def test_get_data_precipitation_daily():
     """Tests for daily precipitation data"""
-    accumulated_df = point.get_data(
-        "snotel",
-        "precipitation",
-        "daily",
-        "accumulated",
+    accumulated_df = point.get_point_data(
+        dataset="snotel",
+        variable="precipitation",
+        temporal_resolution="daily",
+        aggregation="accumulated",
         date_start="2022-01-01",
         date_end="2022-01-04",
         latitude_range=(39, 40),
@@ -350,11 +350,11 @@ def test_get_data_precipitation_daily():
     assert len(accumulated_df) == 4
     assert '340:NV:SNTL' in accumulated_df.columns
 
-    total_df = point.get_data(
-        "snotel",
-        "precipitation",
-        "daily",
-        "total",
+    total_df = point.get_point_data(
+        dataset="snotel",
+        variable="precipitation",
+        temporal_resolution="daily",
+        aggregation="total",
         date_start="2022-01-01",
         date_end="2022-01-04",
         latitude_range=(39, 40),
@@ -364,11 +364,11 @@ def test_get_data_precipitation_daily():
     assert '340:NV:SNTL' in total_df.columns
     assert (accumulated_df['340:NV:SNTL'] > total_df['340:NV:SNTL']).all() == True
 
-    total_adj_df = point.get_data(
-        "snotel",
-        "precipitation",
-        "daily",
-        "total, snow-adjusted",
+    total_adj_df = point.get_point_data(
+        dataset="snotel",
+        variable="precipitation",
+        temporal_resolution="daily",
+        aggregation="total, snow-adjusted",
         date_start="2022-01-01",
         date_end="2022-01-04",
         latitude_range=(39, 40),
@@ -381,11 +381,11 @@ def test_get_data_precipitation_daily():
 
 def test_get_data_temperature_daily():
     """Tests for daily temperature data"""
-    min_df = point.get_data(
-        "snotel",
-        "temperature",
-        "daily",
-        "minimum",
+    min_df = point.get_point_data(
+        dataset="snotel",
+        variable="temperature",
+        temporal_resolution="daily",
+        aggregation="minimum",
         date_start="2022-01-01",
         date_end="2022-01-04",
         latitude_range=(39, 40),
@@ -394,11 +394,11 @@ def test_get_data_temperature_daily():
     assert len(min_df) == 4
     assert '340:NV:SNTL' in min_df.columns
 
-    max_df = point.get_data(
-        "snotel",
-        "temperature",
-        "daily",
-        "maximum",
+    max_df = point.get_point_data(
+        dataset="snotel",
+        variable="temperature",
+        temporal_resolution="daily",
+        aggregation="maximum",
         date_start="2022-01-01",
         date_end="2022-01-04",
         latitude_range=(39, 40),
@@ -407,11 +407,11 @@ def test_get_data_temperature_daily():
     assert len(max_df) == 4
     assert '340:NV:SNTL' in max_df.columns
 
-    mean_df = point.get_data(
-        "snotel",
-        "temperature",
-        "daily",
-        "average",
+    mean_df = point.get_point_data(
+        dataset="snotel",
+        variable="temperature",
+        temporal_resolution="daily",
+        aggregation="average",
         date_start="2022-01-01",
         date_end="2022-01-04",
         latitude_range=(39, 40),
@@ -428,11 +428,11 @@ def test_get_data_temperature_daily():
 def test_get_soil_moisture_fail():
     """Make sure failure if required depth_level parameter not supplied."""
     with pytest.raises(Exception):
-        df = point.get_data(
-            "scan",
-            "soil moisture",
-            "daily",
-            "start-of-day",
+        df = point.get_point_data(
+            dataset="scan",
+            variable="soil moisture",
+            temporal_resolution="daily",
+            aggregation="start-of-day",
             date_start="2002-01-01",
             date_end="2002-01-05",
             latitude_range=(49, 50),
@@ -442,11 +442,11 @@ def test_get_soil_moisture_fail():
 
 def test_get_data_soil_moisture_daily():
     """Tests for daily soil moisture data"""
-    df_2 = point.get_data(
-        "snotel",
-        "soil moisture",
-        "daily",
-        "start-of-day",
+    df_2 = point.get_point_data(
+        dataset="snotel",
+        variable="soil moisture",
+        temporal_resolution="daily",
+        aggregation="start-of-day",
         depth_level=2,
         date_start="2022-01-01",
         date_end="2022-01-03",
@@ -456,11 +456,11 @@ def test_get_data_soil_moisture_daily():
     assert len(df_2) == 3
     assert '1242:NV:SNTL' in df_2.columns
 
-    df_4 = point.get_data(
-        "scan",
-        "soil moisture",
-        "daily",
-        "start-of-day",
+    df_4 = point.get_point_data(
+        dataset="scan",
+        variable="soil moisture",
+        temporal_resolution="daily",
+        aggregation="start-of-day",
         depth_level=4,
         date_start="2022-01-01",
         date_end="2022-01-03",
@@ -470,11 +470,11 @@ def test_get_data_soil_moisture_daily():
     assert len(df_4) == 3
     assert '2189:CA:SCAN' in df_4.columns
 
-    df_8 = point.get_data(
-        "snotel",
-        "soil moisture",
-        "daily",
-        "start-of-day",
+    df_8 = point.get_point_data(
+        dataset="snotel",
+        variable="soil moisture",
+        temporal_resolution="daily",
+        aggregation="start-of-day",
         depth_level=8,
         date_start="2022-01-01",
         date_end="2022-01-03",
@@ -484,11 +484,11 @@ def test_get_data_soil_moisture_daily():
     assert len(df_8) == 3
     assert '1242:NV:SNTL' in df_8.columns
 
-    df_20 = point.get_data(
-        "snotel",
-        "soil moisture",
-        "daily",
-        "start-of-day",
+    df_20 = point.get_point_data(
+        dataset="snotel",
+        variable="soil moisture",
+        temporal_resolution="daily",
+        aggregation="start-of-day",
         depth_level=20,
         date_start="2022-01-01",
         date_end="2022-01-03",
@@ -498,11 +498,11 @@ def test_get_data_soil_moisture_daily():
     assert len(df_20) == 3
     assert '1242:NV:SNTL' in df_20.columns
 
-    df_40 = point.get_data(
-        "scan",
-        "soil moisture",
-        "daily",
-        "start-of-day",
+    df_40 = point.get_point_data(
+        dataset="scan",
+        variable="soil moisture",
+        temporal_resolution="daily",
+        aggregation="start-of-day",
         depth_level=40,
         date_start="2022-01-01",
         date_end="2022-01-03",
@@ -515,11 +515,11 @@ def test_get_data_soil_moisture_daily():
 
 def test_get_data_latent_heat_flux():
     """Tests for hourly latent heat flux data"""
-    df = point.get_data(
-        "ameriflux",
-        "latent heat flux",
-        "hourly",
-        "total",
+    df = point.get_point_data(
+        dataset="ameriflux",
+        variable="latent heat flux",
+        temporal_resolution="hourly",
+        aggregation="total",
         date_start="2022-01-01",
         date_end="2022-01-02",
         latitude_range=(30, 40),
@@ -531,11 +531,11 @@ def test_get_data_latent_heat_flux():
 
 def test_get_data_sensible_heat_flux():
     """Tests for hourly sensible heat flux data"""
-    df = point.get_data(
-        "ameriflux",
-        "sensible heat flux",
-        "hourly",
-        "total",
+    df = point.get_point_data(
+        dataset="ameriflux",
+        variable="sensible heat flux",
+        temporal_resolution="hourly",
+        aggregation="total",
         date_start="2022-01-01",
         date_end="2022-01-02",
         latitude_range=(30, 40),
@@ -547,11 +547,11 @@ def test_get_data_sensible_heat_flux():
 
 def test_get_data_sradiation():
     """Tests for hourly shortwave radiation data"""
-    df = point.get_data(
-        "ameriflux",
-        "shortwave radiation",
-        "hourly",
-        "average",
+    df = point.get_point_data(
+        dataset="ameriflux",
+        variable="shortwave radiation",
+        temporal_resolution="hourly",
+        aggregation="average",
         date_start="2022-01-01",
         date_end="2022-01-02",
         latitude_range=(30, 40),
@@ -563,11 +563,11 @@ def test_get_data_sradiation():
 
 def test_get_data_lradiation():
     """Tests for hourly longwave radiation data"""
-    df = point.get_data(
-        "ameriflux",
-        "longwave radiation",
-        "hourly",
-        "average",
+    df = point.get_point_data(
+        dataset="ameriflux",
+        variable="longwave radiation",
+        temporal_resolution="hourly",
+        aggregation="average",
         date_start="2022-01-01",
         date_end="2022-01-02",
         latitude_range=(30, 40),
@@ -579,11 +579,11 @@ def test_get_data_lradiation():
 
 def test_get_data_vpd():
     """Tests for hourly vapor pressure deficit data"""
-    df = point.get_data(
-        "ameriflux",
-        "vapor pressure deficit",
-        "hourly",
-        "average",
+    df = point.get_point_data(
+        dataset="ameriflux",
+        variable="vapor pressure deficit",
+        temporal_resolution="hourly",
+        aggregation="average",
         date_start="2022-01-01",
         date_end="2022-01-02",
         latitude_range=(30, 40),
@@ -595,11 +595,11 @@ def test_get_data_vpd():
 
 def test_get_data_temperature_fluxnet():
     """Tests for hourly temperature data"""
-    df = point.get_data(
-        "ameriflux",
-        "temperature",
-        "hourly",
-        "average",
+    df = point.get_point_data(
+        dataset="ameriflux",
+        variable="temperature",
+        temporal_resolution="hourly",
+        aggregation="average",
         date_start="2022-01-01",
         date_end="2022-01-02",
         latitude_range=(30, 40),
@@ -611,11 +611,11 @@ def test_get_data_temperature_fluxnet():
 
 def test_get_data_wind_speed():
     """Tests for hourly wind speed data"""
-    df = point.get_data(
-        "ameriflux",
-        "wind speed",
-        "hourly",
-        "average",
+    df = point.get_point_data(
+        dataset="ameriflux",
+        variable="wind speed",
+        temporal_resolution="hourly",
+        aggregation="average",
         date_start="2022-01-01",
         date_end="2022-01-02",
         latitude_range=(30, 40),
@@ -627,11 +627,11 @@ def test_get_data_wind_speed():
 
 def test_get_metadata_streamflow():
     """Test for streamflow metadata"""
-    metadata_df = point.get_metadata(
-        "usgs_nwis",
-        "streamflow",
-        "daily",
-        "average",
+    metadata_df = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         latitude_range=(47, 50),
@@ -644,12 +644,12 @@ def test_get_metadata_streamflow():
 
 def test_get_metadata_streamflow_dict():
     """Test for streamflow metadata using dictionary input"""
-    metadata_df = point.get_metadata(
-        "usgs_nwis",
-        "streamflow",
-        "daily",
-        "average",
-        {"date_start": "2002-01-01",
+    metadata_df = point.get_point_metadata(
+        {"dataset": "usgs_nwis",
+         "variable": "streamflow",
+         "temporal_resolution": "daily",
+         "aggregation": "average",
+         "date_start": "2002-01-01",
          "date_end": "2002-01-05",
          "latitude_range": (47, 50),
          "longitude_range": (-75, -50)}
@@ -661,11 +661,11 @@ def test_get_metadata_streamflow_dict():
 
 def test_get_metadata_streamflow_hourly():
     """Test for streamflow metadata, hourly"""
-    metadata_df = point.get_metadata(
-        "usgs_nwis",
-        "streamflow",
-        "hourly",
-        "average",
+    metadata_df = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="hourly",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         latitude_range=(47, 50),
@@ -678,11 +678,11 @@ def test_get_metadata_streamflow_hourly():
 
 def test_get_metadata_wtd():
     """Test for wtd metadata"""
-    metadata_df = point.get_metadata(
-        "usgs_nwis",
-        "wtd",
-        "daily",
-        "average",
+    metadata_df = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="wtd",
+        temporal_resolution="daily",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         latitude_range=(47, 50),
@@ -695,11 +695,11 @@ def test_get_metadata_wtd():
 
 def test_get_metadata_swe():
     """Test for swe metadata"""
-    metadata_df = point.get_metadata(
-        "snotel",
-        "swe",
-        "daily",
-        "start-of-day",
+    metadata_df = point.get_point_metadata(
+        dataset="snotel",
+        variable="swe",
+        temporal_resolution="daily",
+        aggregation="start-of-day",
         date_start="2002-01-01",
         date_end="2002-01-05",
         latitude_range=(39, 40),
@@ -712,11 +712,11 @@ def test_get_metadata_swe():
 
 def test_get_metadata_flux():
     """Test for ameriflux metadata"""
-    metadata_df = point.get_metadata(
-        "ameriflux",
-        "latent heat flux",
-        "hourly",
-        "total",
+    metadata_df = point.get_point_metadata(
+        dataset="ameriflux",
+        variable="latent heat flux",
+        temporal_resolution="hourly",
+        aggregation="total",
         date_start="2022-01-01",
         date_end="2022-01-02",
         latitude_range=(30, 40),
@@ -729,11 +729,11 @@ def test_get_metadata_flux():
 
 def test_get_data_state_filter():
     """Test for using state filter"""
-    df = point.get_data(
-        "usgs_nwis",
-        "streamflow",
-        "daily",
-        "average",
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         state='ME'
@@ -744,12 +744,12 @@ def test_get_data_state_filter():
 
 
 def test_get_data_site_filter_list():
-    """Test for using site_ids filter as a list"""
-    df = point.get_data(
-        "usgs_nwis",
-        "streamflow",
-        "daily",
-        "average",
+    """Test for using site_ids filter with a list"""
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         site_ids=['01011000', '01013500']
@@ -759,12 +759,12 @@ def test_get_data_site_filter_list():
 
 
 def test_get_data_site_filter_str():
-    """Test for using site_ids filter as a str"""
-    df = point.get_data(
-        "usgs_nwis",
-        "streamflow",
-        "daily",
-        "average",
+    """Test for using site_ids filter with a string"""
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         site_ids='01011000'
@@ -773,13 +773,27 @@ def test_get_data_site_filter_str():
     assert list(df.columns == ['date', '01011000'])
 
 
+def test_get_data_site_filter_fail():
+    """Test for using site_ids filter with numeric fails"""
+    with pytest.raises(Exception):
+        df = point.get_point_data(
+            dataset="usgs_nwis",
+            variable="streamflow",
+            temporal_resolution="daily",
+            aggregation="average",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            site_ids=1011000
+        )
+
+
 def test_site_networks_filter_list():
     """Test for using site_networks filter as a list"""
-    data_df = point.get_data(
-        "usgs_nwis",
-        "streamflow",
-        "daily",
-        "average",
+    data_df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         state='NJ',
@@ -790,11 +804,11 @@ def test_site_networks_filter_list():
     assert len(data_df) == 5
     assert '01377500' in data_df.columns
 
-    metadata_df = point.get_metadata(
-        "usgs_nwis",
-        "streamflow",
-        "daily",
-        "average",
+    metadata_df = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         state='NJ',
@@ -806,12 +820,12 @@ def test_site_networks_filter_list():
 
 
 def test_site_networks_filter_str():
-    """Test for using site_networks filter as a string"""
-    data_df = point.get_data(
-        "usgs_nwis",
-        "streamflow",
-        "daily",
-        "average",
+    """Test for using site_networks filter as a str"""
+    data_df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         state='NJ',
@@ -822,11 +836,11 @@ def test_site_networks_filter_str():
     assert len(data_df) == 5
     assert '01377500' in data_df.columns
 
-    metadata_df = point.get_metadata(
-        "usgs_nwis",
-        "streamflow",
-        "daily",
-        "average",
+    metadata_df = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         state='NJ',
@@ -839,11 +853,11 @@ def test_site_networks_filter_str():
 
 def test_get_data_min_num_obs_filter():
     """Test for using min_num_obs filter"""
-    df = point.get_data(
-        "usgs_nwis",
-        "streamflow",
-        "daily",
-        "average",
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         site_ids=['01377500', '01378500', '01445000'],
@@ -851,11 +865,11 @@ def test_get_data_min_num_obs_filter():
     )
     assert list(df.columns) == ['date', '01377500', '01378500']
 
-    df = point.get_data(
-        "usgs_nwis",
-        "streamflow",
-        "daily",
-        "average",
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         site_ids=['01377500', '01378500', '01445000'],
@@ -864,11 +878,11 @@ def test_get_data_min_num_obs_filter():
     assert list(df.columns) == ['date', '01377500', '01378500']
 
     # If no min_num_obs filter supplied, all three sites returned
-    df = point.get_data(
-        "usgs_nwis",
-        "streamflow",
-        "daily",
-        "average",
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         site_ids=['01377500', '01378500', '01445000']
@@ -879,11 +893,11 @@ def test_get_data_min_num_obs_filter():
 def test_polygon_filter_data_remote():
     """Test data filter for accepting a shapefile when the file is local to an end user and remote 
     to /hydrodata and the API."""
-    df = point.get_data(
-        "usgs_nwis",
-        "streamflow",
-        "daily",
-        "average",
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         polygon=f'{str(LOCAL_TEST_DATA_DIR)}/raritan_watershed.shp',
@@ -901,11 +915,11 @@ def test_polygon_filter_data_remote():
 def test_polygon_filter_metadata_remote():
     """Test metadata filter for accepting a shapefile when the file is local to an end user and remote 
     to /hydrodata and the API."""
-    metadata_df = point.get_metadata(
-        "usgs_nwis",
-        "streamflow",
-        "daily",
-        "average",
+    metadata_df = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="average",
         date_start="2002-01-01",
         date_end="2002-01-05",
         polygon=f'{str(LOCAL_TEST_DATA_DIR)}/raritan_watershed.shp',
@@ -922,11 +936,11 @@ def test_polygon_filter_metadata_remote():
 def test_polygon_filter_fail():
     """Ensure polygon processing fails if no polygon_crs provided"""
     with pytest.raises(Exception):
-        point.get_data(
-            "usgs_nwis",
-            "streamflow",
-            "daily",
-            "average",
+        point.get_point_data(
+            dataset="usgs_nwis",
+            variable="streamflow",
+            temporal_resolution="daily",
+            aggregation="average",
             date_start="2002-01-01",
             date_end="2002-01-05",
             polygon=f'{str(LOCAL_TEST_DATA_DIR)}/raritan_watershed.shp')
@@ -969,6 +983,8 @@ def test_get_variables_lat_lon():
 
 def test_get_variables_lat_lon():
     """Test get_site_variables function with lat/lon filter"""
+    # query_parameters = {'latitude_range': '(47, 50)', 'longitude_range': '(-75, -60)'}
+
     query_parameters = {'latitude_range': '(47, 50)', 'longitude_range': '(-75, -60)'}
 
     df = point.get_site_variables(
@@ -1147,6 +1163,77 @@ def test_get_variables_polygon_filter():
     )
     assert len(df) >= 56
     assert '01396091' in list(df['site_id'])
+
+
+def test_fail_data_parameter_missing():
+    """Test that error gets raised if required parameters are not included"""
+    with pytest.raises(Exception):
+        df = point.get_point_data(
+            variable="wtd",
+            temporal_resolution="hourly",
+            aggregation="average",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            latitude_range=(49, 50),
+            longitude_range=(-75, -74)
+        )
+
+
+def test_fail_metadata_parameter_missing():
+    """Test that error gets raised if required parameters are not included"""
+    with pytest.raises(Exception):
+        df = point.get_point_metadata(
+            dataset="usgs_nwis",
+            variable="wtd",
+            aggregation="average",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            latitude_range=(49, 50),
+            longitude_range=(-75, -74)
+        )
+
+
+def test_fail_unsupported_parameter1():
+    """Test that error gets raised if unrecognized parameter supplied."""
+    with pytest.raises(Exception):
+        df = point.get_point_metadata(
+            dataset="usgs_nwis",
+            variable="wtd",
+            aggregation="average",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            latituderange=(49, 50),
+            longituderange=(-75, -74)
+        )
+
+
+def test_fail_unsupported_parameter2():
+    """Test that error gets raised if unrecognized parameter supplied."""
+    with pytest.raises(Exception):
+        df = point.get_point_metadata(
+            dataset="usgs_nwis",
+            varaible="wtd",
+            aggregation="average",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            latitude_range=(49, 50),
+            longitude_range=(-75, -74)
+        )
+
+
+def test_fail_unsupported_parameter3():
+    """Test that error gets raised if unrecognized parameter supplied."""
+    with pytest.raises(Exception):
+        df = point.get_point_metadata(
+            dataset="usgs_nwis",
+            variable="wtd",
+            aggregation="average",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            latitude_range=(49, 50),
+            longitude_range=(-75, -74),
+            min_num_obsv=1
+        )
 
 
 if __name__ == "__main__":
