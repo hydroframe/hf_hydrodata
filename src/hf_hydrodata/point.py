@@ -869,7 +869,7 @@ def _construct_string_from_qparams(
     return result_string
 
 
-def get_citations(dataset, variable, temporal_resolution, aggregation, site_ids=None):
+def get_citations(dataset):
     """
     Return a dictionary with relevant citation information.
 
@@ -878,27 +878,12 @@ def get_citations(dataset, variable, temporal_resolution, aggregation, site_ids=
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
-    variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
-    temporal_resolution : str
-        Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
-        Please see the documentation for allowable combinations with `variable`.
-    aggregation : str
-        Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
-        for allowable combinations with `variable`.
-    site_ids : list; default None
-        If provided, the specific list of sites to return site DOIs for. This is only
-        supported if `dataset` == 'ameriflux'.
 
     Returns
     -------
     Dictionary
-        The dictionary has keys of `dataset` and, if site-level information is requested, `each of
-        the requested site IDs. The dictionary values contain overall attribution instructions when the
-        key is `dataset` and site-level DOIs for each site ID key.
+        The dictionary has key of `dataset` and value containing overall attribution instructions for 
+        that dataset.
     """
     try:
         assert dataset in ["usgs_nwis", "snotel", "scan", "ameriflux"]
@@ -935,21 +920,10 @@ def get_citations(dataset, variable, temporal_resolution, aggregation, site_ids=
              'Department of Energy Office of Science." '
              'Additionally, for each AmeriFlux site used, you must provide a citation to the site '
              'data product that includes the data product DOI. The DOI for each site is included in the '
-             'full metadata query. Alternately, a site list can be provided to this get_citations '
-             'function to return each site-specific DOI. '
+             'DataFrame returned by the hf_hydrodata get_point_metadata method, in the doi column.'
              'Source: https://ameriflux.lbl.gov/data/data-policy/')
         print(c)
         citation_dict[dataset] = c
-
-        if site_ids is not None:
-            metadata_df = get_point_metadata(
-                dataset=dataset, variable=variable, temporal_resolution=temporal_resolution,
-                aggregation=aggregation, site_ids=site_ids)
-            for i in range(len(metadata_df)):
-                site_id = metadata_df.loc[i, 'site_id']
-                doi = metadata_df.loc[i, 'doi']
-                print(f"Site: {site_id}, DOI: {doi}")
-                citation_dict[site_id] = doi
 
     return citation_dict
 
