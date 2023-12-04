@@ -31,7 +31,7 @@ The following are the additional metadata attributes describing a dataset.
     * - structure_type
       - Either point or gridded distinguish gridded data from point observation data.
     * - time_zone
-      - The time zone of the data on the server. UTC-00:00 is UTC time. UTC-06:00 is EST time.
+      - The time zone of the data on the server. UTC-00:00 is UTC time. UTC-05:00 is EST time.
     * - entry_start_date
       - The earliest date of available data for the dataset.
     * - entry_end_date

@@ -44,25 +44,11 @@ You can use pass filter parameters as dict options as well.
       options = {"dataset": "NLDAS2", "grid": "conus1"}
       variables = hf.get_variables(options)
 
-Get Gridded Data
---------
-You can get data from hydrodata as a numpy array using the get_gridded_data() function.
-
-.. code-block:: python
-
-      import hf_hydrodata as hf
-
-      options = {
-            "dataset": "NLDAS2", "variable": "precipitation", "temporal_resolution": "hourly",
-            "start_time": "2005-10-1", "end_time": "2005-10-2", "grid_bounds": [100, 100, 200, 200]
-      }
-      data = hf.get_gridded_data(options)
-
 See the Python API Reference or the Available Datasets and Data Products for a list of all the filter parameters that may be provided.
 
-Get Meta Data
+Metadata Descriptions
 -------------
-You can get metadata about the files in hydrodata.
+You can get metadata about the files in hydrodata using the get_catalog_entry function.
 
 .. code-block:: python
 
@@ -75,7 +61,9 @@ You can get metadata about the files in hydrodata.
       metadata = hf.get_catalog_entry(options)
       print(metadata["units"], metadata["paper_dois"], metadata["grid"], metadata["description"])
 
-You can get the date range available for a data set.
+See `AvailableMetadata <https://hf-hydrodata.readthedocs.io/en/latest/available_metadata.html>`_ for documentation of the meta data returned by get_catalog_entry.
+
+You can get the date range available for a data set using the get_date_range function.
 
 .. code-block:: python
 
