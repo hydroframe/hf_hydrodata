@@ -125,31 +125,37 @@ def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
             if dataset_end_date:
                 stream.write(f" to {dataset_end_date}")
             stream.write("\n\n")
-            for grid in grids:
-                grid_row = grid_table.get_row(grid)
-                resolution = grid_row["resolution_meters"]
-                resolution = f"{resolution} meters" if resolution else ""
-                shape = grid_row["shape"]
-                shape_x = shape[2] if shape else ""
-                shape_y = shape[1] if shape else ""
-                latlng_bounds = grid_row["latlng_bounds"]
-                if latlng_bounds:
-                    latlng_extent = f"{latlng_bounds[1]}, {latlng_bounds[0]},  {latlng_bounds[3]}, {latlng_bounds[2]}"
-                else:
-                    latlng_extent = ""
-                crs = grid_row["crs"]
-                crs = crs.strip() if crs else ""
-                stream.write(f"* Grid: {grid}\n\n")
-                stream.write(f"  - Spacial Resolution:  {resolution}\n\n")
-                if shape_x and shape_y:
-                    stream.write(f"  - XY Grid Spacial Extent:  {shape_x} x {shape_y}\n\n")
-                if latlng_extent:
-                    stream.write(f"  - Spacial Exent:  {latlng_extent}\n\n")
-                stream.write(f"  - Projection: {crs}\n\n")
-
+            _generate_grid_extent_docs(grids, stream)
 
         _generate_dataset_variable_docs(dataset_row, stream)
 
+
+def _generate_grid_extent_docs(grids, stream):
+    """Generate documentation of the grids into the stream."""
+    
+    data_model = load_data_model()
+    grid_table = data_model.get_table("grid")
+    for grid in grids:
+        grid_row = grid_table.get_row(grid)
+        resolution = grid_row["resolution_meters"]
+        resolution = f"{resolution} meters" if resolution else ""
+        shape = grid_row["shape"]
+        shape_x = shape[2] if shape else ""
+        shape_y = shape[1] if shape else ""
+        latlng_bounds = grid_row["latlng_bounds"]
+        if latlng_bounds:
+            latlng_extent = f"{latlng_bounds[1]}, {latlng_bounds[0]},  {latlng_bounds[3]}, {latlng_bounds[2]}"
+        else:
+            latlng_extent = ""
+        crs = grid_row["crs"]
+        crs = crs.strip() if crs else ""
+        stream.write(f"* Grid: {grid}\n\n")
+        stream.write(f"  - Spacial Resolution:  {resolution}\n\n")
+        if shape_x and shape_y:
+            stream.write(f"  - XY Grid Spacial Extent:  {shape_x} x {shape_y}\n\n")
+        if latlng_extent:
+            stream.write(f"  - Spacial Exent:  {latlng_extent}\n\n")
+        stream.write(f"  - Projection: {crs}\n\n")
 
 def _generate_dataset_variable_docs(dataset_row, stream):
     """
@@ -284,10 +290,7 @@ def _generate_grid_list_docs(directory):
     with open(gen_variable_list_path, "w+") as stream:
         data_model = load_data_model()
         grid_table = data_model.get_table("grid")
-        for grid_id in grid_table.row_ids:
-            stream.write(f"{grid_id}\n")
-            stream.write("-----------\n")
-            _generate_grid_docs(grid_id, stream)
+        _generate_grid_extent_docs(grid_table.row_ids, stream)
 
 def generate_temporal_resolution_list_docs(directory):
     """Generate the gen_temporal_resolution_list.rst file to document temporal resolutions"""
