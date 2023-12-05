@@ -3,7 +3,7 @@
 Metadata
 ========
 
-In addition to the dataset attributes that can be used to filter datasets (e.g. dataset, variable, temporal_resolution, aggregation, and grid), we provide additional metadata for every dataset. The specific metadata variables that are provided will vary based on the data source. For example many of the site specific metadata attributes are only available for the specific point datasets that they come from. The functions `get_catalog_entry()` and `get_catalog_entries()` can return a structure with all these attributes.
+In addition to the dataset attributes that can be used to filter datasets (e.g. dataset, variable, temporal_resolution, aggregation, and grid), we provide additional metadata for every dataset. The specific metadata variables that are provided will vary based on the data source. For example many of the site specific metadata attributes are only available for the specific point datasets that they come from. The functions ``get_catalog_entry()`` and ``get_catalog_entries()`` can return a structure with all these attributes.
 
 The following are the additional metadata attributes describing a dataset.
 
