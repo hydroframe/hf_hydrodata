@@ -83,7 +83,7 @@ datasets:
     * The water table depth data accessed with ``temporal_resolution='instantaneous'`` comes from the USGS`Groundwater Levels Service <https://waterservices.usgs.gov/docs/groundwater-levels/groundwater-levels-details/>`_. Note that these data usually do not have regular temporal coverage and many of the sites with data available through this method only have a single point-in-time observation available.  
 
     processing_notes: >
-      We query data from the above sources weekly, early on Sunday mornings. Each weekly job collects all observations since the date through which we have existing data stored. For sites that are currently in operation, this translates to collecting data for only the previous week (7 days for daily data, 168 hours for hourly data). 
+      We query data from the USGS weekly, early on Sunday mornings. Each weekly job collects all observations since the date through which we have existing data stored. For sites that are currently in operation, this translates to collecting data for only the previous week (7 days for daily data, 168 hours for hourly data). 
       
       Because of the sparsity of the `temporal_resolution='instantaneous'` groundwater measurements, those are not included in this weekly schedule. We plan to query that source for new observations roughly every few months.
 
@@ -111,12 +111,14 @@ datasets:
       Data are accessed through the United States Department of Agriculture (USDA) Natural Resources Conservation Service (NRCS) `Air Water Database <https://www.nrcs.usda.gov/wps/portal/wcc/home/dataAccessHelp/webService>`_.
 
     processing_notes: >
-      We query data from the above sources weekly, early on Sunday mornings. Each weekly job collects all observations since the date through which we have existing data stored. For sites that are currently in operation, this translates to collecting data for only the previous week (7 days for daily data, 168 hours for hourly data). 
+      We query data from the Air Water Database weekly, early on Sunday mornings. Each weekly job collects all observations since the date through which we have existing data stored. For sites that are currently in operation, this translates to collecting data for only the previous week (7 days for daily data, 168 hours for hourly data). 
       
       Note that raw hourly data is saved in UTC while raw daily data is saved with respect to the local site time zone. 
 
-      To maintain the integrity and traceability back to the original sources, our team conducts very limited data manipulation on the queried data.
+      To maintain the integrity and traceability back to the original sources, our team conducts very limited data manipulation on the queried data. This includes the following:
 
+      * Unit translation into SI units  
+      * Standardization of NaN/missing values
 
   "scan":
     summary: >
@@ -125,19 +127,29 @@ datasets:
       The data are obtained from the United States Department of Agriculture (USDA) Natural Resources Conservation Service (NRCS) `Air Water Database <https://www.nrcs.usda.gov/wps/portal/wcc/home/dataAccessHelp/webService>`_.
 
     processing_notes: >
-      We query data from the above sources weekly, early on Sunday mornings. Each weekly job collects all observations since the date through which we have existing data stored. For sites that are currently in operation, this translates to collecting data for only the previous week (7 days for daily data, 168 hours for hourly data). 
+      We query data from the Air Water Database, early on Sunday mornings. Each weekly job collects all observations since the date through which we have existing data stored. For sites that are currently in operation, this translates to collecting data for only the previous week (7 days for daily data, 168 hours for hourly data). 
       
       Note that raw hourly data is saved in UTC while raw daily data is saved with respect to the local site time zone. 
 
-      To maintain the integrity and traceability back to the original sources, our team conducts very limited data manipulation on the queried data.
+      To maintain the integrity and traceability back to the original sources, our team conducts very limited data manipulation on the queried data. This includes the following:
+
+      * Unit translation into SI units  
+      * Standardization of NaN/missing values
 
   "ameriflux":
     summary: >
       Observations of land energy fluxes from observation towers in the AmeriFlux network. Data are obtained  from the `AmeriFlux <https://ameriflux.lbl.gov/data/data-policy/>`_ network.
 
     processing_notes: >
-      We query data from the above sources weekly, early on Sunday mornings. Each weekly job collects all observations since the date through which we have existing data stored. For sites that are currently in operation, this translates to collecting data for only the previous week (7 days for daily data, 168 hours for hourly data). 
+      We query data from AmeriFlux monthly. Each monthly job collects all observations available for sites that report on our supported variables.
       
       Note that raw hourly data is saved in UTC while raw daily data is saved with respect to the local site time zone. 
 
-      To maintain the integrity and traceability back to the original sources, our team conducts very limited data manipulation on the queried data.
+      To maintain the integrity and traceability back to the original sources, our team conducts very limited data manipulation on the queried data. This includes the following:
+
+      * Unit translation into SI units  
+      * Standardization of NaN/missing values
+
+      * Consolidating multiple concurrent data series
+        * The AmeriFlux data sometimes provides multiple concurrent observation series for the same variable for the same site. In these cases, we consolidate the multiple series into a single series following these prioritizations:
+        * We prioritize series without any suffix in the original variable names. If none is present, we prioritize variables with a "PI" suffix in the variable name, to indicate the data has been QA/QC reviewed by the tower team. 
