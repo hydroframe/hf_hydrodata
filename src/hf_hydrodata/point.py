@@ -59,9 +59,11 @@ def get_point_data(*args, **kwargs):
     depth_level : int, optional
         Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil_moisture'.
     date_start : str, optional
-        'YYYY-MM-DD' date indicating beginning of time range.
+        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned from this 
+        date forward (inclusive).
     date_end : str, optional
-        'YYYY-MM-DD' date indicating end of time range.
+        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned up 
+        through this date (inclusive).
     latitude_range : tuple, optional
         Latitude range bounds for the geographic domain; lesser value is provided first.
     longitude_range : tuple, optional
@@ -69,7 +71,7 @@ def get_point_data(*args, **kwargs):
     site_ids : str or list of strings, optional
         Single site ID string or list of desired (string) site identifiers.
     state : str, optional
-        Two-letter postal code state abbreviation.
+        Two-letter postal code state abbreviation (example: state='NJ').
     polygon : str, optional
         Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     polygon_crs : str, optional
@@ -81,7 +83,9 @@ def get_point_data(*args, **kwargs):
         variable='water_table_depth'). For streamflow, options include: 'gagesii', 'gagesii_reference', 'hcdn2009',
         and 'camels'. For water table depth, options include: 'climate_response_network'.
     min_num_obs : int, optional
-        Value for the minimum number of observations desired for a site to have.
+        Value for the minimum number of observations desired for a site to have. If provided, data will 
+        be returned only for sites that have at least this number of non-NaN observation records within 
+        the requested date range (if supplied).
 
     Returns
     -------
@@ -224,9 +228,11 @@ def get_point_metadata(*args, **kwargs):
     depth_level : int, optional
         Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil_moisture'.
     date_start : str, optional
-        'YYYY-MM-DD' date indicating beginning of time range.
+        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned from this 
+        date forward (inclusive).
     date_end : str, optional
-        'YYYY-MM-DD' date indicating end of time range.
+        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned up 
+        through this date (inclusive).
     latitude_range : tuple, optional
         Latitude range bounds for the geographic domain; lesser value is provided first.
     longitude_range : tuple, optional
@@ -234,7 +240,7 @@ def get_point_metadata(*args, **kwargs):
     site_ids : str or list of strings, optional
         Single site ID string or list of desired (string) site identifiers.
     state : str, optional
-        Two-letter postal code state abbreviation.
+        Two-letter postal code state abbreviation (example: state='NJ').
     polygon : str, optional
         Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     polygon_crs : str, optional
@@ -420,9 +426,11 @@ def get_site_variables(*args, **kwargs):
         Options include descriptors such as 'mean' and 'sum'. Please see the documentation
         for allowable combinations with `variable`.
     date_start : str, optional
-        'YYYY-MM-DD' date indicating beginning of time range.
+        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned from this 
+        date forward (inclusive).
     date_end : str, optional
-        'YYYY-MM-DD' date indicating end of time range.
+        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned up 
+        through this date (inclusive).
     latitude_range : tuple, optional
         Latitude range bounds for the geographic domain; lesser value is provided first.
     longitude_range : tuple, optional
@@ -430,7 +438,7 @@ def get_site_variables(*args, **kwargs):
     site_ids : str or list of strings, optional
         Single site ID string or list of desired (string) site identifiers.
     state : str, optional
-        Two-letter postal code state abbreviation.
+        Two-letter postal code state abbreviation (example: state='NJ').
     polygon : str, optional
         Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     polygon_crs : str, optional
@@ -441,6 +449,7 @@ def get_site_variables(*args, **kwargs):
         stream gages (dataset=='usgs_nwis', variable='streamflow') and groundwater wells (dataset=='usgs_nwis',
         variable='water_table_depth'). For streamflow, options include: 'gagesii', 'gagesii_reference', 'hcdn2009',
         and 'camels'. For water table depth, options include: 'climate_response_network'.
+
     Returns
     -------
     DataFrame
