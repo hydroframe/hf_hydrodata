@@ -11,7 +11,8 @@ using over 50 different variables of hydrologic data.
 :ref:`getting_started` contains installation instructions and a quick-start guide for obtaining 
 gridded datasets and point observations. The sections on :ref:`available_data`, :ref:`gridded_data_index` 
 and :ref:`point_data_index` provide more detail on the datasets and fields that are available. 
-Full example jupyter workbook workflows are in `Working with Point Observations` :ref:`examples_index` and the :ref:`api` contains the full list of available functions.
+Full example jupyter workbook workflows for working with point observations are in :ref:`examples_index` and 
+the :ref:`api` contains the full list of available functions.
 
 .. toctree::
    :maxdepth: 2
