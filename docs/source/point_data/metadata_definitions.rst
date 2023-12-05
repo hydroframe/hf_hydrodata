@@ -1,4 +1,4 @@
-.. _Metadata Description:
+.. _metadata_description:
 
 Metadata Descriptions
 ======================

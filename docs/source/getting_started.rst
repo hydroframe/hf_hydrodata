@@ -74,7 +74,7 @@ that can be passed to the functions to filter data by space and/or time.
 Accessing Point Observations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ``hf_hydrodata`` supports access to a collection of site-level data from a variety of sources. 
-Please see :ref:`data_collection` for a full list of what is available and details on our 
+Please see :ref:`available_datasets` for a full list of what is available and details on our 
 data collection process.
 
 The below syntax will return daily USGS streamflow data from January 1, 2022 through January 5, 2022 
@@ -84,23 +84,43 @@ of (-75, -50). ::
     # Import package
     import hf_hydrodata as hf
 
-    # Define filters and return as pandas DataFrame
-    data_source = 'usgs_nwis'
-    variable = 'streamflow'
-    temporal_resolution = 'daily'
-    aggregation = 'average'
+    data = hf.get_point_data(dataset = "usgs_nwis", variable = "streamflow", 
+                             temporal_resolution = "daily", aggregation = "mean",
+                             start_date = "2022-01-01", end_date = "2022-01-05", 
+                             latitude_range = (45, 50), longitude_range = (-75, -50))
 
-    data = hf.get_point_data(data_source, variable, temporal_resolution, aggregation,
-                    start_date="2022-01-01", end_date="2022-01-05", 
-                    latitude_range = (45, 50),
-                    longitude_range = (-75, -50))
+    # View first five records
     data.head(5)
 
     # Get the metadata about the sites with returned data
-    metadata = hf.get_point_metadata(data_source, variable, temporal_resolution, aggregation,
-                            start_date="2022-01-01", end_date="2022-01-05", 
-                            latitude_range = (45, 50),
-                            longitude_range = (-75, -50))
+    metadata = hf.get_point_metadata(dataset = "usgs_nwis", variable = "streamflow", 
+                                     temporal_resolution = "daily", aggregation = "mean",
+                                     start_date = "2022-01-01", end_date = "2022-01-05", 
+                                     latitude_range = (45, 50), longitude_range = (-75, -50))
+
+    # View first five records
     metadata.head(5)
+
+
+Alternately, it is possible to define a single dictionary containing all desired input parameter values,
+and pass this dictionary in to the `get_point_data` and `get_point_metadata` functions. The example below
+shows an alternate syntax to obtain identical output to the example shown above. ::
+
+    # Import package
+    import hf_hydrodata as hf
+
+    # Define input parameters in a dictionary
+    my_parameters = {"dataset": "usgs_nwis", "variable": "streamflow", "temporal_resolution": "daily",
+                     "aggregation": "mean", "start_date": "2022-01-01", "end_date": "2022-01-05",
+                     "latitude_range": (45, 50), "longitude_range": (-75, -50)}
+
+    # Request point observations data and view first five records
+    data = hf.get_point_data(my_parameters)
+    data.head(5)
+
+    # Request the metadata about the sites with returned data and view the first five records
+    metadata = hf.get_point_metadata(my_parameters)
+    metadata.head(5)
+
 
 Please see :ref:`examples_index` for additional example workflows.

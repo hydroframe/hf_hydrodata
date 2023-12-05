@@ -6,45 +6,44 @@ There are four main functions available from the ``hf_hydrodata.point`` module. 
 below, along with specific Jupyter notebooks in :ref:`examples_index` that showcase that functionality.
 Please see :ref:`api` for the full API documentation.
 
-``get_data``
---------------
-The ``get_data`` method returns a pandas DataFrame of site-level observations time series for a specific variable, 
-from a specific data source. The ``get_data`` method requires four mandatory input parameters and an optional
+``get_point_data``
+----------------------
+The ``get_point_data`` method returns a pandas DataFrame of site-level observations time series for a specific variable, 
+from a specific data source. The ``get_point_data`` method requires four mandatory input parameters and an optional
 number of additional geographic, temporal, or other filters. Both sets of available parameters are described
-in :ref:`point_inputs`. ::
+in the function's API reference: :ref:`api`. ::
 
     # Import package
-    from hf_hydrodata.point import get_data
+    from hf_hydrodata import get_point_data
 
-    # Define filters and return as pandas DataFrame
-    data_source = 'usgs_nwis'
-    variable = 'streamflow'
-    temporal_resolution = 'daily'
-    aggregation = 'average'
-
-    data = get_data(data_source, variable, temporal_resolution, aggregation,
-                    start_date="2022-01-01", end_date="2022-01-05", 
-                    latitude_range = (45, 50),
-                    longitude_range = (-75, -50))
+    # Define filters and return point observations data as pandas DataFrame
+    data = get_point_data(dataset = "usgs_nwis", variable = "streamflow", 
+                          temporal_resolution = "daily", aggregation = "mean",
+                          start_date = "2022-01-01", end_date = "2022-01-05", 
+                          latitude_range = (45, 50),
+                          longitude_range = (-75, -50))
+    
+    # View first five records
     data.head(5)
 
-* Examples using ``get_data``:  
+* Examples using ``get_point_data``:  
 
   * :ref:`/point_data/examples/example_get_data.ipynb`
   * :ref:`/point_data/examples/example_plot_data.ipynb`
   * :ref:`/point_data/examples/example_shapefile.ipynb`
 
-``get_metadata``
-------------------
-The ``get_metadata`` method returns a pandas DataFrame of site-level attributes for sites that have observations 
-for a specific variable, from a specific data source. The ``get_metadata`` method requires four mandatory input 
+``get_point_metadata``
+--------------------------
+The ``get_point_metadata`` method returns a pandas DataFrame of site-level attributes for sites that have observations 
+for a specific variable, from a specific data source. The ``get_point_metadata`` method requires four mandatory input 
 parameters and an optional number of additional geographic, temporal, or other filters. Both sets of available 
-parameters are described in :ref:`point_inputs`. Both ``get_data`` and ``get_metadata`` accept the same set of 
-mandatory and optional parameters and it is recommended to use the same inputs across these functions for a given
-workflow. Descriptions of the returned attributes are available in :ref:`Metadata Description`. ::
+parameters are described in the function's API reference: :ref:`api`. 
+Both ``get_point_data`` and ``get_point_metadata`` accept a similar set of mandatory and optional parameters and 
+it is recommended to use the same inputs across these functions for a given workflow. Descriptions of the returned 
+attributes are available in :ref:`metadata_description`. ::
 
     # Import package
-    from hf_hydrodata.point import get_metadata
+    from hf_hydrodata import get_point_metadata
 
     # Define filters and return as pandas DataFrame
     data_source = 'usgs_nwis'
@@ -53,13 +52,16 @@ workflow. Descriptions of the returned attributes are available in :ref:`Metadat
     aggregation = 'average'
 
     # Get the metadata about the sites with returned data
-    metadata = get_metadata(data_source, variable, temporal_resolution, aggregation,
-                            start_date="2022-01-01", end_date="2022-01-05", 
-                            latitude_range = (45, 50),
-                            longitude_range = (-75, -50))
+    metadata = get_point_metadata(dataset = "usgs_nwis", variable = "streamflow", 
+                                  temporal_resolution = "daily", aggregation = "mean",
+                                  start_date = "2022-01-01", end_date = "2022-01-05", 
+                                  latitude_range = (45, 50),
+                                  longitude_range = (-75, -50))
+
+    # View first five records                          
     metadata.head(5)
 
-* Examples using ``get_metadata``:  
+* Examples using ``get_point_metadata``:  
 
   * :ref:`/point_data/examples/example_get_data.ipynb`
   * :ref:`/point_data/examples/example_plot_data.ipynb`
@@ -67,23 +69,15 @@ workflow. Descriptions of the returned attributes are available in :ref:`Metadat
 
 ``get_citations``
 -------------------
-The ``get_citations`` method returns a Python dictionary containing information about site-level DOIs 
-(if applicable) and requested attribution information for using each type of data. The ``get_citations`` method
-requires the same four mandatory input parameters as ``get_data`` and ``get_metadata``. For site-level DOI's 
-(currently only applicable for ``data_source='ameriflux'``), an additional ``site_ids`` parameter may be provided. :: 
+The ``get_citations`` method returns a string containing attribution information for using each type of data. 
+The ``get_citations`` method requires the ``dataset`` field as its input. :: 
 
     # Import package
-    from hf_hydrodata.point import get_citations
-
-    # Define filters and return as pandas DataFrame
-    data_source = 'usgs_nwis'
-    variable = 'streamflow'
-    temporal_resolution = 'daily'
-    aggregation = 'average'
+    from hf_hydrodata import get_citations
 
     # Get the citation information relevant for this data
-    citations = get_citations(data_source, variable, temporal_resolution, aggregation)
-    print(citations['data_source'])
+    citations = get_citations(dataset = "usgs_nwis")
+    print(citations)
 
 * Examples using ``get_citations``:  
 
@@ -99,10 +93,14 @@ Any of the input parameters available to ``get_data`` (either mandatory or optio
 ``get_site_variables``. ::
 
     # Import package
-    from hf_hydrodata.point import get_site_variables
+    from hf_hydrodata import get_site_variables
 
     # Explore what streamflow data is available from the state of Colorado for sites that operated during WY2019
-    df = get_site_variables(variable='streamflow', state='CO', date_start='2018-10-01', date_end='2019-09-30')
+    df = get_site_variables(variable = "streamflow", 
+                            state="CO", 
+                            date_start = "2018-10-01", date_end = "2019-09-30")
+
+    # View first five records
     df.head(5)
 
 
