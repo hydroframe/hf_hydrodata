@@ -6,12 +6,12 @@
 datasets:
   "conus1_domain":
     summary: >
-      The ParFlow CONUS1 model is the first generation national ParFlow model. You can learn more about the domain and the model on the [HydroFrame Website](https://hydroframe.org/parflow-conus1/).The `conus1_domain` dataset contains all of the input fields for the model as well as additional pre and post processing files that can be useful for data analysis. If you are interested in building a ParFlow model off of this national template the `Subset Tools python package` can help you do that. Refer to the documentation [here](https://hydroframesubsettools.readthedocs.io/en/edit-docs/examples/index.html)
+      The ParFlow CONUS1 model is the first generation national ParFlow model. You can learn more about the domain and the model on the `HydroFrame Website <https://hydroframe.org/parflow-conus1/>`_. The `conus1_domain` dataset contains all of the input fields for the model as well as additional pre and post processing files that can be useful for data analysis. If you are interested in building a ParFlow model off of this national template the `Subset Tools python package` can help you do that. Refer to the documentation `here <https://hydroframesubsettools.readthedocs.io/en/edit-docs/examples/index.html>`_
 
 
   "conus2_domain":
     summary: >
-      The ParFlow CONUS2 model is the second generation national ParFlow model. The CONUS2 domain covers the entire contiguous US and areas draining to it. The domain extent and projection are based off of the National Water Model Grid. Manual corrections were made along the coastline to get rid of cells that were water and to prune any orphan cells (i.e. cells attached to the domain only by a corner).  You can learn more about the domain and the model on the [HydroFrame Website](https://hydroframe.org/parflow-conus2/).The `conus2_domain` dataset contains all of the input fields for the model as well as additional pre and post processing files that can be useful for data analysis. If you are interested in building a ParFlow model off of this national template the `Subset Tools python package` can help you do that. Refer to the documentation [here](https://hydroframesubsettools.readthedocs.io/en/edit-docs/examples/index.html)
+      The ParFlow CONUS2 model is the second generation national ParFlow model. The CONUS2 domain covers the entire contiguous US and areas draining to it. The domain extent and projection are based off of the National Water Model Grid. Manual corrections were made along the coastline to get rid of cells that were water and to prune any orphan cells (i.e. cells attached to the domain only by a corner).  You can learn more about the domain and the model on the `HydroFrame Website <https://hydroframe.org/parflow-conus2/>`_. The `conus2_domain` dataset contains all of the input fields for the model as well as additional pre and post processing files that can be useful for data analysis. If you are interested in building a ParFlow model off of this national template the `Subset Tools python package` can help you do that. Refer to the documentation `here <https://hydroframesubsettools.readthedocs.io/en/edit-docs/examples/index.html>`_
 
   "conus1_baseline_85":
     summary: >
@@ -66,20 +66,20 @@ datasets:
   "nasa_smap":
     summary: >
 
-      Soil Moisture data from the NASA SMAP web service (https://cmr.earthdata.nasa.gov), for
+      Soil Moisture data from the `NASA SMAP web service <(https://cmr.earthdata.nasa.gov)>`_, for
       the entire world.  Data is clipped to a region 1 degree larger than than the CONUS 2 region 
       and saved to water year netcdf files. 
-      The produced netcdf file contains 6 variable.  Below are the variables and their descriptions-
-      TimeStamp- The Date stamps of the downloaded data.'
-      Longitude- A single matrix representing all of the longitude points.
-      Latitude- A single matrix representing all of the latitude points.
-      SoilMoisture- A matrix for each date of data downloaded (in other words, a matrix for each date present in the TimeStamp variable).  A whole wateryear file will contain 365 matrices in a normal year, or 366 for a leap year, one representing each day. The soil moisture data here is calculated as the mean between the AM and PM values, as downloaded from the NASA website. A RetrievalQualFlag is given for each AM data and PM data used, as described below.  The latitude and longitude matrices are the same size as the Soil Moisture, RetrievalQualFlagAM, and RetrievalQualFlagPM matrices, and together, they represent the (latitude, longitude) point for which each soil moisture data point, RetrievalQualFlagAM, and RetrievalQualFlagPM, was collected.
-      RetrievalQualFlagAM- A matrix for each date of data downloaded representing the data quality of the AM data collected. A whole wateryear file will contain 365 matrices in a normal year, or 366 for a leap year, one representing each day.
-      RetrievalQualFlagPM- A matrix for each date of data downloaded represening the data quality of the PM data collected. A whole wateryear file will contain 365 matrices in a normal year, or 366 for a leap year, one representing each day.
+      The produced netcdf file contains 6 variables. Below are the variables and their descriptions
+
+        - TimeStamp The Date stamps of the downloaded data.
+        - Longitude- A single matrix representing all of the longitude points.
+        - Latitude- A single matrix representing all of the latitude points.
+        - SoilMoisture- A matrix for each date of data downloaded (in other words, a matrix for each date present in the TimeStamp variable).  A whole wateryear file will contain 365 matrices in a normal year, or 366 for a leap year, one representing each day. The soil moisture data here is calculated as the mean between the AM and PM values, as downloaded from the NASA website. A RetrievalQualFlag is given for each AM data and PM data used, as described below.  The latitude and longitude matrices are the same size as the Soil Moisture, RetrievalQualFlagAM, and RetrievalQualFlagPM matrices, and together, they represent the (latitude, longitude) point for which each soil moisture data point, RetrievalQualFlagAM, and RetrievalQualFlagPM, was collected.
+        - RetrievalQualFlagAM- A matrix for each date of data downloaded representing the data quality of the AM data collected. A whole wateryear file will contain 365 matrices in a normal year, or 366 for a leap year, one representing each day.
+        - RetrievalQualFlagPM- A matrix for each date of data downloaded represening the data quality of the PM data collected. A whole wateryear file will contain 365 matrices in a normal year, or 366 for a leap year, one representing each day.
               
-      Missing Data
       On occassion, some days of data are not available from the NASA website.  In these instances, 
-      a row for that date will be entered with None values for the data
+      a row for that date will be entered with None values for the data.
 
     processing_notes: >
       We query data from the NASA SMAP weekly, early on Sunday mornings.  All previous
@@ -90,13 +90,11 @@ datasets:
     summary: >
       Streamflow and groundwater data from the USGS National Water Information System (NWIS) database.
       
-    * Daily streamflow and water table depth data are obtained from the
-    `Daily Values Service <https://waterservices.usgs.gov/docs/dv-service/daily-values-service-details/>`_.  
+        - Daily streamflow and water table depth data are obtained from the `Daily Values Service <https://waterservices.usgs.gov/docs/dv-service/daily-values-service-details/>`_.  
 
-    * Hourly streamflow and water table depth data are aggregated to the hourly level from the 
-    `Instantaneous Values Service <https://waterservices.usgs.gov/docs/instantaneous-values/instantaneous-values-details/>`_, which are frequently collected at 15-minute increments.   
+        - Hourly streamflow and water table depth data are aggregated to the hourly level from the `Instantaneous Values Service <https://waterservices.usgs.gov/docs/instantaneous-values/instantaneous-values-details/>`_, which are frequently collected at 15-minute increments.   
 
-    * The water table depth data accessed with ``temporal_resolution='instantaneous'`` comes from the USGS`Groundwater Levels Service <https://waterservices.usgs.gov/docs/groundwater-levels/groundwater-levels-details/>`_. Note that these data usually do not have regular temporal coverage and many of the sites with data available through this method only have a single point-in-time observation available.  
+        - The water table depth data accessed with `temporal_resolution='instantaneous'` comes from the USGS `Groundwater Levels Service <https://waterservices.usgs.gov/docs/groundwater-levels/groundwater-levels-details/>`_. Note that these data usually do not have regular temporal coverage and many of the sites with data available through this method only have a single point-in-time observation available.  
 
     processing_notes: >
       We query data from the USGS weekly, early on Sunday mornings. Each weekly job collects all observations since the date through which we have existing data stored. For sites that are currently in operation, this translates to collecting data for only the previous week (7 days for daily data, 168 hours for hourly data). 
@@ -107,18 +105,18 @@ datasets:
 
       To maintain the integrety and traceability back to the original sources, our team conducts very limited data manipulation on the queried data. This includes the following:
 
-      * Unit translation into SI units  
-      * Standardization of NaN/missing values
-        * For example, USGS will sometimes provide strings such as "Ice" or "Dry" to indicate reasons for why certain observations are missing. A full list of such fields is available `here <https://help.waterdata.usgs.gov/codes-and-parameters/instantaneous-and-daily-value-status-codes>`_.
+      - Unit translation into SI units  
+      - Standardization of NaN/missing values
+        - For example, USGS will sometimes provide strings such as "Ice" or "Dry" to indicate reasons for why certain observations are missing. A full list of such fields is available `here <https://help.waterdata.usgs.gov/codes-and-parameters/instantaneous-and-daily-value-status-codes>`_.
     
         We standardize these values into the numeric numpy.NaN to allow the entireity of the series to be interpreted as numeric.
     
-      * Consolidating multiple concurrent data series
-        * The USGS data sometimes provides multiple concurrent observation series for the same variable for the same site. In these cases, we consolidate the multiple series into a single series following these prioritizations:
-        * If one of the series has been verified, we prioritize that over provisional data
-        * If both series are identical values, we simply reduce down to a single set of observations
-        * If one of the series has non-missing data and the other series has missing data, we prioritize the non-missing data
-        * If multiple series remain with conflicting values, we take the average of the resulting non-missing values
+      - Consolidating multiple concurrent data series
+        - The USGS data sometimes provides multiple concurrent observation series for the same variable for the same site. In these cases, we consolidate the multiple series into a single series following these prioritizations:
+        - If one of the series has been verified, we prioritize that over provisional data
+        - If both series are identical values, we simply reduce down to a single set of observations
+        - If one of the series has non-missing data and the other series has missing data, we prioritize the non-missing data
+        - If multiple series remain with conflicting values, we take the average of the resulting non-missing values
 
   "snotel":
     summary: >
@@ -133,8 +131,8 @@ datasets:
 
       To maintain the integrity and traceability back to the original sources, our team conducts very limited data manipulation on the queried data. This includes the following:
 
-      * Unit translation into SI units  
-      * Standardization of NaN/missing values
+      - Unit translation into SI units  
+      - Standardization of NaN/missing values
 
   "scan":
     summary: >
@@ -149,8 +147,8 @@ datasets:
 
       To maintain the integrity and traceability back to the original sources, our team conducts very limited data manipulation on the queried data. This includes the following:
 
-      * Unit translation into SI units  
-      * Standardization of NaN/missing values
+      - Unit translation into SI units  
+      - Standardization of NaN/missing values
 
   "ameriflux":
     summary: >
@@ -163,9 +161,9 @@ datasets:
 
       To maintain the integrity and traceability back to the original sources, our team conducts very limited data manipulation on the queried data. This includes the following:
 
-      * Unit translation into SI units  
-      * Standardization of NaN/missing values
+      - Unit translation into SI units  
+      - Standardization of NaN/missing values
 
-      * Consolidating multiple concurrent data series
-        * The AmeriFlux data sometimes provides multiple concurrent observation series for the same variable for the same site. In these cases, we consolidate the multiple series into a single series following these prioritizations:
-        * We prioritize series without any suffix in the original variable names. If none is present, we prioritize variables with a "PI" suffix in the variable name, to indicate the data has been QA/QC reviewed by the tower team. 
+      - Consolidating multiple concurrent data series
+        - The AmeriFlux data sometimes provides multiple concurrent observation series for the same variable for the same site. In these cases, we consolidate the multiple series into a single series following these prioritizations:
+        - We prioritize series without any suffix in the original variable names. If none is present, we prioritize variables with a "PI" suffix in the variable name, to indicate the data has been QA/QC reviewed by the tower team. 
