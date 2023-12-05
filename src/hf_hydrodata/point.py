@@ -46,18 +46,18 @@ def get_point_data(*args, **kwargs):
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
     variable : str, required
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
+        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
+        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str, required
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str, required
         Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
+        Options include descriptors such as 'mean' and 'sum'. Please see the documentation
         for allowable combinations with `variable`.
     depth_level : int, optional
-        Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
+        Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil_moisture'.
     date_start : str, optional
         'YYYY-MM-DD' date indicating beginning of time range.
     date_end : str, optional
@@ -207,22 +207,22 @@ def get_point_metadata(*args, **kwargs):
 
     Parameters
     ----------
-    data_source : str, required
+    dataset : str, required
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
     variable : str, required
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
+        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
+        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str, required
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str, required
         Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
+        Options include descriptors such as 'mean' and 'sum'. Please see the documentation
         for allowable combinations with `variable`.
     depth_level : int, optional
-        Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
+        Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil_moisture'.
     date_start : str, optional
         'YYYY-MM-DD' date indicating beginning of time range.
     date_end : str, optional
@@ -405,19 +405,19 @@ def get_site_variables(*args, **kwargs):
     Return DataFrame with available sites, variables, and the period of record.
     Parameters
     ----------
-    data_source : str, optional
+    dataset : str, optional
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
-    variable : str, optional
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+    variable : str, required
+        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
+        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
+        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str, optional
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str, optional
         Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
+        Options include descriptors such as 'mean' and 'sum'. Please see the documentation
         for allowable combinations with `variable`.
     date_start : str, optional
         'YYYY-MM-DD' date indicating beginning of time range.
@@ -502,27 +502,27 @@ def get_site_variables(*args, **kwargs):
     param_list = []
 
     # Data source
-    if 'data_source' in options and options['data_source'] is not None:
+    if 'dataset' in options and options['dataset'] is not None:
         try:
-            assert options['data_source'] in ['usgs_nwis', 'snotel', 'scan', 'ameriflux']
+            assert options['dataset'] in ['usgs_nwis', 'snotel', 'scan', 'ameriflux']
         except:
             raise ValueError(
-                f"data_source must be one of 'usgs_nwis', 'snotel', 'scan', 'ameriflux'. You provided {options['data_source']}")
+                f"dataset must be one of 'usgs_nwis', 'snotel', 'scan', 'ameriflux'. You provided {options['dataset']}")
 
-        if options['data_source'] == 'usgs_nwis':
-            data_source_query = """ AND agency == ?"""
+        if options['dataset'] == 'usgs_nwis':
+            dataset_query = """ AND agency == ?"""
             param_list.append('USGS')
-        elif options['data_source'] == 'ameriflux':
-            data_source_query = """ AND agency == ?"""
+        elif options['dataset'] == 'ameriflux':
+            dataset_query = """ AND agency == ?"""
             param_list.append('AmeriFlux')
-        elif options['data_source'] == 'snotel':
-            data_source_query = """ AND site_type == ?"""
+        elif options['dataset'] == 'snotel':
+            dataset_query = """ AND site_type == ?"""
             param_list.append('SNOTEL station')
-        elif options['data_source'] == 'scan':
-            data_source_query = """ AND site_type == ?"""
+        elif options['dataset'] == 'scan':
+            dataset_query = """ AND site_type == ?"""
             param_list.append('SCAN station')
     else:
-        data_source_query = """"""
+        dataset_query = """"""
 
     # Date start
     if 'date_start' in options and options['date_start'] is not None:
@@ -579,12 +579,12 @@ def get_site_variables(*args, **kwargs):
     # Site Networks
     if 'site_networks' in options and options['site_networks'] is not None:
         try:
-            assert 'data_source' in options and options['data_source'] is not None
+            assert 'dataset' in options and options['dataset'] is not None
             assert 'variable' in options and options['variable'] is not None
         except:
-            raise ValueError("Please provide parameter values for data_source and variable if specifying site_networks")
+            raise ValueError("Please provide parameter values for dataset and variable if specifying site_networks")
         network_site_list = _get_network_site_list(
-            options['data_source'],
+            options['dataset'],
             options['variable'],
             options['site_networks'])
         network_query = """ AND s.site_id IN (%s)""" % ','.join('?'*len(network_site_list))
@@ -603,7 +603,7 @@ def get_site_variables(*args, **kwargs):
             INNER JOIN observations o
             ON s.site_id = o.site_id
             WHERE first_date_data_available <> 'None'
-            """ + data_source_query + date_start_query + date_end_query + lat_query + lon_query + site_query + state_query + network_query
+            """ + dataset_query + date_start_query + date_end_query + lat_query + lon_query + site_query + state_query + network_query
 
     df = pd.read_sql_query(query, conn, params=param_list)
 
@@ -869,63 +869,41 @@ def _construct_string_from_qparams(
     return result_string
 
 
-def get_citations(data_source, variable, temporal_resolution, aggregation, site_ids=None):
+def get_citations(dataset):
     """
     Return a dictionary with relevant citation information.
 
     Parameters
     ----------
-    data_source : str
+    dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
-    variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
-    temporal_resolution : str
-        Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
-        Please see the documentation for allowable combinations with `variable`.
-    aggregation : str
-        Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
-        for allowable combinations with `variable`.
-    site_ids : list; default None
-        If provided, the specific list of sites to return site DOIs for. This is only
-        supported if `data_source` == 'ameriflux'.
 
     Returns
     -------
-    Dictionary
-        The dictionary has keys of `data_source` and, if site-level information is requested, `each of
-        the requested site IDs. The dictionary values contain overall attribution instructions when the
-        key is `data_source` and site-level DOIs for each site ID key.
+    str
+        String containing overall attribution instructions for the provided dataset.
     """
     try:
-        assert data_source in ["usgs_nwis", "snotel", "scan", "ameriflux"]
+        assert dataset in ["usgs_nwis", "snotel", "scan", "ameriflux"]
     except:
         raise ValueError(
-            f"Unexpected value of data_source, {data_source}. Supported values include 'usgs_nwis', 'snotel', 'scan', and 'ameriflux'"
+            f"Unexpected value of dataset, {dataset}. Supported values include 'usgs_nwis', 'snotel', 'scan', and 'ameriflux'"
         )
 
-    citation_dict = {}
-
-    if data_source == "usgs_nwis":
+    if dataset == "usgs_nwis":
         c = ('Most U.S. Geological Survey (USGS) information resides in Public Domain and '
              'may be used without restriction, though they do ask that proper credit be given. '
              'An example credit statement would be: "(Product or data name) courtesy of the U.S. Geological Survey". '
              'Source: https://www.usgs.gov/information-policies-and-instructions/acknowledging-or-crediting-usgs')
-        print(c)
-        citation_dict[data_source] = c
 
-    elif data_source in ["snotel", "scan"]:
+    elif dataset in ["snotel", "scan"]:
         c = ('Most information presented on the USDA Web site is considered public domain information. '
              'Public domain information may be freely distributed or copied, but use of appropriate '
              'byline/photo/image credits is requested. Attribution may be cited as follows: '
              '"U.S. Department of Agriculture" Source: https://www.usda.gov/policies-and-links')
-        print(c)
-        citation_dict[data_source] = c
 
-    elif data_source == "ameriflux":
+    elif dataset == "ameriflux":
         c = ('All AmeriFlux sites provided by the HydroData service follow the CC-BY-4.0 License. '
              'The CC-BY-4.0 license specifies that the data user is free to Share (copy and '
              'redistribute the material in any medium or format) and/or Adapt (remix, transform, '
@@ -935,21 +913,10 @@ def get_citations(data_source, variable, temporal_resolution, aggregation, site_
              'Department of Energy Office of Science." '
              'Additionally, for each AmeriFlux site used, you must provide a citation to the site '
              'data product that includes the data product DOI. The DOI for each site is included in the '
-             'full metadata query. Alternately, a site list can be provided to this get_citations '
-             'function to return each site-specific DOI. '
+             'DataFrame returned by the hf_hydrodata get_point_metadata method, in the doi column.'
              'Source: https://ameriflux.lbl.gov/data/data-policy/')
-        print(c)
-        citation_dict[data_source] = c
 
-        if site_ids is not None:
-            metadata_df = get_point_metadata(dataset=data_source, variable=variable, temporal_resolution=temporal_resolution, aggregation=aggregation, site_ids=site_ids)
-            for i in range(len(metadata_df)):
-                site_id = metadata_df.loc[i, 'site_id']
-                doi = metadata_df.loc[i, 'doi']
-                print(f"Site: {site_id}, DOI: {doi}")
-                citation_dict[site_id] = doi
-
-    return citation_dict
+    return c
 
 
 def _validate_user():
@@ -1007,15 +974,15 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
-    variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+    variable : str, required
+        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
+        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
+        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
+        Options include descriptors such as 'mean' and 'sum'. Please see the documentation
         for allowable combinations with `variable`.
     args :
         Optional positional parameters that must be a dict with filter options.
@@ -1025,7 +992,7 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
     Keyword Arguments
     --------------------
     depth_level : int
-        Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
+        Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil_moisture'.
 
     Returns
     -------
@@ -1043,15 +1010,15 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
             f"Unexpected value for temporal_resolution, {temporal_resolution}. Please see the documentation for allowed values.")
 
     try:
-        assert variable in ['streamflow', 'wtd', 'swe', 'precipitation', 'temperature', 'soil moisture',
-                            'latent heat flux', 'sensible heat flux', 'shortwave radiation', 'longwave radiation',
-                            'vapor pressure deficit', 'wind speed']
+        assert variable in ['streamflow', 'water_table_depth', 'swe', 'precipitation', 'air_temp', 'soil_moisture',
+                            'latent_heat', 'sensible_heat', 'downward_shortwave', 'downward_longwave',
+                            'vapor_pressure_deficit', 'wind_speed']
     except:
         raise ValueError(f"Unexpected value for variable, {variable}. Please see the documentation for allowed values.")
 
     try:
-        assert aggregation in ['average', 'instantaneous', 'total', 'total, snow-adjusted',
-                               'start-of-day', 'accumulated', 'minimum', 'maximum']
+        assert aggregation in ['mean', 'instantaneous', 'sum', 'sum_snow_adjusted',
+                               'sod', 'accumulated', 'min', 'max']
     except:
         raise ValueError(
             f"Unexpected value for aggregation, {aggregation}. Please see the documentation for allowed values.")
@@ -1062,7 +1029,7 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
         raise ValueError(
             f"Unexpected value for dataset, {dataset} Please see the documentation for allowed values.")
 
-    if variable == 'soil moisture':
+    if variable == 'soil_moisture':
         try:
             assert 'depth_level' in options
             assert options['depth_level'] in [2, 4, 8, 20, 40]
@@ -1082,15 +1049,15 @@ def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
-    variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+    variable : str, required
+        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
+        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
+        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
+        Options include descriptors such as 'mean' and 'sum'. Please see the documentation
         for allowable combinations with `variable`.
     args :
         Optional positional parameters that must be a dict with filter options.
@@ -1100,12 +1067,12 @@ def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args
     Keyword Arguments
     --------------------
     depth_level : int
-        Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
+        Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil_moisture'.
 
     Returns
     -------
     var_id : int
-        Integer variable ID associated with combination of `data_source`, `variable`, `temporal_resolution`,
+        Integer variable ID associated with combination of `dataset`, `variable`, `temporal_resolution`,
         and `aggregation`.
     """
     if len(args) > 0 and isinstance(args[0], dict):
@@ -1118,7 +1085,7 @@ def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args
     else:
         data_source = dataset
 
-    if variable == 'soil moisture':
+    if variable == 'soil_moisture':
         query = """
                 SELECT var_id
                 FROM variables
@@ -1156,7 +1123,7 @@ def _get_dirpath(var_id):
     Parameters
     ----------
     var_id : int
-        Integer variable ID associated with combination of `data_source`,
+        Integer variable ID associated with combination of `dataset`,
         `variable`, `temporal_resolution`, and `aggregation`.
 
     Returns
@@ -1204,19 +1171,19 @@ def _get_sites(conn, dataset, variable, temporal_resolution, aggregation, *args,
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
-    variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+    variable : str, required
+        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
+        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
+        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
-        Options include descriptors such as 'average' and 'total'. Please see the documentation
+        Options include descriptors such as 'mean' and 'sum'. Please see the documentation
         for allowable combinations with `variable`.
     depth_level : int, optional
-        Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil moisture'.
+        Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil_moisture'.
     date_start : str, optional
         'YYYY-MM-DD' date indicating beginning of time range.
     date_end : str, optional
@@ -1459,14 +1426,14 @@ def _get_network_site_list(dataset, variable, site_networks):
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
-    variable : str
-        Description of type of data requested. Currently supported: 'streamflow', 'wtd', 'swe',
-        'precipitation', 'temperature', 'soil moisture', 'latent heat flux', 'sensible heat flux',
-        'shortwave radiation', 'longwave radiation', 'vapor pressure deficit', 'wind speed'.
+    variable : str, required
+        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
+        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
+        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     site_networks: str or list or strings
         List of names of site networks. Can be a list with a single network name.
         Each network must have matching .csv file with a list of site ID values that comprise
-        the network. This .csv file must be located under network_lists/{data_source}/{variable}
+        the network. This .csv file must be located under network_lists/{dataset}/{variable}
         in the package directory and named as 'network_name'.csv.
 
     Returns
@@ -1600,7 +1567,7 @@ def _get_data_nc(site_list, var_id, *args, **kwargs):
     site_list : list
         List of site IDs to query observations data for.
     var_id : int
-        Integer variable ID associated with combination of `data_source`,
+        Integer variable ID associated with combination of `dataset`,
         `variable`, `temporal_resolution`, and `aggregation`.
     args :
         Optional positional parameters that must be a dict with filter options.
@@ -1699,7 +1666,7 @@ def _get_data_sql(conn, var_id, *args, **kwargs):
         The Connection object associated with the SQLite database to
         query from.
     var_id : int
-        Integer variable ID associated with combination of `data_source`,
+        Integer variable ID associated with combination of `dataset`,
         `variable`, `temporal_resolution`, and `aggregation`.
     args :
         Optional positional parameters that must be a dict with filter options.
