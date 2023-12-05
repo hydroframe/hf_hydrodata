@@ -22,7 +22,6 @@ from hf_hydrodata.data_model_access import ModelTableRow
 from hf_hydrodata.data_model_access import load_data_model
 from hf_hydrodata.grid import to_ij
 
-
 C_PFB_MAP = {
     "eflx_lh_tot": 0,
     "eflx_lwrad_out": 1,
@@ -1060,7 +1059,7 @@ def get_raw_file(filepath, *args, **kwargs):
         import hf_hydrodata as hf
 
         options = {
-            "dataset": "huc_mapping", "grid": "conus2"}
+            "dataset": "huc_mapping", "grid": "conus2", "level": "4"}
         }
         hf.get_raw_file("huc4.tiff", options)
     """
@@ -1552,7 +1551,7 @@ def _get_api_headers() -> dict:
             response = requests.get(url_security, timeout=1200)
             if not response.status_code == 200:
                 raise ValueError(
-                    f"No registered PIN for email '{email}'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'hf_hydrodata.register_api_pin()'."
+                    f"No registered PIN for '{email}' (expired?). Browse to https://hydrogen.princeton.edu/pin to create a PIN. Register the pin with python by executing 'hf_hydrodata.register_api_pin()'."
                 )
             json_string = response.content.decode("utf-8")
             jwt_json = json.loads(json_string)

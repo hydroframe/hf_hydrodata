@@ -89,6 +89,7 @@ def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
     description = dataset_row["description"]
     datasource = dataset_row["datasource"]
     paper_dois = dataset_row["paper_dois"]
+    dataset_dois = dataset_row["dataset_dois"]
     dataset_start_date = dataset_row["dataset_start_date"]
     dataset_end_date = dataset_row["dataset_end_date"]
     grids = _collect_grids_in_dataset(dataset_row)
@@ -111,11 +112,15 @@ def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
             stream.write("**Data Collection or Processing Notes:**\n\n")
             for paragraph in processing_notes.split("\n"):
                 stream.write(f"    {paragraph}\n\n")
-        if paper_dois:
+        if paper_dois or dataset_dois:
             stream.write("**Citations:**\n\n")
             stream.write("Please refer to the following citations for more information on this dataset and cite them if you use the data\n\n")
             for entry in paper_dois.split(" "):
-                stream.write(f"* {entry}\n\n")
+                if entry:
+                    stream.write(f"* https://doi.org/{entry}\n\n")
+            for entry in dataset_dois.split(" "):
+                if entry:
+                    stream.write(f"* {entry}\n\n")
 
         if dataset_start_date or len(grids) > 0:
             stream.write("**Extent and Resolution**:\n\n")

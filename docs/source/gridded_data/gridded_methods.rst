@@ -25,7 +25,7 @@ is idenfied by the filter attributes.
     import hf_hydrodata as hf
 
     options = {
-        "dataset": "huc_mapping", "grid": "conus2"}
+        "dataset": "huc_mapping", "grid": "conus2", "level": "4"}
     }
     hf.get_raw_file("huc4.tiff", options)
 

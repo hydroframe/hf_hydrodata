@@ -7,6 +7,7 @@ from hf_hydrodata.grid import (
     meters_to_ij,
     meters_to_xy,
 )
+from hf_hydrodata.data_catalog import get_citations
 
 from hf_hydrodata.gridded import (
     get_catalog_entries,
@@ -33,7 +34,11 @@ from hf_hydrodata.point import (
     get_point_data,
     get_point_metadata,
     get_site_variables,
-    get_citations
 )
 
-from hf_hydrodata.data_model_access import load_data_model
+from hf_hydrodata.data_model_access import (
+    ModelTableRow,
+    ModelTable,
+    DataModel,
+    load_data_model
+)
