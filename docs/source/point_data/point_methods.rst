@@ -7,7 +7,7 @@ below, along with specific Jupyter notebooks in :ref:`examples_index` that showc
 Please see :ref:`api` for the full API documentation.
 
 ``get_point_data``
---------------
+----------------------
 The ``get_point_data`` method returns a pandas DataFrame of site-level observations time series for a specific variable, 
 from a specific data source. The ``get_point_data`` method requires four mandatory input parameters and an optional
 number of additional geographic, temporal, or other filters. Both sets of available parameters are described
@@ -33,7 +33,7 @@ in the function's API reference: :ref:`api`. ::
   * :ref:`/point_data/examples/example_shapefile.ipynb`
 
 ``get_point_metadata``
-------------------
+--------------------------
 The ``get_point_metadata`` method returns a pandas DataFrame of site-level attributes for sites that have observations 
 for a specific variable, from a specific data source. The ``get_point_metadata`` method requires four mandatory input 
 parameters and an optional number of additional geographic, temporal, or other filters. Both sets of available 

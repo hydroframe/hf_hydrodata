@@ -8,7 +8,7 @@ This is a list of the most useful functions for working with gridded data.
 See the Python API Reference for details about each function.
 
 Gridded Observation Methods
------------------
+-----------------------------
 
 .. toctree::
    :maxdepth: 1
@@ -47,7 +47,7 @@ You can use pass filter parameters as dict options as well.
 See the Python API Reference or the Available Datasets and Data Products for a list of all the filter parameters that may be provided.
 
 Metadata Descriptions
--------------
+-----------------------
 You can get metadata about the files in hydrodata using the get_catalog_entry function.
 
 .. code-block:: python
