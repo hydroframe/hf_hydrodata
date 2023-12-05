@@ -74,7 +74,7 @@ that can be passed to the functions to filter data by space and/or time.
 Accessing Point Observations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ``hf_hydrodata`` supports access to a collection of site-level data from a variety of sources. 
-Please see :ref:`_available_datasets` for a full list of what is available and details on our 
+Please see :ref:`available_datasets` for a full list of what is available and details on our 
 data collection process.
 
 The below syntax will return daily USGS streamflow data from January 1, 2022 through January 5, 2022 
