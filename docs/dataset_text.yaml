@@ -65,10 +65,26 @@ datasets:
 
   "nasa_smap":
     summary: >
-      ...
+
+      Soil Moisture data from the NASA SMAP web service (https://cmr.earthdata.nasa.gov), for
+      the entire world.  Data is clipped to a region 1 degree larger than than the CONUS 2 region 
+      and saved to water year netcdf files. 
+      The produced netcdf file contains 6 variable.  Below are the variables and their descriptions-
+      TimeStamp- The Date stamps of the downloaded data.'
+      Longitude- A single matrix representing all of the longitude points.
+      Latitude- A single matrix representing all of the latitude points.
+      SoilMoisture- A matrix for each date of data downloaded (in other words, a matrix for each date present in the TimeStamp variable).  A whole wateryear file will contain 365 matrices in a normal year, or 366 for a leap year, one representing each day. The soil moisture data here is calculated as the mean between the AM and PM values, as downloaded from the NASA website. A RetrievalQualFlag is given for each AM data and PM data used, as described below.  The latitude and longitude matrices are the same size as the Soil Moisture, RetrievalQualFlagAM, and RetrievalQualFlagPM matrices, and together, they represent the (latitude, longitude) point for which each soil moisture data point, RetrievalQualFlagAM, and RetrievalQualFlagPM, was collected.
+      RetrievalQualFlagAM- A matrix for each date of data downloaded representing the data quality of the AM data collected. A whole wateryear file will contain 365 matrices in a normal year, or 366 for a leap year, one representing each day.
+      RetrievalQualFlagPM- A matrix for each date of data downloaded represening the data quality of the PM data collected. A whole wateryear file will contain 365 matrices in a normal year, or 366 for a leap year, one representing each day.
+              
+      Missing Data
+      On occassion, some days of data are not available from the NASA website.  In these instances, 
+      a row for that date will be entered with None values for the data
 
     processing_notes: >
-      ....
+      We query data from the NASA SMAP weekly, early on Sunday mornings.  All previous
+      data, up through the most recently available data from the SMAP website,
+      is collected.
 
   "usgs_nwis":
     summary: >
