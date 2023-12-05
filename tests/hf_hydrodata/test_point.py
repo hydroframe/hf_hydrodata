@@ -948,18 +948,16 @@ def test_polygon_filter_fail():
 
 def test_get_citations_usgs():
     """Test for get_citations function with return DataFrame."""
-    c_dict = point.get_citations(dataset='usgs_nwis')
+    citation = point.get_citations(dataset='usgs_nwis')
 
-    assert len(c_dict.keys()) == 1
-    assert 'usgs_nwis' in c_dict
+    assert type(citation) == str
 
 
 def test_get_citations_ameriflux():
     """Test for get_citations function with return DataFrame."""
-    c_dict = point.get_citations(dataset='ameriflux')
+    citation = point.get_citations(dataset='ameriflux')
 
-    assert len(c_dict.keys()) == 1
-    assert 'ameriflux' in c_dict
+    assert type(citation) == str
 
 
 def test_get_variables_lat_lon():
