@@ -17,7 +17,7 @@ from hf_hydrodata.data_catalog import (
     get_table_row,
     get_datasets,
     get_variables,
-    get_citations
+    get_citations,
 )
 
 from hf_hydrodata.gridded import (
@@ -42,5 +42,5 @@ from hf_hydrodata.data_model_access import (
     ModelTableRow,
     ModelTable,
     DataModel,
-    load_data_model
+    load_data_model,
 )

@@ -24,9 +24,23 @@ def get_citations(*args, **kwargs) -> str:
     Get citation references for a dataset.
 
     Args:
-        dataset:    The name of a dataset.
+        dataset:    The name of a dataset or a filter options dict containing a dataset option.
     Returns:
         A string containing citation references of the dataset.
+
+    The citation references consist of a description of the dataset with relavent URL references to papers or websites.
+    
+    Example:
+
+    .. code-block:: python
+
+        import hf_hydrodata as hf  
+
+        citations = hf.get_citations("NLDAS2")      
+        print(citations)
+
+        options = {"dataset": "NLDAS2", "temporal_resolution": "daily"}
+        citations = hf.get_citations(options)
     """
 
     if len(args) > 0 and isinstance(args[0], dict):

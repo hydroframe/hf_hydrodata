@@ -77,6 +77,20 @@ filtered by the attributes passed to the function.
     entry = entries[0]
     assert entry["dataset"] == "NLDAS2"    
 
+``get_citations``
+-----------------
+Get a citations string about a dataset.
+
+    .. code-block:: python
+
+        import hf_hydrodata as hf  
+
+        citations = hf.get_citations("NLDAS2")      
+        print(citations)
+
+        options = {"dataset": "NLDAS2", "temporal_resolution": "daily"}
+        citations = hf.get_citations(options)
+        
 ``get_datasets``
 ------------------
 The get_datasets method returns an array of dataset names available
