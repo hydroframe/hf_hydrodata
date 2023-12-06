@@ -338,9 +338,7 @@ def _load_model_from_api(data_model: DataModel):
             _add_period_temporal_resolution_column(data_model)
         else:
             warn(
-                "Unable to update model from API (no internet access?) Error %s from '%s'",
-                response.status_code,
-                url,
+                f"Unable to update model from API (no internet access?) Error {response.status_code} from '{url}'"
             )
             # Do not cache data model if an API error occurred
     except requests.exceptions.ReadTimeout:
@@ -348,5 +346,6 @@ def _load_model_from_api(data_model: DataModel):
             "Timeout while trying to load latest model from server. Try again later."
         )
     except Exception:
-        warn("Warning - unable to update model from API (no internet access?) using '%s'", url)
-
+        warn(
+            f"Warning - unable to update model from API (no internet access?) using '{url}'"
+        )
