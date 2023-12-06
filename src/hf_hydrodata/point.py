@@ -868,7 +868,7 @@ def _construct_string_from_qparams(
         the requested data.
     """
 
-    qparam_values = options
+    qparam_values = dict(options)
     qparam_values["data_type"] = data_type
 
     string_parts = [
