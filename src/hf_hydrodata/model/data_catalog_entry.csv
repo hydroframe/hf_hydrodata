@@ -220,7 +220,7 @@ id,dataset,file_type,variable,dataset_var,entry_start_date,entry_end_date,tempor
 223,conus2_domain,pfb,pme,pme,,,static,m/h,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/1km_CONUS2_PME.pfb,pme that was used for steady state CONUS2 spinup,
 224,conus2_domain,pfsol,pf_solid,pf_solid,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0_fix115.pfsol,,
 225,conus2_domain,pfb,mannings,mannings,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0.Final1km_mannings_rv50_original_values_Lake_Sink.pfb,,
-226,conus2_domain,pfb,pf_indicator,pf_indicator,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0.Final1km.Subsurface.pfb,,
+226,conus2_domain,pfb,pf_indicator,pf_indicator,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0.Final1km.Subsurface.pfb,,
 227,conus2_domain,pfb,pf_flowbarrier,pf_flowbarrier,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0.Shangguan_200m_FBZ.pfb,,
 228,conus2_domain,pfb,ss_pressure_head,pressure,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/steady_state_runs/2003_run/spinup.wy2003.out.press.08760.pfb,steady state pressure used to initialize transient runs,
 229,conus2_domain,pfb,distance_stream_lin,distance_stream_lin,,,static,km,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.DisToStream.pfb,Map of distance for each cell to the stream (CONUS2.0.Final1km.RiverMask) using the function StreamDist in PriorityFlow.,
