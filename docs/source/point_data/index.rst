@@ -14,7 +14,5 @@ descriptions of the available methods.
    :titlesonly:
 
    point_methods
-   point_inputs
-   data_collection
    metadata_definitions
    examples/index

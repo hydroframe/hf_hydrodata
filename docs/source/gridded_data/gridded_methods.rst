@@ -1,7 +1,7 @@
 .. _gridded_methods:
 
 ``get_gridded_data``
---------------
+-----------------------
 The get_gridded_data method returns a numpy ndarray of the information
 identified by the filter attributes passed to the function.
 
@@ -16,7 +16,7 @@ identified by the filter attributes passed to the function.
       data = hf.get_gridded_data(options)
 
 ``get_raw_file``
---------------
+-------------------
 The get_raw_file method returns the raw file from the server that
 is idenfied by the filter attributes.
 
@@ -30,7 +30,7 @@ is idenfied by the filter attributes.
     hf.get_raw_file("huc4.tiff", options)
 
 ``get_date_range``
---------------
+--------------------
 The get_date_range method returns an array of [start_date, end_date] 
 of the range of dates available for the dataset identified by
 the same filter attributes passed to get_gridded_data.
@@ -45,7 +45,7 @@ the same filter attributes passed to get_gridded_data.
     range = hf.get_date_range(options)
 
 ``get_catalog_entry``
---------------
+-----------------------
 The get_catalog_entry method returns a python dict with attributes
 describing the data identified by
 the same filter attributes passed to get_gridded_data.
@@ -61,7 +61,7 @@ the same filter attributes passed to get_gridded_data.
     entry = hf.get_catalog_entry(options)
 
 ``get_catalog_enties``
---------------
+-----------------------
 The get_catalog_enties method returns an array of catalog entries
 filtered by the attributes passed to the function.
 
@@ -78,7 +78,7 @@ filtered by the attributes passed to the function.
     assert entry["dataset"] == "NLDAS2"    
 
 ``get_datasets``
---------------
+------------------
 The get_datasets method returns an array of dataset names available
 to be specified as the "dataset" filter attribute. Any filter
 attribute can be passed as arguments to return only datasets with
@@ -106,7 +106,7 @@ data matching the filter attributes.
     assert datasets[0] == "NLDAS2"    
 
 ``get_variables``
---------------
+------------------
 The get_datasets method returns an array of variable names available
 to be specified as the "variable" filter attribute.
 Any filter
@@ -135,7 +135,7 @@ data matching the filter attributes.
     assert variables[0] == "air_temp"    
 
 ``from_latlon``
---------------
+-------------------
 This converts a lat/lon point or an array of lat/lon points to grid coordiates.
 
 .. code-block:: python
@@ -146,7 +146,7 @@ This converts a lat/lon point or an array of lat/lon points to grid coordiates.
     latlon_bounds = hf.from_latlon("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     
 ``to_latlon``
---------------
+----------------
 This converts an x,y grid point or an array of x,y grid points to lat/lon coordinates.
 
 .. code-block:: python
@@ -158,7 +158,7 @@ This converts an x,y grid point or an array of x,y grid points to lat/lon coordi
     (lat, lon) = hf.to_latlon("conus1", 10.5, 10.5)
 
 ``get_huc_from_xy``
---------------
+--------------------
 This returns a HUC id that contains an x,y grid point.
 
 .. code-block:: python
@@ -169,7 +169,7 @@ This returns a HUC id that contains an x,y grid point.
     assert huc_id == "181001"
 
 ``get_huc_from_latlon``
---------------
+------------------------
 This returns a HUC id from a lat/lon coordinate.
 
 .. code-block:: python
@@ -180,7 +180,7 @@ This returns a HUC id from a lat/lon coordinate.
     assert huc_id == "181001"
 
 ``get_huc_bbox``
---------------
+-----------------
 This returns the bounding box of a list of HUC ids in grid coordinates.
 
 .. code-block:: python
