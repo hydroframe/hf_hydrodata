@@ -37,7 +37,7 @@ You can pass filter parameter using named parameters.
 
       datasets = hf.get_datasets(variable = "air_temp")
 
-You can use pass filter parameters as dict options as well.
+You use pass filter parameters as dict options as well.
 
 .. code-block:: python
 

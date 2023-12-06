@@ -7,12 +7,10 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   hf_hydrodata.data_model_access
-   hf_hydrodata.generate_hydrodata_catalog_yaml
    hf_hydrodata.grid
+   hf_hydrodata.data_catalog
    hf_hydrodata.gridded
    hf_hydrodata.point
-   hf_hydrodata.projection
 
 Module contents
 ---------------
