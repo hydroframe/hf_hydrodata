@@ -10,6 +10,7 @@ import json
 import datetime
 import requests
 from hf_hydrodata.data_model_access import ModelTableRow, load_data_model
+import hf_hydrodata.point
 
 HYDRODATA = "/hydrodata"
 JWT_TOKEN = None
@@ -24,12 +25,14 @@ def get_citations(*args, **kwargs) -> str:
     Get citation references for a dataset.
 
     Args:
-        dataset:    The name of a dataset or a filter options dict containing a dataset option.
+        dataset:    The name of a dataset/
     Returns:
         A string containing citation references of the dataset.
 
     The citation references consist of a description of the dataset with relavent URL references to papers or websites.
     
+    The dataset parameter can be passed as a named or un-named parameter or as a dict containing a dataset option.
+
     Example:
 
     .. code-block:: python
@@ -37,6 +40,9 @@ def get_citations(*args, **kwargs) -> str:
         import hf_hydrodata as hf  
 
         citations = hf.get_citations("NLDAS2")      
+        print(citations)
+
+        citations = hf.get_citations(dataset = "NLDAS2")
         print(citations)
 
         options = {"dataset": "NLDAS2", "temporal_resolution": "daily"}
@@ -55,6 +61,10 @@ def get_citations(*args, **kwargs) -> str:
     if not dataset:
         raise ValueError("Dataset is not specified.")
 
+    # If the dataset is a point observation dataset return the citation from point observation module
+    if dataset in ["usgs_nwis", "snotel", "scan", "ameriflux"]:
+        return hf_hydrodata.point.get_citations(dataset)
+    
     entries = get_catalog_entries(dataset=dataset)
     if entries is None or len(entries) == 0:
         raise ValueError(f"No such dataset '{dataset}'")

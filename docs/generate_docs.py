@@ -187,7 +187,7 @@ def _generate_dataset_variable_docs(dataset_row, stream):
         variable_type_name = variable_type_id.strip().replace("_", " ").title()
 
         stream.write(f".. list-table:: {variable_type_name} Variables\n")
-        if _has_multiple_aggregations(dataset_row, variables):
+        if _has_multiple_aggregations(dataset_row, variables) or dataset_id in ["usgs_nwis", "snotel", "scan", "ameriflux"]:
             stream.write("    :widths: 25 60 30 20 20 20")
         else:
             stream.write("    :widths: 25 60 30 20 20")
@@ -199,7 +199,7 @@ def _generate_dataset_variable_docs(dataset_row, stream):
         stream.write(f"      - description\n")
         stream.write(f"      - temporal_resolution\n")
         stream.write(f"      - units\n")
-        if _has_multiple_aggregations(dataset_row, variables):
+        if _has_multiple_aggregations(dataset_row, variables) or dataset_id in ["usgs_nwis", "snotel", "scan", "ameriflux"]:
             stream.write(f"      - aggregation\n")
         if structure_type == "gridded":
             stream.write(f"      - grid\n")
@@ -225,7 +225,7 @@ def _generate_dataset_variable_docs(dataset_row, stream):
                 stream.write(f"      - {variable_description}\n")
                 stream.write(f"      - {variable_periods}\n")
                 stream.write(f"      - {variable_units}\n")
-                if _has_multiple_aggregations(dataset_row, variables):
+                if _has_multiple_aggregations(dataset_row, variables) or dataset_id in ["usgs_nwis", "snotel", "scan", "ameriflux"]:
                     stream.write(f"      - {variable_aggregations}\n")
                 if structure_type == "gridded":
                     stream.write(f"      - {variable_grids}\n")

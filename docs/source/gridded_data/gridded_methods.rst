@@ -88,6 +88,9 @@ Get a citations string about a dataset.
         citations = hf.get_citations("NLDAS2")      
         print(citations)
 
+        citations = hf.get_citations(dataset = "NLDAS2")
+        print(citations)
+
         options = {"dataset": "NLDAS2", "temporal_resolution": "daily"}
         citations = hf.get_citations(options)
         
