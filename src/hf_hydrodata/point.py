@@ -868,13 +868,12 @@ def _construct_string_from_qparams(
         the requested data.
     """
 
-    qparam_values = dict(options)
-    qparam_values["data_type"] = data_type
-
     string_parts = [
         f"{name}={value}" for name, value in options.items() if value is not None
     ]
+    string_parts.append(f"data_type={data_type}")
     result_string = "&".join(string_parts)
+
     return result_string
 
 
