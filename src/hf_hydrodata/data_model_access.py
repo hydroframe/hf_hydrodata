@@ -348,4 +348,5 @@ def _load_model_from_api(data_model: DataModel):
             "Timeout while trying to load latest model from server. Try again later."
         )
     except Exception:
-        logging.exception("Error loading data catalog model from API '%s'", url)
+        warn("Warning - unable to update model from API (no internet access?) using '%s'", url)
+
