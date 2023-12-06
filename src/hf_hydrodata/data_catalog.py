@@ -73,7 +73,6 @@ def get_citations(*args, **kwargs) -> str:
     description = entry["description"]
     paper_dois = entry["paper_dois"]
     dataset_dois = entry["dataset_dois"]
-    print(entry)
     result = result + f"{description}\n"
     found_reference = False
     if paper_dois:
@@ -101,8 +100,9 @@ def register_api_pin(email: str, pin: str):
         email:      Email address used to create an API pin.
         pin:        The 4 digit pin registered to be able to use the API.
 
-    This only needs to be execute once per machine to register the pin. You can create a pin
-    using the URL https://hydrogen.princeton.edu/pin.
+    This only needs to be execute once per machine to register the pin. 
+    You can signup for an account using https://hydrogen.princeton.edu/signup.
+    You can create a pin using the URL https://hydrogen.princeton.edu/pin.
 
     Example:
 
@@ -146,7 +146,7 @@ def get_registered_api_pin() -> Tuple[str, str]:
     pin_path = f"{pin_dir}/pin.json"
     if not os.path.exists(pin_path):
         raise ValueError(
-            "No email/pin was registered'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'hf_hydrodata.register_api_pin()'."
+            "No email/pin was registered'. Signup for an account with https://hydrogen.princeton.edu/signup. Create a pin with https://hydrogen.princeton.edu/pin. Register your pin with the python call 'hf_hydrodata.register_api_pin()'."
         )
     try:
         with open(pin_path, "r") as stream:
@@ -157,7 +157,7 @@ def get_registered_api_pin() -> Tuple[str, str]:
             return (email, pin)
     except Exception as e:
         raise ValueError(
-            "No email/pin was registered'. Browse to https://hydrogen.princeton.edu/pin to request an account and create a PIN. Add your email and PIN to the python call 'hf_hydrodata.register_api_pin()'."
+            "No email/pin was registered'. Signup for an account with https://hydrogen.princeton.edu/signup. Create a pin with https://hydrogen.princeton.edu/pin. Register your pin with the python call 'hf_hydrodata.register_api_pin()'."
         ) from e
 
 
@@ -424,7 +424,7 @@ def _get_api_headers() -> dict:
             response = requests.get(url_security, timeout=1200)
             if not response.status_code == 200:
                 raise ValueError(
-                    f"No registered PIN for '{email}' (expired?). Browse to https://hydrogen.princeton.edu/pin to create a PIN. Register the pin with python by executing 'hf_hydrodata.register_api_pin()'."
+                    f"No registered PIN for '{email}' (expired?). Re-register a pin with https://hydrogen.princeton.edu/pin . Signup with https://hydrogen.princeton.edu/signup. Register the pin with python by executing 'hf_hydrodata.register_api_pin()'."
                 )
             json_string = response.content.decode("utf-8")
             jwt_json = json.loads(json_string)
@@ -436,7 +436,7 @@ def _get_api_headers() -> dict:
                 now = datetime.datetime.now()
                 if now > expires:
                     raise ValueError(
-                        "PIN has expired. Please re-register it from https://hydrogen.princeton.edu/pin"
+                        "PIN has expired. Re-register a pin with https://hydrogen.princeton.edu/pin . Signup with https://hydrogen.princeton.edu/signup. Register the pin with python by executing 'hf_hydrodata.register_api_pin()'."
                     )
             JWT_TOKEN = jwt_json["jwt_token"]
             USER_ROLES = jwt_json.get("user_roles")

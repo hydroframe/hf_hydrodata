@@ -934,7 +934,7 @@ def _validate_user():
     response = requests.get(url_security, headers=None, timeout=15)
     if not response.status_code == 200:
         raise ValueError(
-            f"User Validation Failed.  The email '{email}' may not be registered at https://hydrogen.princeton.edu/pin, may not be registered on this machine using the register_pin() function, or may not be registered with the same pin at https://hydrogen.princeton.edu/pin as was registered on this machine using register_pin(). See documentation to register with an email and pin."
+            f"PIN has expired. Re-register a pin for '{email}' with https://hydrogen.princeton.edu/pin ."
         )
     json_string = response.content.decode("utf-8")
     jwt_json = json.loads(json_string)
