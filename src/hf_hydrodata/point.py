@@ -868,13 +868,12 @@ def _construct_string_from_qparams(
         the requested data.
     """
 
-    qparam_values = options
-    qparam_values["data_type"] = data_type
-
     string_parts = [
         f"{name}={value}" for name, value in options.items() if value is not None
     ]
+    string_parts.append(f"data_type={data_type}")
     result_string = "&".join(string_parts)
+
     return result_string
 
 
@@ -903,14 +902,14 @@ def get_citations(dataset):
     if dataset == "usgs_nwis":
         c = ('Most U.S. Geological Survey (USGS) information resides in Public Domain and '
              'may be used without restriction, though they do ask that proper credit be given. '
-             'An example credit statement would be: "(Product or data name) courtesy of the U.S. Geological Survey". '
+             'An example credit statement would be: "(Product or data name) courtesy of the U.S. Geological Survey".\n'
              'Source: https://www.usgs.gov/information-policies-and-instructions/acknowledging-or-crediting-usgs')
 
     elif dataset in ["snotel", "scan"]:
         c = ('Most information presented on the USDA Web site is considered public domain information. '
              'Public domain information may be freely distributed or copied, but use of appropriate '
              'byline/photo/image credits is requested. Attribution may be cited as follows: '
-             '"U.S. Department of Agriculture" Source: https://www.usda.gov/policies-and-links')
+             '"U.S. Department of Agriculture"\nSource: https://www.usda.gov/policies-and-links')
 
     elif dataset == "ameriflux":
         c = ('All AmeriFlux sites provided by the HydroData service follow the CC-BY-4.0 License. '
@@ -922,7 +921,7 @@ def get_citations(dataset):
              'Department of Energy Office of Science." '
              'Additionally, for each AmeriFlux site used, you must provide a citation to the site '
              'data product that includes the data product DOI. The DOI for each site is included in the '
-             'DataFrame returned by the hf_hydrodata get_point_metadata method, in the doi column.'
+             'DataFrame returned by the hf_hydrodata get_point_metadata method, in the doi column.\n'
              'Source: https://ameriflux.lbl.gov/data/data-policy/')
 
     return c

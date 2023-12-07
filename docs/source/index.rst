@@ -13,8 +13,8 @@ This documentation provides:
 2. A set of tools and examples for how to access and work with this data for your own purposes. 
 
 Please note that to access any data you will need to first sign up for an account and get an API pin 
-(this is summarized in the :ref:`getting_started` section). Please also refer to our data use 
-policy :ref:`data_use_policy` and make sure to cite any data sources that you use (examples of how 
+(this is summarized in the :ref:`getting_started` section). Please also refer to our :ref:`data_policy` 
+and make sure to cite any data sources that you use (examples of how 
 to obtain citations are provided in the how to sections).
 
 :ref:`getting_started` contains installation instructions and a quick-start guide for obtaining 
@@ -32,3 +32,4 @@ the :ref:`api` contains the full list of available functions.
    gridded_data/index
    point_data/index
    api_reference
+   data_policy

@@ -866,6 +866,16 @@ def test_get_huc_bbox_conus2():
     gr.HYDRODATA = "/hydrodata"
     bbox = hf.get_huc_bbox("conus2", ["1019000404"])
     assert bbox == (1468, 1664, 1550, 1693)
+    bbox = hf.get_huc_bbox("conus2", ["10190004"])
+    assert bbox == (1468, 1664, 1550, 1693)
+    bbox = hf.get_huc_bbox("conus2", ["101900"])
+    assert bbox == (1439, 1573, 1844, 1851)
+    bbox = hf.get_huc_bbox("conus2", ["1019"])
+    assert bbox == (1439, 1573, 1844, 1851)
+    bbox = hf.get_huc_bbox("conus2", ["10"])
+    assert bbox == (948, 1353, 2741, 2784)
+    bbox = hf.get_huc_bbox("conus2", ["15020018"])
+    assert bbox == ((940, 1333, 1060, 1422))
 
 
 def test_latlng_to_grid_out_of_bounds():
