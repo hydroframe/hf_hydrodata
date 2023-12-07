@@ -89,7 +89,7 @@ The ``get_site_variables`` method returns a pandas DataFrame that is unique for 
 The returned attributes include high-level information about the site location and period of record for each 
 variable. The ``get_site_variables`` method does not require any mandatory parameters, though we advise including
 as many filters as relevant to increase processing speed and keep the returned information as relevant as possible.
-Any of the input parameters available to ``get_data`` (either mandatory or optional) may be supplied to 
+Any of the input parameters available to ``get_point_data`` (either mandatory or optional) may be supplied to 
 ``get_site_variables``. ::
 
     # Import package
