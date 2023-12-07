@@ -96,4 +96,4 @@ generate the read-the-docs html into the html folder.
 
 
 ## Data Use Policy
-The software is licenced under MIT licence, but the data is controlled by a [Data Use Policy] (https://hf-hydrodata.readthedocs.io/en/latest/data_policy.html).
+The software is licenced under MIT licence, but the data is controlled by a [Data Use Policy](https://hf-hydrodata.readthedocs.io/en/latest/data_policy.html).
