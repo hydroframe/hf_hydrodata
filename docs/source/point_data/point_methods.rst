@@ -40,7 +40,7 @@ parameters and an optional number of additional geographic, temporal, or other f
 parameters are described in the function's API reference: :ref:`api`. 
 Both ``get_point_data`` and ``get_point_metadata`` accept a similar set of mandatory and optional parameters and 
 it is recommended to use the same inputs across these functions for a given workflow. Descriptions of the returned 
-attributes are available in :ref:`metadata_description`. ::
+attributes are available in :ref:`point_obs_metadata`. ::
 
     # Import package
     from hf_hydrodata import get_point_metadata
