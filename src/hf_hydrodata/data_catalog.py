@@ -30,7 +30,7 @@ def get_citations(*args, **kwargs) -> str:
         A string containing citation references of the dataset.
 
     The citation references consist of a description of the dataset with relavent URL references to papers or websites.
-    
+
     The dataset parameter can be passed as a named or un-named parameter or as a dict containing a dataset option.
 
     Example:
@@ -63,8 +63,8 @@ def get_citations(*args, **kwargs) -> str:
 
     # If the dataset is a point observation dataset return the citation from point observation module
     if dataset in ["usgs_nwis", "snotel", "scan", "ameriflux"]:
-        return hf_hydrodata.point.get_citations(dataset)
-    
+        return hf_hydrodata.point._get_point_citations(dataset)
+
     entries = get_catalog_entries(dataset=dataset)
     if entries is None or len(entries) == 0:
         raise ValueError(f"No such dataset '{dataset}'")
@@ -621,6 +621,7 @@ def _is_row_match_options(row: ModelTableRow, options: dict) -> bool:
             result = False
             break
     return result
+
 
 def test_get_tables():
     """Test get_table_names."""
