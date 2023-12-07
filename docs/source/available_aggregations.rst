@@ -3,7 +3,10 @@
 Aggregations
 ============
 
-Some of the datasets available have been temporal aggregated (e.g. aggregating from hourly to daily). The following lists defines all of the temporal aggregations that are available.  Note that most variables will have only a few aggregation options. Refer to ``Datasets`` documentation for the list of variables and aggregations that are available for a specific dataset. 
+Some of the datasets available have been temporally aggregated (e.g. aggregating from hourly to daily). 
+The following lists defines all of the temporal aggregations that are available.  Note that most variables 
+will have only a few aggregation options. Refer to :ref:`available_datasets` for the list of variables and 
+aggregations that are available for a specific dataset. 
 
 
 .. list-table:: Aggregation
