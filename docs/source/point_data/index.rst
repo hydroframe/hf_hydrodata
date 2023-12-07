@@ -13,5 +13,4 @@ descriptions of the available methods.
    :titlesonly:
 
    point_methods
-   metadata_definitions
    examples/index
