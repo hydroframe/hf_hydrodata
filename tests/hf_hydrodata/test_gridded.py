@@ -3,8 +3,6 @@ Unit test for the gridded module.
 """
 
 # pylint: disable=C0301,C0103,W0632,W0702,W0101,C0302,W0105,E0401,C0413,R0903,W0613,R0912
-import hf_hydrodata.gridded as gr
-import hf_hydrodata as hf
 import sys
 import os
 import datetime
@@ -16,6 +14,8 @@ from parflow import read_pfb_sequence
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 
+import hf_hydrodata as hf
+import hf_hydrodata.gridded as gr
 
 @pytest.fixture(autouse=True)
 def patch_api(mocker):
