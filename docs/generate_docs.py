@@ -60,7 +60,7 @@ def _generate_dataset_type_docs(
         stream.write("    :widths: 25 100\n")
         stream.write("    :header-rows: 1\n")
         stream.write("\n")
-        stream.write("    * - Dateset\n")
+        stream.write("    * - Dataset\n")
         stream.write("      - Description\n")
         for dataset_id in dataset_table.row_ids:
             if dataset_id in dataset_ids:

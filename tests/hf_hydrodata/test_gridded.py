@@ -17,7 +17,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../s
 import hf_hydrodata as hf
 import hf_hydrodata.gridded as gr
 
-
 @pytest.fixture(autouse=True)
 def patch_api(mocker):
     """Mock api call to load model from API."""
@@ -1224,7 +1223,7 @@ def test_get_variables():
     assert len(variables) == 8
     assert variables[0] == "air_temp"
     variables = hf.get_variables(grid="conus2")
-    assert len(variables) == 30
+    assert len(variables) == 31
     assert variables[0] == "air_temp"
 
     options = {"dataset": "NLDAS2", "grid": "conus1"}

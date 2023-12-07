@@ -409,6 +409,7 @@ def get_point_metadata(*args, **kwargs):
 def get_site_variables(*args, **kwargs):
     """
     Return DataFrame with available sites, variables, and the period of record.
+
     Parameters
     ----------
     dataset : str, optional
