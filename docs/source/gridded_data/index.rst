@@ -3,9 +3,9 @@
 Working with Gridded Data
 ==================================
 
-The ``hf_hydrodata`` module provides functionality to get gridded data and metadata from the hydrodata data store.
+The ``hf_hydrodata`` module provides functionality to get gridded data and metadata from the HydroData data catalog.
 This is a list of the most useful functions for working with gridded data.
-See the Python API Reference for details about each function.
+See the :ref:`api` for details about each function.
 
 Gridded Observation Methods
 -----------------------------
@@ -20,7 +20,7 @@ Filter Parameters
 -----------------
 Most gridded functions accept filter parameters that identify data using
 attributes that index the data. These filter parameters may be passed by name or using a python dict with filter parameters options.
-All the files are organized by dataset and variable (see ``Available Datasets and Data Products``).
+All the files are organized by dataset and variable (see :ref:`available_datasets`).
 
 You can get the available datasets and variables using functions:
 
@@ -44,11 +44,11 @@ You use pass filter parameters as dict options as well.
       options = {"dataset": "NLDAS2", "grid": "conus1"}
       variables = hf.get_variables(options)
 
-See the Python API Reference or the Available Datasets and Data Products for a list of all the filter parameters that may be provided.
+See the :ref:`api` or :ref:`available_datasets` for a list of all the filter parameters that may be provided.
 
 Metadata Descriptions
 -----------------------
-You can get metadata about the files in hydrodata using the get_catalog_entry function.
+You can get metadata about the files in hydrodata using the ``get_catalog_entry`` function.
 
 .. code-block:: python
 
@@ -61,9 +61,9 @@ You can get metadata about the files in hydrodata using the get_catalog_entry fu
       metadata = hf.get_catalog_entry(options)
       print(metadata["units"], metadata["paper_dois"], metadata["grid"], metadata["description"])
 
-See `AvailableMetadata <https://hf-hydrodata.readthedocs.io/en/latest/available_metadata.html>`_ for documentation of the meta data returned by get_catalog_entry.
+See :ref:`available_metadata` for documentation of the metadata returned by ``get_catalog_entry``.
 
-You can get the date range available for a data set using the get_date_range function.
+You can get the date range available for a data set using the ``get_date_range`` function.
 
 .. code-block:: python
 

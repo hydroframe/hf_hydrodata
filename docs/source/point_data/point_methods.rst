@@ -1,11 +1,3 @@
-.. _point_methods:
-
-Point Observations Methods
-==================================
-There are four main functions available from the ``hf_hydrodata.point`` module. These are described briefly 
-below, along with specific Jupyter notebooks in :ref:`examples_index` that showcase that functionality.
-Please see :ref:`api` for the full API documentation.
-
 ``get_point_data``
 ----------------------
 The ``get_point_data`` method returns a pandas DataFrame of site-level observations time series for a specific variable, 
@@ -66,22 +58,6 @@ attributes are available in :ref:`point_obs_metadata`. ::
   * :ref:`/point_data/examples/example_get_data.ipynb`
   * :ref:`/point_data/examples/example_plot_data.ipynb`
   * :ref:`/point_data/examples/example_shapefile.ipynb`
-
-``get_citations``
--------------------
-The ``get_citations`` method returns a string containing attribution information for using each type of data. 
-The ``get_citations`` method requires the ``dataset`` field as its input. :: 
-
-    # Import package
-    from hf_hydrodata import get_citations
-
-    # Get the citation information relevant for this data
-    citations = get_citations(dataset = "usgs_nwis")
-    print(citations)
-
-* Examples using ``get_citations``:  
-
-  * :ref:`/point_data/examples/example_get_data.ipynb`
 
 ``get_site_variables``
 ------------------------

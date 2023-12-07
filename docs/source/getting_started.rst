@@ -19,8 +19,7 @@ Users must create a HydroGEN API account and register their PIN before using the
 
 1. If its your first time using this package you will need to sign up for a HydroFrame account on the `HydroGEN Signup Page <https://hydrogen.princeton.edu/signup>`_ (*Note: This only needs to be done once*)
 
-2. Visit our `HydroGEN PIN Page <https://hydrogen.princeton.edu/pin>`_ to 
- create a 4-digit PIN.
+2. Visit our `HydroGEN PIN Page <https://hydrogen.princeton.edu/pin>`_ to create a 4-digit PIN.
 
 3. After creating your PIN, you must register that PIN on the machine that you intend
 to use. You can run the following code one time to register your PIN::  
@@ -40,7 +39,8 @@ to stay the same).
 QuickStart Guide
 ---------------------
 The ``hf_hydrodata`` package supports both gridded and point observations data. The examples below contain 
-some simple syntax for getting started. Further developed examples are available at :ref:`examples_index`. 
+some simple syntax for getting started. Further developed examples are available at :ref:`point_examples_index`
+for accessing and working with point observations data. 
 Additionally, the :ref:`api` can be used to see the full list of available features. 
 
 Please see :ref:`api_pin` to make sure you have properly signed up and registered your API PIN.
@@ -49,14 +49,14 @@ Accessing Gridded Data
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The example below will return daily NLDAS2 precipitation files for March 1, 2005. Without specification,
-gridded data will be returned on the CONUS1 grid (`ParFlow-CONUS1 <https://hydroframe.org/parflow-conus1>`_  
+gridded data will be returned on the CONUS1 grid (`ParFlow-CONUS1 <https://hydroframe.org/parflow-conus1>`_) 
 but a different grid or grid subset
 can be specified by the user. Please see :ref:`api` for a full list of available parameters and supported
 features.
 
 The user can also request the metadata for the specified file. This includes information on the 
 variable units, time zone, overall time availability for this data source, any relevant DOI citations,
-and many other fields. A full description of the metadata returned can be found in :ref:`gridded_data_index` ::
+and many other fields. A full description of the metadata returned can be found in :ref:`available_metadata`. ::
 
     import hf_hydrodata as hf
 
@@ -106,7 +106,7 @@ of (-75, -50). ::
 
 
 Alternately, it is possible to define a single dictionary containing all desired input parameter values,
-and pass this dictionary in to the `get_point_data` and `get_point_metadata` functions. The example below
+and pass this dictionary in to the ``get_point_data`` and ``get_point_metadata`` functions. The example below
 shows an alternate syntax to obtain identical output to the example shown above. ::
 
     # Import package
@@ -126,4 +126,4 @@ shows an alternate syntax to obtain identical output to the example shown above.
     metadata.head(5)
 
 
-Please see :ref:`examples_index` for additional example workflows.
+Please see :ref:`point_examples_index` for additional example workflows.
