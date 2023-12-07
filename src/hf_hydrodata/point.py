@@ -877,7 +877,7 @@ def _construct_string_from_qparams(
     return result_string
 
 
-def get_citations(dataset):
+def _get_point_citations(dataset):
     """
     Return a dictionary with relevant citation information.
 

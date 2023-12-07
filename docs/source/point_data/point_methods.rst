@@ -40,7 +40,7 @@ parameters and an optional number of additional geographic, temporal, or other f
 parameters are described in the function's API reference: :ref:`api`. 
 Both ``get_point_data`` and ``get_point_metadata`` accept a similar set of mandatory and optional parameters and 
 it is recommended to use the same inputs across these functions for a given workflow. Descriptions of the returned 
-attributes are available in :ref:`metadata_description`. ::
+attributes are available in :ref:`point_obs_metadata`. ::
 
     # Import package
     from hf_hydrodata import get_point_metadata
@@ -89,7 +89,7 @@ The ``get_site_variables`` method returns a pandas DataFrame that is unique for 
 The returned attributes include high-level information about the site location and period of record for each 
 variable. The ``get_site_variables`` method does not require any mandatory parameters, though we advise including
 as many filters as relevant to increase processing speed and keep the returned information as relevant as possible.
-Any of the input parameters available to ``get_data`` (either mandatory or optional) may be supplied to 
+Any of the input parameters available to ``get_point_data`` (either mandatory or optional) may be supplied to 
 ``get_site_variables``. ::
 
     # Import package
