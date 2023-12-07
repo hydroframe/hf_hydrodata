@@ -15,36 +15,31 @@ datasets:
 
   "conus1_baseline_85":
     summary: >
-      A simulation of water year 1985 completed with the ParFlow CONUS1 model.  This was the first transient simulation that was completed with the ParFlow CONUS1 model. The simulation was completed using the NLDAS2 forcing dataset at 1km resolution and a 1 hour time step.  This dataset contains all of the outputs from the simulation as well as the ParFlow and CLM run scripts.  The model inputs can be found in the `conus1_domain` dataset. Refer to the citations below for additional information on the model development and findings. 
+      A simulation of water year 1985 completed with the ParFlow CONUS1 model.  This was the first transient simulation that was completed with the ParFlow CONUS1 model. The simulation was completed using the NLDAS2 forcing dataset at 1km resolution and a 1 hour time step.  This dataset contains all of the outputs from the simulation as well as the ParFlow and CLM run scripts.  The model inputs can be found in the `conus1_domain <https://hf-hydrodata.readthedocs.io/en/latest/gen_conus1_domain.html>`_ dataset. Refer to the citations below for additional information on the model development and findings. 
 
   "conus1_baseline_mod":
     summary: >
-      A simulation of water years 2003-2006 completed with the ParFlow CONUS1 model.  This is the most recent transient simulation that was completed with the ParFlow CONUS1 model (i.e. after the conus_baseline_85 simulation). The simulation was completed using the NLDAS2 forcing dataset at 1km resolution and a 1 hour time step.  This dataset contains all of the outputs from the simulation as well as the ParFlow and CLM run scripts.  The model inputs can be found in the `conus1_domain` dataset. Refer to the citations below for additional information on the model development and findings. 
+      A simulation of water years 2003-2006 completed with the ParFlow CONUS1 model.  This is the most recent transient simulation that was completed with the ParFlow CONUS1 model (i.e. after the `conus_baseline_85 <https://hf-hydrodata.readthedocs.io/en/latest/gen_conus1_baseline_85.html>`_ simulation). The simulation was completed using the NLDAS2 forcing dataset at 1km resolution and a 1 hour time step.  This dataset contains all of the outputs from the simulation as well as the ParFlow and CLM run scripts.  The model inputs can be found in the `conus1_domain <https://hf-hydrodata.readthedocs.io/en/latest/gen_conus1_domain.html>`_ dataset. Refer to the citations below for additional information on the model development and findings. 
 
   "NLDAS2":
-    summary: >
-      ...
+    summary: The NLDAS grid is a 1/8th degree grid that covers the entire contiguous US.  This dataset contains the NLDAS2 forcing data at 1/8th degree resolution and a 1 hour time step.  This dataset was used to force the `conus1_baseline_mod <https://hf-hydrodata.readthedocs.io/en/latest/gen_conus1_baseline_mod.html>`_ simulation.  This dataset is adjusted and bias corrected per the description in `O'Neill et al GMD 2021 <https://gmd.copernicus.org/articles/14/7223/2021/>`_. 
 
-    processing_notes: >
-      ....
+    processing_notes: Heavily bias corrected per `O'Neill et al GMD 2021 <https://gmd.copernicus.org/articles/14/7223/2021/>`_.  The bias correction is applied to the NLDAS2 data before it is bilinearly interpolated to the ParFlow CONUS1 grid. 
 
-  "NLDSAS2_1985":
-    summary: >
-      ...
+  "NLDAS2_85":
+    summary: The NLDAS2 forcing dataset at 1km resolution and a 1 hour time step.  This dataset was used to force the `conus1_baseline_85 <https://hf-hydrodata.readthedocs.io/en/latest/gen_conus1_baseline_85.html>`_ simulation.  This dataset is bilinearly interpolated to the ParFlow CONUS1 grid.  The original NLDAS2 dataset can be found `here <https://ldas.gsfc.nasa.gov/nldas>`_.
 
-    processing_notes: >
-      ....
+    processing_notes: Bilinearly interpolated from the native resolution to 1km.
 
   "CW3E":
-    summary: >
-      ...
+    summary: A forcing dataset provided courtesy of Ming Pan at the Center for Western Weather and Water Extremes (CW3E).  This dataset is a 1km resolution forcing dataset that was used to force the `conus1_baseline_mod <https://hf-hydrodata.readthedocs.io/en/latest/gen_conus1_baseline_mod.html>`_ simulation.  Since the PF-CONUS2 grid is the same as the US National Water Model (and the same as the CW3E Western US Grid) no adjustments were needed.  
 
     processing_notes: >
       ....
 
   "huc_mapping":
     summary: >
-      USGS Hydrologic unit codes have been mapped to the CONUS1 and CONUS2 grids. This mapping generally respects the boundaries provided in the USGS shape files however small adjustments were made to ensure that the watershed boundaries align with topographic boundaries in the CONUS1 nd CONUS2 domains.  This dataset contains mappings for ... 
+      USGS Hydrologic unit codes have been mapped to the CONUS1 and CONUS2 grids. This mapping generally respects the boundaries provided in the USGS shape files however small adjustments were made to ensure that the watershed boundaries align with topographic boundaries in the CONUS1 and CONUS2 domains.  This dataset contains mappings for ... 
 
     processing_notes: >
       ....
