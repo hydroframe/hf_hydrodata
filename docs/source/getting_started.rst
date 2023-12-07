@@ -12,15 +12,17 @@ latest stable release with fully-supported features. ::
 
 .. _api_pin:
 
-Creating a HydroGEN API Account
+Creating a HydroFrame API Account
 ----------------------------------
 Users must create a HydroGEN API account and register their PIN before using the 
 ``hf_hydrodata`` package.
 
-First, please visit our `HydroGEN PIN Page <https://hydrogen.princeton.edu/pin>`_ to 
-sign up for an account and create a 4-digit PIN.
+1. If its your first time using this package you will need to sign up for a HydroFrame account on the `HydroGEN Signup Page <https://hydrogen.princeton.edu/signup>`_ (*Note: This only needs to be done once*)
 
-After creating your PIN, you must register that PIN on the machine that you intend
+2. Visit our `HydroGEN PIN Page <https://hydrogen.princeton.edu/pin>`_ to 
+ create a 4-digit PIN.
+
+3. After creating your PIN, you must register that PIN on the machine that you intend
 to use. You can run the following code one time to register your PIN::  
 
     import hf_hydrodata as hf
@@ -47,7 +49,8 @@ Accessing Gridded Data
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The example below will return daily NLDAS2 precipitation files for March 1, 2005. Without specification,
-gridded data will be returned on the CONUS1 grid (citation?/reference?) but a different grid or grid subset
+gridded data will be returned on the CONUS1 grid (`ParFlow-CONUS1 <https://hydroframe.org/parflow-conus1>`_  
+but a different grid or grid subset
 can be specified by the user. Please see :ref:`api` for a full list of available parameters and supported
 features.
 
