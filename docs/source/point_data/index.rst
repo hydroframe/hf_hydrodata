@@ -77,6 +77,11 @@ for documentation of the metadata returned by ``get_point_metadata``.
 
 How To
 ----------------------------
+The following notebooks provide examples for using the various methods in the ``hf_hydrodata.point`` module. 
+Each of these notebooks contains a "Launch Binder" button that can be used to run in an interactive session via Binder. 
+Alternately, you may natigate to a specific notebook
+in the `GitHub repository <https://github.com/hydroframe/hf_hydrodata/tree/main/docs/source/point_data/examples>`_ and 
+press the download button to download the notebook and run it locally.
 
 .. toctree::
    :maxdepth: 2
