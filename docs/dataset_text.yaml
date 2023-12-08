@@ -61,7 +61,7 @@ datasets:
   "nasa_smap":
     summary: >
 
-      Soil Moisture data from the `NASA SMAP web service <(https://cmr.earthdata.nasa.gov)>`_, for
+      Soil Moisture data from the `NASA SMAP web service <https://cmr.earthdata.nasa.gov>`_, for
       the entire world.  Data is clipped to a region 1 degree larger than than the CONUS 2 region 
       and saved to water year netcdf files. 
       The produced netcdf file contains 6 variables. Below are the variables and their descriptions
