@@ -5,7 +5,7 @@ conus1_domain,parameters,Inputs for baseline CONUS1 ParFlow Simulations,hydrofra
 conus2_domain,parameters,Inputs for baseline CONUS2 ParFlow Simulations,hydroframe,,,,,gridded,,,
 NLDAS2,forcing,National Land Data Assimilation Product V2,nasa,10.5194/gmd-14-7223-2021; 10.1002/2016GL069964,https://ldas.gsfc.nasa.gov/nldas/v2/forcing,10/1/02,9/30/06,gridded,UTC-00:00,,
 NLDAS2_85,forcing,National Land Data Assimilation Product V2  - Water Year 1985,,10.1002/2016GL069964,,10/1/84,9/30/85,gridded,UTC-00:00,,
-CW3E,forcing,Meteorological Forcing Data for Conus2 Grid,,,https://cw3e.uscs.edu,10/1/79,9/30/22,gridded,,,
+CW3E,forcing,Meteorological Forcing Data for Conus2 Grid,,,https://cw3e.ucsd.edu,10/1/79,9/30/22,gridded,,,
 huc_mapping,parameters,Mapping Grid to HUC,,,,,,gridded,,,
 nasa_smap,remote_sensing,NASA Soil Moisture,nasa,,https://nsidc.org/data/smap/data,10/1/22,,gridded,UTC-00:00,,
 conus1_current_conditions,current_conditions,Current Conditions Conus1,,,,,,gridded,UTC-00:00,,

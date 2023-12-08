@@ -14,12 +14,12 @@ latest stable release with fully-supported features. ::
 
 Creating a HydroFrame API Account
 ----------------------------------
-Users must create a HydroGEN API account and register their PIN before using the 
+Users must create a HydroFrame API account and register their PIN before using the 
 ``hf_hydrodata`` package.
 
-1. If its your first time using this package you will need to sign up for a HydroFrame account on the `HydroGEN Signup Page <https://hydrogen.princeton.edu/signup>`_ (*Note: This only needs to be done once*)
+1. If it's your first time using this package you will need to sign up for a HydroFrame account on the `HydroFrame Signup Page <https://hydrogen.princeton.edu/signup>`_ (*Note: This only needs to be done once*)
 
-2. Visit our `HydroGEN PIN Page <https://hydrogen.princeton.edu/pin>`_ to create a 4-digit PIN.
+2. Visit our `HydroFrame PIN Page <https://hydrogen.princeton.edu/pin>`_ to create a 4-digit PIN.
 
 3. After creating your PIN, you must register that PIN on the machine that you intend
 to use. You can run the following code one time to register your PIN::  
@@ -29,7 +29,7 @@ to use. You can run the following code one time to register your PIN::
     hf.register_api_pin("<your_email>", "<your_pin>")
 
 Your PIN will expire after 2 days of non-use. If your PIN expires, you must return to
-the `HydroGEN PIN Page <https://hydrogen.princeton.edu/pin>`_ and create a new PIN. 
+the `HydroFrame PIN Page <https://hydrogen.princeton.edu/pin>`_ and create a new PIN. 
 You only need to re-register this PIN with the ``register_api_pin`` method if the 
 new 4-digit PIN is different from your previous 4-digit PIN (the PIN is allowed
 to stay the same).
