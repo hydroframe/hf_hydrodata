@@ -712,12 +712,26 @@ def _get_data_from_api(
         headers = _validate_user()
         response = requests.get(point_data_url, headers=headers, timeout=180)
         if response.status_code != 200:
+            if response.status_code == 400:
+                content = response.content.decode()
+                response_json = json.loads(content)
+                message = response_json.get("message")
+                raise ValueError(message)
+            if response.status_code == 502:
+                raise ValueError(
+                    "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+                )
             raise ValueError(
-                f"{response.content}."
+                f"The  {point_data_url} returned error code {response.status_code}."
             )
-
-    except requests.exceptions.Timeout as e:
-        raise ValueError(f"The point_data_url {point_data_url} has timed out.") from e
+    except requests.exceptions.ChunkedEncodingError as ce:
+        raise ValueError(
+            "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+        ) from ce
+    except requests.exceptions.Timeout as te:
+        raise ValueError(
+            "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+        ) from te
 
     data_df = pd.read_pickle(io.BytesIO(response.content))
     return data_df
