@@ -43,7 +43,7 @@ C_PFB_MAP = {
 
 
 HYDRODATA = "/hydrodata"
-HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev.princeton.edu")
+HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
 
 
 

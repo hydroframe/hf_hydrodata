@@ -21,7 +21,7 @@ from shapely.ops import transform
 
 HYDRODATA = "/hydrodata"
 DB_PATH = f"{HYDRODATA}/national_obs/point_obs.sqlite"
-HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev.princeton.edu")
+HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
 NETWORK_LISTS_PATH = f"{HYDRODATA}/national_obs/tools/network_lists"
 
 # Use this to check that user-supplied parameters are being used
