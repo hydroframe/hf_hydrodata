@@ -83,7 +83,7 @@ def from_latlon(grid: str, *args) -> List[float]:
         import hf_hydrodata as hf
 
         (x, y) = hf.from_latlon("conus1", 31.759219, -115.902573)
-        latlon_bounds = hf.from_latlon("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
+        xy_bounds = hf.from_latlon("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     """
     result = []
     data_model = load_data_model()

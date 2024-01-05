@@ -23,6 +23,7 @@ from hf_hydrodata.data_catalog import (
 from hf_hydrodata.gridded import (
     get_numpy,
     get_gridded_data,
+    get_gridded_files,
     get_raw_file,
     get_date_range,
     get_huc_from_latlon,
