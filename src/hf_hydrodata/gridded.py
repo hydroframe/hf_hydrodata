@@ -2,22 +2,24 @@
 Functions to access gridded data from the data catalog index of the GPFS files.
 """
 
-# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702
+# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702,R0903,R0902
 import os
 import datetime
+import time
 import io
 from typing import List, Tuple
 import json
 import shutil
-
 import tempfile
+import threading
+import dask
 import requests
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 import numpy as np
 import xarray as xr
 import pandas as pd
-from parflow import read_pfb_sequence
+from parflow import read_pfb_sequence, write_pfb
 from hf_hydrodata.data_model_access import ModelTableRow
 from hf_hydrodata.data_model_access import load_data_model
 from hf_hydrodata.data_catalog import _get_api_headers
@@ -44,7 +46,7 @@ C_PFB_MAP = {
 
 HYDRODATA = "/hydrodata"
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
-
+THREAD_LOCK = threading.Lock()
 
 
 def get_file_paths(entry, *args, **kwargs) -> List[str]:
@@ -184,7 +186,7 @@ def get_paths(*args, **kwargs) -> List[str]:
     Args:
         dataset:        A dataset name (see Gridded Data documentation).
         variable:       A variable from a dataset.
-        temporal_resolution:         The temporal_resolution (e.g. hourly, daily, weekly, monthly) of a dataset variable.
+        temporal_resolution: Time resolution of a the dataset variable. Must be hourly, daily, weekly, monthly.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
         start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
@@ -194,7 +196,7 @@ def get_paths(*args, **kwargs) -> List[str]:
         grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
         latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
-        level:          A HUC level integer when reading HUC boundary files.
+        level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
         site_id:        Used when reading data associated with an observation site.
     Returns:
         An list of absolute path names to the file location on the GPFS file system.
@@ -287,7 +289,7 @@ def get_path(*args, **kwargs) -> str:
     Args:
         dataset:        A dataset name (see Gridded Data documentation).
         variable:       A variable from a dataset.
-        temporal_resolution:         The temporal_resolution (e.g. hourly, daily, weekly, monthly) of a dataset variable.
+        temporal_resolution: Time resolution of a the dataset variable. Must be hourly, daily, weekly, monthly.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
         start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
@@ -297,7 +299,7 @@ def get_path(*args, **kwargs) -> str:
         grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
         latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
-        level:          A HUC level integer when reading HUC boundary files.
+        level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
         site_id:        Used when reading data associated with an observation site.
     Returns:
         An absolute path name to the file location on the GPFS file system.
@@ -344,7 +346,7 @@ def get_file_path(entry, *args, **kwargs) -> str:
 def get_numpy(*args, **kwargs) -> np.ndarray:
     """
     Deprecated. Use get_gridded_data() instead.
-    
+
     Get a numpy ndarray from files in /hydroframe. with the applied data filters.
 
     The parameters to the function can be specified either by passing a dict with the parameter values
@@ -353,7 +355,7 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
     Args:
         dataset:        A dataset name (see Gridded Data documentation).
         variable:       A variable from a dataset.
-        temporal_resolution:         The temporal_resolution (e.g. hourly, daily, weekly, monthly) of a dataset variable.
+        temporal_resolution: Time resolution of a the dataset variable. Must be hourly, daily, weekly, monthly.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
         start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
@@ -363,7 +365,7 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
         grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
         latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
-        level:          A HUC level integer when reading HUC boundary files.
+        level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
         site_id:        Used when reading data associated with an observation site.
         time_values:    Optional. An empty array that will be populated with time dimension values of returned data.
     Returns:
@@ -419,6 +421,324 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
 
     result = get_ndarray(None, *args, **kwargs)
     return result
+
+
+def get_gridded_files(
+    options: dict,
+    filename_template: str = "{dataset}.{dataset_var}.{hour_start:06d}_to_{hour_end:06d}.pfb",
+    variables=None,
+    verbose=False,
+):
+    """
+    Get data from the hydrodata catalog and save into multiple files in the current directory.
+    This allows you to perform large downloads using multiple threads into multiple files with one function call.
+
+    Files are saved to the current directory. A seperate file is created for each day of data downloaded.
+    The extension of the filename_template determines the file format. Only extensions .pfb and .nc are supported at this time.
+
+    Only daily, monthly, and hourly temporal_resolutions are currently supported, for other data use the get_gridded_data() function.
+
+    Args:
+        options:            A dict containing data filters to be passed to get_gridded_data().
+        filename_template:  A template used to create the file name for each day of data downloaded.
+        variables:          A list of variable names to download. If provided, this overwrites the variable defined in options dict.
+        verbose:            If True, prints progress of downloaded data while downloading.
+    Raises:
+        ValueError:  If an error occurs while downloading and creating files.
+
+    The following parameters are substituted into the filename_template.
+        * dataset:      The dataset name from the options.
+        * variable:     The variable being downloaded from options or the variables list.
+        * dataset_var:  The data catalog entry dataset_var of the entry determined by options.
+        * hour_start:   The starting hour of the data in the saved file. Starting with 0.
+        * hour_end:     The ending hour of the data in the saved file.
+        * daynum:       The day number of the data in the saved file. Starting with 0.
+        * wy:           The water year of the data in the saved file.
+        * wy_daynum:    The day number of the water year of the data in the saved file.
+        * wy_start_24hr:The 24 hour start hour of the water year of the data in the saved file.
+        * mdy:          The date as month day year of data in the saved file.
+        * ymd:          The date as year month day of data in the saved file.
+
+    Example:
+
+    .. code-block:: python
+
+        import hf_hydrodata as hf
+
+        options = {
+            "dataset": "NLDAS2", "temporal_resolution": "hourly", "variable": "precipitation",
+            "start_time":"2005-10-01", "end_time":"2005-10-04",
+            "grid_bounds":[200, 200, 300, 250]
+        }
+
+        # By default this creates pfb files named with the time dimension starting at 0.
+        hf.get_gridded_files(options)
+
+        # The above function call will create files in the current directory named:
+        #    NLDAS2.precipitation.000000_to_000024.pfb
+        #    NLDAS2.precipitation.000025_to_000048.pfb
+        #    NLDAS2.precipitation.000048_to_000072.pfb
+        # Each pfb file is shape (24, 50, 100) with dimensions time, y, x.
+
+        # To download data into a NetCdf file specify a template ending with .nc
+        hf.get_gridded_files(
+            options,
+            file_template="{dataset}_WY{wy}.nc",
+            variables=["precipitation", "air_temp"])
+
+        # The above function call will create a netcdf file named:
+        #    NLDAS2_WY2006.nc
+        # The .nc file will have two variables: precipitation and air_temp.
+        # The .nc file will have a time dimension with coordinates between 2005-10-1 to 2005-10-04.
+        # The .nc file with have x dimension 100 and y dimensions 50 defined by the grid_bounds.
+    For long downloads if the function execution is aborted before completion it can be restarted and will continue where it left off by skipping
+    files that already exist.
+    """
+
+    verbose_start_time = time.time()
+    if not filename_template.endswith(".pfb") and not filename_template.endswith(".nc"):
+        raise ValueError("The file_template does not have extension .pfb or .nc")
+    if not options.get("dataset"):
+        raise ValueError("The dataset is not specified")
+    temporal_resolution = options.get("temporal_resolution")
+    temporal_resolution = "static" if temporal_resolution in ["-", "static"] or not temporal_resolution else temporal_resolution
+    if temporal_resolution not in ["daily", "hourly", "monthly", "static"]:
+        raise ValueError("The temporal_resolution must be hourly, daily, monthly, or static.")
+    start_time_option = options.get("start_time")
+    end_time_option = options.get("end_time")
+    start_time = _parse_time(start_time_option)
+    end_time = _parse_time(end_time_option)
+    if not start_time:
+        if temporal_resolution == "static":
+            start_time = datetime.datetime.now()
+        else:
+            raise ValueError("The start_time option must be specified")
+    if not end_time:
+        if temporal_resolution == "static":
+            end_time = start_time + datetime.timedelta(days=1)
+        elif temporal_resolution == "daily":
+            end_time = start_time + datetime.timedelta(days=1)
+        elif temporal_resolution == "monthly":
+            end_time = start_time + datetime.timedelta(days=1)
+        else:
+            end_time = start_time + datetime.timedelta(hours=1)
+    if not variables:
+        entry = dc.get_catalog_entry(options)
+        if entry is None:
+            raise ValueError("No data catalog entry found for options.")
+        variables = [entry["variable"]]
+
+    # Start threads to download data
+    state = _FileDownloadState(
+        variables,
+        options,
+        filename_template,
+        temporal_resolution,
+        start_time,
+        end_time,
+        verbose,
+    )
+    if temporal_resolution in ["daily", "hourly"]:
+        delta = datetime.timedelta(days=1)
+    elif temporal_resolution == "monthly":
+        delta = relativedelta(months=1)
+    elif temporal_resolution == "static":
+        delta = delta = datetime.timedelta(days=1)
+    else:
+        raise ValueError("The temporal_resolution must be hourly, daily, monthly or static.")
+    
+    last_file_name = None
+    dask_items = []
+    file_time = start_time
+    time_index = 0
+    while file_time < end_time:
+        options = dict(options)
+        options["start_time"] = file_time
+        options["end_time"] = file_time + delta
+        for variable in variables:
+            options["variable"] = variable
+            entry = dc.get_catalog_entry(options)
+            if entry is None:
+                raise ValueError("No data catalog entry found for options.")
+            file_name = _substitute_datapath(
+                filename_template, entry, options, file_time, start_time
+            )
+            if file_name.endswith("nc") and not file_name == last_file_name:
+                _execute_dask_items(dask_items, state, last_file_name)
+                state = _FileDownloadState(
+                    variables,
+                    options,
+                    filename_template,
+                    temporal_resolution,
+                    start_time,
+                    end_time,
+                    verbose,
+                )
+                dask_items = []
+            dask_items.append(
+                dask.delayed(_load_gridded_file_entry)(state, entry, options, file_time, time_index)
+            )
+            last_file_name = file_name
+        file_time = file_time + delta
+        time_index = time_index + 1
+    _execute_dask_items(dask_items, state, last_file_name)
+    if verbose:
+        duration = round(time.time() - verbose_start_time, 1)
+        if duration < 60 * 5:
+            print(f"Created all files in {duration} seconds.")
+        else:
+            duration = round(duration/60)
+            print(f"Created all files in {duration} minutes.")
+
+
+def _load_gridded_file_entry(
+    state, entry: ModelTableRow, options: dict, file_time: datetime.datetime, time_index:int
+):
+    """
+    Get data from within a dask deferred thread.
+
+    Calls get_gridded_data() to get one day of data and write the data to a file or save it in state.
+    The data saved in state will be written to a .nc file after all threads are completed.
+    """
+
+    state.entry = entry
+    file_name = _substitute_datapath(
+        state.filename_template, entry, options, file_time, state.start_time
+    )
+    if os.path.exists(file_name):
+        # File already exists, so just skip this
+        return
+
+    data = get_gridded_data(options)
+
+    if state.filename_template.endswith(".pfb"):
+        if len(data.shape) == 4:
+            # API return at least 24 hours of hourly or daily data in a time dimension for 3D data
+            # Write the 3D data to a different pfb file for each hour or day
+            for t in range(0, data.shape[0]):
+                subdata = data[t, :, :, :]
+                file_name = _substitute_datapath(
+                    state.filename_template,
+                    entry,
+                    options,
+                    file_time + datetime.timedelta(hours=t),
+                    state.start_time,
+                )
+                file_name_dir = os.path.dirname(file_name)
+                if file_name_dir and not os.path.exists(file_name_dir):
+                    os.makedirs(file_name_dir, exist_ok=True)
+                write_pfb(file_name, subdata, dist=False)
+        else:
+            # API returned data with dimensions t, y, x so write it to one PFB file
+            file_name = _substitute_datapath(
+                state.filename_template, entry, options, file_time, state.start_time
+            )
+            file_name_dir = os.path.dirname(file_name)
+            if file_name_dir and not os.path.exists(file_name_dir):
+                os.makedirs(file_name_dir, exist_ok=True)
+            write_pfb(file_name, data, dist=False)
+    elif state.filename_template.endswith(".nc"):
+        # Creating NetCDF file, put the data from the API response into the data object from state
+
+        if state.temporal_resolution == "daily":
+            t_num = (file_time - state.start_time).days if state.start_time else 0
+            t_shape = (
+                (state.end_time - state.start_time).days if state.start_time else 0
+            )
+        elif state.temporal_resolution == "hourly":
+            t_num = (file_time - state.start_time).days * 24 if state.start_time else 0
+            t_shape = (
+                (state.end_time - state.start_time).days * 24 if state.start_time else 0
+            )
+        elif state.temporal_resolution == "monthly":
+            t_num = time_index
+            t_shape = rrule.rrule(
+                    rrule.MONTHLY, dtstart=state.start_time, until=state.end_time
+                ).count()
+        elif state.temporal_resolution == "static":
+            t_num = time_index
+            t_shape = 1
+
+        with THREAD_LOCK:
+            variable = options.get("variable")
+            nc_data = state.data_map.get(variable)
+
+            # Create data object for NC file if has not been created yet
+            if nc_data is None:
+                if len(data.shape) == 4:
+                    data_shape = (t_shape, data.shape[1], data.shape[2], data.shape[3])
+                    dims = ["time", "z", "y", "x"]
+                elif len(data.shape) == 3 and not state.temporal_resolution == "static":
+                    data_shape = (t_shape, data.shape[1], data.shape[2])
+                    dims = ["time", "y", "x"]
+                elif len(data.shape) == 3 and state.temporal_resolution == "static":
+                    data_shape = (data.shape[0], data.shape[1], data.shape[2])
+                    dims = ["z", "y", "x"]
+                elif len(data.shape) == 2 and not state.temporal_resolution == "static":
+                    data_shape = (t_shape, data.shape[1], data.shape[0])
+                    dims = ["time", "y", "x"]
+                elif len(data.shape) == 2 and state.temporal_resolution == "static":
+                    data_shape = (data.shape[1], data.shape[0])
+                    dims = ["y", "x"]
+                else:
+                    raise ValueError("Bad shape of data returned from API.")
+                nc_data = np.zeros(data_shape)
+                state.data_map[variable] = nc_data
+                state.dims_map[variable] = dims
+
+            # Put the data from the API response into the data object
+            if len(data.shape) == 4:
+                for i in range(0, data.shape[0]):
+                    nc_data[t_num + i, :, :, :] = data[i, :, :, :]
+            elif len(data.shape) == 3 and not state.temporal_resolution == "static":
+                for i in range(0, data.shape[0]):
+                    nc_data[t_num + i, :, :] = data[i, :, :]
+            elif len(data.shape) == 3 and state.temporal_resolution == "static":
+                nc_data[:, :, :] = data[:, :, :]
+            elif len(data.shape) == 2 and not state.temporal_resolution == "static":
+                nc_data[t_num, :, :] = data[:, :]
+            elif len(data.shape) == 2 and state.temporal_resolution == "static":
+                nc_data[:, :] = data[:, :]
+            else:
+                raise ValueError("Bad shape of data returned from API.")
+
+    if state.verbose:
+        file_daynum = (file_time - state.start_time).days + 1 if state.start_time else 0
+        num_days = (state.end_time - state.start_time).days if state.start_time else 0
+        variable = options.get("variable")
+        print(f"Downloaded {variable} for day {file_daynum} of {num_days}")
+
+
+def _execute_dask_items(dask_items, state, file_name: str):
+    """Start the threads to execute all the dask items"""
+
+    if len(dask_items) > 0:
+        dask.delayed(_consolate_dask_items)(dask_items).compute(num_workers=state.threads)
+        if state.filename_template.endswith(".nc"):
+            # Threads are finished so create a NetCDF file with that data
+            # Generate NC filename
+            data_vars_definition = {}
+            coords_definition = None
+            if state.time_coords:
+                coords_definition = {"time": state.time_coords}
+            for variable in state.variables:
+                data = state.data_map.get(variable)
+                dims = state.dims_map.get(variable)
+                if data is None or dims is None:
+                    # This NetCDF file is being skipped
+                    return
+                data_vars_definition[variable] = (dims, data)
+            ds = xr.Dataset(data_vars=data_vars_definition, coords=coords_definition)
+            file_name_dir = os.path.dirname(file_name)
+            if file_name_dir and not os.path.exists(file_name_dir):
+                os.makedirs(file_name_dir, exist_ok=True)      
+            ds.to_netcdf(file_name)
+
+
+def _consolate_dask_items(items):
+    """Function to wait for all the dask items to complete."""
+    return len(items)
+
 
 def get_gridded_data(*args, **kwargs) -> np.ndarray:
     """
@@ -430,7 +750,7 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
     Args:
         dataset:        A dataset name (see Gridded Data documentation).
         variable:       A variable from a dataset.
-        temporal_resolution:         The temporal_resolution (e.g. hourly, daily, weekly, monthly) of a dataset variable.
+        temporal_resolution: Time resolution of a the dataset variable. Must be hourly, daily, weekly, monthly.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
         start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
@@ -440,7 +760,7 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
         grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
         latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
-        level:          A HUC level integer when reading HUC boundary files.
+        level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
         site_id:        Used when reading data associated with an observation site.
         time_values:    Optional. An empty array that will be populated with time dimension values of returned data.
     Returns:
@@ -496,6 +816,7 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
 
     result = get_ndarray(None, *args, **kwargs)
     return result
+
 
 def _construct_string_from_options(qparam_values):
     """
@@ -751,7 +1072,7 @@ def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
 
     Args:
         grid:   grid name (e.g. conus1 or conus2)
-        level:  HUC level (length of HUC id to be returned)
+        level:  HUC level (length of HUC id to be returned). Must be 2, 4, 6, 8, or 10.
         lat:    lattitude of point
         lon:    longitude of point
     Returns:
@@ -785,7 +1106,7 @@ def get_huc_from_xy(grid: str, level: int, x: int, y: int) -> str:
 
     Args:
         grid:   grid name (e.g. conus1 or conus2)
-        level:  HUC level (length of HUC id to be returned)
+        level:  HUC level (length of HUC id to be returned). Must be 2, 4, 6, 8, or 10.
         x:      x coordinate in the grid
         y:      y coordinate in the grid
     Returns:
@@ -1045,25 +1366,9 @@ def _get_ndarray_from_api(entry, options):
         netcdf_variable = netcdf_dataset[variable]
         data = netcdf_variable.values
 
-        # Add time values if the data is not static
-        # Add this back in later when updates
-        # have been made to hydrogen-service
-        # to retreive time values
-        """
-        if options.get("start_time") is not None:
-            time_values_new = netcdf_dataset["time"]
-
-            if time_values_new is not None and time_values is not None:
-                time_values_np = time_values_new.values
-                time_values_np_strings = np.datetime_as_string(time_values_np, unit="D")
-                time_values.extend(time_values_np_strings)
-        """
-
         return data
 
     return None
-
-
 
 
 def _adjust_dimensions(data: np.ndarray, entry: ModelTableRow) -> np.ndarray:
@@ -1417,7 +1722,7 @@ def __get_geotiff(grid: str, level: int) -> xr.Dataset:
 
     Args:
         grid:   grid name (e.g. conus1 or conus2)
-        level:  HUC level (length of HUC id to be returned)\
+        level:  HUC level (length of HUC id to be returned). Must be 2, 4, 6, 8, or 10.
     Returns:
         An xarray dataset with the contents of the geotiff file for the grid and level.
     """
@@ -1708,13 +2013,12 @@ def _add_pfb_time_constraint(
     return boundary_constraints
 
 
-
-
 def _substitute_datapath(
     path: str,
     entry: ModelTableRow,
     options: dict,
     time_value: datetime.datetime,
+    start_time: datetime.datetime = None,
 ) -> str:
     """
     Replace any substitution keys in the datapath with values from metadata, options, or time_value.
@@ -1724,6 +2028,7 @@ def _substitute_datapath(
         entry:          A ModelTableRow of the data_catalog_entry the defines the paths
         options:        A dict with the request options.
         time_value:     A time value of the request.
+        start_time:     The start time of the request.
     Returns:
         The value of datapath after substituting in values.
     The time_value is converted into the various possible substitution values that may be used in a data path.
@@ -1732,6 +2037,9 @@ def _substitute_datapath(
     This option is provided to support hydrogen specific file path substitutions.
     """
     dataset_var = entry["dataset_var"]
+    dataset = entry["dataset"]
+    variable = entry["variable"]
+    file_daynum = (time_value - start_time).days if start_time else 0
     wy = ""
     wy_plus1 = ""
     wy_minus1 = ""
@@ -1743,6 +2051,9 @@ def _substitute_datapath(
     wy_start_24hr = 0
     month_num = 0
     wy_end_24hr = 0
+    hour_start = file_daynum * 24 + 1
+    hour_end = hour_start + 24 - 1
+    daynum = file_daynum
     mmddyyyy = ""
     scenario_id = options.get("scenario_id")
     domain_path = options.get("domain_path")
@@ -1789,6 +2100,11 @@ def _substitute_datapath(
         scenario_to_date=scenario_to_date,
         run_number=run_number,
         level=level,
+        hour_start=hour_start,
+        hour_end=hour_end,
+        daynum=daynum,
+        dataset=dataset,
+        variable=variable,
     )
     return datapath
 
@@ -2021,3 +2337,55 @@ def _get_time_dimension_name(ds: xr.Dataset, da: xr.DataArray):
             time_coord_name = coord
             break
     return (time_dimension_name, time_coord_name)
+
+
+class _FileDownloadState:
+    """State information about the state of the get_gridded_files() method during thread execution."""
+
+    def __init__(
+        self,
+        variables,
+        options,
+        filename_template,
+        temporal_resolution,
+        start_time,
+        end_time,
+        verbose,
+    ):
+        self.data_map = {}  # Map variable name to data ndarray for that variable
+        self.dims_map = (
+            {}
+        )  # Map variable name do array of dimension names of that variable
+        self.entry = None  # Data catalog entry
+        self.options = options
+        self.variables = variables
+        self.temporal_resolution = temporal_resolution
+        self.start_time = start_time
+        self.end_time = end_time
+        self.time_coords = None
+        self.has_z = False
+        self.filename_template = filename_template
+        self.verbose = verbose
+        self.threads = int(options.get("threads")) if options.get("threads") else 10
+        self.generate_time_coords()
+
+    def generate_time_coords(self):
+        """Generate the self.time_coords with the time values of the time coordinate."""
+        if self.temporal_resolution == "daily":
+            self.time_coords = []
+            t = self.start_time
+            for _ in range(0, (self.end_time - self.start_time).days):
+                self.time_coords.append(t)
+                t = t + datetime.timedelta(days=1)
+        elif self.temporal_resolution == "hourly":
+            self.time_coords = []
+            t = self.start_time
+            for _ in range(0, (self.end_time - self.start_time).days * 24):
+                self.time_coords.append(t)
+                t = t + datetime.timedelta(hours=1)
+        elif self.temporal_resolution == "monthly":
+            self.time_coords = []
+            t = self.start_time
+            while t < self.end_time:
+                self.time_coords.append(t)
+                t = t + relativedelta(months=1)
