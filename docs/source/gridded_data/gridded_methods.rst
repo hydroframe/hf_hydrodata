@@ -15,6 +15,63 @@ identified by the filter attributes passed to the function.
       }
       data = hf.get_gridded_data(options)
 
+``get_gridded_files``
+-----------------------
+The get_gridded_files method calls get_gridded_data() in multiple threads and saves data into multiple files.
+This allows you to perform large downloads using multiple threads into multiple files with one function call.
+It can save files as PFB, NetCDF, or GeoTiff based on the extension in the specified filename template.
+
+.. code-block:: python
+
+      import hf_hydrodata as hf
+
+      variables = ["air_temp", "precipitation"]
+      options = {
+            "dataset": "CW3E", "temporal_resolution": "hourly",
+            "start_time": "2005-10-1", "end_time": "2005-10-4", "grid_bounds": [100, 100, 200, 200]
+      }
+      hf.get_gridded_data(options, variables=variables)
+
+By default this creates PFB files. This creates daily files with the hourly data:
+    *   CW3E.Temp.000000_to_000024.pfb
+    *   CW3E.Temp.000025_to_000048.pfb
+    *   CW3E.Temp.000048_to_000072.pfb
+    *   CW3E.APCP.000000_to_000024.pfb
+    *   CW3E.APCP.000025_to_000048.pfb
+    *   CW3E.APCP.000048_to_000072.pfb
+
+.. code-block:: python
+
+      import hf_hydrodata as hf
+
+      variables = ["air_temp", "precipitation"]
+      options = {
+            "dataset": "CW3E", "temporal_resolution": "hourly",
+            "start_time": "2005-09-20", "end_time": "2005-10-4", "grid_bounds": [100, 100, 200, 200]
+      }
+      hf.get_gridded_data(options, variables=variables, filename_template="{dataset}_{wy}.nc")
+
+This creates two NetCDF files
+    *   CW3E_2005.nc
+    *   CW3E_2006.nc
+Each containing variables "air_temp" and "precipitation" and a time dimension coordinates in the time range of the water year.
+
+.. code-block:: python
+
+      import hf_hydrodata as hf
+
+      variables = ["air_temp", "precipitation"]
+      options = {
+            "dataset": "CW3E", "temporal_resolution": "hourly",
+            "start_time": "2005-09-20"
+      }
+      hf.get_gridded_data(options, variables=variables, filename_template="{dataset}_{variable}.tiff")
+
+This creates two Geotiff files
+    *   CW3E_air_temp.tiff
+    *   CW3E_precipitation.tiff
+Each containing projection information suiteable to view with GIS.
+
 ``get_raw_file``
 -------------------
 The get_raw_file method returns the raw file from the server that

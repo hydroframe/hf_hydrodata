@@ -14,11 +14,13 @@ import tempfile
 import threading
 import dask
 import requests
+import pyproj
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 import numpy as np
 import xarray as xr
 import pandas as pd
+import rasterio
 from parflow import read_pfb_sequence, write_pfb
 from hf_hydrodata.data_model_access import ModelTableRow
 from hf_hydrodata.data_model_access import load_data_model
@@ -425,7 +427,7 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
 
 def get_gridded_files(
     options: dict,
-    filename_template: str = "{dataset}.{dataset_var}.{hour_start:06d}_to_{hour_end:06d}.pfb",
+    filename_template: str = None,
     variables=None,
     verbose=False,
 ):
@@ -433,14 +435,24 @@ def get_gridded_files(
     Get data from the hydrodata catalog and save into multiple files in the current directory.
     This allows you to perform large downloads using multiple threads into multiple files with one function call.
 
-    Files are saved to the current directory. A seperate file is created for each day of data downloaded.
-    The extension of the filename_template determines the file format. Only extensions .pfb and .nc are supported at this time.
+    Files are saved to the current directory. A seperate file is created for each day of data downloaded for daily or hourly temporal_resolution.
+    A seperate file is created for each water year of a monthly file. For static temporal_resolution one file per variable is created.
 
-    Only daily, monthly, and hourly temporal_resolutions are currently supported, for other data use the get_gridded_data() function.
+    The extension of the filename_template determines the file format. Only extensions .pfb, .tiff, or .nc are supported at this time.
+    For tiff files only the first time period of the selected data is saved in the file since a tiff is 2D.
+
+    The default filename_template saves data as pfb files:
+        * hourly:   {dataset}.{dataset_var}.{hour_start:06d}_to_{hour_end:06d}.pfb
+        * daily:    {dataset}.{dataset_var}.daily.{aggregation}.{daynum:03d}.pfb
+        * monthly:  {dataset}.{dataset_var}.monthly.{aggregation}.WY{wy}.pfb
+        * static:   {dataset}.{variable}.pfb
+
+    If you explicitly specify a filename_template that will be used instead.
+    If filename_template contains a directory path then that directory will be created if it does not exist.
 
     Args:
         options:            A dict containing data filters to be passed to get_gridded_data().
-        filename_template:  A template used to create the file name for each day of data downloaded.
+        filename_template:  A template used to create the file name(s) to store the data downloaded.
         variables:          A list of variable names to download. If provided, this overwrites the variable defined in options dict.
         verbose:            If True, prints progress of downloaded data while downloading.
     Raises:
@@ -480,10 +492,10 @@ def get_gridded_files(
         #    NLDAS2.precipitation.000048_to_000072.pfb
         # Each pfb file is shape (24, 50, 100) with dimensions time, y, x.
 
-        # To download data into a NetCdf file specify a template ending with .nc
+        # To download data into a NetCdf file specify a filename_template ending with .nc
         hf.get_gridded_files(
             options,
-            file_template="{dataset}_WY{wy}.nc",
+            filename_template="{dataset}_WY{wy}.nc",
             variables=["precipitation", "air_temp"])
 
         # The above function call will create a netcdf file named:
@@ -491,19 +503,60 @@ def get_gridded_files(
         # The .nc file will have two variables: precipitation and air_temp.
         # The .nc file will have a time dimension with coordinates between 2005-10-1 to 2005-10-04.
         # The .nc file with have x dimension 100 and y dimensions 50 defined by the grid_bounds.
-    For long downloads if the function execution is aborted before completion it can be restarted and will continue where it left off by skipping
-    files that already exist.
-    """
 
+        # To download data into a GeoTiff file specify a filename_template ending with .tiff
+        hf.get_gridded_files(
+            options,
+            filename_template="{dataset}_{variable}.tiff",
+            variables=["precipitation", "air_temp"])
+
+        # The above function will create two GeoTiff files:
+        #   NLDAS2.precipitation.tiff
+        #   NLDAS2.air_temp.tiff
+        # Only the first hour of the period "2005-10-01 00:00:00" is used to create the files.
+        # The files will contain projection information suitable to view with GIS.
+
+    For long downloads if the function execution is aborted before completion it can be restarted and will continue where it left off by skipping
+    files that already exist. To re-download data, remember to delete previously created files first.
+    """
     verbose_start_time = time.time()
-    if not filename_template.endswith(".pfb") and not filename_template.endswith(".nc"):
-        raise ValueError("The file_template does not have extension .pfb or .nc")
+    temporal_resolution = options.get("temporal_resolution")
+    temporal_resolution = (
+        "static"
+        if temporal_resolution in ["-", "static"] or not temporal_resolution
+        else temporal_resolution
+    )
+    if temporal_resolution not in ["daily", "hourly", "monthly", "static"]:
+        raise ValueError(
+            "The temporal_resolution must be hourly, daily, monthly, or static."
+        )
+
+    if not filename_template:
+        if temporal_resolution == "hourly":
+            filename_template = (
+                "{dataset}.{dataset_var}.{hour_start:06d}_to_{hour_end:06d}.pfb"
+            )
+        elif temporal_resolution == "daily":
+            filename_template = (
+                "{dataset}.{dataset_var}.daily.{aggregation}.{daynum:03d}.pfb"
+            )
+        elif temporal_resolution == "monthly":
+            filename_template = (
+                "{dataset}.{dataset_var}.monthly.{aggregation}.WY{wy}.pfb"
+            )
+        elif temporal_resolution == "static":
+            filename_template = "{dataset}:{variable}.pfb"
+
+    if (
+        not filename_template.endswith(".pfb")
+        and not filename_template.endswith(".nc")
+        and not filename_template.endswith(".tiff")
+    ):
+        raise ValueError(
+            "The file_template does not have extension .pfb, .nc, or .tiff"
+        )
     if not options.get("dataset"):
         raise ValueError("The dataset is not specified")
-    temporal_resolution = options.get("temporal_resolution")
-    temporal_resolution = "static" if temporal_resolution in ["-", "static"] or not temporal_resolution else temporal_resolution
-    if temporal_resolution not in ["daily", "hourly", "monthly", "static"]:
-        raise ValueError("The temporal_resolution must be hourly, daily, monthly, or static.")
     start_time_option = options.get("start_time")
     end_time_option = options.get("end_time")
     start_time = _parse_time(start_time_option)
@@ -513,7 +566,7 @@ def get_gridded_files(
             start_time = datetime.datetime.now()
         else:
             raise ValueError("The start_time option must be specified")
-    if not end_time:
+    if not end_time or filename_template.endswith(".tiff"):
         if temporal_resolution == "static":
             end_time = start_time + datetime.timedelta(days=1)
         elif temporal_resolution == "daily":
@@ -545,8 +598,10 @@ def get_gridded_files(
     elif temporal_resolution == "static":
         delta = delta = datetime.timedelta(days=1)
     else:
-        raise ValueError("The temporal_resolution must be hourly, daily, monthly or static.")
-    
+        raise ValueError(
+            "The temporal_resolution must be hourly, daily, monthly or static."
+        )
+
     last_file_name = None
     dask_items = []
     file_time = start_time
@@ -576,7 +631,9 @@ def get_gridded_files(
                 )
                 dask_items = []
             dask_items.append(
-                dask.delayed(_load_gridded_file_entry)(state, entry, options, file_time, time_index)
+                dask.delayed(_load_gridded_file_entry)(
+                    state, entry, options, file_time, time_index
+                )
             )
             last_file_name = file_name
         file_time = file_time + delta
@@ -587,12 +644,16 @@ def get_gridded_files(
         if duration < 60 * 5:
             print(f"Created all files in {duration} seconds.")
         else:
-            duration = round(duration/60)
+            duration = round(duration / 60)
             print(f"Created all files in {duration} minutes.")
 
 
 def _load_gridded_file_entry(
-    state, entry: ModelTableRow, options: dict, file_time: datetime.datetime, time_index:int
+    state,
+    entry: ModelTableRow,
+    options: dict,
+    file_time: datetime.datetime,
+    time_index: int,
 ):
     """
     Get data from within a dask deferred thread.
@@ -612,108 +673,192 @@ def _load_gridded_file_entry(
     data = get_gridded_data(options)
 
     if state.filename_template.endswith(".pfb"):
-        if len(data.shape) == 4:
-            # API return at least 24 hours of hourly or daily data in a time dimension for 3D data
-            # Write the 3D data to a different pfb file for each hour or day
-            for t in range(0, data.shape[0]):
-                subdata = data[t, :, :, :]
-                file_name = _substitute_datapath(
-                    state.filename_template,
-                    entry,
-                    options,
-                    file_time + datetime.timedelta(hours=t),
-                    state.start_time,
-                )
-                file_name_dir = os.path.dirname(file_name)
-                if file_name_dir and not os.path.exists(file_name_dir):
-                    os.makedirs(file_name_dir, exist_ok=True)
-                write_pfb(file_name, subdata, dist=False)
+        # Creating pfb file for get_gridded_files
+        _create_gridded_files_pfb(data, state, entry, options, file_time)
+    elif state.filename_template.endswith(".tiff"):
+        # Creating Geotiff file, write the data with the projection information
+        _create_gridded_files_geotiff(data, state, entry, options, file_time)
+    elif state.filename_template.endswith(".nc"):
+        # Creating NetCDF file, put the data from the API response into the data object from state
+        _create_gridded_files_netcdf(data, state, time_index, options, file_time)
+
+    if state.verbose:
+        if entry["temporal_resolution"] in ["daily", "hourly"]:
+            file_daynum = (
+                (file_time - state.start_time).days + 1 if state.start_time else 0
+            )
+            num_days = (
+                (state.end_time - state.start_time).days if state.start_time else 0
+            )
+            variable = options.get("variable")
+            print(f"Downloaded {variable} for day {file_daynum} of {num_days}")
         else:
-            # API returned data with dimensions t, y, x so write it to one PFB file
+            print(f"Downloaded {file_name}")
+
+
+def _create_gridded_files_netcdf(
+    data: np.ndarray, state, time_index, options, file_time: datetime.datetime
+):
+    if state.temporal_resolution == "daily":
+        t_num = (file_time - state.start_time).days if state.start_time else 0
+        t_shape = (state.end_time - state.start_time).days if state.start_time else 0
+    elif state.temporal_resolution == "hourly":
+        t_num = (file_time - state.start_time).days * 24 if state.start_time else 0
+        t_shape = (
+            (state.end_time - state.start_time).days * 24 if state.start_time else 0
+        )
+    elif state.temporal_resolution == "monthly":
+        t_num = time_index
+        t_shape = rrule.rrule(
+            rrule.MONTHLY, dtstart=state.start_time, until=state.end_time
+        ).count()
+    elif state.temporal_resolution == "static":
+        t_num = time_index
+        t_shape = 1
+
+    with THREAD_LOCK:
+        variable = options.get("variable")
+        nc_data = state.data_map.get(variable)
+
+        # Create data object for NC file if has not been created yet
+        if nc_data is None:
+            if len(data.shape) == 4:
+                data_shape = (t_shape, data.shape[1], data.shape[2], data.shape[3])
+                dims = ["time", "z", "y", "x"]
+            elif len(data.shape) == 3 and not state.temporal_resolution == "static":
+                data_shape = (t_shape, data.shape[1], data.shape[2])
+                dims = ["time", "y", "x"]
+            elif len(data.shape) == 3 and state.temporal_resolution == "static":
+                data_shape = (data.shape[0], data.shape[1], data.shape[2])
+                dims = ["z", "y", "x"]
+            elif len(data.shape) == 2 and not state.temporal_resolution == "static":
+                data_shape = (t_shape, data.shape[1], data.shape[0])
+                dims = ["time", "y", "x"]
+            elif len(data.shape) == 2 and state.temporal_resolution == "static":
+                data_shape = (data.shape[1], data.shape[0])
+                dims = ["y", "x"]
+            else:
+                raise ValueError("Bad shape of data returned from API.")
+            nc_data = np.zeros(data_shape)
+            state.data_map[variable] = nc_data
+            state.dims_map[variable] = dims
+
+        # Put the data from the API response into the data object
+        if len(data.shape) == 4:
+            for i in range(0, data.shape[0]):
+                nc_data[t_num + i, :, :, :] = data[i, :, :, :]
+        elif len(data.shape) == 3 and not state.temporal_resolution == "static":
+            for i in range(0, data.shape[0]):
+                nc_data[t_num + i, :, :] = data[i, :, :]
+        elif len(data.shape) == 3 and state.temporal_resolution == "static":
+            nc_data[:, :, :] = data[:, :, :]
+        elif len(data.shape) == 2 and not state.temporal_resolution == "static":
+            nc_data[t_num, :, :] = data[:, :]
+        elif len(data.shape) == 2 and state.temporal_resolution == "static":
+            nc_data[:, :] = data[:, :]
+        else:
+            raise ValueError("Bad shape of data returned from API.")
+
+
+def _create_gridded_files_pfb(
+    data: np.ndarray, state, entry, options, file_time: datetime.datetime
+):
+    if len(data.shape) == 4:
+        # API return at least 24 hours of hourly or daily data in a time dimension for 3D data
+        # Write the 3D data to a different pfb file for each hour or day
+        for t in range(0, data.shape[0]):
+            subdata = data[t, :, :, :]
             file_name = _substitute_datapath(
-                state.filename_template, entry, options, file_time, state.start_time
+                state.filename_template,
+                entry,
+                options,
+                file_time + datetime.timedelta(hours=t),
+                state.start_time,
             )
             file_name_dir = os.path.dirname(file_name)
             if file_name_dir and not os.path.exists(file_name_dir):
                 os.makedirs(file_name_dir, exist_ok=True)
-            write_pfb(file_name, data, dist=False)
-    elif state.filename_template.endswith(".nc"):
-        # Creating NetCDF file, put the data from the API response into the data object from state
+            write_pfb(file_name, subdata, dist=False)
+    else:
+        # API returned data with dimensions t, y, x so write it to one PFB file
+        file_name = _substitute_datapath(
+            state.filename_template, entry, options, file_time, state.start_time
+        )
+        file_name_dir = os.path.dirname(file_name)
+        if file_name_dir and not os.path.exists(file_name_dir):
+            os.makedirs(file_name_dir, exist_ok=True)
+        write_pfb(file_name, data, dist=False)
 
-        if state.temporal_resolution == "daily":
-            t_num = (file_time - state.start_time).days if state.start_time else 0
-            t_shape = (
-                (state.end_time - state.start_time).days if state.start_time else 0
-            )
-        elif state.temporal_resolution == "hourly":
-            t_num = (file_time - state.start_time).days * 24 if state.start_time else 0
-            t_shape = (
-                (state.end_time - state.start_time).days * 24 if state.start_time else 0
-            )
-        elif state.temporal_resolution == "monthly":
-            t_num = time_index
-            t_shape = rrule.rrule(
-                    rrule.MONTHLY, dtstart=state.start_time, until=state.end_time
-                ).count()
-        elif state.temporal_resolution == "static":
-            t_num = time_index
-            t_shape = 1
 
-        with THREAD_LOCK:
-            variable = options.get("variable")
-            nc_data = state.data_map.get(variable)
+def _create_gridded_files_geotiff(
+    data: np.ndarray, state, entry, options, file_time: datetime.datetime
+):
+    """
+    Create a geotiff file contining the data and the projection for that data.
+    """
 
-            # Create data object for NC file if has not been created yet
-            if nc_data is None:
-                if len(data.shape) == 4:
-                    data_shape = (t_shape, data.shape[1], data.shape[2], data.shape[3])
-                    dims = ["time", "z", "y", "x"]
-                elif len(data.shape) == 3 and not state.temporal_resolution == "static":
-                    data_shape = (t_shape, data.shape[1], data.shape[2])
-                    dims = ["time", "y", "x"]
-                elif len(data.shape) == 3 and state.temporal_resolution == "static":
-                    data_shape = (data.shape[0], data.shape[1], data.shape[2])
-                    dims = ["z", "y", "x"]
-                elif len(data.shape) == 2 and not state.temporal_resolution == "static":
-                    data_shape = (t_shape, data.shape[1], data.shape[0])
-                    dims = ["time", "y", "x"]
-                elif len(data.shape) == 2 and state.temporal_resolution == "static":
-                    data_shape = (data.shape[1], data.shape[0])
-                    dims = ["y", "x"]
-                else:
-                    raise ValueError("Bad shape of data returned from API.")
-                nc_data = np.zeros(data_shape)
-                state.data_map[variable] = nc_data
-                state.dims_map[variable] = dims
+    if os.getenv("PROJ_LIB"):
+        # Remove this environment variable to allow creation of geotiff using rasterio
+        del os.environ["PROJ_LIB"]
 
-            # Put the data from the API response into the data object
-            if len(data.shape) == 4:
-                for i in range(0, data.shape[0]):
-                    nc_data[t_num + i, :, :, :] = data[i, :, :, :]
-            elif len(data.shape) == 3 and not state.temporal_resolution == "static":
-                for i in range(0, data.shape[0]):
-                    nc_data[t_num + i, :, :] = data[i, :, :]
-            elif len(data.shape) == 3 and state.temporal_resolution == "static":
-                nc_data[:, :, :] = data[:, :, :]
-            elif len(data.shape) == 2 and not state.temporal_resolution == "static":
-                nc_data[t_num, :, :] = data[:, :]
-            elif len(data.shape) == 2 and state.temporal_resolution == "static":
-                nc_data[:, :] = data[:, :]
-            else:
-                raise ValueError("Bad shape of data returned from API.")
-
-    if state.verbose:
-        file_daynum = (file_time - state.start_time).days + 1 if state.start_time else 0
-        num_days = (state.end_time - state.start_time).days if state.start_time else 0
-        variable = options.get("variable")
-        print(f"Downloaded {variable} for day {file_daynum} of {num_days}")
+    file_name = _substitute_datapath(
+        state.filename_template, entry, options, file_time, state.start_time
+    )
+    file_name_dir = os.path.dirname(file_name)
+    if file_name_dir and not os.path.exists(file_name_dir):
+        os.makedirs(file_name_dir, exist_ok=True)
+    grid = entry["grid"]
+    grid_bounds = _get_grid_bounds(grid, options)
+    grid_data = dc.get_table_row("grid", id=grid)
+    crs_string = grid_data["crs"]
+    x_origin = grid_data["origin"][0]
+    y_origin = grid_data["origin"][1]
+    resolution_meters = grid_data["resolution_meters"]
+    if not resolution_meters:
+        raise ValueError(f"Grid {grid} does not have resolution_meters defined.")
+    if grid_bounds and len(grid_bounds) == 4:
+        left_origin = x_origin + grid_bounds[0] * 1000
+        top_origin = y_origin + grid_bounds[3] * 1000
+    else:
+        left_origin = x_origin
+        top_origin = y_origin + grid_data["shape"][1] * 1000
+    pos = crs_string.find("+x_0=")
+    crs_string = crs_string[0:pos] if pos > 0 else crs_string
+    transform = rasterio.transform.from_origin(
+        left_origin, top_origin, float(resolution_meters), float(resolution_meters)
+    )
+    if len(data.shape) == 3:
+        data = data[0, :, :]
+    elif len(data.shape) == 4:
+        data = data[0, 0, :, :]
+    data = np.flip(data, 0)
+    dst_profile = {
+        "driver": "GTiff",
+        "dtype": np.float32,
+        "nodata": 9999,
+        "width": data.shape[1],
+        "height": data.shape[0],
+        "count": 1,
+        "crs": pyproj.crs.CustomConstructorCRS(crs_string),
+        "transform": transform,
+        "tiled": True,
+    }
+    if options.get("compress") and options.get("compress").lower() in [
+        "true",
+        "yes",
+    ]:
+        dst_profile["compress"] = "lzw"
+    with rasterio.open(file_name, "w", **dst_profile) as dst:
+        dst.write_band(1, data)
 
 
 def _execute_dask_items(dask_items, state, file_name: str):
     """Start the threads to execute all the dask items"""
 
     if len(dask_items) > 0:
-        dask.delayed(_consolate_dask_items)(dask_items).compute(num_workers=state.threads)
+        dask.delayed(_consolate_dask_items)(dask_items).compute(
+            num_workers=state.threads
+        )
         if state.filename_template.endswith(".nc"):
             # Threads are finished so create a NetCDF file with that data
             # Generate NC filename
@@ -731,7 +876,7 @@ def _execute_dask_items(dask_items, state, file_name: str):
             ds = xr.Dataset(data_vars=data_vars_definition, coords=coords_definition)
             file_name_dir = os.path.dirname(file_name)
             if file_name_dir and not os.path.exists(file_name_dir):
-                os.makedirs(file_name_dir, exist_ok=True)      
+                os.makedirs(file_name_dir, exist_ok=True)
             ds.to_netcdf(file_name)
 
 
@@ -1278,6 +1423,7 @@ def _convert_json_to_strings(options):
     options : dictionary
         request options.
     """
+    options = dict(options)
     for key, value in options.items():
         if key == "grid_bounds":
             if not isinstance(value, str):
@@ -2039,6 +2185,7 @@ def _substitute_datapath(
     dataset_var = entry["dataset_var"]
     dataset = entry["dataset"]
     variable = entry["variable"]
+    aggregation = entry["aggregation"]
     file_daynum = (time_value - start_time).days if start_time else 0
     wy = ""
     wy_plus1 = ""
@@ -2105,6 +2252,7 @@ def _substitute_datapath(
         daynum=daynum,
         dataset=dataset,
         variable=variable,
+        aggregation=aggregation,
     )
     return datapath
 
@@ -2337,6 +2485,31 @@ def _get_time_dimension_name(ds: xr.Dataset, da: xr.DataArray):
             time_coord_name = coord
             break
     return (time_dimension_name, time_coord_name)
+
+
+def _get_grid_bounds(grid: str, options: dict) -> List[float]:
+    """
+    Get the grid_bounds of the filter options or None.
+    If latlon_bounds or huc_id is specified then convert that to a grid bounds and return it.
+    """
+
+    grid_bounds = options.get("grid_bounds")
+    latlon_bounds = (
+        options.get("latlng_bounds")
+        if options.get("latlng_bounds")
+        else options.get("latlon_bounds")
+    )
+    if grid_bounds and latlon_bounds:
+        raise ValueError("Cannot specify both grid_bounds and latlon_bounds")
+    if latlon_bounds:
+        grid_bounds = to_ij(grid, *latlon_bounds)
+    huc_id = options.get("huc_id")
+    if grid_bounds and huc_id:
+        raise ValueError("Cannot specify both grid_bounds, latlon_bounds and huc_id")
+    if huc_id:
+        huc_id_list = huc_id.split(",")
+        grid_bounds = get_huc_bbox(grid, huc_id_list)
+    return grid_bounds
 
 
 class _FileDownloadState:

@@ -11,6 +11,7 @@ from unittest.mock import patch
 import xarray as xr
 import pytest
 import pytz
+import rioxarray
 
 from parflow import read_pfb_sequence
 
@@ -1308,7 +1309,7 @@ def test_get_gridded_files_pfb():
     os.chdir(cd)
 
 
-def xtest_get_gridded_files_variables():
+def test_get_gridded_files_variables():
     """Unit test for get_gridded_files with variables list."""
 
     cd = os.getcwd()
@@ -1332,7 +1333,7 @@ def xtest_get_gridded_files_variables():
     os.chdir(cd)
 
 
-def xtest_get_gridded_files_3d():
+def test_get_gridded_files_3d():
     """Unit test for get_gridded_files with 3d variable."""
 
     cd = os.getcwd()
@@ -1389,6 +1390,32 @@ def xtest_get_gridded_files_netcdf():
             options, variables=variables, filename_template="NLDAS2.{wy}.nc"
         )
 
+    os.chdir(cd)
+
+
+def test_get_gridded_files_tiff():
+    """Unit test for get_gridded_files to tiff file."""
+
+    cd = os.getcwd()
+    with tempfile.TemporaryDirectory() as tempdirname:
+        os.chdir(tempdirname)
+        variables = ["ground_heat", "pressure_head"]
+        variables = ["ground_heat"]
+        grid_bounds = [10, 10, 14, 20]
+        options = {
+            "dataset": "conus1_baseline_mod",
+            "temporal_resolution": "hourly",
+            "grid_bounds": grid_bounds,
+            "start_time": "2005-09-29",
+            "end_time": "2005-10-04",
+        }
+        assert not os.path.exists("conus1_baseline_mod.ground_heat.tiff")
+        gr.get_gridded_files(
+            options, variables=variables, filename_template="{dataset}.{variable}.tiff"
+        )
+        assert os.path.exists("conus1_baseline_mod.ground_heat.tiff")
+        luc = rioxarray.open_rasterio("conus1_baseline_mod.ground_heat.tiff")
+        assert 'standard_parallel_1",33' in str(luc.rio.crs)
     os.chdir(cd)
 
 
