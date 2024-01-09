@@ -30,7 +30,7 @@ It can save files as PFB, NetCDF, or GeoTiff based on the extension in the speci
             "dataset": "CW3E", "temporal_resolution": "hourly",
             "start_time": "2005-10-1", "end_time": "2005-10-4", "grid_bounds": [100, 100, 200, 200]
       }
-      hf.get_gridded_data(options, variables=variables)
+      hf.get_gridded_files(options, variables=variables)
 
 By default this creates PFB files. This creates daily files with the hourly data:
     *   CW3E.Temp.000000_to_000024.pfb
@@ -49,7 +49,7 @@ By default this creates PFB files. This creates daily files with the hourly data
             "dataset": "CW3E", "temporal_resolution": "hourly",
             "start_time": "2005-09-20", "end_time": "2005-10-4", "grid_bounds": [100, 100, 200, 200]
       }
-      hf.get_gridded_data(options, variables=variables, filename_template="{dataset}_{wy}.nc")
+      hf.get_gridded_files(options, variables=variables, filename_template="{dataset}_{wy}.nc")
 
 This creates two NetCDF files
     *   CW3E_2005.nc
@@ -65,7 +65,7 @@ Each containing variables "air_temp" and "precipitation" and a time dimension co
             "dataset": "CW3E", "temporal_resolution": "hourly",
             "start_time": "2005-09-20"
       }
-      hf.get_gridded_data(options, variables=variables, filename_template="{dataset}_{variable}.tiff")
+      hf.get_gridded_files(options, variables=variables, filename_template="{dataset}_{variable}.tiff")
 
 This creates two Geotiff files
     *   CW3E_air_temp.tiff
