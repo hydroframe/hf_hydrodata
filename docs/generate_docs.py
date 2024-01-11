@@ -618,7 +618,8 @@ def _collect_grids_in_dataset(dataset_row):
     for data_catalog_entry_id in data_catalog_entry_table.row_ids:
         data_catalog_entry_row = data_catalog_entry_table.get_row(data_catalog_entry_id)
         grid = data_catalog_entry_row["grid"]
-        if data_catalog_entry_row["dataset"] == dataset_id:
+        security_level = data_catalog_entry_row["security_level"]
+        if data_catalog_entry_row["dataset"] == dataset_id and _is_entry_visible(security_level):
             if grid and not grid in result:
                 result.append(grid)
     return result
