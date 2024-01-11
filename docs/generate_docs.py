@@ -7,6 +7,7 @@
 import sys
 import os
 import yaml
+import generate_docs_options
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 from hf_hydrodata.data_model_access import load_data_model
@@ -690,7 +691,7 @@ def _collect_visible_ids():
 
 def _is_entry_visible(security_level: str) -> bool:
     """Return true if security_level is vislble"""
-    result = security_level in ["1", "2", "3"]
+    result = security_level in generate_docs_options.SECURITY_LEVELS_VISIBLE
     return result
 
 def _load_dataset_text_map()->dict:
