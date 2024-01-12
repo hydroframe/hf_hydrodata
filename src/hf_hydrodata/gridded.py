@@ -818,20 +818,20 @@ def _create_gridded_files_geotiff(
         raise ValueError(f"Grid {grid} does not have resolution_meters defined.")
     if grid_bounds and len(grid_bounds) == 4:
         left_origin = x_origin + grid_bounds[0] * 1000
-        top_origin = y_origin + grid_bounds[3] * 1000
+        top_origin = y_origin + grid_bounds[1] * 1000
     else:
         left_origin = x_origin
         top_origin = y_origin + grid_data["shape"][1] * 1000
     pos = crs_string.find("+x_0=")
     crs_string = crs_string[0:pos] if pos > 0 else crs_string
     transform = rasterio.transform.from_origin(
-        left_origin, top_origin, float(resolution_meters), float(resolution_meters)
+        left_origin, top_origin, float(resolution_meters), -float(resolution_meters)
     )
     if len(data.shape) == 3:
         data = data[0, :, :]
     elif len(data.shape) == 4:
         data = data[0, 0, :, :]
-    data = np.flip(data, 0)
+    # data = np.flip(data, 0)
     dst_profile = {
         "driver": "GTiff",
         "dtype": np.float32,
