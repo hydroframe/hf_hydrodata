@@ -29,7 +29,7 @@ import requests
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
 THREAD_LOCK = threading.Lock()
 DATA_MODEL_CACHE = None
-
+REMOTE_DATA_CATALOG_VERSION = "1.0.2"
 
 class ModelTableRow:
     """Represents one row in a model table."""
@@ -327,7 +327,7 @@ def _parse_column_value(column_value: str):
 def _load_model_from_api(data_model: DataModel):
     """Load the latest version of the model from model in the API."""
 
-    url = f"{HYDRODATA_URL}/api/config/data_catalog_model"
+    url = f"{HYDRODATA_URL}/api/config/data_catalog_model?version={REMOTE_DATA_CATALOG_VERSION}"
     try:
         response = requests.get(url, timeout=120)
         if response.status_code == 200:

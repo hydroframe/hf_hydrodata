@@ -50,7 +50,6 @@ HYDRODATA = "/hydrodata"
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
 THREAD_LOCK = threading.Lock()
 
-
 def get_file_paths(entry, *args, **kwargs) -> List[str]:
     """
     This function is deprecated.
