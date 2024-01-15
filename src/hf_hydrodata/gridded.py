@@ -2295,6 +2295,7 @@ def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -
         A dict in the format for an xarray data array indexer to be passed to isel().
     """
     da_indexers = {}
+    grid = entry["grid"]
     grid_bounds = _get_grid_bounds(grid, options)
     start_time_value = _parse_time(options.get("start_time"))
     end_time_value = _parse_time(options.get("end_time"))
