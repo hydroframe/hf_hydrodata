@@ -83,9 +83,9 @@ class ProjConstants:
         data_model = load_data_model()
         table = data_model.get_table("grid")
         grid_row = table.get_row(grid)
-        grid_origin = str(grid_row["origin"])
         if grid_row is None:
             raise ValueError(f"Grid '{grid}' is not recognized")
+        grid_origin = str(grid_row["origin"])
         crs = grid_row["crs"]
         crs = crs.strip()
         if crs is None:
