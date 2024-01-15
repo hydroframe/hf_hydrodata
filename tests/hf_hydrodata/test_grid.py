@@ -95,5 +95,11 @@ def test_latlng_to_grid_out_of_bounds():
     with pytest.raises(ValueError):
         (_, _) = hf_hydrodata.grid.to_ij("conus1", lat, lon+0.025)
 
+def test_illegal_grid():
+    """Unit test for unknown grid."""
+
+    with pytest.raises(ValueError):
+        hf_hydrodata.grid.to_ij("conusxxx", 0, 0)
+
 if __name__ == "__main__":
     pytest.main([__file__])
