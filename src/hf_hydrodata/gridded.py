@@ -820,7 +820,7 @@ def _create_gridded_files_geotiff(
         top_origin = y_origin + grid_bounds[1] * 1000
     else:
         left_origin = x_origin
-        top_origin = y_origin + grid_data["shape"][1] * 1000
+        top_origin = y_origin
     pos = crs_string.find("+x_0=")
     crs_string = crs_string[0:pos] if pos > 0 else crs_string
     transform = rasterio.transform.from_origin(
@@ -1927,29 +1927,7 @@ def _match_filename_wild_card(data_path: str) -> str:
 
 
 def _slice_da_bounds(da: xr.DataArray, grid: str, options: dict) -> xr.DataArray:
-    grid_bounds = options.get("grid_bounds")
-    latlng_bounds = options.get("latlng_bounds")
-    latlon_bounds = options.get("latlon_bounds")
-    grid_point = options.get("grid_point")
-    latlon_point = options.get("latlon_point")
-
-    if latlng_bounds:
-        latlon_bounds = latlng_bounds
-    if grid_point and grid_bounds:
-        raise ValueError("Cannot specify both grid_bounds and grid_point")
-    if grid_bounds and latlon_bounds:
-        raise ValueError("Cannot specify both grid_bounds and latlon_bounds")
-    if latlon_bounds:
-        grid_bounds = to_ij(grid, *latlon_bounds)
-    if latlon_point:
-        grid_point = to_ij(grid, *latlon_point)
-    if grid_point:
-        grid_bounds = [
-            grid_point[0],
-            grid_point[1],
-            grid_point[0] + 1,
-            grid_point[1] + 1,
-        ]
+    grid_bounds = _get_grid_bounds(grid, options)
     grid_row = dc.get_table_row("grid", id=grid.lower())
     if grid_row is None:
         raise ValueError(f"No such grid {grid} available.")
@@ -1984,32 +1962,10 @@ def _get_pfb_boundary_constraints(grid: str, options: dict) -> dict:
     If x,y,z are specified then the boundary is filter to include only the point at that location.
     If x,y are specified, but not z then z is filtered to include only point 0.
     """
-    grid_bounds = options.get("grid_bounds")
-    latlng_bounds = options.get("latlng_bounds")
-    latlon_bounds = options.get("latlon_bounds")
-    grid_point = options.get("grid_point")
-    latlon_point = options.get("latlon_point")
+    grid_bounds = _get_grid_bounds(grid, options)
     x = options.get("x")
     y = options.get("y")
     z = options.get("z")
-
-    if latlng_bounds:
-        latlon_bounds = latlng_bounds
-    if grid_point and grid_bounds:
-        raise ValueError("Cannot specify both grid_bounds and grid_point")
-    if grid_bounds and latlon_bounds:
-        raise ValueError("Cannot specify both grid_bounds and latlon_bounds")
-    if latlon_bounds:
-        grid_bounds = to_ij(grid, *latlon_bounds)
-    if latlon_point:
-        grid_point = to_ij(grid, *latlon_point)
-    if grid_point:
-        grid_bounds = [
-            grid_point[0],
-            grid_point[1],
-            grid_point[0] + 1,
-            grid_point[1] + 1,
-        ]
     grid_row = dc.get_table_row("grid", id=grid.lower())
     if grid_row is None:
         raise ValueError(f"No such grid {grid} available.")
@@ -2339,6 +2295,7 @@ def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -
         A dict in the format for an xarray data array indexer to be passed to isel().
     """
     da_indexers = {}
+    grid_bounds = _get_grid_bounds(grid, options)
     start_time_value = _parse_time(options.get("start_time"))
     end_time_value = _parse_time(options.get("end_time"))
     grid = entry["grid"]
@@ -2347,8 +2304,6 @@ def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -
         if entry["temporal_resolution"]
         else entry["period"]
     )
-    grid_bounds = options.get("grid_bounds")
-    latlng_bounds = options.get("latlng_bounds")
     x = options.get("x")
     y = options.get("y")
     if "member" in data_da.dims:
@@ -2442,10 +2397,6 @@ def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -
                     )
 
                 da_indexers[time_dimension_name] = slice(time_index, end_time_index)
-    if grid_bounds is not None and latlng_bounds is not None:
-        raise ValueError("Cannot specify both grid_bounds and latlng_bounds")
-    if latlng_bounds:
-        grid_bounds = to_ij(grid, *latlng_bounds)
     if x is not None:
         if y is None:
             raise ValueError("If x is specified then y must be specified.")
@@ -2493,11 +2444,24 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
     """
 
     grid_bounds = options.get("grid_bounds")
+    grid_point = options.get("grid_point")
+    latlon_point = options.get("latlon_point")
     latlon_bounds = (
         options.get("latlng_bounds")
         if options.get("latlng_bounds")
         else options.get("latlon_bounds")
     )
+    if grid_point and grid_bounds:
+        raise ValueError("Cannot specify both grid_bounds and grid_point")
+    if latlon_point:
+        grid_point = to_ij(grid, *latlon_point)
+    if grid_point:
+        grid_bounds = [
+            grid_point[0],
+            grid_point[1],
+            grid_point[0] + 1,
+            grid_point[1] + 1,
+        ]
     if grid_bounds and latlon_bounds:
         raise ValueError("Cannot specify both grid_bounds and latlon_bounds")
     if latlon_bounds:
