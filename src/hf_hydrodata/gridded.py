@@ -20,7 +20,6 @@ from dateutil.relativedelta import relativedelta
 import numpy as np
 import xarray as xr
 import pandas as pd
-import rasterio
 from parflow import read_pfb_sequence, write_pfb
 from hf_hydrodata.data_model_access import ModelTableRow
 from hf_hydrodata.data_model_access import load_data_model
@@ -196,6 +195,7 @@ def get_paths(*args, **kwargs) -> List[str]:
         latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
         grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
         latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
+        huc_id:         A comma seperated list of HUC id that specifies the grid_bounds using the HUC bounding box.
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
         site_id:        Used when reading data associated with an observation site.
@@ -299,6 +299,7 @@ def get_path(*args, **kwargs) -> str:
         latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
         grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
         latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
+        huc_id:         A comma seperated list of HUC id that specifies the grid_bounds using the HUC bounding box.
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
         site_id:        Used when reading data associated with an observation site.
@@ -365,6 +366,7 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
         latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
         grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
         latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
+        huc_id:         A comma seperated list of HUC id that specifies the grid_bounds using the HUC bounding box.
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
         site_id:        Used when reading data associated with an observation site.
@@ -799,6 +801,7 @@ def _create_gridded_files_geotiff(
     if os.getenv("PROJ_LIB"):
         # Remove this environment variable to allow creation of geotiff using rasterio
         del os.environ["PROJ_LIB"]
+    import rasterio
 
     file_name = _substitute_datapath(
         state.filename_template, entry, options, file_time, state.start_time
@@ -903,6 +906,7 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
         latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
         grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
         latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
+        huc_id:         A comma seperated list of HUC id that specifies the grid_bounds using the HUC bounding box.
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
         site_id:        Used when reading data associated with an observation site.
