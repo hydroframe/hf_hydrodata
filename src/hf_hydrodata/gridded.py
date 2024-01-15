@@ -20,7 +20,6 @@ from dateutil.relativedelta import relativedelta
 import numpy as np
 import xarray as xr
 import pandas as pd
-import rasterio
 from parflow import read_pfb_sequence, write_pfb
 from hf_hydrodata.data_model_access import ModelTableRow
 from hf_hydrodata.data_model_access import load_data_model
@@ -49,7 +48,6 @@ C_PFB_MAP = {
 HYDRODATA = "/hydrodata"
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
 THREAD_LOCK = threading.Lock()
-
 
 def get_file_paths(entry, *args, **kwargs) -> List[str]:
     """
@@ -197,6 +195,7 @@ def get_paths(*args, **kwargs) -> List[str]:
         latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
         grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
         latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
+        huc_id:         A comma seperated list of HUC id that specifies the grid_bounds using the HUC bounding box.
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
         site_id:        Used when reading data associated with an observation site.
@@ -300,6 +299,7 @@ def get_path(*args, **kwargs) -> str:
         latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
         grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
         latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
+        huc_id:         A comma seperated list of HUC id that specifies the grid_bounds using the HUC bounding box.
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
         site_id:        Used when reading data associated with an observation site.
@@ -366,6 +366,7 @@ def get_numpy(*args, **kwargs) -> np.ndarray:
         latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
         grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
         latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
+        huc_id:         A comma seperated list of HUC id that specifies the grid_bounds using the HUC bounding box.
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
         site_id:        Used when reading data associated with an observation site.
@@ -800,6 +801,7 @@ def _create_gridded_files_geotiff(
     if os.getenv("PROJ_LIB"):
         # Remove this environment variable to allow creation of geotiff using rasterio
         del os.environ["PROJ_LIB"]
+    import rasterio
 
     file_name = _substitute_datapath(
         state.filename_template, entry, options, file_time, state.start_time
@@ -818,20 +820,20 @@ def _create_gridded_files_geotiff(
         raise ValueError(f"Grid {grid} does not have resolution_meters defined.")
     if grid_bounds and len(grid_bounds) == 4:
         left_origin = x_origin + grid_bounds[0] * 1000
-        top_origin = y_origin + grid_bounds[3] * 1000
+        top_origin = y_origin + grid_bounds[1] * 1000
     else:
         left_origin = x_origin
-        top_origin = y_origin + grid_data["shape"][1] * 1000
+        top_origin = y_origin
     pos = crs_string.find("+x_0=")
     crs_string = crs_string[0:pos] if pos > 0 else crs_string
     transform = rasterio.transform.from_origin(
-        left_origin, top_origin, float(resolution_meters), float(resolution_meters)
+        left_origin, top_origin, float(resolution_meters), -float(resolution_meters)
     )
     if len(data.shape) == 3:
         data = data[0, :, :]
     elif len(data.shape) == 4:
         data = data[0, 0, :, :]
-    data = np.flip(data, 0)
+    # data = np.flip(data, 0)
     dst_profile = {
         "driver": "GTiff",
         "dtype": np.float32,
@@ -904,6 +906,7 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
         latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
         grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
         latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
+        huc_id:         A comma seperated list of HUC id that specifies the grid_bounds using the HUC bounding box.
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
         site_id:        Used when reading data associated with an observation site.
@@ -1928,29 +1931,7 @@ def _match_filename_wild_card(data_path: str) -> str:
 
 
 def _slice_da_bounds(da: xr.DataArray, grid: str, options: dict) -> xr.DataArray:
-    grid_bounds = options.get("grid_bounds")
-    latlng_bounds = options.get("latlng_bounds")
-    latlon_bounds = options.get("latlon_bounds")
-    grid_point = options.get("grid_point")
-    latlon_point = options.get("latlon_point")
-
-    if latlng_bounds:
-        latlon_bounds = latlng_bounds
-    if grid_point and grid_bounds:
-        raise ValueError("Cannot specify both grid_bounds and grid_point")
-    if grid_bounds and latlon_bounds:
-        raise ValueError("Cannot specify both grid_bounds and latlon_bounds")
-    if latlon_bounds:
-        grid_bounds = to_ij(grid, *latlon_bounds)
-    if latlon_point:
-        grid_point = to_ij(grid, *latlon_point)
-    if grid_point:
-        grid_bounds = [
-            grid_point[0],
-            grid_point[1],
-            grid_point[0] + 1,
-            grid_point[1] + 1,
-        ]
+    grid_bounds = _get_grid_bounds(grid, options)
     grid_row = dc.get_table_row("grid", id=grid.lower())
     if grid_row is None:
         raise ValueError(f"No such grid {grid} available.")
@@ -1985,32 +1966,10 @@ def _get_pfb_boundary_constraints(grid: str, options: dict) -> dict:
     If x,y,z are specified then the boundary is filter to include only the point at that location.
     If x,y are specified, but not z then z is filtered to include only point 0.
     """
-    grid_bounds = options.get("grid_bounds")
-    latlng_bounds = options.get("latlng_bounds")
-    latlon_bounds = options.get("latlon_bounds")
-    grid_point = options.get("grid_point")
-    latlon_point = options.get("latlon_point")
+    grid_bounds = _get_grid_bounds(grid, options)
     x = options.get("x")
     y = options.get("y")
     z = options.get("z")
-
-    if latlng_bounds:
-        latlon_bounds = latlng_bounds
-    if grid_point and grid_bounds:
-        raise ValueError("Cannot specify both grid_bounds and grid_point")
-    if grid_bounds and latlon_bounds:
-        raise ValueError("Cannot specify both grid_bounds and latlon_bounds")
-    if latlon_bounds:
-        grid_bounds = to_ij(grid, *latlon_bounds)
-    if latlon_point:
-        grid_point = to_ij(grid, *latlon_point)
-    if grid_point:
-        grid_bounds = [
-            grid_point[0],
-            grid_point[1],
-            grid_point[0] + 1,
-            grid_point[1] + 1,
-        ]
     grid_row = dc.get_table_row("grid", id=grid.lower())
     if grid_row is None:
         raise ValueError(f"No such grid {grid} available.")
@@ -2340,6 +2299,8 @@ def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -
         A dict in the format for an xarray data array indexer to be passed to isel().
     """
     da_indexers = {}
+    grid = entry["grid"]
+    grid_bounds = _get_grid_bounds(grid, options)
     start_time_value = _parse_time(options.get("start_time"))
     end_time_value = _parse_time(options.get("end_time"))
     grid = entry["grid"]
@@ -2348,8 +2309,6 @@ def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -
         if entry["temporal_resolution"]
         else entry["period"]
     )
-    grid_bounds = options.get("grid_bounds")
-    latlng_bounds = options.get("latlng_bounds")
     x = options.get("x")
     y = options.get("y")
     if "member" in data_da.dims:
@@ -2443,10 +2402,6 @@ def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -
                     )
 
                 da_indexers[time_dimension_name] = slice(time_index, end_time_index)
-    if grid_bounds is not None and latlng_bounds is not None:
-        raise ValueError("Cannot specify both grid_bounds and latlng_bounds")
-    if latlng_bounds:
-        grid_bounds = to_ij(grid, *latlng_bounds)
     if x is not None:
         if y is None:
             raise ValueError("If x is specified then y must be specified.")
@@ -2494,11 +2449,24 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
     """
 
     grid_bounds = options.get("grid_bounds")
+    grid_point = options.get("grid_point")
+    latlon_point = options.get("latlon_point")
     latlon_bounds = (
         options.get("latlng_bounds")
         if options.get("latlng_bounds")
         else options.get("latlon_bounds")
     )
+    if grid_point and grid_bounds:
+        raise ValueError("Cannot specify both grid_bounds and grid_point")
+    if latlon_point:
+        grid_point = to_ij(grid, *latlon_point)
+    if grid_point:
+        grid_bounds = [
+            grid_point[0],
+            grid_point[1],
+            grid_point[0] + 1,
+            grid_point[1] + 1,
+        ]
     if grid_bounds and latlon_bounds:
         raise ValueError("Cannot specify both grid_bounds and latlon_bounds")
     if latlon_bounds:
