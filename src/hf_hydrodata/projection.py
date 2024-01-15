@@ -108,8 +108,8 @@ class ProjConstants:
             # Use the grid_origin from the data catalog as the false easting and northing
             grid_origin_array = json.loads(grid_origin)
             if len(grid_origin_array) == 2:
-                self.false_easting = float(grid_origin_array[0])
-                self.false_northing = float(grid_origin_array[1])
+                self.false_easting = -float(grid_origin_array[0])
+                self.false_northing = -float(grid_origin_array[1])
 
         self.phi_0 = math.radians(self.origin_latitude)
         self.phi_1 = math.radians(self.first_parallel)
