@@ -46,10 +46,8 @@ You can get gridded data using the `get_gridded_data()` function.
     }
     data = hf.get_gridded_data(options)
 
-You can use the ``point`` module to read site-level observations data from the hydrodata repository to get a 
-pandas DataFrame.
 
-``hf_hydrodata`` supports access to a collection of site-level data from a variety of sources. 
+``hf_hydrodata`` supports access to a collection of site-level data from a variety of sources using the `get_point_data()` function. 
 
 The below syntax will return daily USGS streamflow data from January 1, 2022 through January 5, 2022 
 for sites that are within the bounding box with latitude bounds of (45, 50) and longitude bounds
