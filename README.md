@@ -110,7 +110,7 @@ Copyright © 2023 The Trustees of Princeton University and The Arizona Board of 
 ## Data Use Policy
 The software is licenced under MIT licence, but the data is controlled by a [Data Use Policy](https://hf-hydrodata.readthedocs.io/en/latest/data_policy.html).
 
-## Report an issue
+## Report an Issue
 If you have a question about our code or find an issue, please create a GitHub Issue with enough information for us to reproduce what you are seeing.
 
 ## Contribute
