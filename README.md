@@ -20,7 +20,7 @@ You can view the full package documentation on [Read the Docs](https://hf-hydrod
 Please see our [Python API Reference](https://hf-hydrodata.readthedocs.io/en/latest/api_reference.html) for detail on each core
 method.
 
-## Example Usage
+## Usage
 
 You can use `hf_hydrodata` to get access to both gridded and point observation data from various
 datasets.
@@ -109,3 +109,9 @@ Copyright © 2023 The Trustees of Princeton University and The Arizona Board of 
 
 ## Data Use Policy
 The software is licenced under MIT licence, but the data is controlled by a [Data Use Policy](https://hf-hydrodata.readthedocs.io/en/latest/data_policy.html).
+
+## Report an issue
+If you have a question about our code or find an issue, please create a GitHub Issue with enough information for us to reproduce what you are seeing.
+
+## Contribute
+If you would like to contribute to `hf_hydrodata`, please open a GitHub Issue with a description of your plan to initiate a conversation with our development team. Then detailed implementation review will be done via a Pull Request.
