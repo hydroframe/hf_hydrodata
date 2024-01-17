@@ -213,7 +213,7 @@ id,dataset,file_type,variable,dataset_var,entry_start_date,entry_end_date,tempor
 216,conus2_domain,pfb,veg_type_IGBP,vegetation_type,,,static,-,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/250m_CONUS2_landcover_IGBP_723.pfb,,
 217,conus2_domain,tiff,veg_type_IGBP,vegetation_type,,,static,-,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/250m_CONUS2_landcover_IGBP_723.tif,,
 218,conus2_domain,pfb,slope_x,slope_x,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0.Final1km.slopex.pfb,,
-219,conus2_domain,pfb,slope_y,slope_y,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0.Final1km.slopex.pfb,,
+219,conus2_domain,pfb,slope_y,slope_y,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0.Final1km.slopey.pfb,,
 220,conus2_domain,drv_clm,clm_run,clm_run,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_clmin.dat,,
 221,conus2_domain,vegm,clm_run,clm_run,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_vegm.CONUS2_fixed.2.dat,,
 222,conus2_domain,vegp,clm_run,clm_run,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_vegp.dat,,
