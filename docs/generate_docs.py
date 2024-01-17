@@ -7,6 +7,7 @@
 import sys
 import os
 import yaml
+import json
 import generate_docs_options
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
@@ -153,6 +154,8 @@ def _generate_grid_extent_docs(grids, stream):
             latlng_extent = f"{latlng_bounds[1]}, {latlng_bounds[0]},  {latlng_bounds[3]}, {latlng_bounds[2]}"
         else:
             latlng_extent = ""
+        grid_origin = grid_row["origin"]
+        grid_origin = json.loads(str(grid_origin)) if grid_origin else None
         crs = grid_row["crs"]
         crs = crs.strip() if crs else ""
         stream.write(f"* Grid: {grid}\n\n")
@@ -160,7 +163,9 @@ def _generate_grid_extent_docs(grids, stream):
         if shape_x and shape_y:
             stream.write(f"  - XY Grid Spacial Extent:  {shape_x} x {shape_y}\n\n")
         if latlng_extent:
-            stream.write(f"  - Spacial Exent:  {latlng_extent}\n\n")
+            stream.write(f"  - LatLon Spacial Exent:  {latlng_extent}\n\n")
+        if grid_origin:
+            stream.write(f"  - Origin (meters): {grid_origin[0]}, {grid_origin[1]}\n\n")
         stream.write(f"  - Projection: {crs}\n\n")
 
 def _generate_dataset_variable_docs(dataset_row, stream):
@@ -618,7 +623,8 @@ def _collect_grids_in_dataset(dataset_row):
     for data_catalog_entry_id in data_catalog_entry_table.row_ids:
         data_catalog_entry_row = data_catalog_entry_table.get_row(data_catalog_entry_id)
         grid = data_catalog_entry_row["grid"]
-        if data_catalog_entry_row["dataset"] == dataset_id:
+        security_level = data_catalog_entry_row["security_level"]
+        if data_catalog_entry_row["dataset"] == dataset_id and _is_entry_visible(security_level):
             if grid and not grid in result:
                 result.append(grid)
     return result
