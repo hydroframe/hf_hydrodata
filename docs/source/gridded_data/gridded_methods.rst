@@ -45,9 +45,10 @@ By default this creates PFB files. This creates daily files with the hourly data
       import hf_hydrodata as hf
 
       variables = ["air_temp", "precipitation"]
+      huc_id = "1019000404"
       options = {
             "dataset": "CW3E", "temporal_resolution": "hourly",
-            "start_time": "2005-09-20", "end_time": "2005-10-4", "grid_bounds": [100, 100, 200, 200]
+            "start_time": "2005-09-20", "end_time": "2005-10-4", "huc_id": huc_id
       }
       hf.get_gridded_files(options, variables=variables, filename_template="{dataset}_{wy}.nc")
 
@@ -55,6 +56,7 @@ This creates two NetCDF files
     *   CW3E_2005.nc
     *   CW3E_2006.nc
 Each containing variables "air_temp" and "precipitation" and a time dimension coordinates in the time range of the water year.
+It used the huc_id option to specify the grid_bounds using the bounding box of a comma seperated list of HUC id.
 
 .. code-block:: python
 
