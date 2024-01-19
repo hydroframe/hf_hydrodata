@@ -1260,10 +1260,7 @@ def test_get_catalog_bug():
             end_time=end_time,
             grid_bounds=bounds,
         )
-    assert (
-        str(info.value)
-        == "The entry parameter is None. Possibly because the dataset and variable used did not exist."
-    )
+    assert "Ambiguous filter" in str(info.value)
 
 
 def test_temporal_resolution():
@@ -1420,10 +1417,16 @@ def test_get_gridded_files_tiff():
         assert 'standard_parallel_1",33' in str(luc.rio.crs)
     os.chdir(cd)
 
+
 def test_entry_without_dataset():
     """Test that we can get gridded data with options without a dataset"""
 
-    options = {"grid": "conus1", "variable": "latitude", "file_type": "pfb", "grid_bounds": [50, 50, 52, 55]}
+    options = {
+        "grid": "conus1",
+        "variable": "latitude",
+        "file_type": "pfb",
+        "grid_bounds": [50, 50, 52, 55],
+    }
     entries = hf.get_catalog_entries(options)
     assert len(entries) == 1
     data = hf.get_gridded_data(options)

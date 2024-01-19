@@ -2,7 +2,7 @@
 Functions to access gridded data from the data catalog index of the GPFS files.
 """
 
-# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702,R0903,R0902
+# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702,R0903,R0902,C0415
 import os
 import datetime
 import time
@@ -48,6 +48,7 @@ C_PFB_MAP = {
 HYDRODATA = "/hydrodata"
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
 THREAD_LOCK = threading.Lock()
+
 
 def get_file_paths(entry, *args, **kwargs) -> List[str]:
     """
@@ -867,11 +868,26 @@ def _execute_dask_items(dask_items, state, file_name: str):
             data_vars_definition = {}
             grid = state.entry["grid"]
             grid_bounds = _get_grid_bounds(grid, state.options)
-            latitude_coord = get_gridded_data({"grid": grid, "variable": "latitude", "file_type": "pfb", "grid_bounds": grid_bounds})
-            longitude_coord = get_gridded_data({"grid": grid, "variable": "longitude", "file_type": "pfb", "grid_bounds": grid_bounds})
+            latitude_coord = get_gridded_data(
+                {
+                    "grid": grid,
+                    "variable": "latitude",
+                    "file_type": "pfb",
+                    "grid_bounds": grid_bounds,
+                }
+            )
+            longitude_coord = get_gridded_data(
+                {
+                    "grid": grid,
+                    "variable": "longitude",
+                    "file_type": "pfb",
+                    "grid_bounds": grid_bounds,
+                }
+            )
             coords_definition = {
                 "latitude": (["y", "x"], latitude_coord),
-                 "longitude": (["y", "x"], longitude_coord)}
+                "longitude": (["y", "x"], longitude_coord),
+            }
             if state.time_coords:
                 coords_definition["time"] = state.time_coords
             for variable in state.variables:
@@ -891,6 +907,7 @@ def _execute_dask_items(dask_items, state, file_name: str):
 def _consolate_dask_items(items):
     """Function to wait for all the dask items to complete."""
     return len(items)
+
 
 def get_gridded_data(*args, **kwargs) -> np.ndarray:
     """
