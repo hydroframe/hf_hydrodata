@@ -1358,7 +1358,7 @@ def test_get_gridded_files_3d():
     os.chdir(cd)
 
 
-def xtest_get_gridded_files_netcdf():
+def test_get_gridded_files_netcdf():
     """Unit test for get_gridded_files to netcdf file."""
 
     cd = os.getcwd()
@@ -1385,6 +1385,8 @@ def xtest_get_gridded_files_netcdf():
         assert ground_heat.shape == (120, 10, 4)
         pressure_head = ds["pressure_head"]
         assert pressure_head.shape == (120, 5, 10, 4)
+        lat_coord = ds["latitude"]
+        assert lat_coord.shape == (10, 4)
 
         gr.get_gridded_files(
             options, variables=variables, filename_template="NLDAS2.{wy}.nc"
@@ -1417,6 +1419,15 @@ def test_get_gridded_files_tiff():
         luc = rioxarray.open_rasterio("conus1_baseline_mod.ground_heat.tiff")
         assert 'standard_parallel_1",33' in str(luc.rio.crs)
     os.chdir(cd)
+
+def test_entry_without_dataset():
+    """Test that we can get gridded data with options without a dataset"""
+
+    options = {"grid": "conus1", "variable": "latitude", "file_type": "pfb", "grid_bounds": [50, 50, 52, 55]}
+    entries = hf.get_catalog_entries(options)
+    assert len(entries) == 1
+    data = hf.get_gridded_data(options)
+    assert data.shape == (5, 2)
 
 
 if __name__ == "__main__":
