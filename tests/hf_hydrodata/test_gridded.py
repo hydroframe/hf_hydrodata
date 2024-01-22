@@ -1378,13 +1378,14 @@ def test_get_gridded_files_netcdf():
         assert os.path.exists("NLDAS2.2005.nc")
         ds = xr.open_dataset("NLDAS2.2006.nc")
         assert len(ds.keys()) == 2
-        ground_heat = ds["ground_heat"]
+        ground_heat = ds["eflx_soil_grnd"]
         assert ground_heat.shape == (120, 10, 4)
-        pressure_head = ds["pressure_head"]
+        pressure_head = ds["Press"]
         assert pressure_head.shape == (120, 5, 10, 4)
         lat_coord = ds["latitude"]
         assert lat_coord.shape == (10, 4)
 
+        # Check it does nothing if file already exists
         gr.get_gridded_files(
             options, variables=variables, filename_template="NLDAS2.{wy}.nc"
         )
@@ -1431,6 +1432,37 @@ def test_entry_without_dataset():
     assert len(entries) == 1
     data = hf.get_gridded_data(options)
     assert data.shape == (5, 2)
+
+
+def test_multiple_aggregations():
+    """Test that we can get_gridded_files with multiple aggregations."""
+
+    cd = os.getcwd()
+    with tempfile.TemporaryDirectory() as tempdirname:
+        os.chdir(tempdirname)
+
+        variables = ["precipitation", "air_temp", "downward_shortwave"]
+        bounds = [500, 500, 502, 502]
+        start_time = datetime.datetime(1991, 8, 4)
+        end_time = start_time + datetime.timedelta(days=2)
+        options = {"dataset":"CW3E", "grid_bounds":bounds, "temporal_resolution":"daily", "start_time": start_time, "end_time": end_time}
+        assert not os.path.exists("foo.nc")
+        gr.get_gridded_files(
+            options, variables=variables, filename_template="foo.nc"
+        )
+        assert os.path.exists("foo.nc")
+        ds = xr.open_dataset("foo.nc")
+        da = ds["APCP"]
+        assert da.shape == (2, 2, 2)
+        da = ds["DSWR"]
+        assert da.shape == (2, 2, 2)
+        da = ds["Temp_mean"]
+        assert da.shape == (2, 2, 2)
+        da = ds["Temp_min"]
+        assert da.shape == (2, 2, 2)
+        da = ds["Temp_max"]
+        assert da.shape == (2, 2, 2)
+    os.chdir(cd)
 
 
 if __name__ == "__main__":

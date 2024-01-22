@@ -585,7 +585,6 @@ def get_gridded_files(
 
     # Start threads to download data
     state = _FileDownloadState(
-        variables,
         options,
         filename_template,
         temporal_resolution,
@@ -614,29 +613,32 @@ def get_gridded_files(
         options["end_time"] = file_time + delta
         for variable in variables:
             options["variable"] = variable
-            entry = dc.get_catalog_entry(options)
-            if entry is None:
-                raise ValueError("No data catalog entry found for options.")
-            file_name = _substitute_datapath(
-                filename_template, entry, options, file_time, start_time
-            )
-            if file_name.endswith("nc") and not file_name == last_file_name:
-                _execute_dask_items(dask_items, state, last_file_name)
-                state = _FileDownloadState(
-                    variables,
-                    options,
-                    filename_template,
-                    temporal_resolution,
-                    start_time,
-                    end_time,
-                    verbose,
+            aggregation_entries = _get_aggregation_entries(options)
+            options_copy = dict(options)
+            for entry in aggregation_entries:
+                if entry is None:
+                    raise ValueError("No data catalog entry found for options.")
+                aggregation = entry["aggregation"]
+                options_copy["aggregation"] = aggregation
+                file_name = _substitute_datapath(
+                    filename_template, entry, options, file_time, start_time
                 )
-                dask_items = []
-            dask_items.append(
-                dask.delayed(_load_gridded_file_entry)(
-                    state, entry, options, file_time, time_index
+                if file_name.endswith(".nc") and not file_name == last_file_name:
+                    _execute_dask_items(dask_items, state, last_file_name)
+                    state = _FileDownloadState(
+                        options_copy,
+                        filename_template,
+                        temporal_resolution,
+                        start_time,
+                        end_time,
+                        verbose,
+                    )
+                    dask_items = []
+                dask_items.append(
+                    dask.delayed(_load_gridded_file_entry)(
+                        state, entry, options_copy, file_time, time_index
+                    )
                 )
-            )
             last_file_name = file_name
         file_time = file_time + delta
         time_index = time_index + 1
@@ -648,6 +650,29 @@ def get_gridded_files(
         else:
             duration = round(duration / 60)
             print(f"Created all files in {duration} minutes.")
+
+
+def _get_aggregation_entries(options):
+    """
+    Get the list of different aggregation entries for the filter options.
+    Returns:
+        A list of entries that satisfy the options filter.
+    Raises:
+        ValueError: if two entries for the filter different by other than aggregation value.
+    """
+
+    result = []
+    found_aggegations = []
+    entries = dc.get_catalog_entries(options)
+    options_copy = dict(options)
+    for entry in entries:
+        aggregation = entry["aggregation"]
+        if aggregation not in found_aggegations:
+            options_copy["aggregation"] = aggregation
+            entry = dc.get_catalog_entry(options_copy)
+            result.append(entry)
+            found_aggegations.append(aggregation)
+    return result
 
 
 def _load_gridded_file_entry(
@@ -682,7 +707,7 @@ def _load_gridded_file_entry(
         _create_gridded_files_geotiff(data, state, entry, options, file_time)
     elif state.filename_template.endswith(".nc"):
         # Creating NetCDF file, put the data from the API response into the data object from state
-        _create_gridded_files_netcdf(data, state, time_index, options, file_time)
+        _create_gridded_files_netcdf(data, state, entry, time_index, file_time)
 
     if state.verbose:
         if entry["temporal_resolution"] in ["daily", "hourly"]:
@@ -699,7 +724,7 @@ def _load_gridded_file_entry(
 
 
 def _create_gridded_files_netcdf(
-    data: np.ndarray, state, time_index, options, file_time: datetime.datetime
+    data: np.ndarray, state, entry, time_index, file_time: datetime.datetime
 ):
     if state.temporal_resolution == "daily":
         t_num = (file_time - state.start_time).days if state.start_time else 0
@@ -719,8 +744,11 @@ def _create_gridded_files_netcdf(
         t_shape = 1
 
     with THREAD_LOCK:
-        variable = options.get("variable")
-        nc_data = state.data_map.get(variable)
+        dataset_var = entry["dataset_var"]
+        if dataset_var not in state.dataset_vars:
+            state.dataset_vars.append(dataset_var)
+
+        nc_data = state.data_map.get(dataset_var)
 
         # Create data object for NC file if has not been created yet
         if nc_data is None:
@@ -742,8 +770,8 @@ def _create_gridded_files_netcdf(
             else:
                 raise ValueError("Bad shape of data returned from API.")
             nc_data = np.zeros(data_shape)
-            state.data_map[variable] = nc_data
-            state.dims_map[variable] = dims
+            state.data_map[dataset_var] = nc_data
+            state.dims_map[dataset_var] = dims
 
         # Put the data from the API response into the data object
         if len(data.shape) == 4:
@@ -865,6 +893,9 @@ def _execute_dask_items(dask_items, state, file_name: str):
         if state.filename_template.endswith(".nc"):
             # Threads are finished so create a NetCDF file with that data
             # Generate NC filename
+            if len(state.dataset_vars) == 0:
+                # Nothing to save, file already existed
+                return
             data_vars_definition = {}
             grid = state.entry["grid"]
             grid_bounds = _get_grid_bounds(grid, state.options)
@@ -890,7 +921,7 @@ def _execute_dask_items(dask_items, state, file_name: str):
             }
             if state.time_coords:
                 coords_definition["time"] = state.time_coords
-            for variable in state.variables:
+            for variable in state.dataset_vars:
                 data = state.data_map.get(variable)
                 dims = state.dims_map.get(variable)
                 if data is None or dims is None:
@@ -2503,7 +2534,6 @@ class _FileDownloadState:
 
     def __init__(
         self,
-        variables,
         options,
         filename_template,
         temporal_resolution,
@@ -2517,7 +2547,7 @@ class _FileDownloadState:
         )  # Map variable name do array of dimension names of that variable
         self.entry = None  # Data catalog entry
         self.options = options
-        self.variables = variables
+        self.dataset_vars = []
         self.temporal_resolution = temporal_resolution
         self.start_time = start_time
         self.end_time = end_time
