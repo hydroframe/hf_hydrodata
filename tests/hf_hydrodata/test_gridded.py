@@ -7,6 +7,7 @@ import sys
 import os
 import datetime
 import tempfile
+import math
 from unittest.mock import patch
 import xarray as xr
 import pytest
@@ -864,17 +865,17 @@ def test_get_huc_bbox_conus2():
 
     gr.HYDRODATA = "/hydrodata"
     bbox = hf.get_huc_bbox("conus2", ["1019000404"])
-    assert bbox == (1468, 1664, 1550, 1693)
+    assert bbox == [1468, 1664, 1550, 1693]
     bbox = hf.get_huc_bbox("conus2", ["10190004"])
-    assert bbox == (1468, 1664, 1550, 1693)
+    assert bbox == [1468, 1664, 1550, 1693]
     bbox = hf.get_huc_bbox("conus2", ["101900"])
-    assert bbox == (1439, 1573, 1844, 1851)
+    assert bbox == [1439, 1573, 1844, 1851]
     bbox = hf.get_huc_bbox("conus2", ["1019"])
-    assert bbox == (1439, 1573, 1844, 1851)
+    assert bbox == [1439, 1573, 1844, 1851]
     bbox = hf.get_huc_bbox("conus2", ["10"])
-    assert bbox == (948, 1353, 2741, 2784)
+    assert bbox == [948, 1353, 2741, 2784]
     bbox = hf.get_huc_bbox("conus2", ["15020018"])
-    assert bbox == ((940, 1333, 1060, 1422))
+    assert bbox == [940, 1333, 1060, 1422]
 
 
 def test_latlng_to_grid_out_of_bounds():
@@ -1141,10 +1142,10 @@ def test_get_huc_bbox_conus1():
         hf.get_huc_bbox("conus1", ["1019000404", "123"])
 
     bbox = hf.get_huc_bbox("conus1", ["1019000404"])
-    assert bbox == (1076, 720, 1124, 739)
+    assert bbox == [1076, 720, 1124, 739]
 
     bbox = hf.get_huc_bbox("conus1", ["1102001002", "1102001003"])
-    assert bbox == (1088, 415, 1132, 453)
+    assert bbox == [1088, 415, 1132, 453]
 
 
 def test_getndarray_site_id():
@@ -1445,11 +1446,15 @@ def test_multiple_aggregations():
         bounds = [500, 500, 502, 502]
         start_time = datetime.datetime(1991, 8, 4)
         end_time = start_time + datetime.timedelta(days=2)
-        options = {"dataset":"CW3E", "grid_bounds":bounds, "temporal_resolution":"daily", "start_time": start_time, "end_time": end_time}
+        options = {
+            "dataset": "CW3E",
+            "grid_bounds": bounds,
+            "temporal_resolution": "daily",
+            "start_time": start_time,
+            "end_time": end_time,
+        }
         assert not os.path.exists("foo.nc")
-        gr.get_gridded_files(
-            options, variables=variables, filename_template="foo.nc"
-        )
+        gr.get_gridded_files(options, variables=variables, filename_template="foo.nc")
         assert os.path.exists("foo.nc")
         ds = xr.open_dataset("foo.nc")
         da = ds["APCP"]
@@ -1463,6 +1468,37 @@ def test_multiple_aggregations():
         da = ds["Temp_max"]
         assert da.shape == (2, 2, 2)
     os.chdir(cd)
+
+
+def test_huc_mask():
+    """Test that mask is applied when HUC is provided."""
+    start_time = datetime.datetime(1991, 8, 4)
+    options = {
+        "dataset": "CW3E",
+        "huc_id": "18060006",
+        "temporal_resolution": "daily",
+        "start_time": start_time,
+        "variable": "precipitation",
+        "mask": "true",
+    }
+    data = gr.get_gridded_data(options)
+    assert math.isnan(data[0, 0, 0])
+
+
+def test_huc_border():
+    """Test that mask is applied at coastal areas with a grid."""
+    start_time = datetime.datetime(1991, 8, 4)
+    bounds = [56, 1433, 155, 1643]
+    options = {
+        "dataset": "CW3E",
+        "grid_bounds": bounds,
+        "temporal_resolution": "daily",
+        "start_time": start_time,
+        "variable": "precipitation",
+        "mask": "true",
+    }
+    data = gr.get_gridded_data(options)
+    assert math.isnan(data[0, 0, 0])
 
 
 if __name__ == "__main__":

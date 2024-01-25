@@ -1258,8 +1258,59 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
             raise ValueError(f"File type '{file_type}' is not supported yet.")
         if structure_type == "gridded":
             data = _adjust_dimensions(data, entry)
+            if options.get("mask") and options.get("mask").lower() in ["true", "yes"]:
+                data = _apply_mask(data, entry, options)
         options = _convert_json_to_strings(options)
 
+    return data
+
+
+def _apply_mask(data, entry, options):
+    """
+    Mask the data with NaN values for entries that are outside of the HUC boundary.
+    Returns:
+        The data with NaN values used for masked point.
+    If the options contain a huc_id option then mask using the HUC boundaries of the grid of the entry.
+    Else if the options contain a grid_bounds (or lat/lon bounds) mask using the HUC bounds subset for that grid.
+    The second option masks only against ocean and outer HUC bounds. The first option masks with internal HUC boundaries.
+    """
+
+    if options.get("dataset") == "huc_mapping":
+        return data
+    grid = entry["grid"]
+    if grid not in ["conus1", "conus2"]:
+        return data
+    if not isinstance(data, np.ndarray):
+        return data
+    grid_bounds = _get_grid_bounds(grid, options)
+    huc_id = options.get("huc_id")
+    if huc_id:
+        huc_ids = huc_id.split(",")
+        bbox = get_huc_bbox(grid, huc_ids)
+        level = len(huc_ids[0])
+        mask = get_gridded_data(
+            {
+                "dataset": "huc_mapping",
+                "variable": "huc_map",
+                "grid": grid,
+                "grid_bounds": bbox,
+                "level": level,
+            }
+        )
+        for h_id in huc_ids:
+            data = np.where(mask == float(h_id), data, np.nan)
+    elif grid_bounds:
+        mask = get_gridded_data(
+            {
+                "dataset": "huc_mapping",
+                "variable": "huc_map",
+                "grid": grid,
+                "grid_bounds": grid_bounds,
+                "level": 2,
+            }
+        )
+        # print(np.where(mask == np.nan))
+        data = np.where(mask, np.nan, data)
     return data
 
 
@@ -1399,7 +1450,7 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
         result_jmin = jmin if jmin < result_jmin else result_jmin
         result_jmax = jmax if jmax > result_jmax else result_jmax
 
-    return (result_imin, result_jmin, result_imax, result_jmax)
+    return [int(result_imin), int(result_jmin), int(result_imax), int(result_jmax)]
 
 
 def _verify_time_in_range(entry: dict, options: dict):
