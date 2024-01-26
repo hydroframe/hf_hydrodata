@@ -865,17 +865,17 @@ def test_get_huc_bbox_conus2():
 
     gr.HYDRODATA = "/hydrodata"
     bbox = hf.get_huc_bbox("conus2", ["1019000404"])
-    assert bbox == [1468, 1664, 1550, 1693]
+    assert bbox == [1468, 1563, 1550, 1592]
     bbox = hf.get_huc_bbox("conus2", ["10190004"])
-    assert bbox == [1468, 1664, 1550, 1693]
+    assert bbox == [1468, 1563, 1550, 1592]
     bbox = hf.get_huc_bbox("conus2", ["101900"])
-    assert bbox == [1439, 1573, 1844, 1851]
+    assert bbox == [1439, 1405, 1844, 1683]
     bbox = hf.get_huc_bbox("conus2", ["1019"])
-    assert bbox == [1439, 1573, 1844, 1851]
+    assert bbox == [1439, 1405, 1844, 1683]
     bbox = hf.get_huc_bbox("conus2", ["10"])
-    assert bbox == [948, 1353, 2741, 2784]
+    assert bbox == [948, 472, 2741, 1903]
     bbox = hf.get_huc_bbox("conus2", ["15020018"])
-    assert bbox == [940, 1333, 1060, 1422]
+    assert bbox == [940, 1834, 1060, 1923]
 
 
 def test_latlng_to_grid_out_of_bounds():
@@ -1142,10 +1142,10 @@ def test_get_huc_bbox_conus1():
         hf.get_huc_bbox("conus1", ["1019000404", "123"])
 
     bbox = hf.get_huc_bbox("conus1", ["1019000404"])
-    assert bbox == [1076, 720, 1124, 739]
+    assert bbox == [1076, 1149, 1124, 1168]
 
     bbox = hf.get_huc_bbox("conus1", ["1102001002", "1102001003"])
-    assert bbox == [1088, 415, 1132, 453]
+    assert bbox == [1088, 1435, 1132, 1473]
 
 
 def test_getndarray_site_id():

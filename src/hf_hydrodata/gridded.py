@@ -1309,7 +1309,6 @@ def _apply_mask(data, entry, options):
                 "level": 2,
             }
         )
-        # print(np.where(mask == np.nan))
         data = np.where(mask, np.nan, data)
     return data
 
@@ -1436,8 +1435,11 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
             np.argmax(diffed_y_mask.values) + 1
         )  # because of the point you actually want to indicate from the diff function
 
-        jmin = tiff_ds.shape[1] - arr_jmax
-        jmax = tiff_ds.shape[1] - arr_jmin
+        #jmin = tiff_ds.shape[1] - arr_jmax
+        #jmax = tiff_ds.shape[1] - arr_jmin
+
+        jmin = arr_jmin
+        jmax = arr_jmax
 
         # Do the exact same thing for the x dimension
         diffed_x_mask = (sel_huc.sum(dim="y") > 0).astype(int).diff(dim="x")
