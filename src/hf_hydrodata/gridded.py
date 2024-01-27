@@ -849,20 +849,20 @@ def _create_gridded_files_geotiff(
         raise ValueError(f"Grid {grid} does not have resolution_meters defined.")
     if grid_bounds and len(grid_bounds) == 4:
         left_origin = x_origin + grid_bounds[0] * 1000
-        top_origin = y_origin + grid_bounds[1] * 1000
+        top_origin = y_origin + grid_bounds[3] * 1000
     else:
         left_origin = x_origin
         top_origin = y_origin
     pos = crs_string.find("+x_0=")
     crs_string = crs_string[0:pos] if pos > 0 else crs_string
     transform = rasterio.transform.from_origin(
-        left_origin, top_origin, float(resolution_meters), -float(resolution_meters)
+        left_origin, top_origin, float(resolution_meters), float(resolution_meters)
     )
     if len(data.shape) == 3:
         data = data[0, :, :]
     elif len(data.shape) == 4:
         data = data[0, 0, :, :]
-    # data = np.flip(data, 0)
+    data = np.flip(data, 0)
     dst_profile = {
         "driver": "GTiff",
         "dtype": np.float32,
@@ -1435,11 +1435,11 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
             np.argmax(diffed_y_mask.values) + 1
         )  # because of the point you actually want to indicate from the diff function
 
-        #jmin = tiff_ds.shape[1] - arr_jmax
-        #jmax = tiff_ds.shape[1] - arr_jmin
+        jmin = tiff_ds.shape[1] - arr_jmax
+        jmax = tiff_ds.shape[1] - arr_jmin
 
-        jmin = arr_jmin
-        jmax = arr_jmax
+        # jmin = arr_jmin
+        # jmax = arr_jmax
 
         # Do the exact same thing for the x dimension
         diffed_x_mask = (sel_huc.sum(dim="y") > 0).astype(int).diff(dim="x")
@@ -1962,9 +1962,55 @@ def _read_and_filter_tiff_files(
     data_ds = xr.open_dataset(file_path)
     data_da = data_ds[variable]
     da_indexers = _create_da_indexer(options, entry, data_ds, data_da, file_path)
-    data_da = data_da.isel(da_indexers)
-    data = data_da.to_numpy()
+    if _flip_da_indexers(entry, da_indexers):
+        # Select data with the flipped da_indexers and flip the result data
+        data_da = data_da.isel(da_indexers)
+        if len(data_da.shape) == 3:
+            data = np.flip(data_da.to_numpy(), 1)
+        elif len(data_da.shape) == 2:
+            data = np.flip(data_da.to_numpy(), 0)
+    else:
+        # Select the data and do not flip the result
+        data_da = data_da.isel(da_indexers)
+        data = data_da.to_numpy()
     return data
+
+
+def _flip_da_indexers(entry, da_indexers) -> bool:
+    """
+    Flip the y axis ranges of the da_indexers filter range.
+    Parameters:
+        entry:      The data catalog entry of the data being read.
+        da_indexers:The data structure passed to xarray isel to select data.
+    Returns:
+        True if flipped the da_indexers and the resulting numpy array also needs to be flipped.
+    This is performed when the data is a tiff file that is stored with y origin at top left.
+    The data read from the file is flipped so the returned array has the same coodinates as PFB and NetCDF.
+    Do not flip conus2_current_conditions water_table_depth because this tiff is not flipped.
+    """
+    if entry["dataset"] == "conus2_current_conditions":
+        return False
+    if not da_indexers.get("y"):
+        # No coordinates to swap, but still swap the data
+        return True
+    grid = entry["grid"]
+    grid_row = dc.get_table_row("grid", id=grid.lower())
+    if grid_row is None:
+        raise ValueError(f"No such grid {grid} available.")
+    grid_shape = grid_row["shape"]
+    if len(grid_shape) == 3:
+        y_size = grid_shape[1]
+        y0 = da_indexers["y"].start
+        y1 = da_indexers["y"].stop
+        da_indexers["y"] = slice(y_size - y1 - 1, y_size - y0 - 1)
+    elif len(grid_shape) == 2:
+        y_size = grid_shape[0]
+        y0 = da_indexers["y"].start
+        y1 = da_indexers["y"].stop
+        da_indexers["y"] = slice(y_size - y1 - 1, y_size - y0 - 1)
+    else:
+        raise ValueError(f"The grid '{grid}' does not have a configured size.")
+    return True
 
 
 def __get_geotiff(grid: str, level: int) -> xr.Dataset:
