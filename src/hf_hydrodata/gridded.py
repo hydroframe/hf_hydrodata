@@ -848,13 +848,17 @@ def _create_gridded_files_geotiff(
     if not resolution_meters:
         raise ValueError(f"Grid {grid} does not have resolution_meters defined.")
     if grid_bounds and len(grid_bounds) == 4:
+        # Tiff files have origin at top left so left is grid_bounds[0] and top is grid_bounds[3]
         left_origin = x_origin + grid_bounds[0] * 1000
         top_origin = y_origin + grid_bounds[3] * 1000
     else:
+        # If there no grid_bounds then the origin is the same as origin of the grid itself
         left_origin = x_origin
         top_origin = y_origin
+    # Remove false northing and false easting from CRS since this is handled by transform origins
     pos = crs_string.find("+x_0=")
     crs_string = crs_string[0:pos] if pos > 0 else crs_string
+
     transform = rasterio.transform.from_origin(
         left_origin, top_origin, float(resolution_meters), float(resolution_meters)
     )
@@ -1438,9 +1442,6 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
         jmin = tiff_ds.shape[1] - arr_jmax
         jmax = tiff_ds.shape[1] - arr_jmin
 
-        # jmin = arr_jmin
-        # jmax = arr_jmax
-
         # Do the exact same thing for the x dimension
         diffed_x_mask = (sel_huc.sum(dim="y") > 0).astype(int).diff(dim="x")
         imax = np.argmin(diffed_x_mask.values) + 1
@@ -1452,7 +1453,7 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
         result_jmin = jmin if jmin < result_jmin else result_jmin
         result_jmax = jmax if jmax > result_jmax else result_jmax
 
-    return [int(result_imin), int(result_jmin), int(result_imax), int(result_jmax)]
+    return [result_imin, result_jmin, result_imax, result_jmax]
 
 
 def _verify_time_in_range(entry: dict, options: dict):
