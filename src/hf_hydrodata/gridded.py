@@ -848,21 +848,25 @@ def _create_gridded_files_geotiff(
     if not resolution_meters:
         raise ValueError(f"Grid {grid} does not have resolution_meters defined.")
     if grid_bounds and len(grid_bounds) == 4:
+        # Tiff files have origin at top left so left is grid_bounds[0] and top is grid_bounds[3]
         left_origin = x_origin + grid_bounds[0] * 1000
-        top_origin = y_origin + grid_bounds[1] * 1000
+        top_origin = y_origin + grid_bounds[3] * 1000
     else:
+        # If there no grid_bounds then the origin is the same as origin of the grid itself
         left_origin = x_origin
         top_origin = y_origin
+    # Remove false northing and false easting from CRS since this is handled by transform origins
     pos = crs_string.find("+x_0=")
     crs_string = crs_string[0:pos] if pos > 0 else crs_string
+
     transform = rasterio.transform.from_origin(
-        left_origin, top_origin, float(resolution_meters), -float(resolution_meters)
+        left_origin, top_origin, float(resolution_meters), float(resolution_meters)
     )
     if len(data.shape) == 3:
         data = data[0, :, :]
     elif len(data.shape) == 4:
         data = data[0, 0, :, :]
-    # data = np.flip(data, 0)
+    data = np.flip(data, 0)
     dst_profile = {
         "driver": "GTiff",
         "dtype": np.float32,
@@ -1258,8 +1262,58 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
             raise ValueError(f"File type '{file_type}' is not supported yet.")
         if structure_type == "gridded":
             data = _adjust_dimensions(data, entry)
+            if options.get("mask") and options.get("mask").lower() in ["true", "yes"]:
+                data = _apply_mask(data, entry, options)
         options = _convert_json_to_strings(options)
 
+    return data
+
+
+def _apply_mask(data, entry, options):
+    """
+    Mask the data with NaN values for entries that are outside of the HUC boundary.
+    Returns:
+        The data with NaN values used for masked point.
+    If the options contain a huc_id option then mask using the HUC boundaries of the grid of the entry.
+    Else if the options contain a grid_bounds (or lat/lon bounds) mask using the HUC bounds subset for that grid.
+    The second option masks only against ocean and outer HUC bounds. The first option masks with internal HUC boundaries.
+    """
+
+    if options.get("dataset") == "huc_mapping":
+        return data
+    grid = entry["grid"]
+    if grid not in ["conus1", "conus2"]:
+        return data
+    if not isinstance(data, np.ndarray):
+        return data
+    grid_bounds = _get_grid_bounds(grid, options)
+    huc_id = options.get("huc_id")
+    if huc_id:
+        huc_ids = huc_id.split(",")
+        bbox = get_huc_bbox(grid, huc_ids)
+        level = len(huc_ids[0])
+        mask = get_gridded_data(
+            {
+                "dataset": "huc_mapping",
+                "variable": "huc_map",
+                "grid": grid,
+                "grid_bounds": bbox,
+                "level": level,
+            }
+        )
+        for h_id in huc_ids:
+            data = np.where(mask == float(h_id), data, np.nan)
+    elif grid_bounds:
+        mask = get_gridded_data(
+            {
+                "dataset": "huc_mapping",
+                "variable": "huc_map",
+                "grid": grid,
+                "grid_bounds": grid_bounds,
+                "level": 2,
+            }
+        )
+        data = np.where(mask, np.nan, data)
     return data
 
 
@@ -1399,7 +1453,7 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
         result_jmin = jmin if jmin < result_jmin else result_jmin
         result_jmax = jmax if jmax > result_jmax else result_jmax
 
-    return (result_imin, result_jmin, result_imax, result_jmax)
+    return [int(result_imin), int(result_jmin), int(result_imax), int(result_jmax)]
 
 
 def _verify_time_in_range(entry: dict, options: dict):
@@ -1909,9 +1963,60 @@ def _read_and_filter_tiff_files(
     data_ds = xr.open_dataset(file_path)
     data_da = data_ds[variable]
     da_indexers = _create_da_indexer(options, entry, data_ds, data_da, file_path)
-    data_da = data_da.isel(da_indexers)
-    data = data_da.to_numpy()
+    if _flip_da_indexers_y(entry, da_indexers):
+        # Select data with the flipped da_indexers and flip the result data
+        data_da = data_da.isel(da_indexers)
+        if len(data_da.shape) == 3:
+            data = np.flip(data_da.to_numpy(), 1)
+        elif len(data_da.shape) == 2:
+            data = np.flip(data_da.to_numpy(), 0)
+    else:
+        # Select the data and do not flip the result
+        data_da = data_da.isel(da_indexers)
+        data = data_da.to_numpy()
     return data
+
+
+def _flip_da_indexers_y(entry, da_indexers) -> bool:
+    """
+    Flip the y axis ranges of the da_indexers filter range.
+    Parameters:
+        entry:      The data catalog entry of the data being read.
+        da_indexers:The data structure passed to xarray isel to select data.
+    Returns:
+        True if flipped the da_indexers and the resulting numpy array also needs to be flipped on Y axis.
+
+    This is called for TIFF files before subsetting a TIFF file using xarray Data Array.
+    The da_indexers contains the x,y ranges of indexes to be used for subsetting.
+    A TIFF file by convention is an array stored with the origin in the top left instead of bottom left.
+    The da_indexers parameter contains the subset ranges of a grid_bounds assuming origin is bottom left.
+    This function fixes the da_indexers by swaping on the Y dimension to subset the correct data.
+
+    Do not flip conus2_current_conditions water_table_depth because this TIFF file is already origin bottom left.
+    """
+    if entry["dataset"] == "conus2_current_conditions":
+        return False
+    if not da_indexers.get("y"):
+        # No coordinates to swap, but still swap the data
+        return True
+    grid = entry["grid"]
+    grid_row = dc.get_table_row("grid", id=grid.lower())
+    if grid_row is None:
+        raise ValueError(f"No such grid {grid} available.")
+    grid_shape = grid_row["shape"]
+    if len(grid_shape) == 3:
+        y_size = grid_shape[1]
+        y0 = da_indexers["y"].start
+        y1 = da_indexers["y"].stop
+        da_indexers["y"] = slice(y_size - y1 - 1, y_size - y0 - 1)
+    elif len(grid_shape) == 2:
+        y_size = grid_shape[0]
+        y0 = da_indexers["y"].start
+        y1 = da_indexers["y"].stop
+        da_indexers["y"] = slice(y_size - y1 - 1, y_size - y0 - 1)
+    else:
+        raise ValueError(f"The grid '{grid}' does not have a configured size.")
+    return True
 
 
 def __get_geotiff(grid: str, level: int) -> xr.Dataset:
