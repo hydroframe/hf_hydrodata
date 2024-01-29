@@ -1453,7 +1453,7 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
         result_jmin = jmin if jmin < result_jmin else result_jmin
         result_jmax = jmax if jmax > result_jmax else result_jmax
 
-    return [result_imin, result_jmin, result_imax, result_jmax]
+    return [int(result_imin), int(result_jmin), int(result_imax), int(result_jmax)]
 
 
 def _verify_time_in_range(entry: dict, options: dict):
