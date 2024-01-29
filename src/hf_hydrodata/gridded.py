@@ -1985,9 +1985,14 @@ def _flip_da_indexers(entry, da_indexers) -> bool:
         da_indexers:The data structure passed to xarray isel to select data.
     Returns:
         True if flipped the da_indexers and the resulting numpy array also needs to be flipped.
-    This is performed when the data is a tiff file that is stored with y origin at top left.
-    The data read from the file is flipped so the returned array has the same coodinates as PFB and NetCDF.
-    Do not flip conus2_current_conditions water_table_depth because this tiff is not flipped.
+
+    This is called for TIFF files before subsetting a TIFF file using xarray Data Array.
+    The da_indexers contains the x,y ranges of indexes to be used for subsetting.
+    A TIFF file by convention is an array stored with the origin in the top left instead of bottom left.
+    The da_indexers parameter contains the subset ranges of a grid_bounds assuming origin is bottom left.
+    This function fixes the da_indexers by swaping on the Y dimension to subset the correct data.
+
+    Do not flip conus2_current_conditions water_table_depth because this TIFF file is already origin bottom left.
     """
     if entry["dataset"] == "conus2_current_conditions":
         return False
