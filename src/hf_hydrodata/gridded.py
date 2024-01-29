@@ -1963,7 +1963,7 @@ def _read_and_filter_tiff_files(
     data_ds = xr.open_dataset(file_path)
     data_da = data_ds[variable]
     da_indexers = _create_da_indexer(options, entry, data_ds, data_da, file_path)
-    if _flip_da_indexers(entry, da_indexers):
+    if _flip_da_indexers_y(entry, da_indexers):
         # Select data with the flipped da_indexers and flip the result data
         data_da = data_da.isel(da_indexers)
         if len(data_da.shape) == 3:
@@ -1977,14 +1977,14 @@ def _read_and_filter_tiff_files(
     return data
 
 
-def _flip_da_indexers(entry, da_indexers) -> bool:
+def _flip_da_indexers_y(entry, da_indexers) -> bool:
     """
     Flip the y axis ranges of the da_indexers filter range.
     Parameters:
         entry:      The data catalog entry of the data being read.
         da_indexers:The data structure passed to xarray isel to select data.
     Returns:
-        True if flipped the da_indexers and the resulting numpy array also needs to be flipped.
+        True if flipped the da_indexers and the resulting numpy array also needs to be flipped on Y axis.
 
     This is called for TIFF files before subsetting a TIFF file using xarray Data Array.
     The da_indexers contains the x,y ranges of indexes to be used for subsetting.
