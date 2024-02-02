@@ -2,7 +2,7 @@ id,title,description,variable_type,unit_type,has_z
 air_temp,Air Temperature,,atmospheric,temperature,
 aridity_index,Aridity Index,Aridity Index precipitation/ (precipitaiton -Evaporaiton),climate,,
 atmospheric_pressure,Atmospheric Pressure,,atmospheric,pressure,
-clm_run,,,run_file,,
+clm_run,,,run_file,,TRUE
 downward_longwave,Downward Longwave Radiation,,atmospheric,intensity,
 downward_shortwave,Downward Shortwave Radiation,,atmospheric,intensity,
 drainage_area,Drainage Area,,topography,area,
