@@ -105,7 +105,7 @@ def test_generate_hydrodata_catalog_yaml():
     """Test generate_hydrodata_catalog_yaml"""
 
     with tempfile.TemporaryDirectory() as tempdirname:
-        hf.load_data_model(False)
+        hf.load_data_model(True)
         output_file = os.path.join(tempdirname, "foo.yaml")
         hf.generate_hydrodata_catalog_yaml.generate_yaml(output_file)
         assert os.path.exists(output_file)
