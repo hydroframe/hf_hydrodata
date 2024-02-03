@@ -6,12 +6,14 @@ Unit test for the data_catalog.py module
 import sys
 import os
 import pytest
+import tempfile
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 
 import hf_hydrodata.gridded
 import hf_hydrodata as hf
 import hf_hydrodata.gridded as gr
+import hf_hydrodata.generate_hydrodata_catalog_yaml
 
 
 def test_get_citations():
@@ -98,3 +100,12 @@ def test_register_api():
     email, pin = hf.get_registered_api_pin()
     assert pin == "0000"
     assert email == "dummy@email.com"
+
+def test_generate_hydrodata_catalog_yaml():
+    """Test generate_hydrodata_catalog_yaml"""
+
+    with tempfile.TemporaryDirectory() as tempdirname:
+        hf.load_data_model(False)
+        output_file = os.path.join(tempdirname, "foo.yaml")
+        hf.generate_hydrodata_catalog_yaml.generate_yaml(output_file)
+        assert os.path.exists(output_file)
