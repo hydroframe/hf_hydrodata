@@ -1463,6 +1463,7 @@ def _verify_time_in_range(entry: dict, options: dict):
         ValueError:  If the start time of the options request is not within the dataset allowed time range.
     """
     start_time = options.get("start_time")
+    temporal_resolution = entry["temporal_resolution"]
     dataset_start_date = entry["dataset_start_date"]
     dataset_end_date = entry["dataset_end_date"]
     if dataset_end_date is None:
@@ -1476,6 +1477,7 @@ def _verify_time_in_range(entry: dict, options: dict):
         start_time_value is not None
         and dataset_start_date_value is not None
         and dataset_end_date_value is not None
+        and temporal_resolution not in ["static", "-"]
     ):
         if not dataset_start_date_value <= start_time_value <= dataset_end_date_value:
             raise ValueError(

@@ -389,3 +389,6 @@ id,dataset,file_type,variable,dataset_var,entry_start_date,entry_end_date,tempor
 511,ameriflux,netcdf,vapor_pressure_deficit,,,,hourly,hpa,mean,,site_id,1,/hydrodata/national_obs/ameriflux/data/hourly/{site_id}.nc,,
 512,ameriflux,netcdf,air_temp,,,,hourly,c,mean,,site_id,1,/hydrodata/national_obs/ameriflux/data/hourly/{site_id}.nc,,
 513,ameriflux,netcdf,wind_speed,,,,hourly,m/s,mean,,site_id,1,/hydrodata/national_obs/ameriflux/data/hourly/{site_id}.nc,,
+514,conus1_baseline_85,pfb,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/drv_vegm.fixed.pfb,,
+515,conus1_baseline_mod,pfb,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/drv_vegm.fixed.pfb,,
+516,conus2_domain,pfb,clm_run,clm_run,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_vegm.CONUS2_fixed.2.pfb,,
