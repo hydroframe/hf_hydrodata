@@ -273,3 +273,27 @@ class ModelExecutionInterface:
         Note the parameters may be different for different model names.
         Parameters names should be backward compatible between different versions of a model name.
         """
+
+def copy_model(source_repository:ModelRepository, target_repository: ModelRepository, model_name:str, version:str):
+    """
+    Copy a model version from a source repository to a target_repository.
+    
+    Parameters:
+        source_repository:  A source implementation of a ModelRepository.
+        target_repository:  A target implementation of a ModelRepository.
+        model_name:         The name of a model. If "*" copy all models.
+        version:            The model version. If "*" copy all versions.
+    
+    This allows you copy copy a model version between repositories such as
+    between an MLFlow based repository used for local development and a shared directory
+    based repository used by production code to execute the model.
+
+    Example:
+
+    .. code-block:: python
+        import hf_model_repository as mr
+
+        target = mr.get_model_repository()
+        source = mr.get_model_repository({"mlflow_url": "https://localhost/mlflow"})
+        mr.copy_repository(source, target, "hydrogen_emulator", "1.0.2")
+    """
