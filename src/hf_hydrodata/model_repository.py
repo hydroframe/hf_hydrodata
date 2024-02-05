@@ -6,16 +6,17 @@ machine learning models.
 
 from typing import List
 
-def get_model_repository(options:dict=None)->ModelRepository:
+
+def get_model_repository(options: dict = None) -> ModelRepository:
     """
     Get an implementation of the model repository interface.
-    
+
     Parameters:
         options:    A dict containing options to configure the model repository.
-    
+
     By default the repository is stored in a directory specified by the
     environment variable 'ModelRepositoryDir' with a default value '~/.model_repo'.
-    
+
     Other options can configure other methods to store the model repository.
 
     Possible Option Attributes:
@@ -24,7 +25,7 @@ def get_model_repository(options:dict=None)->ModelRepository:
         api_url:                A URL to a hf_hydrodata server to save and store models.
 
     Example:
-    
+
     .. code-block:: python
 
         import hf_model_repository as mr
@@ -171,7 +172,7 @@ class ModelRepository:
 
         """
 
-    def get_model_names() -> List[str]:
+    def get_model_names(self) -> List[str]:
         """
         Get the list of model names in the repository.
         Returns:
@@ -201,8 +202,8 @@ class ModelRepository:
             assert versions = ["1.0.1", "1.0.2"]
         """
         return []
-    
-    def delete_version(self, model_name:str, version:str):
+
+    def delete_version(self, model_name: str, version: str):
         """
         Delete a model version from the repository to save disk space.
 
@@ -246,7 +247,7 @@ class ModelRepository:
             model_name:         The name of a model,
             version:            The model version.
             class_package_name: The fully qualified package name of the implementation class.
-            
+
         The class_package_name must be a class that implements the ModelExecutionInterface.
 
         Example to register the implementation class of a model version.
@@ -254,6 +255,40 @@ class ModelRepository:
         .. code-block:: python
 
             model_repository.set_model_implementation_class("hydrogen_emulator", "1.0.2", "losunis.EvaluatorImplementation")
+        """
+
+    def copy_model_version(
+        self,
+        source_model_name: str,
+        source_version: str,
+        target_repository: ModelRepository,
+        target_model_name: str,
+        target_version: str,
+    ):
+        """
+        Copy a model version between model repositories.
+
+        Parameters:
+            source_model_name:  The name of a model in the self model repository.
+            source_version:     The model version in the self model repository.
+            target_repository:  A target implementation of a ModelRepository.
+            model_name:         The name of a model in the target repository.
+            version:            The model version in the target repository.
+
+        This allows you copy copy a model version between repositories such as
+        between an MLFlow based repository used for local development and a
+        shared directory based repository used by production code to execute the model.
+
+        Example:
+
+        .. code-block:: python
+            import hf_model_repository as mr
+
+            source = mr.get_model_repository({"mlflow_url": "https://localhost/mlflow"})
+            target = mr.get_model_repository()
+            source.copy_model_version("hydrogen_emulator", "1.0.14", target, "hydrogen_emulator", "1.0.2")
+
+        Note the above example copies a model version between different repositories assigning a different version.
         """
 
 
@@ -273,27 +308,3 @@ class ModelExecutionInterface:
         Note the parameters may be different for different model names.
         Parameters names should be backward compatible between different versions of a model name.
         """
-
-def copy_model(source_repository:ModelRepository, target_repository: ModelRepository, model_name:str, version:str):
-    """
-    Copy a model version from a source repository to a target_repository.
-    
-    Parameters:
-        source_repository:  A source implementation of a ModelRepository.
-        target_repository:  A target implementation of a ModelRepository.
-        model_name:         The name of a model. If "*" copy all models.
-        version:            The model version. If "*" copy all versions.
-    
-    This allows you copy copy a model version between repositories such as
-    between an MLFlow based repository used for local development and a shared directory
-    based repository used by production code to execute the model.
-
-    Example:
-
-    .. code-block:: python
-        import hf_model_repository as mr
-
-        target = mr.get_model_repository()
-        source = mr.get_model_repository({"mlflow_url": "https://localhost/mlflow"})
-        mr.copy_repository(source, target, "hydrogen_emulator", "1.0.2")
-    """
