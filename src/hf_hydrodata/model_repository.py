@@ -15,7 +15,7 @@ def get_model_repository(options: dict = None) -> ModelRepository:
         options:    A dict containing options to configure the model repository.
 
     By default the repository is stored in a directory specified by the
-    environment variable 'ModelRepositoryDir' with a default value '~/.model_repo'.
+    environment variable 'ModelRepositoryDirectory' with a default value '~/.model_repo'.
 
     Other options can configure other methods to store the model repository.
 
@@ -42,10 +42,13 @@ class ModelRepository:
 
     .. code-block:: python
 
+        import hf_model_reposistory as mr
+
+        model_repository = mr.get_model_repository()
         executor = model_repository.get_model_implementation_class("hydrogen_emulator", "1.0.2")
         try:
             parameters = {
-                "model_name": "hydrogen_emulator,
+                "model_name": "hydrogen_emulator",
                 "model_version": "1.0.2",
                 "model_repository": model_repository,
                 "shared_temp_folder": ".",
@@ -74,10 +77,15 @@ class ModelRepository:
         model_repository.save_model_file("hydrogen_emulator", "1.0.2", "surface_config", "surface_config.json")
         model_repository.save_model_file("hydrogen_emulator", "1.0.2", "subsurface_config", "subsurface_config.json")
         model_repository.set_model_implementation_class("hydrogen_emulator", "1.0.2", "lossunis.EvaluatorImplementation")
+        model_repository.save_attributes("hydrogen_emulator", "1.0.2", {"repo": "git+ssh://git@github.com/HydroFrame-ML/hydrogen-emulator-los-sunis.git@0.0.0"})
 
     Note when executing a model it is the responsibility of the caller to configure the python virtual environment
     with the code containing the version of the model implementation class. The class name in the environment may be anything,
-    but must be associated with the version using the set_model_implementation_class method.
+    but must be associated with the version using the set_model_implementation_class method. At training time the
+    package and version of the required model may be associated with the model version in the model repository. 
+    
+    The pip installed package of the evaluator implementation should contain dependencies of any other modules and versions
+    required by the evaluator implementation.
     """
 
     def get_model_file(
