@@ -82,10 +82,10 @@ class ModelRepository:
     Note when executing a model it is the responsibility of the caller to configure the python virtual environment
     with the code containing the version of the model implementation class. The class name in the environment may be anything,
     but must be associated with the version using the set_model_implementation_class method. At training time the
-    package and version of the required model may be associated with the model version in the model repository. 
+    package and version containing the model implementation class may be associated with attributes of the model version to inform the caller.
     
-    The pip installed package of the evaluator implementation should contain dependencies of any other modules and versions
-    required by the evaluator implementation.
+    The pip installed package containing the model implementation class should contain dependencies of any other modules and versions
+    required by the model implementation class.
     """
 
     def get_model_file(
