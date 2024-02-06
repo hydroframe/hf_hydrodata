@@ -66,7 +66,7 @@ def _generate_yaml_file(output_file: str, data_model: DataModel):
         stream.write("sources:\n")
         data_catalog_entry_table = data_model.get_table("data_catalog_entry")
         for data_catalog_entry_id in data_catalog_entry_table.row_ids:
-            if data_catalog_entry_id.strip():
+            if data_catalog_entry_id and data_catalog_entry_id.strip():
                 row = data_catalog_entry_table.get_row(data_catalog_entry_id)
                 stream.write(f'  "{data_catalog_entry_id}":\n')
                 stream.write("    metadata:\n")
@@ -87,7 +87,7 @@ def _generate_yaml_file(output_file: str, data_model: DataModel):
                 stream.write(f"{table_name}:\n")
                 table = data_model.get_table(table_name)
                 for table_id in table.row_ids:
-                    if table_id.strip():
+                    if table_id and table_id.strip():
                         row = table.get_row(table_id)
                         stream.write(f'  "{table_id}":\n')
                         for column_name in table.column_names:
