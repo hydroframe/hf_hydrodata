@@ -616,7 +616,8 @@ def _is_row_match_options(row: ModelTableRow, options: dict) -> bool:
     result = True
     for option in options.keys():
         option_value = options.get(option)
-        row_value = row[option]
+        # Support data catalog filter using data_catalog_entry_id option
+        row_value = row["id"] if option_value == "data_catalog_entry_id" else row[option]
         if row_value is not None and option_value and row_value != option_value:
             result = False
             break
