@@ -5,6 +5,7 @@ Functions to generate the hydroframe_catalog_yaml file.
 
 import sys
 import os
+import logging
 from typing import List
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -40,7 +41,7 @@ def generate_yaml(output_file: str = None):
         _generate_yaml_file(output_file, data_model)
 
     except Exception as e:
-        print(e)
+        logging.error("Validation error: %s", str(e))
         found_error = True
 
     if found_error:
