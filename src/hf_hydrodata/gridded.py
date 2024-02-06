@@ -1996,10 +1996,8 @@ def _flip_da_indexers_y(entry, da_indexers) -> bool:
 
     Do not flip conus2_current_conditions water_table_depth because this TIFF file is already origin bottom left.
     """
-    if entry["dataset"] == "conus2_current_conditions":
-        return False
     if not da_indexers.get("y"):
-        # No coordinates to swap, but still swap the data
+        # No y coordinates to flip, but return True so still flip the data
         return True
     grid = entry["grid"]
     grid_row = dc.get_table_row("grid", id=grid.lower())

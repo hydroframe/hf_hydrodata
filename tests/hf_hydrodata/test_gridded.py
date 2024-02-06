@@ -1501,5 +1501,66 @@ def test_huc_border():
     assert math.isnan(data[0, 0, 98])
 
 
+def test_get_30_wtd():
+    """Unit test reading the 30m conus2 compressed tiff water table depth files."""
+
+    # Test the 1000 meter resolution version
+    x = 1500
+    y = 1500
+    grid_bound_x_width = 2
+    grid_bounds_y_height = 2
+    bounds = [x, y, x + 2, y + 2]
+    bounds = [x, y - 1, x + grid_bound_x_width, y - 1 + grid_bounds_y_height]
+    options = {
+        "dataset": "conus2_current_conditions",
+        "grid_bounds": bounds,
+        "variable": "water_table_depth",
+        "grid": "conus2_wtd",
+    }
+    data = hf.get_gridded_data(options)
+
+    assert data.shape == (2, 2)
+    assert str(round(data[0, 0], 5)) == "52.86004"
+    assert str(round(data[0, 1], 5)) == "43.37404"
+    assert str(round(data[1, 0], 5)) == "27.75672"
+    assert str(round(data[1, 1], 5)) == "36.64674"
+
+    # Test the 100 meter resolution version
+    # Same points, but values are not exactly the same as 1000 because of aggregation in resolutions
+    x = 1500 * 10
+    y = 1500 * 10
+    bounds = [x, y - 1, x + grid_bound_x_width, y - 1 + grid_bounds_y_height]
+    options = {
+        "dataset": "conus2_current_conditions",
+        "grid_bounds": bounds,
+        "variable": "water_table_depth",
+        "grid": "conus2_wtd.100",
+    }
+    data = hf.get_gridded_data(options)
+    assert data.shape == (2, 2)
+    assert str(round(data[0, 0], 5)) == "58.01496"
+    assert str(round(data[0, 1], 5)) == "54.30452"
+    assert str(round(data[1, 0], 5)) == "48.61397"
+    assert str(round(data[1, 1], 5)) == "49.04675"
+
+    # Test the 30 meter resolution version
+    # Same points, but values are not exactly the same as 1000 because of aggregation in resolutions
+    x = int((1500 * 1000) / 30)
+    y = int((1500 * 1000) / 30)
+    bounds = [x, y - 1, x + grid_bound_x_width, y - 1 + grid_bounds_y_height]
+    options = {
+        "dataset": "conus2_current_conditions",
+        "grid_bounds": bounds,
+        "variable": "water_table_depth",
+        "grid": "conus2_wtd.30",
+    }
+    data = hf.get_gridded_data(options)
+    assert data.shape == (2, 2)
+    assert str(round(data[0, 0], 5)) == "77.19169"
+    assert str(round(data[0, 1], 5)) == "78.74432"
+    assert str(round(data[1, 0], 5)) == "78.69136"
+    assert str(round(data[1, 1], 5)) == "78.74432"
+
+
 if __name__ == "__main__":
     pytest.main([__file__])
