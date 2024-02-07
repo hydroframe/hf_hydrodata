@@ -283,7 +283,7 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files.
         site_id:        Used when reading data associated with an observation site.
-        data_catalog_entry: Optional. The id of an entry in the data catalog entry to identify an identify an entry 
+        data_catalog_entry_id: Optional. The id of an entry in the data catalog entry to identify an identify an entry 
     Returns:
         A list of ModelTableRow entries that match the filter options.
 
@@ -364,7 +364,7 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files.
         site_id:        Used when reading data associated with an observation site.
-        data_catalog_entry: Optional. The id of an entry in the data catalog entry to identify an identify an entry 
+        data_catalog_entry_id: Optional. The id of an entry in the data catalog entry to identify an identify an entry 
 
     Returns:
         A single ModelTableRow entry that match the filter options or None if no entry is found.
