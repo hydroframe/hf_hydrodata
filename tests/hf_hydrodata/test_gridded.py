@@ -1510,7 +1510,7 @@ def test_get_30_wtd():
     grid_bound_x_width = 2
     grid_bounds_y_height = 2
     bounds = [x, y, x + 2, y + 2]
-    bounds = [x, y - 1, x + grid_bound_x_width, y - 1 + grid_bounds_y_height]
+    bounds = [x, y, x + grid_bound_x_width, y + grid_bounds_y_height]
     options = {
         "dataset": "conus2_current_conditions",
         "grid_bounds": bounds,
@@ -1529,7 +1529,7 @@ def test_get_30_wtd():
     # Same points, but values are not exactly the same as 1000 because of aggregation in resolutions
     x = 1500 * 10
     y = 1500 * 10
-    bounds = [x, y - 1, x + grid_bound_x_width, y - 1 + grid_bounds_y_height]
+    bounds = [x, y, x + grid_bound_x_width, y + grid_bounds_y_height]
     options = {
         "dataset": "conus2_current_conditions",
         "grid_bounds": bounds,
@@ -1547,7 +1547,7 @@ def test_get_30_wtd():
     # Same points, but values are not exactly the same as 1000 because of aggregation in resolutions
     x = int((1500 * 1000) / 30)
     y = int((1500 * 1000) / 30)
-    bounds = [x, y - 1, x + grid_bound_x_width, y - 1 + grid_bounds_y_height]
+    bounds = [x, y, x + grid_bound_x_width, y + grid_bounds_y_height]
     options = {
         "dataset": "conus2_current_conditions",
         "grid_bounds": bounds,
@@ -1560,6 +1560,19 @@ def test_get_30_wtd():
     assert str(round(data[0, 1], 5)) == "78.74432"
     assert str(round(data[1, 0], 5)) == "78.69136"
     assert str(round(data[1, 1], 5)) == "78.74432"
+
+
+def test_wtd_1000m_north():
+    """Unit test a bug found during integration testing."""
+    bounds = [1593, 1724, 3420, 3484]
+    options = {
+        "dataset": "conus2_current_conditions",
+        "grid_bounds": bounds,
+        "variable": "water_table_depth",
+        "grid": "conus2_wtd",
+    }
+    data = hf.get_gridded_data(options)
+    assert data.shape == ((1760, 1827))
 
 
 if __name__ == "__main__":

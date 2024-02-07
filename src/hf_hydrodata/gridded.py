@@ -2008,12 +2008,12 @@ def _flip_da_indexers_y(entry, da_indexers) -> bool:
         y_size = grid_shape[1]
         y0 = da_indexers["y"].start
         y1 = da_indexers["y"].stop
-        da_indexers["y"] = slice(y_size - y1 - 1, y_size - y0 - 1)
+        da_indexers["y"] = slice(y_size - y1, y_size - y0)
     elif len(grid_shape) == 2:
         y_size = grid_shape[0]
         y0 = da_indexers["y"].start
         y1 = da_indexers["y"].stop
-        da_indexers["y"] = slice(y_size - y1 - 1, y_size - y0 - 1)
+        da_indexers["y"] = slice(y_size - y1, y_size - y0)
     else:
         raise ValueError(f"The grid '{grid}' does not have a configured size.")
     return True
