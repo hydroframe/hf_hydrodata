@@ -10,6 +10,7 @@ docs/source/gen_*
 docs/html
 docs/doctrees
 docs/source/bin
+src/hf_hydrodata/*.yaml
 
 # C extensions
 *.so
