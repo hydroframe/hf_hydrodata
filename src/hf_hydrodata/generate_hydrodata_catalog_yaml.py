@@ -5,6 +5,7 @@ Functions to generate the hydroframe_catalog_yaml file.
 
 import sys
 import os
+import logging
 from typing import List
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -40,7 +41,7 @@ def generate_yaml(output_file: str = None):
         _generate_yaml_file(output_file, data_model)
 
     except Exception as e:
-        print(e)
+        logging.error("Validation error: %s", str(e))
         found_error = True
 
     if found_error:
@@ -65,7 +66,7 @@ def _generate_yaml_file(output_file: str, data_model: DataModel):
         stream.write("sources:\n")
         data_catalog_entry_table = data_model.get_table("data_catalog_entry")
         for data_catalog_entry_id in data_catalog_entry_table.row_ids:
-            if data_catalog_entry_id.strip():
+            if data_catalog_entry_id and data_catalog_entry_id.strip():
                 row = data_catalog_entry_table.get_row(data_catalog_entry_id)
                 stream.write(f'  "{data_catalog_entry_id}":\n')
                 stream.write("    metadata:\n")
@@ -86,7 +87,7 @@ def _generate_yaml_file(output_file: str, data_model: DataModel):
                 stream.write(f"{table_name}:\n")
                 table = data_model.get_table(table_name)
                 for table_id in table.row_ids:
-                    if table_id.strip():
+                    if table_id and table_id.strip():
                         row = table.get_row(table_id)
                         stream.write(f'  "{table_id}":\n')
                         for column_name in table.column_names:

@@ -1501,5 +1501,82 @@ def test_huc_border():
     assert math.isnan(data[0, 0, 98])
 
 
+def test_get_wtd():
+    """Unit test reading the 3 resolution of water table depth files."""
+
+    # Test the 1000 meter resolution version
+    x = 1500
+    y = 1500
+    grid_bound_x_width = 2
+    grid_bounds_y_height = 2
+    bounds = [x, y, x + grid_bound_x_width, y + grid_bounds_y_height]
+    options = {
+        "dataset": "conus2_current_conditions",
+        "grid_bounds": bounds,
+        "variable": "water_table_depth",
+        "grid": "conus2_wtd",
+    }
+    data = hf.get_gridded_data(options)
+    assert hf.get_path(options) == "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1000m_CONUS2_m_1s_remapped.tif"
+
+    assert data.shape == (2, 2)
+    assert str(round(data[0, 0], 5)) == "52.86004"
+    assert str(round(data[0, 1], 5)) == "43.37404"
+    assert str(round(data[1, 0], 5)) == "27.75672"
+    assert str(round(data[1, 1], 5)) == "36.64674"
+
+    # Test the 100 meter resolution version
+    # Same points, but values are not exactly the same as 1000 because of aggregation in resolutions
+    x = 1500 * 10
+    y = 1500 * 10
+    bounds = [x, y, x + grid_bound_x_width, y + grid_bounds_y_height]
+    options = {
+        "dataset": "conus2_current_conditions",
+        "grid_bounds": bounds,
+        "variable": "water_table_depth",
+        "grid": "conus2_wtd.100",
+    }
+    data = hf.get_gridded_data(options)
+    assert hf.get_path(options) == "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_100m_CONUS2_m_1s_remapped.tif"
+    assert data.shape == (2, 2)
+    assert str(round(data[0, 0], 5)) == "58.01496"
+    assert str(round(data[0, 1], 5)) == "54.30452"
+    assert str(round(data[1, 0], 5)) == "48.61397"
+    assert str(round(data[1, 1], 5)) == "49.04675"
+
+    # Test the 30 meter resolution version
+    # Same points, but values are not exactly the same as 1000 because of aggregation in resolutions
+    x = int((1500 * 1000) / 30)
+    y = int((1500 * 1000) / 30)
+    bounds = [x, y, x + grid_bound_x_width, y + grid_bounds_y_height]
+    options = {
+        "dataset": "conus2_current_conditions",
+        "grid_bounds": bounds,
+        "variable": "water_table_depth",
+        "grid": "conus2_wtd.30",
+    }
+    data = hf.get_gridded_data(options)
+    assert hf.get_path(options) == "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/compressed_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1s_CONUS2_m_remapped_unflip_compressed.tif"
+
+    assert data.shape == (2, 2)
+    assert str(round(data[0, 0], 5)) == "77.19169"
+    assert str(round(data[0, 1], 5)) == "78.74432"
+    assert str(round(data[1, 0], 5)) == "78.69136"
+    assert str(round(data[1, 1], 5)) == "78.74432"
+
+
+def test_wtd_1000m_north():
+    """Unit test edge condition found during integration testing."""
+    bounds = [1593, 1724, 3420, 3484]
+    options = {
+        "dataset": "conus2_current_conditions",
+        "grid_bounds": bounds,
+        "variable": "water_table_depth",
+        "grid": "conus2_wtd",
+    }
+    data = hf.get_gridded_data(options)
+    assert data.shape == ((1760, 1827))
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

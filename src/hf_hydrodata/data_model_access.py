@@ -29,7 +29,7 @@ import requests
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
 THREAD_LOCK = threading.Lock()
 DATA_MODEL_CACHE = None
-REMOTE_DATA_CATALOG_VERSION = "1.0.2"
+REMOTE_DATA_CATALOG_VERSION = "1.0.3"
 
 class ModelTableRow:
     """Represents one row in a model table."""

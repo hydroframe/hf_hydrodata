@@ -968,6 +968,7 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
         level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
         site_id:        Used when reading data associated with an observation site.
         time_values:    Optional. An empty array that will be populated with time dimension values of returned data.
+        data_catalog_entry_id: Optional. The id of an entry in the data catalog to identify an entry.
     Returns:
         A numpy ndarray containing the data loaded from the files identified by the entry and sliced by the data filter options.
     Raises:
@@ -1996,10 +1997,8 @@ def _flip_da_indexers_y(entry, da_indexers) -> bool:
 
     Do not flip conus2_current_conditions water_table_depth because this TIFF file is already origin bottom left.
     """
-    if entry["dataset"] == "conus2_current_conditions":
-        return False
     if not da_indexers.get("y"):
-        # No coordinates to swap, but still swap the data
+        # No y coordinates to flip, but return True so still flip the data
         return True
     grid = entry["grid"]
     grid_row = dc.get_table_row("grid", id=grid.lower())
@@ -2010,12 +2009,12 @@ def _flip_da_indexers_y(entry, da_indexers) -> bool:
         y_size = grid_shape[1]
         y0 = da_indexers["y"].start
         y1 = da_indexers["y"].stop
-        da_indexers["y"] = slice(y_size - y1 - 1, y_size - y0 - 1)
+        da_indexers["y"] = slice(y_size - y1, y_size - y0)
     elif len(grid_shape) == 2:
         y_size = grid_shape[0]
         y0 = da_indexers["y"].start
         y1 = da_indexers["y"].stop
-        da_indexers["y"] = slice(y_size - y1 - 1, y_size - y0 - 1)
+        da_indexers["y"] = slice(y_size - y1, y_size - y0)
     else:
         raise ValueError(f"The grid '{grid}' does not have a configured size.")
     return True
