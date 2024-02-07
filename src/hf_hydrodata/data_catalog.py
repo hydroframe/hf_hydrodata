@@ -283,6 +283,7 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files.
         site_id:        Used when reading data associated with an observation site.
+        data_catalog_entry: Optional. The id of an entry in the data catalog entry to identify an identify an entry 
     Returns:
         A list of ModelTableRow entries that match the filter options.
 
@@ -304,7 +305,8 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
         * paper_dois:       A space seperate list of DOI references to published papers.
         * structure_type:   Structure of the data: gridded or point.
         * description:      Short description of the dataset containing the data.
-        * summary           Longer summary of the dataset containing the data.
+        * summary:          Longer summary of the dataset containing the data.
+        * id:               The unique id of the entry in the data catalog.
 
     Example:
 
@@ -362,6 +364,8 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
         z:              A value of the z dimension to be used as a filter for this dismension when loading data.
         level:          A HUC level integer when reading HUC boundary files.
         site_id:        Used when reading data associated with an observation site.
+        data_catalog_entry: Optional. The id of an entry in the data catalog entry to identify an identify an entry 
+
     Returns:
         A single ModelTableRow entry that match the filter options or None if no entry is found.
 
@@ -387,6 +391,7 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
         * structure_type:   Structure of the data: gridded or point.
         * description:      Short description of the dataset containing the data.
         * summary           Longer summary of the dataset containing the data.
+        * id:               The unique id of the entry in the data catalog.
 
     Example:
 

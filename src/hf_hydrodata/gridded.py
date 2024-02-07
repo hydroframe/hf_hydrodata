@@ -968,6 +968,7 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
         level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
         site_id:        Used when reading data associated with an observation site.
         time_values:    Optional. An empty array that will be populated with time dimension values of returned data.
+        data_catalog_entry: Optional. The id of an entry in the data catalog entry to identify an identify an entry 
     Returns:
         A numpy ndarray containing the data loaded from the files identified by the entry and sliced by the data filter options.
     Raises:
