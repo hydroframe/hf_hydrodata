@@ -1629,7 +1629,9 @@ def _get_ndarray_from_api(entry, options):
                 "Timeout response from server. Try again later or try to reduce the size of data in the API request using time or space filters."
             )
         file_obj = io.BytesIO(content)
-        netcdf_dataset = xr.open_dataset(file_obj)
+        with THREAD_LOCK:
+            # The open_dataset call itself is not thread safe (it is safe after it is opened)
+            netcdf_dataset = xr.open_dataset(file_obj)
         variable = entry["variable"]
         netcdf_variable = netcdf_dataset[variable]
         data = netcdf_variable.values
@@ -1862,7 +1864,9 @@ def _read_and_filter_pfmetadata_files(
     paths = get_paths(options)
 
     dataset_var = entry["dataset_var"]
-    ds = xr.open_dataset(paths[0])
+    with THREAD_LOCK:
+        # The open_dataset call itself is not thread safe (it is safe after it is opened)
+        ds = xr.open_dataset(paths[0])
     da = ds[dataset_var]
     da = _slice_da_bounds(da, entry["grid"], options)
     data = da
@@ -1935,7 +1939,10 @@ def _read_and_filter_netcdf_files(
         raise ValueError(f"File '{file_path} does not exist.")
     # Get the data array of the variable from the entry and slice the data array by filter options
     variable = entry["dataset_var"]
-    data_ds = xr.open_dataset(file_path)
+    data_ds = None
+    with THREAD_LOCK:
+        # The open_dataset call itself is not thread safe (it is safe after it is opened)
+        data_ds = xr.open_dataset(file_path)
     data_da = data_ds[variable]
     da_indexers = _create_da_indexer(options, entry, data_ds, data_da, file_path)
     data_da = data_da.isel(da_indexers)
@@ -1976,7 +1983,9 @@ def _read_and_filter_tiff_files(
     paths = get_paths(options)
     file_path = paths[0]
     variable = entry["dataset_var"]
-    data_ds = xr.open_dataset(file_path)
+    with THREAD_LOCK:
+        # The open_dataset call itself is not thread safe (it is safe after it is opened)
+        data_ds = xr.open_dataset(file_path)
     data_da = data_ds[variable]
     da_indexers = _create_da_indexer(options, entry, data_ds, data_da, file_path)
     if _flip_da_indexers_y(entry, da_indexers):
@@ -2059,7 +2068,10 @@ def __get_geotiff(grid: str, level: int) -> xr.Dataset:
         get_raw_file(file_path, options)
 
         # Open TIFF file
-        tiff_ds = xr.open_dataset(file_path).drop_vars(("x", "y"))[variable]
+
+        with THREAD_LOCK:
+            # The open_dataset call itself is not thread safe (it is safe after it is opened)
+            tiff_ds = xr.open_dataset(file_path).drop_vars(("x", "y"))[variable]
         return tiff_ds
 
 
