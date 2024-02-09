@@ -762,10 +762,10 @@ def _create_gridded_files_netcdf(
                 data_shape = (data.shape[0], data.shape[1], data.shape[2])
                 dims = ["z", "y", "x"]
             elif len(data.shape) == 2 and not state.temporal_resolution == "static":
-                data_shape = (t_shape, data.shape[1], data.shape[0])
+                data_shape = (t_shape, data.shape[0], data.shape[1])
                 dims = ["time", "y", "x"]
             elif len(data.shape) == 2 and state.temporal_resolution == "static":
-                data_shape = (data.shape[1], data.shape[0])
+                data_shape = (data.shape[0], data.shape[1])
                 dims = ["y", "x"]
             else:
                 raise ValueError("Bad shape of data returned from API.")
@@ -793,6 +793,9 @@ def _create_gridded_files_netcdf(
 def _create_gridded_files_pfb(
     data: np.ndarray, state, entry, options, file_time: datetime.datetime
 ):
+    if data.dtype != np.float64:
+        # PFB Files must be float64
+        data = data.astype(np.float64)
     if len(data.shape) == 4:
         # API return at least 24 hours of hourly or daily data in a time dimension for 3D data
         # Write the 3D data to a different pfb file for each hour or day
@@ -809,10 +812,20 @@ def _create_gridded_files_pfb(
             if file_name_dir and not os.path.exists(file_name_dir):
                 os.makedirs(file_name_dir, exist_ok=True)
             write_pfb(file_name, subdata, dist=False)
-    else:
+    elif len(data.shape) == 3:
         # API returned data with dimensions t, y, x so write it to one PFB file
         file_name = _substitute_datapath(
             state.filename_template, entry, options, file_time, state.start_time
+        )
+        file_name_dir = os.path.dirname(file_name)
+        if file_name_dir and not os.path.exists(file_name_dir):
+            os.makedirs(file_name_dir, exist_ok=True)
+        write_pfb(file_name, data, dist=False)
+    elif len(data.shape) == 2:
+        # API returned data with dimensions y, x so reshape it to z, y, z and write it to one PFB file
+        data = data.reshape((1, data.shape[0], data.shape[1]))
+        file_name = _substitute_datapath(
+            state.filename_template, entry, options, file_time, datetime.datetime.now()
         )
         file_name_dir = os.path.dirname(file_name)
         if file_name_dir and not os.path.exists(file_name_dir):
