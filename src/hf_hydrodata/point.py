@@ -1,5 +1,6 @@
 """Module to retrieve point observations."""
-# pylint: disable=C0301,raise-missing-from,broad-exception-raised
+
+# pylint: disable=C0301,W0707,W0719,C0121,C0302,C0209,C0325,W0702
 import datetime
 from typing import Tuple
 import io
@@ -361,7 +362,7 @@ def get_point_metadata(*args, **kwargs):
     )
 
     # Clean up HUC to string of appropriate length
-    metadata_df["huc8"] = metadata_df["huc"].apply(lambda x: _clean_huc(x))
+    metadata_df["huc8"] = metadata_df["huc"].apply(_clean_huc)
     metadata_df.drop(columns=["huc"], inplace=True)
 
     # Merge on additional metadata attribute tables as needed
@@ -606,13 +607,13 @@ def get_site_variables(*args, **kwargs):
 
     # Site ID
     if "site_ids" in options and options["site_ids"] is not None:
-        if type(options["site_ids"]) == list:
+        if isinstance(options["site_ids"], list):
             site_query = """ AND s.site_id IN (%s)""" % ",".join(
                 "?" * len(options["site_ids"])
             )
             for s in options["site_ids"]:
                 param_list.append(s)
-        elif type(options["site_ids"]) == str:
+        elif isinstance(options["site_ids"], str):
             print(f"site_ids {options['site_ids']}")
             site_query = """ AND s.site_id == ?"""
             param_list.append(options["site_ids"])
@@ -884,7 +885,7 @@ def _convert_strings_to_type(options):
             if isinstance(value, str):
                 try:
                     options[key] = ast.literal_eval(value)
-                    if type(options[key]) is int:
+                    if isinstance(options[key], int):
                         options[key] = value
                 except:
                     options[key] = value  # when site_id is a single str
@@ -916,9 +917,6 @@ def _construct_siteids_string_from_qparams(options):
     data : numpy array
         the requested data.
     """
-
-    qparam_values = options
-
     string_parts = [
         f"{name}={value}" for name, value in options.items() if value is not None
     ]
@@ -1401,13 +1399,13 @@ def _get_sites(
 
     # Site ID
     if "site_ids" in options and options["site_ids"] is not None:
-        if type(options["site_ids"]) == list:
+        if isinstance(options["site_ids"], list):
             site_query = """ AND s.site_id IN (%s)""" % ",".join(
                 "?" * len(options["site_ids"])
             )
             for s in options["site_ids"]:
                 param_list.append(s)
-        elif type(options["site_ids"]) == str:
+        elif isinstance(options["site_ids"], str):
             site_query = """ AND s.site_id == ?"""
             param_list.append(options["site_ids"])
         else:
@@ -1618,7 +1616,7 @@ def _get_network_site_list(dataset, variable, site_networks):
     site_list = []
 
     # Append sites from desired network(s)
-    if type(site_networks) == str:
+    if isinstance(site_networks, str):
         site_networks = [site_networks]
 
     for network in site_networks:
