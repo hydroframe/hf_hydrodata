@@ -1,5 +1,6 @@
 """Module to retrieve point observations."""
-# pylint: disable=C0301
+
+# pylint: disable=C0301,W0707,W0719,C0121,C0302,C0209,C0325,W0702
 import datetime
 from typing import Tuple
 import io
@@ -7,7 +8,6 @@ import ast
 import os
 import json
 import sqlite3
-import datetime as dt
 import pandas as pd
 import xarray as xr
 import numpy as np
@@ -25,10 +25,23 @@ HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
 NETWORK_LISTS_PATH = f"{HYDRODATA}/national_obs/tools/network_lists"
 
 # Use this to check that user-supplied parameters are being used
-SUPPORTED_FILTERS = ['dataset', 'variable', 'temporal_resolution', 'aggregation', 'depth_level',
-                     'date_start', 'date_end', 'latitude_range', 'longitude_range',
-                     'site_ids', 'state', 'polygon', 'polygon_crs', 'site_networks',
-                     'min_num_obs']
+SUPPORTED_FILTERS = [
+    "dataset",
+    "variable",
+    "temporal_resolution",
+    "aggregation",
+    "depth_level",
+    "date_start",
+    "date_end",
+    "latitude_range",
+    "longitude_range",
+    "site_ids",
+    "state",
+    "polygon",
+    "polygon_crs",
+    "site_networks",
+    "min_num_obs",
+]
 
 
 def get_point_data(*args, **kwargs):
@@ -59,10 +72,10 @@ def get_point_data(*args, **kwargs):
     depth_level : int, optional
         Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil_moisture'.
     date_start : str, optional
-        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned from this 
+        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned from this
         date forward (inclusive).
     date_end : str, optional
-        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned up 
+        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned up
         through this date (inclusive).
     latitude_range : tuple, optional
         Latitude range bounds for the geographic domain; lesser value is provided first.
@@ -83,8 +96,8 @@ def get_point_data(*args, **kwargs):
         variable='water_table_depth'). For streamflow, options include: 'gagesii', 'gagesii_reference', 'hcdn2009',
         and 'camels'. For water table depth, options include: 'climate_response_network'.
     min_num_obs : int, optional
-        Value for the minimum number of observations desired for a site to have. If provided, data will 
-        be returned only for sites that have at least this number of non-NaN observation records within 
+        Value for the minimum number of observations desired for a site to have. If provided, data will
+        be returned only for sites that have at least this number of non-NaN observation records within
         the requested date range (if supplied).
 
     Returns
@@ -101,10 +114,10 @@ def get_point_data(*args, **kwargs):
 
     # Confirm that the "mandatory" inputs are all provided
     if (
-        'dataset' not in options
-        or 'variable' not in options
-        or 'temporal_resolution' not in options
-        or 'aggregation' not in options
+        "dataset" not in options
+        or "variable" not in options
+        or "temporal_resolution" not in options
+        or "aggregation" not in options
     ):
         raise ValueError(
             "You must specify a dataset, variable, temporal_resolution, and aggregation.  One or more of these query parameters is missing."
@@ -120,25 +133,27 @@ def get_point_data(*args, **kwargs):
     run_remote = not os.path.exists(HYDRODATA)
 
     if run_remote:
-
         # Cannot pass local shapefile to API; pass bounding box instead
-        if 'polygon' in options and options['polygon'] is not None:
+        if "polygon" in options and options["polygon"] is not None:
             try:
-                assert 'polygon_crs' in options and options['polygon_crs'] is not None
+                assert "polygon_crs" in options and options["polygon_crs"] is not None
             except:
                 raise Exception(
                     """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
-                   to specify this shape's CRS.""")
-            latitude_range, longitude_range = _get_bbox_from_shape(options['polygon'], options['polygon_crs'])
+                   to specify this shape's CRS."""
+                )
+            latitude_range, longitude_range = _get_bbox_from_shape(
+                options["polygon"], options["polygon_crs"]
+            )
 
             # Send bounding box to API; remove polygon filters from API options
-            polygon = options['polygon']
-            polygon_crs = options['polygon_crs']
+            polygon = options["polygon"]
+            polygon_crs = options["polygon_crs"]
             polygon_filter = True
-            del options['polygon']
-            del options['polygon_crs']
-            options['latitude_range'] = latitude_range
-            options['longitude_range'] = longitude_range
+            del options["polygon"]
+            del options["polygon_crs"]
+            options["latitude_range"] = latitude_range
+            options["longitude_range"] = longitude_range
         else:
             polygon_filter = False
 
@@ -149,7 +164,6 @@ def get_point_data(*args, **kwargs):
 
         # Re-filter on shapefile to trim bounding box
         if polygon_filter == True:
-
             # Use metadata call to get latitude/longitude for the sites
             metadata_df = _get_data_from_api(
                 "metadata_only",
@@ -159,7 +173,7 @@ def get_point_data(*args, **kwargs):
             # Clip metadata to polygon. Use this new list of sites to filter data_df.
             clipped_metadata_df = _filter_on_polygon(metadata_df, polygon, polygon_crs)
 
-            metadata_site_ids = list(clipped_metadata_df['site_id'])
+            metadata_site_ids = list(clipped_metadata_df["site_id"])
             data_site_ids = list(data_df.columns)[1:]
             site_ids_to_drop = [s for s in data_site_ids if s not in metadata_site_ids]
 
@@ -175,17 +189,31 @@ def get_point_data(*args, **kwargs):
 
     # Validation checks on inputs
     _check_inputs(
-        options['dataset'], options['variable'], options['temporal_resolution'], options['aggregation'], options
+        options["dataset"],
+        options["variable"],
+        options["temporal_resolution"],
+        options["aggregation"],
+        options,
     )
 
     # Get associated variable IDs for requested data types and time periods
     var_id = _get_var_id(
-        conn, options['dataset'], options['variable'], options['temporal_resolution'], options['aggregation'], options
+        conn,
+        options["dataset"],
+        options["variable"],
+        options["temporal_resolution"],
+        options["aggregation"],
+        options,
     )
 
     # Get site list
     sites_df = _get_sites(
-        conn, options['dataset'], options['variable'], options['temporal_resolution'], options['aggregation'], options
+        conn,
+        options["dataset"],
+        options["variable"],
+        options["temporal_resolution"],
+        options["aggregation"],
+        options,
     )
 
     if len(sites_df) == 0:
@@ -228,10 +256,10 @@ def get_point_metadata(*args, **kwargs):
     depth_level : int, optional
         Depth level in inches at which the measurement is taken. Necessary for `variable` = 'soil_moisture'.
     date_start : str, optional
-        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned from this 
+        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned from this
         date forward (inclusive).
     date_end : str, optional
-        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned up 
+        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned up
         through this date (inclusive).
     latitude_range : tuple, optional
         Latitude range bounds for the geographic domain; lesser value is provided first.
@@ -264,10 +292,10 @@ def get_point_metadata(*args, **kwargs):
 
     # Confirm that the "mandatory" inputs are all provided
     if (
-        'dataset' not in options
-        or 'variable' not in options
-        or 'temporal_resolution' not in options
-        or 'aggregation' not in options
+        "dataset" not in options
+        or "variable" not in options
+        or "temporal_resolution" not in options
+        or "aggregation" not in options
     ):
         raise ValueError(
             "You must specify a dataset, variable, temporal_resolution, and aggregation.  One or more of these query parameters is missing."
@@ -283,25 +311,27 @@ def get_point_metadata(*args, **kwargs):
     run_remote = not os.path.exists(HYDRODATA)
 
     if run_remote:
-
         # Cannot pass local shapefile to API; pass bounding box instead
-        if 'polygon' in options and options['polygon'] is not None:
+        if "polygon" in options and options["polygon"] is not None:
             try:
-                assert 'polygon_crs' in options and options['polygon_crs'] is not None
+                assert "polygon_crs" in options and options["polygon_crs"] is not None
             except:
                 raise Exception(
                     """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
-                   to specify this shape's CRS.""")
-            latitude_range, longitude_range = _get_bbox_from_shape(options['polygon'], options['polygon_crs'])
+                   to specify this shape's CRS."""
+                )
+            latitude_range, longitude_range = _get_bbox_from_shape(
+                options["polygon"], options["polygon_crs"]
+            )
 
             # Send bounding box to API; remove polygon filters from API options
-            polygon = options['polygon']
-            polygon_crs = options['polygon_crs']
+            polygon = options["polygon"]
+            polygon_crs = options["polygon_crs"]
             polygon_filter = True
-            del options['polygon']
-            del options['polygon_crs']
-            options['latitude_range'] = latitude_range
-            options['longitude_range'] = longitude_range
+            del options["polygon"]
+            del options["polygon_crs"]
+            options["latitude_range"] = latitude_range
+            options["longitude_range"] = longitude_range
         else:
             polygon_filter = False
 
@@ -323,11 +353,16 @@ def get_point_metadata(*args, **kwargs):
     conn = sqlite3.connect(DB_PATH)
 
     metadata_df = _get_sites(
-        conn, options['dataset'], options['variable'], options['temporal_resolution'], options['aggregation'], options
+        conn,
+        options["dataset"],
+        options["variable"],
+        options["temporal_resolution"],
+        options["aggregation"],
+        options,
     )
 
     # Clean up HUC to string of appropriate length
-    metadata_df["huc8"] = metadata_df["huc"].apply(lambda x: _clean_huc(x))
+    metadata_df["huc8"] = metadata_df["huc"].apply(_clean_huc)
     metadata_df.drop(columns=["huc"], inplace=True)
 
     # Merge on additional metadata attribute tables as needed
@@ -363,7 +398,9 @@ def get_point_metadata(*args, **kwargs):
         )
         metadata_df = pd.merge(metadata_df, attributes_df, how="left", on="site_id")
 
-    if ('SNOTEL station' in metadata_df['site_type'].unique()) or ('SCAN station' in metadata_df['site_type'].unique()):
+    if ("SNOTEL station" in metadata_df["site_type"].unique()) or (
+        "SCAN station" in metadata_df["site_type"].unique()
+    ):
         attributes_df = pd.read_sql_query(
             """SELECT site_id, conus1_x, conus1_y, conus2_x, conus2_y,
                       elevation AS usda_elevation
@@ -427,10 +464,10 @@ def get_site_variables(*args, **kwargs):
         Options include descriptors such as 'mean' and 'sum'. Please see the documentation
         for allowable combinations with `variable`.
     date_start : str, optional
-        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned from this 
+        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned from this
         date forward (inclusive).
     date_end : str, optional
-        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned up 
+        A date provided as a string in 'YYYY-MM-DD' format. If provided, data will be returned up
         through this date (inclusive).
     latitude_range : tuple, optional
         Latitude range bounds for the geographic domain; lesser value is provided first.
@@ -464,25 +501,27 @@ def get_site_variables(*args, **kwargs):
     run_remote = not os.path.exists(HYDRODATA)
 
     if run_remote:
-
         # Cannot pass local shapefile to API; pass bounding box instead
-        if 'polygon' in options and options['polygon'] is not None:
+        if "polygon" in options and options["polygon"] is not None:
             try:
-                assert 'polygon_crs' in options and options['polygon_crs'] is not None
+                assert "polygon_crs" in options and options["polygon_crs"] is not None
             except:
                 raise Exception(
                     """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
-                   to specify this shape's CRS.""")
-            latitude_range, longitude_range = _get_bbox_from_shape(options['polygon'], options['polygon_crs'])
+                   to specify this shape's CRS."""
+                )
+            latitude_range, longitude_range = _get_bbox_from_shape(
+                options["polygon"], options["polygon_crs"]
+            )
 
             # Send bounding box to API; remove polygon filters from API options
-            polygon = options['polygon']
-            polygon_crs = options['polygon_crs']
+            polygon = options["polygon"]
+            polygon_crs = options["polygon_crs"]
             polygon_filter = True
-            del options['polygon']
-            del options['polygon_crs']
-            options['latitude_range'] = latitude_range
-            options['longitude_range'] = longitude_range
+            del options["polygon"]
+            del options["polygon_crs"]
+            options["latitude_range"] = latitude_range
+            options["longitude_range"] = longitude_range
         else:
             polygon_filter = False
 
@@ -503,7 +542,8 @@ def get_site_variables(*args, **kwargs):
     # Raise error immediately if no filtering parameters supplied (return DataFrame would be too large).
     if len(options.keys()) == 0:
         raise ValueError(
-            "You did not provide any filtering parameters. Please provide some filtering parameters to narrow down your search.")
+            "You did not provide any filtering parameters. Please provide some filtering parameters to narrow down your search."
+        )
 
     # Create database connection
     conn = sqlite3.connect(DB_PATH)
@@ -512,98 +552,107 @@ def get_site_variables(*args, **kwargs):
     param_list = []
 
     # Data source
-    if 'dataset' in options and options['dataset'] is not None:
+    if "dataset" in options and options["dataset"] is not None:
         try:
-            assert options['dataset'] in ['usgs_nwis', 'snotel', 'scan', 'ameriflux']
+            assert options["dataset"] in ["usgs_nwis", "snotel", "scan", "ameriflux"]
         except:
             raise ValueError(
-                f"dataset must be one of 'usgs_nwis', 'snotel', 'scan', 'ameriflux'. You provided {options['dataset']}")
+                f"dataset must be one of 'usgs_nwis', 'snotel', 'scan', 'ameriflux'. You provided {options['dataset']}"
+            )
 
-        if options['dataset'] == 'usgs_nwis':
+        if options["dataset"] == "usgs_nwis":
             dataset_query = """ AND agency == ?"""
-            param_list.append('USGS')
-        elif options['dataset'] == 'ameriflux':
+            param_list.append("USGS")
+        elif options["dataset"] == "ameriflux":
             dataset_query = """ AND agency == ?"""
-            param_list.append('AmeriFlux')
-        elif options['dataset'] == 'snotel':
+            param_list.append("AmeriFlux")
+        elif options["dataset"] == "snotel":
             dataset_query = """ AND site_type == ?"""
-            param_list.append('SNOTEL station')
-        elif options['dataset'] == 'scan':
+            param_list.append("SNOTEL station")
+        elif options["dataset"] == "scan":
             dataset_query = """ AND site_type == ?"""
-            param_list.append('SCAN station')
+            param_list.append("SCAN station")
     else:
         dataset_query = """"""
 
     # Date start
-    if 'date_start' in options and options['date_start'] is not None:
+    if "date_start" in options and options["date_start"] is not None:
         date_start_query = """ AND last_date_data_available >= ?"""
-        param_list.append(options['date_start'])
+        param_list.append(options["date_start"])
     else:
         date_start_query = """"""
 
     # Date end
-    if 'date_end' in options and options['date_end'] is not None:
+    if "date_end" in options and options["date_end"] is not None:
         date_end_query = """ AND first_date_data_available <= ?"""
-        param_list.append(options['date_end'])
+        param_list.append(options["date_end"])
     else:
         date_end_query = """"""
 
     # Latitude
-    if 'latitude_range' in options and options['latitude_range'] is not None:
+    if "latitude_range" in options and options["latitude_range"] is not None:
         lat_query = """ AND latitude BETWEEN ? AND ?"""
-        param_list.append(options['latitude_range'][0])
-        param_list.append(options['latitude_range'][1])
+        param_list.append(options["latitude_range"][0])
+        param_list.append(options["latitude_range"][1])
     else:
         lat_query = """"""
 
     # Longitude
-    if 'longitude_range' in options and options['longitude_range'] is not None:
+    if "longitude_range" in options and options["longitude_range"] is not None:
         lon_query = """ AND longitude BETWEEN ? AND ?"""
-        param_list.append(options['longitude_range'][0])
-        param_list.append(options['longitude_range'][1])
+        param_list.append(options["longitude_range"][0])
+        param_list.append(options["longitude_range"][1])
     else:
         lon_query = """"""
 
     # Site ID
-    if 'site_ids' in options and options['site_ids'] is not None:
-        if type(options['site_ids']) == list:
-            site_query = """ AND s.site_id IN (%s)""" % ','.join('?'*len(options['site_ids']))
-            for s in options['site_ids']:
+    if "site_ids" in options and options["site_ids"] is not None:
+        if isinstance(options["site_ids"], list):
+            site_query = """ AND s.site_id IN (%s)""" % ",".join(
+                "?" * len(options["site_ids"])
+            )
+            for s in options["site_ids"]:
                 param_list.append(s)
-        elif type(options['site_ids']) == str:
+        elif isinstance(options["site_ids"], str):
             print(f"site_ids {options['site_ids']}")
             site_query = """ AND s.site_id == ?"""
-            param_list.append(options['site_ids'])
+            param_list.append(options["site_ids"])
         else:
-            raise ValueError("Parameter site_ids must be either a single site ID string, or a list of site ID strings")
+            raise ValueError(
+                "Parameter site_ids must be either a single site ID string, or a list of site ID strings"
+            )
     else:
         site_query = """"""
 
     # State
-    if 'state' in options and options['state'] is not None:
+    if "state" in options and options["state"] is not None:
         state_query = """ AND state == ?"""
-        param_list.append(options['state'])
+        param_list.append(options["state"])
     else:
         state_query = """"""
 
     # Site Networks
-    if 'site_networks' in options and options['site_networks'] is not None:
+    if "site_networks" in options and options["site_networks"] is not None:
         try:
-            assert 'dataset' in options and options['dataset'] is not None
-            assert 'variable' in options and options['variable'] is not None
+            assert "dataset" in options and options["dataset"] is not None
+            assert "variable" in options and options["variable"] is not None
         except:
-            raise ValueError("Please provide parameter values for dataset and variable if specifying site_networks")
+            raise ValueError(
+                "Please provide parameter values for dataset and variable if specifying site_networks"
+            )
         network_site_list = _get_network_site_list(
-            options['dataset'],
-            options['variable'],
-            options['site_networks'])
-        network_query = """ AND s.site_id IN (%s)""" % ','.join('?'*len(network_site_list))
+            options["dataset"], options["variable"], options["site_networks"]
+        )
+        network_query = """ AND s.site_id IN (%s)""" % ",".join(
+            "?" * len(network_site_list)
+        )
         for s in network_site_list:
             param_list.append(s)
     else:
         network_query = """"""
 
-    query = """
+    query = (
+        """
             SELECT s.site_id, s.site_name, s.site_type, s.agency, s.state,
                    o.var_id, o.first_date_data_available,
                    o.last_date_data_available, o.record_count,
@@ -613,61 +662,83 @@ def get_site_variables(*args, **kwargs):
             INNER JOIN observations o
             ON s.site_id = o.site_id
             WHERE first_date_data_available <> 'None'
-            """ + dataset_query + date_start_query + date_end_query + lat_query + lon_query + site_query + state_query + network_query
+            """
+        + dataset_query
+        + date_start_query
+        + date_end_query
+        + lat_query
+        + lon_query
+        + site_query
+        + state_query
+        + network_query
+    )
 
     df = pd.read_sql_query(query, conn, params=param_list)
 
     # Polygon shapefile provided
-    if 'polygon' in options and options['polygon'] is not None:
-
+    if "polygon" in options and options["polygon"] is not None:
         # Make sure CRS aligns between polygon and lat/lon points
         try:
-            assert 'polygon_crs' in options and options['polygon_crs'] is not None
+            assert "polygon_crs" in options and options["polygon_crs"] is not None
         except:
             raise Exception(
                 """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
-                   to specify this shape's CRS.""")
+                   to specify this shape's CRS."""
+            )
 
-        clipped_df = _filter_on_polygon(df, options['polygon'], options['polygon_crs'])
+        clipped_df = _filter_on_polygon(df, options["polygon"], options["polygon_crs"])
         df = clipped_df.copy()
 
     # Map var_id into variable, temporal_resolution, aggregation
     variables = _get_variables(conn)
     conn.close()
-    merged = pd.merge(df, variables, on='var_id', how='left')
+    merged = pd.merge(df, variables, on="var_id", how="left")
 
     # Add filter based on variable name
-    if 'variable' in options and options['variable'] is not None:
-        merged = merged.loc[merged['variable'] == options['variable']]
+    if "variable" in options and options["variable"] is not None:
+        merged = merged.loc[merged["variable"] == options["variable"]]
 
     # Add filter based on temporal_resolution
-    if 'temporal_resolution' in options and options['temporal_resolution'] is not None:
-        merged = merged.loc[merged['temporal_resolution'] == options['temporal_resolution']]
+    if "temporal_resolution" in options and options["temporal_resolution"] is not None:
+        merged = merged.loc[
+            merged["temporal_resolution"] == options["temporal_resolution"]
+        ]
 
-    if 'aggregation' in options and options['aggregation'] is not None:
-        merged = merged.loc[merged['aggregation'] == options['aggregation']]
+    if "aggregation" in options and options["aggregation"] is not None:
+        merged = merged.loc[merged["aggregation"] == options["aggregation"]]
 
     # Drop extra columns
-    final_df = merged.drop(columns=['var_id', 'temporal_resolution', 'variable_type',
-                           'variable', 'aggregation', 'data_source', 'depth_level'])
+    final_df = merged.drop(
+        columns=[
+            "var_id",
+            "temporal_resolution",
+            "variable_type",
+            "variable",
+            "aggregation",
+            "data_source",
+            "depth_level",
+        ]
+    )
 
     # Re-order final columns
-    ordered_cols = ['site_id',
-                    'site_name',
-                    'site_type',
-                    'agency',
-                    'state',
-                    'variable_name',
-                    'units',
-                    'first_date_data_available',
-                    'last_date_data_available',
-                    'record_count',
-                    'latitude',
-                    'longitude',
-                    'site_query_url',
-                    'date_metadata_last_updated',
-                    'tz_cd',
-                    'doi']
+    ordered_cols = [
+        "site_id",
+        "site_name",
+        "site_type",
+        "agency",
+        "state",
+        "variable_name",
+        "units",
+        "first_date_data_available",
+        "last_date_data_available",
+        "record_count",
+        "latitude",
+        "longitude",
+        "site_query_url",
+        "date_metadata_last_updated",
+        "tz_cd",
+        "doi",
+    ]
 
     final_df = final_df[ordered_cols]
     return final_df
@@ -676,9 +747,7 @@ def get_site_variables(*args, **kwargs):
 def _get_siteid_data_from_api(options):
     options = _convert_params_to_string_dict(options)
 
-    q_params = _construct_siteids_string_from_qparams(
-        options
-    )
+    q_params = _construct_siteids_string_from_qparams(options)
 
     point_data_url = f"{HYDRODATA_URL}/api/site-variables-dataframe?{q_params}"
 
@@ -686,9 +755,7 @@ def _get_siteid_data_from_api(options):
         headers = _validate_user()
         response = requests.get(point_data_url, headers=headers, timeout=180)
         if response.status_code != 200:
-            raise ValueError(
-                f"{response.content}."
-            )
+            raise ValueError(f"{response.content}.")
 
     except requests.exceptions.Timeout as e:
         raise ValueError(f"The point_data_url {point_data_url} has timed out.") from e
@@ -697,14 +764,10 @@ def _get_siteid_data_from_api(options):
     return data_df
 
 
-def _get_data_from_api(
-    data_type, options
-):
+def _get_data_from_api(data_type, options):
     options = _convert_params_to_string_dict(options)
 
-    q_params = _construct_string_from_qparams(
-        data_type, options
-    )
+    q_params = _construct_string_from_qparams(data_type, options)
 
     point_data_url = f"{HYDRODATA_URL}/api/point-data-dataframe?{q_params}"
 
@@ -822,16 +885,16 @@ def _convert_strings_to_type(options):
             if isinstance(value, str):
                 try:
                     options[key] = ast.literal_eval(value)
-                    if type(options[key]) is int:
+                    if isinstance(options[key], int):
                         options[key] = value
                 except:
-                    options[key] = value     # when site_id is a single str
+                    options[key] = value  # when site_id is a single str
         if key == "site_networks":
             if isinstance(value, str):
                 try:
                     options[key] = ast.literal_eval(value)
                 except:
-                    options[key] = value    # when site_networks is a single str
+                    options[key] = value  # when site_networks is a single str
         if key == "min_num_obs":
             if isinstance(value, str):
                 options[key] = int(value)
@@ -854,9 +917,6 @@ def _construct_siteids_string_from_qparams(options):
     data : numpy array
         the requested data.
     """
-
-    qparam_values = options
-
     string_parts = [
         f"{name}={value}" for name, value in options.items() if value is not None
     ]
@@ -864,9 +924,7 @@ def _construct_siteids_string_from_qparams(options):
     return result_string
 
 
-def _construct_string_from_qparams(
-    data_type, options
-):
+def _construct_string_from_qparams(data_type, options):
     """
     Constructs the query parameters from the entry and options provided.
 
@@ -915,29 +973,35 @@ def _get_point_citations(dataset):
         )
 
     if dataset == "usgs_nwis":
-        c = ('Most U.S. Geological Survey (USGS) information resides in Public Domain and '
-             'may be used without restriction, though they do ask that proper credit be given. '
-             'An example credit statement would be: "(Product or data name) courtesy of the U.S. Geological Survey".\n'
-             'Source: https://www.usgs.gov/information-policies-and-instructions/acknowledging-or-crediting-usgs')
+        c = (
+            "Most U.S. Geological Survey (USGS) information resides in Public Domain and "
+            "may be used without restriction, though they do ask that proper credit be given. "
+            'An example credit statement would be: "(Product or data name) courtesy of the U.S. Geological Survey".\n'
+            "Source: https://www.usgs.gov/information-policies-and-instructions/acknowledging-or-crediting-usgs"
+        )
 
     elif dataset in ["snotel", "scan"]:
-        c = ('Most information presented on the USDA Web site is considered public domain information. '
-             'Public domain information may be freely distributed or copied, but use of appropriate '
-             'byline/photo/image credits is requested. Attribution may be cited as follows: '
-             '"U.S. Department of Agriculture"\nSource: https://www.usda.gov/policies-and-links')
+        c = (
+            "Most information presented on the USDA Web site is considered public domain information. "
+            "Public domain information may be freely distributed or copied, but use of appropriate "
+            "byline/photo/image credits is requested. Attribution may be cited as follows: "
+            '"U.S. Department of Agriculture"\nSource: https://www.usda.gov/policies-and-links'
+        )
 
     elif dataset == "ameriflux":
-        c = ('All AmeriFlux sites provided by the HydroData service follow the CC-BY-4.0 License. '
-             'The CC-BY-4.0 license specifies that the data user is free to Share (copy and '
-             'redistribute the material in any medium or format) and/or Adapt (remix, transform, '
-             'and build upon the material) for any purpose. '
-             'Users of this data must acknowledge the AmeriFlux data resource with the '
-             'following statement: "Funding for the AmeriFlux data portal was provided by the U.S. '
-             'Department of Energy Office of Science." '
-             'Additionally, for each AmeriFlux site used, you must provide a citation to the site '
-             'data product that includes the data product DOI. The DOI for each site is included in the '
-             'DataFrame returned by the hf_hydrodata get_point_metadata method, in the doi column.\n'
-             'Source: https://ameriflux.lbl.gov/data/data-policy/')
+        c = (
+            "All AmeriFlux sites provided by the HydroData service follow the CC-BY-4.0 License. "
+            "The CC-BY-4.0 license specifies that the data user is free to Share (copy and "
+            "redistribute the material in any medium or format) and/or Adapt (remix, transform, "
+            "and build upon the material) for any purpose. "
+            "Users of this data must acknowledge the AmeriFlux data resource with the "
+            'following statement: "Funding for the AmeriFlux data portal was provided by the U.S. '
+            'Department of Energy Office of Science." '
+            "Additionally, for each AmeriFlux site used, you must provide a citation to the site "
+            "data product that includes the data product DOI. The DOI for each site is included in the "
+            "DataFrame returned by the hf_hydrodata get_point_metadata method, in the doi column.\n"
+            "Source: https://ameriflux.lbl.gov/data/data-policy/"
+        )
 
     return c
 
@@ -1027,41 +1091,68 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
         options = kwargs
 
     try:
-        assert temporal_resolution in ['daily', 'hourly', 'instantaneous']
+        assert temporal_resolution in ["daily", "hourly", "instantaneous"]
     except:
         raise ValueError(
-            f"Unexpected value for temporal_resolution, {temporal_resolution}. Please see the documentation for allowed values.")
+            f"Unexpected value for temporal_resolution, {temporal_resolution}. Please see the documentation for allowed values."
+        )
 
     try:
-        assert variable in ['streamflow', 'water_table_depth', 'swe', 'precipitation', 'air_temp', 'soil_moisture',
-                            'latent_heat', 'sensible_heat', 'downward_shortwave', 'downward_longwave',
-                            'vapor_pressure_deficit', 'wind_speed']
-    except:
-        raise ValueError(f"Unexpected value for variable, {variable}. Please see the documentation for allowed values.")
-
-    try:
-        assert aggregation in ['mean', 'instantaneous', 'sum', 'sum_snow_adjusted',
-                               'sod', 'accumulated', 'min', 'max']
+        assert variable in [
+            "streamflow",
+            "water_table_depth",
+            "swe",
+            "precipitation",
+            "air_temp",
+            "soil_moisture",
+            "latent_heat",
+            "sensible_heat",
+            "downward_shortwave",
+            "downward_longwave",
+            "vapor_pressure_deficit",
+            "wind_speed",
+        ]
     except:
         raise ValueError(
-            f"Unexpected value for aggregation, {aggregation}. Please see the documentation for allowed values.")
+            f"Unexpected value for variable, {variable}. Please see the documentation for allowed values."
+        )
 
     try:
-        assert dataset in ['usgs_nwis', 'snotel', 'scan', 'ameriflux']
+        assert aggregation in [
+            "mean",
+            "instantaneous",
+            "sum",
+            "sum_snow_adjusted",
+            "sod",
+            "accumulated",
+            "min",
+            "max",
+        ]
     except:
         raise ValueError(
-            f"Unexpected value for dataset, {dataset} Please see the documentation for allowed values.")
+            f"Unexpected value for aggregation, {aggregation}. Please see the documentation for allowed values."
+        )
 
-    if variable == 'soil_moisture':
+    try:
+        assert dataset in ["usgs_nwis", "snotel", "scan", "ameriflux"]
+    except:
+        raise ValueError(
+            f"Unexpected value for dataset, {dataset} Please see the documentation for allowed values."
+        )
+
+    if variable == "soil_moisture":
         try:
-            assert 'depth_level' in options
-            assert options['depth_level'] in [2, 4, 8, 20, 40]
+            assert "depth_level" in options
+            assert options["depth_level"] in [2, 4, 8, 20, 40]
         except:
             raise ValueError(
-                "Please provide depth_level with one of the supported values. Please see the documentation for allowed values.")
+                "Please provide depth_level with one of the supported values. Please see the documentation for allowed values."
+            )
 
 
-def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args, **kwargs):
+def _get_var_id(
+    conn, dataset, variable, temporal_resolution, aggregation, *args, **kwargs
+):
     """
     Return mapped var_id.
 
@@ -1103,12 +1194,12 @@ def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args
     else:
         options = kwargs
 
-    if dataset in ['snotel', 'scan']:
-        data_source = 'usda_nrcs'
+    if dataset in ["snotel", "scan"]:
+        data_source = "usda_nrcs"
     else:
         data_source = dataset
 
-    if variable == 'soil_moisture':
+    if variable == "soil_moisture":
         query = """
                 SELECT var_id
                 FROM variables
@@ -1118,7 +1209,13 @@ def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args
                     AND aggregation = ?
                     AND depth_level = ?
                 """
-        param_list = [data_source, variable, temporal_resolution, aggregation, options['depth_level']]
+        param_list = [
+            data_source,
+            variable,
+            temporal_resolution,
+            aggregation,
+            options["depth_level"],
+        ]
 
     else:
         query = """
@@ -1133,10 +1230,11 @@ def _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, *args
 
     try:
         result = pd.read_sql_query(query, conn, params=param_list)
-        return int(result['var_id'][0])
+        return int(result["var_id"][0])
     except:
         raise ValueError(
-            'The provided combination of dataset, variable, temporal_resolution, and aggregation is not currently supported.')
+            "The provided combination of dataset, variable, temporal_resolution, and aggregation is not currently supported."
+        )
 
 
 def _get_dirpath(var_id):
@@ -1154,35 +1252,39 @@ def _get_dirpath(var_id):
     dirpath : str
         Directory path for observation data location.
     """
-    dirpath_map = {1: '/hydrodata/national_obs/streamflow/data/hourly',
-                   2: '/hydrodata/national_obs/streamflow/data/daily',
-                   3: '/hydrodata/national_obs/groundwater/data/hourly',
-                   4: '/hydrodata/national_obs/groundwater/data/daily',
-                   5: '',
-                   6: '/hydrodata/national_obs/swe/data/daily',
-                   7: '/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily',
-                   8: '/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily',
-                   9: '/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily',
-                   10: '/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily',
-                   11: '/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily',
-                   12: '/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily',
-                   13: '/hydrodata/national_obs/soil_moisture/data/daily',
-                   14: '/hydrodata/national_obs/soil_moisture/data/daily',
-                   15: '/hydrodata/national_obs/soil_moisture/data/daily',
-                   16: '/hydrodata/national_obs/soil_moisture/data/daily',
-                   17: '/hydrodata/national_obs/soil_moisture/data/daily',
-                   18: '/hydrodata/national_obs/ameriflux/data/hourly',
-                   19: '/hydrodata/national_obs/ameriflux/data/hourly',
-                   20: '/hydrodata/national_obs/ameriflux/data/hourly',
-                   21: '/hydrodata/national_obs/ameriflux/data/hourly',
-                   22: '/hydrodata/national_obs/ameriflux/data/hourly',
-                   23: '/hydrodata/national_obs/ameriflux/data/hourly',
-                   24: '/hydrodata/national_obs/ameriflux/data/hourly'}
+    dirpath_map = {
+        1: "/hydrodata/national_obs/streamflow/data/hourly",
+        2: "/hydrodata/national_obs/streamflow/data/daily",
+        3: "/hydrodata/national_obs/groundwater/data/hourly",
+        4: "/hydrodata/national_obs/groundwater/data/daily",
+        5: "",
+        6: "/hydrodata/national_obs/swe/data/daily",
+        7: "/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily",
+        8: "/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily",
+        9: "/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily",
+        10: "/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily",
+        11: "/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily",
+        12: "/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily",
+        13: "/hydrodata/national_obs/soil_moisture/data/daily",
+        14: "/hydrodata/national_obs/soil_moisture/data/daily",
+        15: "/hydrodata/national_obs/soil_moisture/data/daily",
+        16: "/hydrodata/national_obs/soil_moisture/data/daily",
+        17: "/hydrodata/national_obs/soil_moisture/data/daily",
+        18: "/hydrodata/national_obs/ameriflux/data/hourly",
+        19: "/hydrodata/national_obs/ameriflux/data/hourly",
+        20: "/hydrodata/national_obs/ameriflux/data/hourly",
+        21: "/hydrodata/national_obs/ameriflux/data/hourly",
+        22: "/hydrodata/national_obs/ameriflux/data/hourly",
+        23: "/hydrodata/national_obs/ameriflux/data/hourly",
+        24: "/hydrodata/national_obs/ameriflux/data/hourly",
+    }
 
     return dirpath_map[var_id]
 
 
-def _get_sites(conn, dataset, variable, temporal_resolution, aggregation, *args, **kwargs):
+def _get_sites(
+    conn, dataset, variable, temporal_resolution, aggregation, *args, **kwargs
+):
     """
     Build DataFrame with site attribute metadata information.
 
@@ -1249,81 +1351,92 @@ def _get_sites(conn, dataset, variable, temporal_resolution, aggregation, *args,
         options = kwargs
 
     # Get associated variable IDs for requested data types and time periods
-    var_id = _get_var_id(conn, dataset, variable, temporal_resolution, aggregation, options)
+    var_id = _get_var_id(
+        conn, dataset, variable, temporal_resolution, aggregation, options
+    )
 
     param_list = [var_id]
 
     # Split site type by SNOTEL/SCAN station based on dataset
-    if dataset in ['snotel', 'scan']:
+    if dataset in ["snotel", "scan"]:
         site_type_query = """ AND s.site_type == ?"""
-        if dataset == 'snotel':
-            param_list.append('SNOTEL station')
-        elif dataset == 'scan':
-            param_list.append('SCAN station')
+        if dataset == "snotel":
+            param_list.append("SNOTEL station")
+        elif dataset == "scan":
+            param_list.append("SCAN station")
     else:
         site_type_query = """"""
 
     # Date start
-    if 'date_start' in options and options['date_start'] is not None:
+    if "date_start" in options and options["date_start"] is not None:
         date_start_query = """ AND last_date_data_available >= ?"""
-        param_list.append(options['date_start'])
+        param_list.append(options["date_start"])
     else:
         date_start_query = """"""
 
     # Date end
-    if 'date_end' in options and options['date_end'] is not None:
+    if "date_end" in options and options["date_end"] is not None:
         date_end_query = """ AND first_date_data_available <= ?"""
-        param_list.append(options['date_end'])
+        param_list.append(options["date_end"])
     else:
         date_end_query = """"""
 
     # Latitude
-    if 'latitude_range' in options and options['latitude_range'] is not None:
+    if "latitude_range" in options and options["latitude_range"] is not None:
         lat_query = """ AND latitude BETWEEN ? AND ?"""
-        param_list.append(options['latitude_range'][0])
-        param_list.append(options['latitude_range'][1])
+        param_list.append(options["latitude_range"][0])
+        param_list.append(options["latitude_range"][1])
     else:
         lat_query = """"""
 
     # Longitude
-    if 'longitude_range' in options and options['longitude_range'] is not None:
+    if "longitude_range" in options and options["longitude_range"] is not None:
         lon_query = """ AND longitude BETWEEN ? AND ?"""
-        param_list.append(options['longitude_range'][0])
-        param_list.append(options['longitude_range'][1])
+        param_list.append(options["longitude_range"][0])
+        param_list.append(options["longitude_range"][1])
     else:
         lon_query = """"""
 
     # Site ID
-    if 'site_ids' in options and options['site_ids'] is not None:
-        if type(options['site_ids']) == list:
-            site_query = """ AND s.site_id IN (%s)""" % ','.join('?'*len(options['site_ids']))
-            for s in options['site_ids']:
+    if "site_ids" in options and options["site_ids"] is not None:
+        if isinstance(options["site_ids"], list):
+            site_query = """ AND s.site_id IN (%s)""" % ",".join(
+                "?" * len(options["site_ids"])
+            )
+            for s in options["site_ids"]:
                 param_list.append(s)
-        elif type(options['site_ids']) == str:
+        elif isinstance(options["site_ids"], str):
             site_query = """ AND s.site_id == ?"""
-            param_list.append(options['site_ids'])
+            param_list.append(options["site_ids"])
         else:
-            raise ValueError("Parameter site_ids must be either a single site ID string, or a list of site ID strings")
+            raise ValueError(
+                "Parameter site_ids must be either a single site ID string, or a list of site ID strings"
+            )
     else:
         site_query = """"""
 
     # State
-    if 'state' in options and options['state'] is not None:
+    if "state" in options and options["state"] is not None:
         state_query = """ AND state == ?"""
-        param_list.append(options['state'])
+        param_list.append(options["state"])
     else:
         state_query = """"""
 
     # Site Networks
-    if 'site_networks' in options and options['site_networks'] is not None:
-        network_site_list = _get_network_site_list(dataset, variable, options['site_networks'])
-        network_query = """ AND s.site_id IN (%s)""" % ','.join('?'*len(network_site_list))
+    if "site_networks" in options and options["site_networks"] is not None:
+        network_site_list = _get_network_site_list(
+            dataset, variable, options["site_networks"]
+        )
+        network_query = """ AND s.site_id IN (%s)""" % ",".join(
+            "?" * len(network_site_list)
+        )
         for s in network_site_list:
             param_list.append(s)
     else:
         network_query = """"""
 
-    query = """
+    query = (
+        """
             SELECT s.site_id, s.site_name, s.site_type, s.agency, s.state,
                    s.latitude, s.longitude, s.huc, o.first_date_data_available,
                    o.last_date_data_available, o.record_count, s.site_query_url,
@@ -1332,22 +1445,31 @@ def _get_sites(conn, dataset, variable, temporal_resolution, aggregation, *args,
             INNER JOIN observations o
             ON s.site_id = o.site_id AND o.var_id == ?
             WHERE first_date_data_available <> 'None'
-            """ + site_type_query + date_start_query + date_end_query + lat_query + lon_query + site_query + state_query + network_query
+            """
+        + site_type_query
+        + date_start_query
+        + date_end_query
+        + lat_query
+        + lon_query
+        + site_query
+        + state_query
+        + network_query
+    )
 
     df = pd.read_sql_query(query, conn, params=param_list)
 
     # Polygon shapefile provided
-    if 'polygon' in options and options['polygon'] is not None:
-
+    if "polygon" in options and options["polygon"] is not None:
         # Make sure CRS aligns between polygon and lat/lon points
         try:
-            assert 'polygon_crs' in options and options['polygon_crs'] is not None
+            assert "polygon_crs" in options and options["polygon_crs"] is not None
         except:
             raise Exception(
                 """Please provide 'polygon_crs' with a CRS definition accepted by pyproj.CRS.from_user_input()
-                    to specify this shape's CRS.""")
+                    to specify this shape's CRS."""
+            )
 
-        clipped_df = _filter_on_polygon(df, options['polygon'], options['polygon_crs'])
+        clipped_df = _filter_on_polygon(df, options["polygon"], options["polygon_crs"])
         return clipped_df
 
     else:
@@ -1376,21 +1498,31 @@ def _get_bbox_from_shape(polygon, polygon_crs):
 
     # Create series of corner points (lat/lon values) based on the bounding box
     # bbox = [lon, lat, lon, lat]
-    bbox_df = pd.DataFrame(data={'lon': [bbox[0], bbox[0], bbox[2], bbox[2]],
-                                 'lat': [bbox[1], bbox[3], bbox[1], bbox[3]]})
-    bbox_df['geometry'] = bbox_df.apply(lambda row: Point(row['lon'], row['lat']), axis=1)
+    bbox_df = pd.DataFrame(
+        data={
+            "lon": [bbox[0], bbox[0], bbox[2], bbox[2]],
+            "lat": [bbox[1], bbox[3], bbox[1], bbox[3]],
+        }
+    )
+    bbox_df["geometry"] = bbox_df.apply(
+        lambda row: Point(row["lon"], row["lat"]), axis=1
+    )
 
     # Transform the corner points into the lat/lon projection
     shp_crs = pyproj.CRS.from_user_input(polygon_crs)
 
-    project = pyproj.Transformer.from_crs(shp_crs, pyproj.CRS('EPSG:4326'), always_xy=True).transform
-    bbox_df['transform'] = bbox_df.apply(lambda x: transform(project, x['geometry']), axis=1)
-    bbox_df['transform_x'] = bbox_df['transform'].apply(lambda x: x.x)
-    bbox_df['transform_y'] = bbox_df['transform'].apply(lambda x: x.y)
+    project = pyproj.Transformer.from_crs(
+        shp_crs, pyproj.CRS("EPSG:4326"), always_xy=True
+    ).transform
+    bbox_df["transform"] = bbox_df.apply(
+        lambda x: transform(project, x["geometry"]), axis=1
+    )
+    bbox_df["transform_x"] = bbox_df["transform"].apply(lambda x: x.x)
+    bbox_df["transform_y"] = bbox_df["transform"].apply(lambda x: x.y)
 
     # Save transformed bounding box as latitude_range, longitude_range
-    latitude_range = (bbox_df['transform_y'].min(), bbox_df['transform_y'].max())
-    longitude_range = (bbox_df['transform_x'].min(), bbox_df['transform_x'].max())
+    latitude_range = (bbox_df["transform_y"].min(), bbox_df["transform_y"].max())
+    longitude_range = (bbox_df["transform_x"].min(), bbox_df["transform_x"].max())
 
     return (latitude_range, longitude_range)
 
@@ -1421,7 +1553,9 @@ def _filter_on_polygon(data_df, polygon, polygon_crs):
     try:
         assert len(shp.shapeRecords()) == 1
     except:
-        raise Exception("Please make sure your input shapefile contains only a single shape feature.")
+        raise Exception(
+            "Please make sure your input shapefile contains only a single shape feature."
+        )
 
     feature = shp.shapeRecords()[0].shape.__geo_interface__
     shp_geom = shape(feature)
@@ -1429,13 +1563,20 @@ def _filter_on_polygon(data_df, polygon, polygon_crs):
     shp_crs = pyproj.CRS.from_user_input(polygon_crs)
 
     project = pyproj.Transformer.from_crs(
-        shp_crs, pyproj.CRS('EPSG:4326'), always_xy=True).transform
+        shp_crs, pyproj.CRS("EPSG:4326"), always_xy=True
+    ).transform
     shp_geom_crs = transform(project, shp_geom)
 
     # Clip points to only those within the polygon
-    data_df['clip'] = data_df.apply(lambda x: contains_xy(
-        shp_geom_crs, float(x['longitude']), float(x['latitude'])), axis=1)
-    clipped_df = data_df[data_df['clip'] == True].reset_index().drop(columns=['index', 'clip'])
+    data_df["clip"] = data_df.apply(
+        lambda x: contains_xy(
+            shp_geom_crs, float(x["longitude"]), float(x["latitude"])
+        ),
+        axis=1,
+    )
+    clipped_df = (
+        data_df[data_df["clip"] == True].reset_index().drop(columns=["index", "clip"])
+    )
 
     return clipped_df
 
@@ -1464,25 +1605,34 @@ def _get_network_site_list(dataset, variable, site_networks):
     site_list: list
         List of site ID strings for sites belonging to named network.
     """
-    network_options = {'usgs_nwis': {'streamflow': ['camels', 'gagesii_reference', 'gagesii', 'hcdn2009'],
-                                     'wtd': ['climate_response_network']}}
+    network_options = {
+        "usgs_nwis": {
+            "streamflow": ["camels", "gagesii_reference", "gagesii", "hcdn2009"],
+            "wtd": ["climate_response_network"],
+        }
+    }
 
     # Initialize final site list
     site_list = []
 
     # Append sites from desired network(s)
-    if type(site_networks) == str:
+    if isinstance(site_networks, str):
         site_networks = [site_networks]
 
     for network in site_networks:
         try:
             assert network in network_options[dataset][variable]
-            df = pd.read_csv(f'{NETWORK_LISTS_PATH}/{dataset}/{variable}/{network}.csv',
-                             dtype=str, header=None, names=['site_id'])
-            site_list += list(df['site_id'])
+            df = pd.read_csv(
+                f"{NETWORK_LISTS_PATH}/{dataset}/{variable}/{network}.csv",
+                dtype=str,
+                header=None,
+                names=["site_id"],
+            )
+            site_list += list(df["site_id"])
         except:
             raise ValueError(
-                f'Network option {network} is not recognized. Please make sure the .csv network_lists/{dataset}/{variable}/{network}.csv exists.')
+                f"Network option {network} is not recognized. Please make sure the .csv network_lists/{dataset}/{variable}/{network}.csv exists."
+            )
 
     # Make sure only list of unique site IDs is returned (in case multiple, overlapping networks provided)
     # Note: calling 'set' can change the order of the IDs, but for this workflow that does not matter
@@ -1506,11 +1656,11 @@ def _clean_huc(huc):
     # Clean out HUC values that are fewer than 7 digits
     huc_length = len(huc)
     if huc_length < 7:
-        cleaned_huc = ''
+        cleaned_huc = ""
 
     # If 7 or 11 digits, add a leading 0
     elif len(huc) in (7, 11):
-        huc = '0' + huc
+        huc = "0" + huc
 
     # Truncate to HUC8 for 'least common denominator' level
     if len(huc) >= 8:
@@ -1537,12 +1687,12 @@ def _convert_to_pandas(ds):
     DataFrame
         Stacked observations data for a single variable.
     """
-    sites = pd.Series(ds['site'].to_numpy())
-    dates = pd.Series(ds['date'].to_numpy()).astype(str)
+    sites = pd.Series(ds["site"].to_numpy())
+    dates = pd.Series(ds["date"].to_numpy()).astype(str)
     data = ds.to_numpy()
 
     df = pd.DataFrame(data.T, columns=sites)
-    df['date'] = dates
+    df["date"] = dates
 
     # Reorder columns to put site_id first
     cols = df.columns.tolist()
@@ -1618,63 +1768,84 @@ def _get_data_nc(site_list, var_id, *args, **kwargs):
         options = kwargs
 
     dirpath = _get_dirpath(var_id)
-    file_list = [f'{dirpath}/{site}.nc' for site in site_list]
+    file_list = [f"{dirpath}/{site}.nc" for site in site_list]
 
-    varname_map = {'1': 'streamflow', '2': 'streamflow', '3': 'wtd', '4': 'wtd', '5': 'wtd',
-                   '6': 'swe', '7': 'precip_acc', '8': 'precip_inc', '9': 'precip_inc_sa',
-                   '10': 'temp_min', '11': 'temp_max', '12': 'temp_avg',
-                   '13': 'sms_2in', '14': 'sms_4in', '15': 'sms_8in', '16': 'sms_20in', '17': 'sms_40in',
-                   '18': 'latent heat flux', '19': 'sensible heat flux', '20': 'shortwave radiation',
-                   '21': 'longwave radiation', '22': 'vapor pressure deficit', '23': 'air temperature',
-                   '24': 'wind speed'}
+    varname_map = {
+        "1": "streamflow",
+        "2": "streamflow",
+        "3": "wtd",
+        "4": "wtd",
+        "5": "wtd",
+        "6": "swe",
+        "7": "precip_acc",
+        "8": "precip_inc",
+        "9": "precip_inc_sa",
+        "10": "temp_min",
+        "11": "temp_max",
+        "12": "temp_avg",
+        "13": "sms_2in",
+        "14": "sms_4in",
+        "15": "sms_8in",
+        "16": "sms_20in",
+        "17": "sms_40in",
+        "18": "latent heat flux",
+        "19": "sensible heat flux",
+        "20": "shortwave radiation",
+        "21": "longwave radiation",
+        "22": "vapor pressure deficit",
+        "23": "air temperature",
+        "24": "wind speed",
+    }
 
     varname = varname_map[str(var_id)]
 
-    if 'date_start' in options:
-        date_start_dt = np.datetime64(options['date_start'])
-    if 'date_end' in options:
-        date_end_dt = np.datetime64(options['date_end'])
+    if "date_start" in options:
+        date_start_dt = np.datetime64(options["date_start"])
+    if "date_end" in options:
+        date_end_dt = np.datetime64(options["date_end"])
 
-    print('collecting data...')
+    print("collecting data...")
 
     for i in range(len(site_list)):
-
         # open single site file
         temp = xr.open_dataset(file_list[i])[varname]
 
         # make date variable name consistent
         date_var = list(temp.coords)[0]
-        temp = temp.rename({date_var: 'datetime'})
+        temp = temp.rename({date_var: "datetime"})
 
         # convert date string to datetime values
-        temp['datetime'] = pd.DatetimeIndex(temp['datetime'].values)
+        temp["datetime"] = pd.DatetimeIndex(temp["datetime"].values)
 
         # subset to only observations within desired time range
-        if ('date_start' not in options) and ('date_end' not in options):
+        if ("date_start" not in options) and ("date_end" not in options):
             temp_wy = temp
-        elif ('date_start' not in options) and ('date_end' in options):
+        elif ("date_start" not in options) and ("date_end" in options):
             temp_wy = temp.sel(datetime=(temp.datetime <= date_end_dt))
-        elif ('date_start' in options) and ('date_end' not in options):
+        elif ("date_start" in options) and ("date_end" not in options):
             temp_wy = temp.sel(datetime=(temp.datetime >= date_start_dt))
-        elif ('date_start' in options) and ('date_end' in options):
-            temp_wy = temp.sel(datetime=(temp.datetime >= date_start_dt) & (temp.datetime <= date_end_dt))
+        elif ("date_start" in options) and ("date_end" in options):
+            temp_wy = temp.sel(
+                datetime=(temp.datetime >= date_start_dt)
+                & (temp.datetime <= date_end_dt)
+            )
 
         if i == 0:
             ds = temp_wy
         else:
-            ds = xr.concat([ds, temp_wy], dim='site')
+            ds = xr.concat([ds, temp_wy], dim="site")
 
     if len(site_list) == 1:
-        ds = ds.expand_dims(dim='site')
+        ds = ds.expand_dims(dim="site")
 
-    ds = ds.assign_coords({'site': (site_list)})
-    ds = ds.rename({'datetime': 'date'})
+    ds = ds.assign_coords({"site": (site_list)})
+    ds = ds.rename({"datetime": "date"})
 
-    print('data collected.')
+    print("data collected.")
 
     data_df = _convert_to_pandas(ds)
-    if 'min_num_obs' in options and options['min_num_obs'] is not None:
-        return _filter_min_num_obs(data_df, options['min_num_obs'])
+    if "min_num_obs" in options and options["min_num_obs"] is not None:
+        return _filter_min_num_obs(data_df, options["min_num_obs"])
     else:
         return data_df
 
@@ -1722,38 +1893,45 @@ def _get_data_sql(conn, var_id, *args, **kwargs):
     #   pumping_status == '1' --> Static (not pumping)
     #   pumping_status == 'P' --> Pumping
     #   pumping_status == '' --> unknown (not reported)
-    if 'min_num_obs' not in options or options['min_num_obs'] is None:
+    if "min_num_obs" not in options or options["min_num_obs"] is None:
         min_num_obs = 1
     else:
-        min_num_obs = options['min_num_obs']
+        min_num_obs = options["min_num_obs"]
 
-    if ('date_start' not in options) and ('date_end' not in options):
+    if ("date_start" not in options) and ("date_end" not in options):
         date_query = """"""
         param_list = [min_num_obs]
-    elif ('date_start' not in options) and ('date_end' in options):
+    elif ("date_start" not in options) and ("date_end" in options):
         date_query = """ WHERE w.date <= ?"""
-        param_list = [options['date_end'], min_num_obs, options['date_end']]
-    elif ('date_start' in options) and ('date_end' not in options):
+        param_list = [options["date_end"], min_num_obs, options["date_end"]]
+    elif ("date_start" in options) and ("date_end" not in options):
         date_query = """ WHERE w.date >= ?"""
-        param_list = [options['date_start'], min_num_obs, options['date_start']]
-    elif ('date_start' in options) and ('date_end' in options):
+        param_list = [options["date_start"], min_num_obs, options["date_start"]]
+    elif ("date_start" in options) and ("date_end" in options):
         date_query = """ WHERE w.date >= ? AND w.date <= ?"""
         param_list = [
-            options['date_start'],
-            options['date_end'],
-            min_num_obs, options['date_start'],
-            options['date_end']]
+            options["date_start"],
+            options["date_end"],
+            min_num_obs,
+            options["date_start"],
+            options["date_end"],
+        ]
 
-    query = """
+    query = (
+        """
             SELECT w.site_id, w.date, w.wtd, w.pumping_status
             FROM wtd_discrete_data AS w
             INNER JOIN (SELECT w.site_id, COUNT(*) AS num_obs
                 FROM wtd_discrete_data AS w
-                """ + date_query + """
+                """
+        + date_query
+        + """
                 GROUP BY site_id
                 HAVING num_obs >= ?) AS c
             ON w.site_id = c.site_id
-            """ + date_query
+            """
+        + date_query
+    )
 
     df = pd.read_sql_query(query, conn, params=param_list)
 
