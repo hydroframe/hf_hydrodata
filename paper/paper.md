@@ -46,7 +46,7 @@ affiliations:
    index: 5
  - name: High Meadows Environmental Institute, Princeton University, USA
    index: 6
-date: 9 February 2024
+date: 15 February 2024
 bibliography: paper.bib
 ---
 
@@ -59,7 +59,7 @@ The field of hydrologic modeling, or modeling of the terrestrial hydrologic cycl
 
 `hf_hydrodata` is a Python package that provides a streamlined, uniform syntax for accessing hydrologic data. Spanning the Continental United States, `hf_hydrodata` serves both gridded data and site-level point observations from the HydroData catalog. The package allows users to add filters to obtain data for only certain geographic areas and/or time periods of interest. This package was developed with hydrologists in mind, to facilitate the collection of domain-specific model inputs and validation data.
 
-This package includes three main types of data. First we provide access to point observations that are compiled from public sources such as the United States. Sources include the Geological Survey (USGS), the Snow Telemetry Network (SNOTEL), Soil Climate Analysis Network (SCAN), AmeriFlux, and the National Oceanic and Atmospheric Administration (NOAA).  All point observation data are continuously updated to the HydroData Database and are pre-processed for consistency. 
+This package includes three main types of data. First we provide access to point observations that are compiled from public sources. Sources include the United States Geological Survey (USGS), the Snow Telemetry Network (SNOTEL), Soil Climate Analysis Network (SCAN), AmeriFlux, and the National Oceanic and Atmospheric Administration (NOAA).  All point observation data are continuously updated to the HydroData Database and are pre-processed for consistency. 
 
 We also provide access to a national geofabric of hydrologically processed topography, land cover and hydrogeology land cover datasets that were developed from the national ParFlow model (i.e. the ParFlow CONUS model, e.g. @doi:10.1126/science.aaf7891; @gmd-14-7223-2021; @YANG2023130294). Simulation outputs generated from the first ([ParFlow CONUS1.0](https://hydroframe.org/parflow-conus1)) and second ([ParFlow CONUS2.0](https://hydroframe.org/parflow-conus2)) generation of the ParFlow CONUS model are also available through this interface. 
 
@@ -74,7 +74,7 @@ Complete documentation of the `hf_hydrodata` package including available dataset
 
 The `hf_hydrodata` API contains distinct modules for accessing gridded data and site-level point observations. The output data structure is designed to align with the data type: gridded data gets returned as a NumPy array [@NumPy] while point data gets returned in a pandas DataFrame [@pandas] (to connect site identifiers to time series in a straightforward manner). However the API is structured to take in compatible input parameters (where applicable), to make the data querying process as seamless as possible across the different data types. 
 
-For example, if a user wanted to obtain gridded ParFlow CONUS1 daily simulated snow water equivalent data for the latitude/longitude bounding box of [38.749, -106.207, 41.485, -100.695] for October 1, 2003 - May 1, 2004, they would use the following syntax to get relevant data and metadata.
+For example, if a user wanted to obtain gridded ParFlow CONUS1 daily simulated water table depth data for the latitude/longitude bounding box of [38.749, -106.207, 41.485, -100.695] for October 1, 2003 - May 1, 2004, they would use the following syntax to get relevant data and metadata.
 
 ```python
 import hf_hydrodata
