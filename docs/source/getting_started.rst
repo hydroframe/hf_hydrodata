@@ -89,7 +89,7 @@ of (-75, -50). ::
 
     data = hf.get_point_data(dataset = "usgs_nwis", variable = "streamflow", 
                              temporal_resolution = "daily", aggregation = "mean",
-                             start_date = "2022-01-01", end_date = "2022-01-05", 
+                             date_start = "2022-01-01", date_end = "2022-01-05", 
                              latitude_range = (45, 50), longitude_range = (-75, -50))
 
     # View first five records
@@ -98,7 +98,7 @@ of (-75, -50). ::
     # Get the metadata about the sites with returned data
     metadata = hf.get_point_metadata(dataset = "usgs_nwis", variable = "streamflow", 
                                      temporal_resolution = "daily", aggregation = "mean",
-                                     start_date = "2022-01-01", end_date = "2022-01-05", 
+                                     date_start = "2022-01-01", date_end = "2022-01-05", 
                                      latitude_range = (45, 50), longitude_range = (-75, -50))
 
     # View first five records
@@ -114,7 +114,7 @@ shows an alternate syntax to obtain identical output to the example shown above.
 
     # Define input parameters in a dictionary
     my_parameters = {"dataset": "usgs_nwis", "variable": "streamflow", "temporal_resolution": "daily",
-                     "aggregation": "mean", "start_date": "2022-01-01", "end_date": "2022-01-05",
+                     "aggregation": "mean", "date_start": "2022-01-01", "date_end": "2022-01-05",
                      "latitude_range": (45, 50), "longitude_range": (-75, -50)}
 
     # Request point observations data and view first five records

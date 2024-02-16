@@ -32,9 +32,7 @@ or you can get the list of dataset and variables from functions.
     import hf_hydrodata as hf
 
     datasets = hf.get_datasets()
-    variables = hf_get_variables()
-
-    variables = hf.get_variables("dataset": "NLDAS2", "grid": "conus1")
+    variables = hf.get_variables({"dataset": "NLDAS2", "grid": "conus1"})
 
 You can get gridded data using the `get_gridded_data()` function.
 
@@ -60,21 +58,21 @@ of (-75, -50).
                          variable = "streamflow",
                          temporal_resolution = "daily",
                          aggregation = "mean",
-                         start_date = "2022-01-01", 
-                         end_date = "2022-01-05",
+                         date_start = "2022-01-01", 
+                         date_end = "2022-01-05",
                          latitude_range = (45, 50),
                          longitude_range = (-75, -50)
                          )
     data_df.head(5)
 
     # Get the metadata about the sites with returned data
-    metadatadata_df = get_point_metadata(
+    metadata_df = get_point_metadata(
                          dataset = "usgs_nwis",
                          variable = "streamflow",
                          temporal_resolution = "daily",
                          aggregation = "mean",
-                         start_date = "2022-01-01", 
-                         end_date = "2022-01-05",
+                         date_start = "2022-01-01", 
+                         date_end = "2022-01-05",
                          latitude_range = (45, 50),
                          longitude_range = (-75, -50)
                          )
