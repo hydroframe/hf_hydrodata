@@ -1608,7 +1608,7 @@ def _get_network_site_list(dataset, variable, site_networks):
     network_options = {
         "usgs_nwis": {
             "streamflow": ["camels", "gagesii_reference", "gagesii", "hcdn2009"],
-            "wtd": ["climate_response_network"],
+            "water_table_depth": ["climate_response_network"],
         }
     }
 
