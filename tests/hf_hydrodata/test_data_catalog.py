@@ -5,16 +5,24 @@ Unit test for the data_catalog.py module
 # pylint: disable=C0301,C0103,W0632,W0702,W0101,C0302,W0105,E0401,C0413,R0903,W0613,R0912
 import sys
 import os
-import pytest
 import tempfile
+import pytest
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 
-import hf_hydrodata.gridded
+import hf_hydrodata.generate_hydrodata_catalog_yaml
 import hf_hydrodata as hf
 import hf_hydrodata.gridded as gr
-import hf_hydrodata.generate_hydrodata_catalog_yaml
 
+@pytest.fixture(autouse=True)
+def patch_api(mocker):
+    """Mock api call to load model from API. This allows tests to work with model from the git repo."""
+
+    def mock_return_model(option):
+        return None
+    mocker.patch(
+        "hf_hydrodata.data_model_access._load_model_from_api", side_effect=mock_return_model
+    )
 
 def test_get_citations():
     """Test get_citation"""
@@ -107,5 +115,5 @@ def test_generate_hydrodata_catalog_yaml():
     with tempfile.TemporaryDirectory() as tempdirname:
         hf.load_data_model(True)
         output_file = os.path.join(tempdirname, "foo.yaml")
-        hf.generate_hydrodata_catalog_yaml.generate_yaml(output_file)
+        hf_hydrodata.generate_hydrodata_catalog_yaml.generate_yaml(output_file)
         assert os.path.exists(output_file)
