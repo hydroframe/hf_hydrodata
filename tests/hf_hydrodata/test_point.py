@@ -151,7 +151,7 @@ def test_check_inputs():
     # Parameter provided for variable not in supported list (typo).
     point.HYDRODATA = "/hydrodata"
     with pytest.raises(Exception):
-        point.check_inputs(
+        point._check_inputs(
             dataset="usgs_nwis",
             variable="steamflow",
             temporal_resolution="daily",
@@ -160,7 +160,7 @@ def test_check_inputs():
 
     # Parameter provided for temporal_resolution not in supported list.
     with pytest.raises(Exception):
-        point.check_inputs(
+        point._check_inputs(
             dataset="usgs_nwis",
             variable="streamflow",
             temporal_resolution="monthly",
@@ -169,7 +169,7 @@ def test_check_inputs():
 
     # Variable requested is soil moisture but no depth level provided.
     with pytest.raises(Exception):
-        point.check_inputs(
+        point._check_inputs(
             dataset="scan",
             variable="soil_moisture",
             temporal_resolution="daily",
@@ -178,7 +178,7 @@ def test_check_inputs():
 
     # Variable requested is soil moisture with unsupported depth level provided.
     with pytest.raises(Exception):
-        point.check_inputs(
+        point._check_inputs(
             dataset="scan",
             variable="soil_moisture",
             temporal_resolution="daily",
@@ -823,6 +823,38 @@ def test_site_networks_filter_list():
     assert len(metadata_df) == 60
 
 
+def test_site_networks_filter_list_wtd():
+    """Test for using site_networks filter as a list with water table depth variable"""
+    data_df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="water_table_depth",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        state="NJ",
+        latitude_range=(40, 41),
+        longitude_range=(-75, -74),
+        site_networks=["climate_response_network"],
+    )
+    assert len(data_df) == 5
+    assert "400232074213201" in data_df.columns
+
+    metadata_df = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="water_table_depth",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        state="NJ",
+        latitude_range=(40, 41),
+        longitude_range=(-75, -74),
+        site_networks=["climate_response_network"],
+    )
+    assert len(metadata_df) == 9
+
+
 def test_site_networks_filter_str():
     """Test for using site_networks filter as a str"""
     data_df = point.get_point_data(
@@ -853,6 +885,38 @@ def test_site_networks_filter_str():
         site_networks="gagesii",
     )
     assert len(metadata_df) == 60
+
+
+def test_site_networks_filter_str_wtd():
+    """Test for using site_networks filter as a string with water table depth variable"""
+    data_df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="water_table_depth",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        state="NJ",
+        latitude_range=(40, 41),
+        longitude_range=(-75, -74),
+        site_networks="climate_response_network",
+    )
+    assert len(data_df) == 5
+    assert "400232074213201" in data_df.columns
+
+    metadata_df = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="water_table_depth",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        state="NJ",
+        latitude_range=(40, 41),
+        longitude_range=(-75, -74),
+        site_networks="climate_response_network",
+    )
+    assert len(metadata_df) == 9
 
 
 def test_get_data_min_num_obs_filter():
