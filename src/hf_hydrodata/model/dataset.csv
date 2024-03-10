@@ -16,3 +16,4 @@ usgs_nwis,point_observations,National Water Information Service,usgs,,,,,point,U
 snotel,point_observations,Snow Telemetry,usda,,,,,point,UTC-00:00,,
 scan,point_observations,Soil Climate Analysis Network,usda,,,,,point,UTC-00:00,,
 ameriflux,point_observations,Ameriflux,ameriflux,,,,,point,UTC-00:00,,
+noaa,forcing,NOAA Climate Data,noaa,,https://www.climate.gov/maps-data/dataset/daily-temperature-and-precipitation-reports-data-tables,6/1/22,,gridded,UTC-00:00,,

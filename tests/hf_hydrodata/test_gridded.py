@@ -21,12 +21,19 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../s
 import hf_hydrodata as hf
 import hf_hydrodata.gridded as gr
 
+hf.data_model_access.DATA_MODEL_CACHE = None
+
 
 @pytest.fixture(autouse=True)
 def patch_api(mocker):
-    """Mock api call to load model from API."""
+    """Mock api call to load model from API. This allows tests to work with model from the git repo."""
+
+    def mock_return_model(option):
+        return None
+
     mocker.patch(
-        "hf_hydrodata.data_model_access._load_model_from_api", return_value=None
+        "hf_hydrodata.data_model_access._load_model_from_api",
+        side_effect=mock_return_model,
     )
 
 
@@ -274,6 +281,8 @@ def test_files_exist():
         elif dataset == "conus1_domain":
             start_time = "2005-09-01"
         elif dataset == "nasa_smap":
+            start_time = "2023-01-01"
+        elif dataset == "noaa":
             start_time = "2023-01-01"
         elif site_type == "streamflow":
             site_id = "05490600"
@@ -1197,11 +1206,11 @@ def test_get_datasets():
     """Test get_datasets."""
 
     datasets = hf.get_datasets()
-    assert len(datasets) == 17
+    assert len(datasets) == 18
     assert datasets[0] == "CW3E"
 
     datasets = hf.get_datasets(variable="air_temp")
-    assert len(datasets) == 8
+    assert len(datasets) == 9
     assert datasets[0] == "CW3E"
 
     datasets = hf.get_datasets(grid="conus2")
@@ -1210,7 +1219,7 @@ def test_get_datasets():
 
     options = {"variable": "air_temp", "grid": "conus1"}
     datasets = hf.get_datasets(options)
-    assert len(datasets) == 3
+    assert len(datasets) == 4
     assert datasets[0] == "NLDAS2"
 
 
@@ -1517,7 +1526,10 @@ def test_get_wtd():
         "grid": "conus2_wtd",
     }
     data = hf.get_gridded_data(options)
-    assert hf.get_path(options) == "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1000m_CONUS2_m_1s_remapped.tif"
+    assert (
+        hf.get_path(options)
+        == "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1000m_CONUS2_m_1s_remapped.tif"
+    )
 
     assert data.shape == (2, 2)
     assert str(round(data[0, 0], 5)) == "52.86004"
@@ -1537,7 +1549,10 @@ def test_get_wtd():
         "grid": "conus2_wtd.100",
     }
     data = hf.get_gridded_data(options)
-    assert hf.get_path(options) == "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_100m_CONUS2_m_1s_remapped.tif"
+    assert (
+        hf.get_path(options)
+        == "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_100m_CONUS2_m_1s_remapped.tif"
+    )
     assert data.shape == (2, 2)
     assert str(round(data[0, 0], 5)) == "58.01496"
     assert str(round(data[0, 1], 5)) == "54.30452"
@@ -1556,7 +1571,10 @@ def test_get_wtd():
         "grid": "conus2_wtd.30",
     }
     data = hf.get_gridded_data(options)
-    assert hf.get_path(options) == "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/compressed_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1s_CONUS2_m_remapped_unflip_compressed.tif"
+    assert (
+        hf.get_path(options)
+        == "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/compressed_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1s_CONUS2_m_remapped_unflip_compressed.tif"
+    )
 
     assert data.shape == (2, 2)
     assert str(round(data[0, 0], 5)) == "77.19169"
@@ -1576,6 +1594,61 @@ def test_wtd_1000m_north():
     }
     data = hf.get_gridded_data(options)
     assert data.shape == ((1760, 1827))
+
+
+def test_noaa_precip():
+    """Unit test NOAA precip"""
+    bounds = [1000, 1000, 1005, 1005]
+    options = {
+        "dataset": "noaa",
+        "grid_bounds": bounds,
+        "start_time": "2023-03-01",
+        "end_time": "2023-03-03",
+        "variable": "precipitation",
+    }
+    data = hf.get_gridded_data(options)
+    assert data.shape == (2, 5, 5)
+    assert round(data[0, 0, 0], 3) == 0.653
+
+
+def test_noaa_temp():
+    """Unit test NOAA air_temp data."""
+    bounds = [1000, 1000, 1005, 1005]
+    options = {
+        "dataset": "noaa",
+        "grid_bounds": bounds,
+        "start_time": "2023-03-01",
+        "end_time": "2023-03-03",
+        "variable": "air_temp",
+        "aggregation": "min",
+    }
+    data = hf.get_gridded_data(options)
+    assert data.shape == (2, 5, 5)
+    assert round(data[0, 0, 0], 3) == 257.5
+
+    options = {
+        "dataset": "noaa",
+        "grid_bounds": bounds,
+        "start_time": "2023-03-01",
+        "end_time": "2023-03-03",
+        "variable": "air_temp",
+        "aggregation": "max",
+    }
+    data = hf.get_gridded_data(options)
+    assert data.shape == (2, 5, 5)
+    assert round(data[0, 0, 0], 3) == 278.25
+
+    options = {
+        "dataset": "noaa",
+        "grid_bounds": bounds,
+        "start_time": "2023-03-01",
+        "end_time": "2023-03-03",
+        "variable": "air_temp",
+        "aggregation": "mean",
+    }
+    data = hf.get_gridded_data(options)
+    assert data.shape == (2, 5, 5)
+    assert round(data[0, 0, 0], 3) == 265.25
 
 
 if __name__ == "__main__":
