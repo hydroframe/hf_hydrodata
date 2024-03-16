@@ -2132,13 +2132,9 @@ def _slice_da_bounds(da: xr.DataArray, grid: str, options: dict) -> xr.DataArray
 
     if grid_bounds:
         if len(da.shape) == 3:
-            result = da[
-                :, grid_bounds[1] : grid_bounds[3], grid_bounds[0] : grid_bounds[2]
-            ]
+            result = da[:, grid_bounds[1] : grid_bounds[3], grid_bounds[0] : grid_bounds[2]]
         elif len(da.shape) == 2:
-            result = da[
-                grid_bounds[1] : grid_bounds[3], grid_bounds[0] : grid_bounds[2]
-            ]
+            result = da[grid_bounds[1] : grid_bounds[3], grid_bounds[0] : grid_bounds[2]]
         else:
             raise ValueError(f"Unsupported shape size {len(da.shape)}")
     else:
