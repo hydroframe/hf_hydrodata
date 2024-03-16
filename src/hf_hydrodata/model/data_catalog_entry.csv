@@ -87,7 +87,6 @@ id,dataset,file_type,variable,dataset_var,entry_start_date,entry_end_date,tempor
 86,conus1_domain,pfb,permeability,permeability,,,static,m/h,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_permeability.pfb,,
 87,conus1_domain,pfb,drainage_area,drainage_area,,,static,km2,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_drainage_area.pfb,,
 88,conus1_domain,pfb,veg_type_IGBP,vegetation_type,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_vegtype.pfb,,
-89,conus1_domain,pfmetadata,topographic_index,topographic_index,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
 90,conus1_domain,pfb,pme,pme,,,static,m/h,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/PmE.flux.pfb,PmE that was used for CONUS1 steady state spinup,
 91,conus1_domain,pftxt,elevation,elevation,,,static,m,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/CONUS.pitfill.txt,Processed surface elevaiton for every grid cell this is what was used to calculate the slopes,
 92,conus1_domain,pftxt,stream_order,stream_order,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/StreamOrder_pfFormat.txt,Stream orders are assigned for every subbasin. Headwaters and non-river cells are assigned a value of zero . The order for all other streams was determined by walking downstream from the headwater reaches. Streams are assigned the largest order possible (i.e. the longest route to get to them).,
@@ -396,3 +395,4 @@ id,dataset,file_type,variable,dataset_var,entry_start_date,entry_end_date,tempor
 518,noaa,pfb,air_temp,Temp_min,,,daily,K,min,conus1,wy_daynum,1,/hydrodata/national_obs/gridded_meteorology/NOAA_temperature/CONUS1/WY{wy}/HRRR.Temp_min.daily.regrid.{wy}.{wy_daynum:03d}.pfb,,
 519,noaa,pfb,air_temp,Temp_max,,,daily,K,max,conus1,wy_daynum,1,/hydrodata/national_obs/gridded_meteorology/NOAA_temperature/CONUS1/WY{wy}/HRRR.Temp_max.daily.regrid.{wy}.{wy_daynum:03d}.pfb,,
 520,noaa,pfb,air_temp,Temp_mean,,,daily,K,mean,conus1,wy_daynum,1,/hydrodata/national_obs/gridded_meteorology/NOAA_temperature/CONUS1/WY{wy}/HRRR.Temp_mean.daily.regrid.{wy}.{wy_daynum:03d}.pfb,,
+521,conus1_domain,pfb,topographic_index,topographic_index,,,static,-,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_topographic_index.pfb,,

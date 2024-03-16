@@ -1124,7 +1124,7 @@ def test_ambiguous_filter():
 
     with pytest.raises(ValueError) as info:
         hf.get_catalog_entry(options)
-    assert "variable = 'precipitation' or 'downward_longwave" in str(info.value)
+    assert "variable = '" in str(info.value) and "'downward_longwave" in str(info.value)
 
 
 def test_get_huc_from_point():
@@ -1649,6 +1649,27 @@ def test_noaa_temp():
     data = hf.get_gridded_data(options)
     assert data.shape == (2, 5, 5)
     assert round(data[0, 0, 0], 3) == 265.25
+
+
+def test_topographic_index():
+    """Unit test topographic_index variable."""
+    cd = os.getcwd()
+    with tempfile.TemporaryDirectory() as tempdirname:
+        os.chdir(tempdirname)
+
+        bounds = [1000, 1000, 1005, 1005]
+        options = {
+            "dataset": "conus1_domain",
+            "grid_bounds": bounds,
+            "variable": "topographic_index",
+        }
+        hf.get_gridded_files(options, filename_template="foo.nc")
+        ds = xr.open_dataset("foo.nc")
+        da = ds["topographic_index"]
+        assert da.shape == (5, 5)
+        print(ds)
+        print(da.shape)
+    os.chdir(cd)
 
 
 if __name__ == "__main__":
