@@ -790,7 +790,6 @@ def _create_gridded_files_netcdf(
                 nc_data = data
             else:
                 nc_data[:, :] = data[:, :]
-            print("Done")
         else:
             raise ValueError("Bad shape of data returned from API.")
 
