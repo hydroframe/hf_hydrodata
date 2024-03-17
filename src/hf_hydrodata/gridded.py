@@ -624,7 +624,8 @@ def get_gridded_files(
                     filename_template, entry, options, file_time, start_time
                 )
                 if file_name.endswith(".nc") and not file_name == last_file_name:
-                    _execute_dask_items(dask_items, state, last_file_name)
+                    if last_file_name:
+                        _execute_dask_items(dask_items, state, last_file_name)
                     state = _FileDownloadState(
                         options_copy,
                         filename_template,
@@ -785,7 +786,10 @@ def _create_gridded_files_netcdf(
         elif len(data.shape) == 2 and not state.temporal_resolution == "static":
             nc_data[t_num, :, :] = data[:, :]
         elif len(data.shape) == 2 and state.temporal_resolution == "static":
-            nc_data[:, :] = data[:, :]
+            if isinstance(data, xr.DataArray):
+                nc_data = data
+            else:
+                nc_data[:, :] = data[:, :]
         else:
             raise ValueError("Bad shape of data returned from API.")
 
@@ -2126,7 +2130,12 @@ def _slice_da_bounds(da: xr.DataArray, grid: str, options: dict) -> xr.DataArray
         )
 
     if grid_bounds:
-        result = da[:, grid_bounds[1] : grid_bounds[3], grid_bounds[0] : grid_bounds[2]]
+        if len(da.shape) == 3:
+            result = da[:, grid_bounds[1] : grid_bounds[3], grid_bounds[0] : grid_bounds[2]]
+        elif len(da.shape) == 2:
+            result = da[grid_bounds[1] : grid_bounds[3], grid_bounds[0] : grid_bounds[2]]
+        else:
+            raise ValueError(f"Unsupported shape size {len(da.shape)}")
     else:
         result = da
     return result
