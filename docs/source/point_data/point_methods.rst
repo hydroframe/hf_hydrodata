@@ -41,7 +41,7 @@ attributes are available in :ref:`point_obs_metadata`. ::
     data_source = 'usgs_nwis'
     variable = 'streamflow'
     temporal_resolution = 'daily'
-    aggregation = 'average'
+    aggregation = 'mean'
 
     # Get the metadata about the sites with returned data
     metadata = get_point_metadata(dataset = "usgs_nwis", variable = "streamflow", 
