@@ -1,7 +1,8 @@
 """
 Functions to access data_catalog metadata.
 """
-# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702
+
+# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702,W0212
 
 import os
 from typing import List, Tuple
@@ -37,9 +38,9 @@ def get_citations(*args, **kwargs) -> str:
 
     .. code-block:: python
 
-        import hf_hydrodata as hf  
+        import hf_hydrodata as hf
 
-        citations = hf.get_citations("NLDAS2")      
+        citations = hf.get_citations("NLDAS2")
         print(citations)
 
         citations = hf.get_citations(dataset = "NLDAS2")
@@ -100,7 +101,7 @@ def register_api_pin(email: str, pin: str):
         email:      Email address used to create an API pin.
         pin:        The 4 digit pin registered to be able to use the API.
 
-    This only needs to be execute once per machine to register the pin. 
+    This only needs to be execute once per machine to register the pin.
     You can signup for an account using https://hydrogen.princeton.edu/signup.
     You can create a pin using the URL https://hydrogen.princeton.edu/pin.
 
@@ -467,28 +468,34 @@ def _get_preferred_catalog_entry(entries: List[dict]) -> dict:
         result = entries[0]
     else:
         preferred_file_types = ["pfb", "tif", "netcdf"]
-        id_1 = None
-        entry_1 = None
-        file_type_1_index = 1000
-        result = None
+        ambiguous_entries = []
+        preferred_entry = None
+        preferred_entry_type = None
         for entry in entries:
-            id_2 = entry["id"]
-            file_type_2 = entry["file_type"]
-            if file_type_2 in preferred_file_types:
-                if preferred_file_types.index(file_type_2) < file_type_1_index:
-                    result = entry
-                    id_1 = id_2
-                    entry_1 = entry
-                    file_type_1_index = preferred_file_types.index(file_type_2)
-                elif preferred_file_types.index(file_type_2) == file_type_1_index:
-                    raise ValueError(_ambiguous_error_message(entry_1, entry))
-            elif id_1 is None:
-                result = entry
-                id_1 = id_2
-                entry_1 = entry
-            elif file_type_1_index == 1000:
-                raise ValueError(_ambiguous_error_message(entry_1, entry))
-
+            file_type = entry["file_type"]
+            if file_type in preferred_file_types:
+                if preferred_entry is None:
+                    preferred_entry = entry
+                    preferred_entry_type = file_type
+                else:
+                    if preferred_entry_type == file_type:
+                        raise ValueError(
+                            _ambiguous_error_message(entry, preferred_entry)
+                        )
+                    if preferred_file_types.index(
+                        file_type
+                    ) < preferred_file_types.index(preferred_entry["file_type"]):
+                        preferred_entry = entry
+            else:
+                ambiguous_entries.append(entry)
+        if preferred_entry:
+            result = preferred_entry
+        elif len(ambiguous_entries) == 1:
+            result = ambiguous_entries[0]
+        elif len(ambiguous_entries) > 1:
+            raise ValueError(
+                _ambiguous_error_message(ambiguous_entries[0], ambiguous_entries[1])
+            )
     return result
 
 
@@ -633,5 +640,5 @@ def test_get_tables():
     """Test get_table_names."""
 
     hf_hydrodata.gridded.HYDRODATA = "/hydrodata"
-    table_names = hf.get_table_names()
+    table_names = hf_hydrodata.get_table_names()
     assert len(table_names) >= 14
