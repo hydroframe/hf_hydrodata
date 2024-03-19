@@ -89,14 +89,14 @@ There are several variables that are returned by all ``get_point_metadata()`` fu
       - String representation of the site's time zone, if provided by the contributing agency.
     * - doi
       - If applicable, the DOI associated with the site, as provided by the contributing agency.
-    * - conus1_x
-      - Constructed value that maps the site's latitude/longitude to the CONUS1 grid.
-    * - conus1_y
-      - Constructed value that maps the site's latitude/longitude to the CONUS1 grid.
-    * - conus2_x
-      - Constructed value that maps the site's latitude/longitude to the CONUS2 grid.
-    * - conus2_y
-      - Constructed value that maps the site's latitude/longitude to the CONUS2 grid.
+    * - conus1_i
+      - Integer number of grid cells in the horizonal direction away from the CONUS1 grid origin of (0,0).
+    * - conus1_j
+      - Integer number of grid cells in the vertical direction away from the CONUS1 grid origin of (0,0).
+    * - conus2_i
+      - Integer number of grid cells in the horizonal direction away from the CONUS2 grid origin of (0,0).
+    * - conus2_j
+      - Integer number of grid cells in the vertical direction away from the CONUS2 grid origin of (0,0).
 
 
 Stream Gage Metadata

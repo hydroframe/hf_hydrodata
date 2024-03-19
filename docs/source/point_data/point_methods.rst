@@ -11,7 +11,7 @@ in the function's API reference: :ref:`api`. ::
     # Define filters and return point observations data as pandas DataFrame
     data = get_point_data(dataset = "usgs_nwis", variable = "streamflow", 
                           temporal_resolution = "daily", aggregation = "mean",
-                          start_date = "2022-01-01", end_date = "2022-01-05", 
+                          date_start = "2022-01-01", date_end = "2022-01-05", 
                           latitude_range = (45, 50),
                           longitude_range = (-75, -50))
     
@@ -41,12 +41,12 @@ attributes are available in :ref:`point_obs_metadata`. ::
     data_source = 'usgs_nwis'
     variable = 'streamflow'
     temporal_resolution = 'daily'
-    aggregation = 'average'
+    aggregation = 'mean'
 
     # Get the metadata about the sites with returned data
     metadata = get_point_metadata(dataset = "usgs_nwis", variable = "streamflow", 
                                   temporal_resolution = "daily", aggregation = "mean",
-                                  start_date = "2022-01-01", end_date = "2022-01-05", 
+                                  date_start = "2022-01-01", date_end = "2022-01-05", 
                                   latitude_range = (45, 50),
                                   longitude_range = (-75, -50))
 

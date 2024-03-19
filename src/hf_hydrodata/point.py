@@ -370,7 +370,7 @@ def get_point_metadata(*args, **kwargs):
 
     if "stream gauge" in metadata_df["site_type"].unique():
         attributes_df = pd.read_sql_query(
-            """SELECT site_id, conus1_x, conus1_y, conus2_x, conus2_y,
+            """SELECT site_id, conus1_i, conus1_j, conus2_i, conus2_j,
                       gages_drainage_sqkm AS gagesii_drainage_area,
                       class AS gagesii_class,
                       site_elevation_meters AS gagesii_site_elevation,
@@ -384,7 +384,7 @@ def get_point_metadata(*args, **kwargs):
 
     if "groundwater well" in metadata_df["site_type"].unique():
         attributes_df = pd.read_sql_query(
-            """SELECT site_id, conus1_x, conus1_y, conus2_x, conus2_y,
+            """SELECT site_id, conus1_i, conus1_j, conus2_i, conus2_j,
                       nat_aqfr_cd AS usgs_nat_aqfr_cd,
                       aqfr_cd AS usgs_aqfr_cd,
                       aqfr_type_cd AS usgs_aqfr_type_cd,
@@ -402,7 +402,7 @@ def get_point_metadata(*args, **kwargs):
         "SCAN station" in metadata_df["site_type"].unique()
     ):
         attributes_df = pd.read_sql_query(
-            """SELECT site_id, conus1_x, conus1_y, conus2_x, conus2_y,
+            """SELECT site_id, conus1_i, conus1_j, conus2_i, conus2_j,
                       elevation AS usda_elevation
                FROM snotel_station_attributes WHERE site_id IN (%s)"""
             % ",".join("?" * len(site_ids)),
@@ -413,7 +413,7 @@ def get_point_metadata(*args, **kwargs):
 
     if "flux tower" in metadata_df["site_type"].unique():
         attributes_df = pd.read_sql_query(
-            """SELECT site_id, conus1_x, conus1_y, conus2_x, conus2_y,
+            """SELECT site_id, conus1_i, conus1_j, conus2_i, conus2_j,
                       site_description AS ameriflux_site_description,
                       elevation AS ameriflux_elevation,
                       tower_type AS ameriflux_tower_type,
