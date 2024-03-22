@@ -1291,5 +1291,145 @@ def test_fail_unsupported_parameter3():
         )
 
 
+def test_grid_bounds_conus1_list():
+    """Test for using grid_bounds filter with a list"""
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        grid="conus1",
+        grid_bounds=[1000, 450, 1200, 650],
+    )
+    assert df.shape[1] >= 27
+    assert df.shape[1] <= 35
+    assert "08249000" in df.columns
+    assert "07093700" in df.columns
+
+    metadata_df = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        grid="conus1",
+        grid_bounds=[1000, 450, 1200, 650],
+    )
+    assert metadata_df.shape[0] >= 26
+    assert metadata_df.shape[0] <= 34
+    assert "08249000" in list(metadata_df["site_id"])
+    assert "07093700" in list(metadata_df["site_id"])
+
+
+def test_grid_bounds_conus1_dict():
+    """Test for using grid_bounds filter as a dictionary parameter"""
+    df = point.get_point_data(
+        {
+            "dataset": "usgs_nwis",
+            "variable": "streamflow",
+            "temporal_resolution": "daily",
+            "aggregation": "mean",
+            "date_start": "2002-01-01",
+            "date_end": "2002-01-05",
+            "grid": "conus1",
+            "grid_bounds": [1000, 450, 1200, 650],
+        }
+    )
+    assert df.shape[1] >= 27
+    assert df.shape[1] <= 35
+    assert "08249000" in df.columns
+    assert "07093700" in df.columns
+
+    metadata_df = point.get_point_metadata(
+        {
+            "dataset": "usgs_nwis",
+            "variable": "streamflow",
+            "temporal_resolution": "daily",
+            "aggregation": "mean",
+            "date_start": "2002-01-01",
+            "date_end": "2002-01-05",
+            "grid": "conus1",
+            "grid_bounds": [1000, 450, 1200, 650],
+        }
+    )
+    assert metadata_df.shape[0] >= 26
+    assert metadata_df.shape[0] <= 34
+    assert "08249000" in list(metadata_df["site_id"])
+    assert "07093700" in list(metadata_df["site_id"])
+
+
+def test_grid_bounds_conus2_list():
+    """Test for using grid_bounds filter with a list"""
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        grid="conus2",
+        grid_bounds=[1500, 1300, 1700, 1500],
+    )
+    assert df.shape[1] >= 19
+    assert df.shape[1] <= 25
+    assert "07119500" in df.columns
+    assert "07208500" in df.columns
+
+    metadata_df = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        grid="conus2",
+        grid_bounds=[1500, 1300, 1700, 1500],
+    )
+    assert metadata_df.shape[0] >= 18
+    assert metadata_df.shape[0] <= 24
+    assert "07119500" in list(metadata_df["site_id"])
+    assert "07208500" in list(metadata_df["site_id"])
+
+
+def test_grid_bounds_conus2_dict():
+    """Test for using grid_bounds filter as a dictionary parameter"""
+    df = point.get_point_data(
+        {
+            "dataset": "usgs_nwis",
+            "variable": "streamflow",
+            "temporal_resolution": "daily",
+            "aggregation": "mean",
+            "date_start": "2002-01-01",
+            "date_end": "2002-01-05",
+            "grid": "conus2",
+            "grid_bounds": [1500, 1300, 1700, 1500],
+        }
+    )
+    assert df.shape[1] >= 19
+    assert df.shape[1] <= 25
+    assert "07119500" in df.columns
+    assert "07208500" in df.columns
+
+    metadata_df = point.get_point_metadata(
+        {
+            "dataset": "usgs_nwis",
+            "variable": "streamflow",
+            "temporal_resolution": "daily",
+            "aggregation": "mean",
+            "date_start": "2002-01-01",
+            "date_end": "2002-01-05",
+            "grid": "conus2",
+            "grid_bounds": [1500, 1300, 1700, 1500],
+        }
+    )
+    assert metadata_df.shape[0] >= 18
+    assert metadata_df.shape[0] <= 24
+    assert "07119500" in list(metadata_df["site_id"])
+    assert "07208500" in list(metadata_df["site_id"])
+
+
 if __name__ == "__main__":
     pytest.main()
