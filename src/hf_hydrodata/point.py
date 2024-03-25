@@ -242,7 +242,7 @@ def get_point_data(*args, **kwargs):
         data_df = _get_data_nc(site_list, var_id, *args, **kwargs)
 
     elif var_id == 5:
-        data_df = _get_data_sql(conn, var_id, *args, **kwargs)
+        data_df = _get_data_sql(conn, site_list, var_id, *args, **kwargs)
 
     conn.close()
 
@@ -1974,7 +1974,7 @@ def _get_data_nc(site_list, var_id, *args, **kwargs):
         return data_df
 
 
-def _get_data_sql(conn, var_id, *args, **kwargs):
+def _get_data_sql(conn, site_list, var_id, *args, **kwargs):
     """
     Get observations data for data that is stored in a SQL table.
 
@@ -1983,6 +1983,8 @@ def _get_data_sql(conn, var_id, *args, **kwargs):
     conn : Connection object
         The Connection object associated with the SQLite database to
         query from.
+    site_list : list
+        List of site IDs to query observations data for.
     var_id : int
         Integer variable ID associated with combination of `dataset`,
         `variable`, `temporal_resolution`, and `aggregation`.
@@ -2041,6 +2043,12 @@ def _get_data_sql(conn, var_id, *args, **kwargs):
             options["date_end"],
         ]
 
+    # Add filter for only the site IDs in site_list
+    site_query = """ AND w.site_id IN (%s)""" % ",".join("?" * len(site_list))
+    for s in site_list:
+        param_list.append(s)
+
+    # Filter on all spatial observations for the desired time range (if any)
     query = (
         """
             SELECT w.site_id, w.date, w.wtd, w.pumping_status
@@ -2055,6 +2063,7 @@ def _get_data_sql(conn, var_id, *args, **kwargs):
             ON w.site_id = c.site_id
             """
         + date_query
+        + site_query
     )
 
     df = pd.read_sql_query(query, conn, params=param_list)
