@@ -41,6 +41,16 @@ SUPPORTED_FILTERS = [
     "polygon_crs",
     "site_networks",
     "min_num_obs",
+    "grid",
+    "grid_bounds",
+]
+
+# List of SQL tables in the database corresponding to site-type-specific attributes
+SITE_ATTRIBUTE_TABLES = [
+    "streamgauge_attributes",
+    "well_attributes",
+    "snotel_station_attributes",
+    "flux_tower_attributes",
 ]
 
 
@@ -81,6 +91,12 @@ def get_point_data(*args, **kwargs):
         Latitude range bounds for the geographic domain; lesser value is provided first.
     longitude_range : tuple, optional
         Longitude range bounds for the geographic domain; lesser value is provided first.
+    grid : str, optional
+        Value of either 'conus1' or 'conus2'. Used in combination with parameter `grid_bounds`
+        to extract site locations for a specific region of conus coordinates.
+    grid_bounds : list of integers, optional
+        A list of points [left, bottom, right, top] in ij grid coordinates of the grid supplied
+        by the `grid` parameter.
     site_ids : str or list of strings, optional
         Single site ID string or list of desired (string) site identifiers.
     state : str, optional
@@ -265,6 +281,12 @@ def get_point_metadata(*args, **kwargs):
         Latitude range bounds for the geographic domain; lesser value is provided first.
     longitude_range : tuple, optional
         Longitude range bounds for the geographic domain; lesser value is provided first.
+    grid : str, optional
+        Value of either 'conus1' or 'conus2'. Used in combination with parameter `grid_bounds`
+        to extract site locations for a specific region of conus coordinates.
+    grid_bounds : list of integers, optional
+        A list of points [left, bottom, right, top] in ij grid coordinates of the grid supplied
+        by the `grid` parameter.
     site_ids : str or list of strings, optional
         Single site ID string or list of desired (string) site identifiers.
     state : str, optional
@@ -452,7 +474,7 @@ def get_site_variables(*args, **kwargs):
     dataset : str, optional
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
-    variable : str, required
+    variable : str, optional
         Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
         'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
@@ -473,6 +495,12 @@ def get_site_variables(*args, **kwargs):
         Latitude range bounds for the geographic domain; lesser value is provided first.
     longitude_range : tuple, optional
         Longitude range bounds for the geographic domain; lesser value is provided first.
+    grid : str, optional
+        Value of either 'conus1' or 'conus2'. Used in combination with parameter `grid_bounds`
+        to extract site locations for a specific region of conus coordinates.
+    grid_bounds : list of integers, optional
+        A list of points [left, bottom, right, top] in ij grid coordinates of the grid supplied
+        by the `grid` parameter.
     site_ids : str or list of strings, optional
         Single site ID string or list of desired (string) site identifiers.
     state : str, optional
@@ -605,6 +633,43 @@ def get_site_variables(*args, **kwargs):
     else:
         lon_query = """"""
 
+    # CONUS grid bounds
+    if "grid_bounds" in options and options["grid_bounds"] is not None:
+        # Make sure that the option "grid" is defined
+        try:
+            assert "grid" in options and options["grid"] in ("conus1", "conus2")
+        except:
+            raise ValueError(
+                "When providing the parameter `grid_bounds`, please also provide the parameter `grid` as either 'conus1' or 'conus2'."
+            )
+
+        grid = options["grid"]
+        grid_bounds = options["grid_bounds"]
+
+        grid_bounds_sites = []
+
+        for tbl in SITE_ATTRIBUTE_TABLES:
+            grid_bounds_query = f"""SELECT site_id, {grid}_i, {grid}_j
+                            FROM {tbl}
+                            WHERE {grid}_i >= {grid_bounds[0]}
+                              AND {grid}_j >= {grid_bounds[1]}
+                              AND {grid}_i <= {grid_bounds[2]}
+                              AND {grid}_j <= {grid_bounds[3]}
+                         """
+            grid_bounds_df = pd.read_sql_query(grid_bounds_query, conn)
+            grid_bounds_sites.extend(list(grid_bounds_df["site_id"]))
+
+        if len(grid_bounds_sites) > 0:
+            grid_bounds_query = """ AND s.site_id IN (%s)""" % ",".join(
+                "?" * len(grid_bounds_sites)
+            )
+            for s in grid_bounds_sites:
+                param_list.append(s)
+        else:
+            raise Exception("There are no sites within the provided grid_bounds.")
+    else:
+        grid_bounds_query = """"""
+
     # Site ID
     if "site_ids" in options and options["site_ids"] is not None:
         if isinstance(options["site_ids"], list):
@@ -668,6 +733,7 @@ def get_site_variables(*args, **kwargs):
         + date_end_query
         + lat_query
         + lon_query
+        + grid_bounds_query
         + site_query
         + state_query
         + network_query
@@ -849,6 +915,9 @@ def _convert_params_to_string_dict(options):
         if key == "longitude_range":
             if not isinstance(value, str):
                 options[key] = str(value)
+        if key == "grid_bounds":
+            if not isinstance(value, str):
+                options[key] = str(value)
         if key == "site_ids":
             if not isinstance(value, str):
                 options[key] = str(value)
@@ -879,6 +948,9 @@ def _convert_strings_to_type(options):
             if isinstance(value, str):
                 options[key] = ast.literal_eval(value)
         if key == "longitude_range":
+            if isinstance(value, str):
+                options[key] = ast.literal_eval(value)
+        if key == "grid_bounds":
             if isinstance(value, str):
                 options[key] = ast.literal_eval(value)
         if key == "site_ids":
@@ -1317,6 +1389,12 @@ def _get_sites(
         Latitude range bounds for the geographic domain; lesser value is provided first.
     longitude_range : tuple, optional
         Longitude range bounds for the geographic domain; lesser value is provided first.
+    grid : str, optional
+        Value of either 'conus1' or 'conus2'. Used in combination with parameter `grid_bounds`
+        to extract site locations for a specific region of conus coordinates.
+    grid_bounds : list of integers, optional
+        A list of points [left, bottom, right, top] in ij grid coordinates of the grid supplied
+        by the `grid` parameter.
     site_ids : str or list of strings, optional
         Single site ID string or list of desired (string) site identifiers.
     state : str, optional
@@ -1397,6 +1475,51 @@ def _get_sites(
     else:
         lon_query = """"""
 
+    # CONUS grid bounds
+    if "grid_bounds" in options and options["grid_bounds"] is not None:
+        # Make sure that the option "grid" is defined
+        try:
+            assert "grid" in options and options["grid"] in ("conus1", "conus2")
+        except:
+            raise ValueError(
+                "When providing the parameter `grid_bounds`, please also provide the parameter `grid` as either 'conus1' or 'conus2'."
+            )
+
+        # Determine which database table to get conus coordinates from
+        if dataset == "usgs_nwis":
+            if variable == "streamflow":
+                tbl = "streamgauge_attributes"
+            elif variable == "water_table_depth":
+                tbl = "well_attributes"
+        elif dataset in ("snotel", "scan"):
+            tbl = "snotel_station_attributes"
+        elif dataset == "ameriflux":
+            tbl = "flux_tower_attributes"
+
+        grid = options["grid"]
+        grid_bounds = options["grid_bounds"]
+
+        grid_bounds_query = f"""SELECT site_id, {grid}_i, {grid}_j
+                            FROM {tbl}
+                            WHERE {grid}_i >= {grid_bounds[0]}
+                              AND {grid}_j >= {grid_bounds[1]}
+                              AND {grid}_i <= {grid_bounds[2]}
+                              AND {grid}_j <= {grid_bounds[3]}
+                        """
+        grid_bounds_df = pd.read_sql_query(grid_bounds_query, conn)
+        grid_bounds_sites = list(grid_bounds_df["site_id"])
+
+        if len(grid_bounds_sites) > 0:
+            grid_bounds_query = """ AND s.site_id IN (%s)""" % ",".join(
+                "?" * len(grid_bounds_sites)
+            )
+            for s in grid_bounds_sites:
+                param_list.append(s)
+        else:
+            raise Exception("There are no sites within the provided grid_bounds.")
+    else:
+        grid_bounds_query = """"""
+
     # Site ID
     if "site_ids" in options and options["site_ids"] is not None:
         if isinstance(options["site_ids"], list):
@@ -1451,6 +1574,7 @@ def _get_sites(
         + date_end_query
         + lat_query
         + lon_query
+        + grid_bounds_query
         + site_query
         + state_query
         + network_query
