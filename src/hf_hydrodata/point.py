@@ -474,7 +474,7 @@ def get_site_variables(*args, **kwargs):
     dataset : str, optional
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
         'scan', 'ameriflux'.
-    variable : str, required
+    variable : str, optional
         Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
         'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
@@ -657,7 +657,7 @@ def get_site_variables(*args, **kwargs):
                               AND {grid}_j <= {grid_bounds[3]}
                          """
             grid_bounds_df = pd.read_sql_query(grid_bounds_query, conn)
-            grid_bounds_sites.append(list(grid_bounds_df["site_id"]))
+            grid_bounds_sites.extend(list(grid_bounds_df["site_id"]))
 
         if len(grid_bounds_sites) > 0:
             grid_bounds_query = """ AND s.site_id IN (%s)""" % ",".join(

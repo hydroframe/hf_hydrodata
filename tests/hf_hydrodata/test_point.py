@@ -1511,5 +1511,121 @@ def test_fail_no_sites_get_metadata():
     assert str(exc.value) == "There are no sites within the provided grid_bounds."
 
 
+def test_get_variables_grid_bounds_conus1_list():
+    """Test for using grid_bounds filter with a list"""
+    df = point.get_site_variables(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        grid="conus1",
+        grid_bounds=[1000, 450, 1200, 650],
+    )
+    assert df.shape[0] >= 26
+    assert df.shape[0] <= 34
+    assert "08249000" in list(df["site_id"])
+    assert "07093700" in list(df["site_id"])
+
+
+def test_get_variables_grid_bounds_conus1_dict():
+    """Test for using grid_bounds filter as a dictionary parameter"""
+    df = point.get_site_variables(
+        {
+            "dataset": "usgs_nwis",
+            "variable": "streamflow",
+            "temporal_resolution": "daily",
+            "aggregation": "mean",
+            "date_start": "2002-01-01",
+            "date_end": "2002-01-05",
+            "grid": "conus1",
+            "grid_bounds": [1000, 450, 1200, 650],
+        }
+    )
+    assert df.shape[0] >= 26
+    assert df.shape[0] <= 34
+    assert "08249000" in list(df["site_id"])
+    assert "07093700" in list(df["site_id"])
+
+
+def test_get_variables_grid_bounds_conus2_list():
+    """Test for using grid_bounds filter with a list"""
+    df = point.get_site_variables(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        grid="conus2",
+        grid_bounds=[1500, 1300, 1700, 1500],
+    )
+    assert df.shape[0] >= 18
+    assert df.shape[0] <= 24
+    assert "07119500" in list(df["site_id"])
+    assert "07208500" in list(df["site_id"])
+
+
+def test_get_variables_grid_bounds_conus2_dict():
+    """Test for using grid_bounds filter as a dictionary parameter"""
+    df = point.get_site_variables(
+        {
+            "dataset": "usgs_nwis",
+            "variable": "streamflow",
+            "temporal_resolution": "daily",
+            "aggregation": "mean",
+            "date_start": "2002-01-01",
+            "date_end": "2002-01-05",
+            "grid": "conus2",
+            "grid_bounds": [1500, 1300, 1700, 1500],
+        }
+    )
+    assert df.shape[0] >= 18
+    assert df.shape[0] <= 24
+    assert "07119500" in list(df["site_id"])
+    assert "07208500" in list(df["site_id"])
+
+
+def test_fail_no_grid_get_site_variables():
+    """
+    Test to ensure proper failure if grid_bounds parameter supplied
+    but no grid parameter supplied.
+    """
+    with pytest.raises(ValueError) as exc:
+        point.get_site_variables(
+            dataset="usgs_nwis",
+            variable="streamflow",
+            temporal_resolution="daily",
+            aggregation="mean",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            grid_bounds=[1500, 1300, 1700, 1500],
+        )
+    assert (
+        str(exc.value)
+        == "When providing the parameter `grid_bounds`, please also provide the parameter `grid` as either 'conus1' or 'conus2'."
+    )
+
+
+def test_fail_no_sites_get_site_variables():
+    """
+    Test to ensure proper failure if filtering on the supplied grid
+    and grid_bounds results in zero sites.
+    """
+    with pytest.raises(Exception) as exc:
+        point.get_site_variables(
+            dataset="usgs_nwis",
+            variable="streamflow",
+            temporal_resolution="daily",
+            aggregation="mean",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            grid="conus2",
+            grid_bounds=[1500, 1300, 1501, 1301],
+        )
+    assert str(exc.value) == "There are no sites within the provided grid_bounds."
+
+
 if __name__ == "__main__":
     pytest.main()
