@@ -1431,5 +1431,85 @@ def test_grid_bounds_conus2_dict():
     assert "07208500" in list(metadata_df["site_id"])
 
 
+def test_fail_no_grid_get_data():
+    """
+    Test to ensure proper failure if grid_bounds parameter supplied
+    but no grid parameter supplied.
+    """
+    with pytest.raises(ValueError) as exc:
+        point.get_point_data(
+            dataset="usgs_nwis",
+            variable="streamflow",
+            temporal_resolution="daily",
+            aggregation="mean",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            grid_bounds=[1500, 1300, 1700, 1500],
+        )
+    assert (
+        str(exc.value)
+        == "When providing the parameter `grid_bounds`, please also provide the parameter `grid` as either 'conus1' or 'conus2'."
+    )
+
+
+def test_fail_no_grid_get_metadata():
+    """
+    Test to ensure proper failure if grid_bounds parameter supplied
+    but no grid parameter supplied.
+    """
+    with pytest.raises(ValueError) as exc:
+        point.get_point_metadata(
+            dataset="usgs_nwis",
+            variable="streamflow",
+            temporal_resolution="daily",
+            aggregation="mean",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            grid_bounds=[1500, 1300, 1700, 1500],
+        )
+    assert (
+        str(exc.value)
+        == "When providing the parameter `grid_bounds`, please also provide the parameter `grid` as either 'conus1' or 'conus2'."
+    )
+
+
+def test_fail_no_sites_get_data():
+    """
+    Test to ensure proper failure if filtering on the supplied grid
+    and grid_bounds results in zero sites.
+    """
+    with pytest.raises(Exception) as exc:
+        point.get_point_data(
+            dataset="usgs_nwis",
+            variable="streamflow",
+            temporal_resolution="daily",
+            aggregation="mean",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            grid="conus2",
+            grid_bounds=[1500, 1300, 1501, 1301],
+        )
+    assert str(exc.value) == "There are no sites within the provided grid_bounds."
+
+
+def test_fail_no_sites_get_metadata():
+    """
+    Test to ensure proper failure if filtering on the supplied grid
+    and grid_bounds results in zero sites.
+    """
+    with pytest.raises(Exception) as exc:
+        point.get_point_metadata(
+            dataset="usgs_nwis",
+            variable="streamflow",
+            temporal_resolution="daily",
+            aggregation="mean",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            grid="conus2",
+            grid_bounds=[1500, 1300, 1501, 1301],
+        )
+    assert str(exc.value) == "There are no sites within the provided grid_bounds."
+
+
 if __name__ == "__main__":
     pytest.main()
