@@ -420,6 +420,25 @@ def get_point_metadata(*args, **kwargs):
         )
         metadata_df = pd.merge(metadata_df, attributes_df, how="left", on="site_id")
 
+        # For "instantaneous" groundwater data only, also filter on the sites that actually
+        # have observations. This involves actually reading in and filtering the observations
+        # data. Otherwise, get_point_metadata only reads in site-level metadata to keep it fast.
+        # Because this "instantaneous" data is stored sparsely, the user does not get back
+        # NaN series for sites that are located within the filter but that don't have observations
+        # for the requested time period. Therefore, it is not obvious to users why there is
+        # a discrepancy in unique site IDs between the data DataFrame returned by get_point_data and
+        # the metadata DataFrame returned by get_point_metadata when querying for "instantaneous" wtd.
+        # For this data source only, this additional filtering will sacrifice some speed (to actually
+        # query the data) with better interpretability.
+        wtd_data_df = _get_data_sql(conn, site_ids, 5, options)
+        wtd_sites_with_data = list(wtd_data_df["site_id"].unique())
+        metadata_df = pd.merge(
+            metadata_df,
+            pd.DataFrame(data=wtd_sites_with_data, columns=["site_id"]),
+            on="site_id",
+            how="inner",
+        )
+
     if ("SNOTEL station" in metadata_df["site_type"].unique()) or (
         "SCAN station" in metadata_df["site_type"].unique()
     ):
