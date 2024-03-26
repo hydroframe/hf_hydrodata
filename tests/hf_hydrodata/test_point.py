@@ -316,8 +316,10 @@ def test_get_data_wtd_instantaneous():
         latitude_range=(30, 35),
         longitude_range=(-120, -115),
     )
-    assert len(df) >= 300
-    assert "323709080324809" in list(df["site_id"])
+    assert len(df) >= 42
+    assert len(df) < 100
+    assert "323709080324809" not in list(df["site_id"])
+    assert "340722116260301" in list(df["site_id"])
     assert set(list(df["date"])) == {"2002-01-01"}
 
 
