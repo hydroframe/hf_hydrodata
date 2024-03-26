@@ -430,14 +430,15 @@ def get_point_metadata(*args, **kwargs):
         # the metadata DataFrame returned by get_point_metadata when querying for "instantaneous" wtd.
         # For this data source only, this additional filtering will sacrifice some speed (to actually
         # query the data) with better interpretability.
-        wtd_data_df = _get_data_sql(conn, site_ids, 5, options)
-        wtd_sites_with_data = list(wtd_data_df["site_id"].unique())
-        metadata_df = pd.merge(
-            metadata_df,
-            pd.DataFrame(data=wtd_sites_with_data, columns=["site_id"]),
-            on="site_id",
-            how="inner",
-        )
+        if options["temporal_resolution"] == "instantaneous":
+            wtd_data_df = _get_data_sql(conn, site_ids, 5, options)
+            wtd_sites_with_data = list(wtd_data_df["site_id"].unique())
+            metadata_df = pd.merge(
+                metadata_df,
+                pd.DataFrame(data=wtd_sites_with_data, columns=["site_id"]),
+                on="site_id",
+                how="inner",
+            )
 
     if ("SNOTEL station" in metadata_df["site_type"].unique()) or (
         "SCAN station" in metadata_df["site_type"].unique()
