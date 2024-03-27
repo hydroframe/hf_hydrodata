@@ -19,7 +19,7 @@ import validate_data_model
 DOCS_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 
 project = u"hf_hydrodata"
-copyright = u"@ 2023 The Trustees of Princeton University and The Arizona Board of Regents on behalf of the University of Arizona"
+copyright = u"@ 2024 The Trustees of Princeton University and The Arizona Board of Regents on behalf of the University of Arizona College of Science, Hydrology & Atmospheric Sciences"
 author = u"Laura Condon, Reed Maxwell, William M. Hasling, Amy M. Johnson, Amy C. Defnet, George Artavanis"
 
 # -- General configuration ---------------------------------------------------
