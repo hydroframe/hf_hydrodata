@@ -242,7 +242,7 @@ def get_point_data(*args, **kwargs):
         data_df = _get_data_nc(site_list, var_id, *args, **kwargs)
 
     elif var_id == 5:
-        data_df = _get_data_sql(conn, var_id, *args, **kwargs)
+        data_df = _get_data_sql(conn, site_list, var_id, *args, **kwargs)
 
     conn.close()
 
@@ -419,6 +419,26 @@ def get_point_metadata(*args, **kwargs):
             params=site_ids,
         )
         metadata_df = pd.merge(metadata_df, attributes_df, how="left", on="site_id")
+
+        # For "instantaneous" groundwater data only, also filter on the sites that actually
+        # have observations. This involves actually reading in and filtering the observations
+        # data. Otherwise, get_point_metadata only reads in site-level metadata to keep it fast.
+        # Because this "instantaneous" data is stored sparsely, the user does not get back
+        # NaN series for sites that are located within the filter but that don't have observations
+        # for the requested time period. Therefore, it is not obvious to users why there is
+        # a discrepancy in unique site IDs between the data DataFrame returned by get_point_data and
+        # the metadata DataFrame returned by get_point_metadata when querying for "instantaneous" wtd.
+        # For this data source only, this additional filtering will sacrifice some speed (to actually
+        # query the data) with better interpretability.
+        if options["temporal_resolution"] == "instantaneous":
+            wtd_data_df = _get_data_sql(conn, site_ids, 5, options)
+            wtd_sites_with_data = list(wtd_data_df["site_id"].unique())
+            metadata_df = pd.merge(
+                metadata_df,
+                pd.DataFrame(data=wtd_sites_with_data, columns=["site_id"]),
+                on="site_id",
+                how="inner",
+            )
 
     if ("SNOTEL station" in metadata_df["site_type"].unique()) or (
         "SCAN station" in metadata_df["site_type"].unique()
@@ -1193,6 +1213,7 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
         assert aggregation in [
             "mean",
             "instantaneous",
+            "-",
             "sum",
             "sum_snow_adjusted",
             "sod",
@@ -1270,6 +1291,11 @@ def _get_var_id(
         data_source = "usda_nrcs"
     else:
         data_source = dataset
+
+    # Accept "-" in new versions of code as aggregation level
+    # Maintain compatibility with older versions using "instantaneous"
+    if aggregation == "-":
+        aggregation = "instantaneous"
 
     if variable == "soil_moisture":
         query = """
@@ -1974,7 +2000,7 @@ def _get_data_nc(site_list, var_id, *args, **kwargs):
         return data_df
 
 
-def _get_data_sql(conn, var_id, *args, **kwargs):
+def _get_data_sql(conn, site_list, var_id, *args, **kwargs):
     """
     Get observations data for data that is stored in a SQL table.
 
@@ -1983,6 +2009,8 @@ def _get_data_sql(conn, var_id, *args, **kwargs):
     conn : Connection object
         The Connection object associated with the SQLite database to
         query from.
+    site_list : list
+        List of site IDs to query observations data for.
     var_id : int
         Integer variable ID associated with combination of `dataset`,
         `variable`, `temporal_resolution`, and `aggregation`.
@@ -2041,6 +2069,12 @@ def _get_data_sql(conn, var_id, *args, **kwargs):
             options["date_end"],
         ]
 
+    # Add filter for only the site IDs in site_list
+    site_query = """ AND w.site_id IN (%s)""" % ",".join("?" * len(site_list))
+    for s in site_list:
+        param_list.append(s)
+
+    # Filter on all spatial observations for the desired time range (if any)
     query = (
         """
             SELECT w.site_id, w.date, w.wtd, w.pumping_status
@@ -2055,6 +2089,7 @@ def _get_data_sql(conn, var_id, *args, **kwargs):
             ON w.site_id = c.site_id
             """
         + date_query
+        + site_query
     )
 
     df = pd.read_sql_query(query, conn, params=param_list)
