@@ -1213,6 +1213,7 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
         assert aggregation in [
             "mean",
             "instantaneous",
+            "-",
             "sum",
             "sum_snow_adjusted",
             "sod",
@@ -1290,6 +1291,11 @@ def _get_var_id(
         data_source = "usda_nrcs"
     else:
         data_source = dataset
+
+    # Accept "-" in new versions of code as aggregation level
+    # Maintain compatibility with older versions using "instantaneous"
+    if aggregation == "-":
+        aggregation = "instantaneous"
 
     if variable == "soil_moisture":
         query = """
