@@ -98,7 +98,7 @@ This will validate the model CSV files and
 generate the read-the-docs html into the html folder.
 
 ## License
-Copyright © 2024 The Trustees of Princeton University and The Arizona Board of Regents on behalf of The University of Arizona, College of Science, Hydrology & Atmospheric Sciences. All rights reserved.
+Copyright © 2024 The Trustees of Princeton University and The Arizona Board of Regents on behalf of The University of Arizona, College of Science Hydrology & Atmospheric Sciences. All rights reserved.
 
 `hf_hydrodata` was created by William M. Hasling, Laura Condon, Reed Maxwell, George Artavanis, Will Lytle, Amy M. Johnson, Amy C. Defnet. It is licensed under the terms of the MIT license. For details, see the [LICENSE](https://github.com/hydroframe/hf_hydrodata/blob/main/LICENSE) file.
 
