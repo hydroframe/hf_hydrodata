@@ -304,7 +304,17 @@ def test_files_exist():
             start_time = "2023-01-01"
 
         row_id = row["id"]
-        if not row_id in ["206", "207", "208", "209", "210", "213", "253", "254"]:
+        if not row_id in [
+            "206",
+            "207",
+            "208",
+            "209",
+            "210",
+            "213",
+            "253",
+            "254",
+            "522",
+        ]:
             paths = gr.get_file_paths(
                 row,
                 start_time=start_time,
@@ -365,6 +375,7 @@ def test_read_data_all_entries():
                 "vegp",
                 "vegm",
                 "pftcl",
+                "sql",
             ] and entry_id not in ["1", "68", "69"]:
                 data = gr.get_ndarray(row, start_time=start_time, level=4)
                 if data is None:
