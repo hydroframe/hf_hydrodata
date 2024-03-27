@@ -310,15 +310,45 @@ def test_get_data_wtd_instantaneous():
         dataset="usgs_nwis",
         variable="water_table_depth",
         temporal_resolution="instantaneous",
-        aggregation="instantaneous",
+        aggregation="-",
         date_start="2002-01-01",
         date_end="2002-01-01",
         latitude_range=(30, 35),
         longitude_range=(-120, -115),
     )
-    assert len(df) >= 300
-    assert "323709080324809" in list(df["site_id"])
+    assert len(df) >= 42
+    assert len(df) < 100
+    assert "323709080324809" not in list(df["site_id"])
+    assert "340722116260301" in list(df["site_id"])
     assert set(list(df["date"])) == {"2002-01-01"}
+
+
+def test_get_metadata_wtd_instantaneous():
+    """Test for instantaneous wtd metadata"""
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="water_table_depth",
+        temporal_resolution="instantaneous",
+        aggregation="-",
+        date_start="2002-01-01",
+        date_end="2002-01-01",
+        latitude_range=(30, 35),
+        longitude_range=(-120, -115),
+    )
+
+    metadata_df = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="water_table_depth",
+        temporal_resolution="instantaneous",
+        aggregation="-",
+        date_start="2002-01-01",
+        date_end="2002-01-01",
+        latitude_range=(30, 35),
+        longitude_range=(-120, -115),
+    )
+    assert len(df["site_id"].unique()) == len(metadata_df)
+    assert "323709080324809" not in list(metadata_df["site_id"])
+    assert "340722116260301" in list(metadata_df["site_id"])
 
 
 def test_get_data_swe_daily():

@@ -396,3 +396,4 @@ id,dataset,file_type,variable,dataset_var,entry_start_date,entry_end_date,tempor
 519,noaa,pfb,air_temp,Temp_max,,,daily,K,max,conus1,wy_daynum,1,/hydrodata/national_obs/gridded_meteorology/NOAA_temperature/CONUS1/WY{wy}/HRRR.Temp_max.daily.regrid.{wy}.{wy_daynum:03d}.pfb,,
 520,noaa,pfb,air_temp,Temp_mean,,,daily,K,mean,conus1,wy_daynum,1,/hydrodata/national_obs/gridded_meteorology/NOAA_temperature/CONUS1/WY{wy}/HRRR.Temp_mean.daily.regrid.{wy}.{wy_daynum:03d}.pfb,,
 521,conus1_domain,pfb,topographic_index,topographic_index,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_topographic_index.pfb,,
+522,usgs_nwis,sql,water_table_depth,wtd,01/01/1801,,instantaneous,m,-,,,1,,,groundwater
