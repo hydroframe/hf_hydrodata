@@ -523,11 +523,8 @@ def get_gridded_files(
     """
     verbose_start_time = time.time()
     temporal_resolution = options.get("temporal_resolution")
-    temporal_resolution = (
-        "static"
-        if temporal_resolution in ["-", "static"] or not temporal_resolution
-        else temporal_resolution
-    )
+    temporal_resolution = _get_temporal_resolution_from_catalog(options) if temporal_resolution is None else temporal_resolution
+    temporal_resolution = "static" if temporal_resolution == "-" else temporal_resolution
     if temporal_resolution not in ["daily", "hourly", "monthly", "static"]:
         raise ValueError(
             "The temporal_resolution must be hourly, daily, monthly, or static."
@@ -653,6 +650,22 @@ def get_gridded_files(
             print(f"Created all files in {duration} minutes.")
 
 
+def _get_temporal_resolution_from_catalog(options):
+    """Get the temporal resolution from the data catalog when it is not passed as input option."""
+    entries = dc.get_catalog_entries(options)
+    if len(entries) == 0:
+        raise ValueError("Unable to determine temporal resolution")
+    result = entries[0]["temporal_resolution"]
+    result = "static" if result == "-" else result
+    for entry in entries:
+        temporal_resolution = entry["temporal_resolution"]
+        temporal_resolution = "static" if temporal_resolution == "-" else temporal_resolution
+        if temporal_resolution is not None and not temporal_resolution == result:
+            raise ValueError("Temporal resolution is not specified and is ambiguous.")
+    if result is None:
+        raise ValueError("Unable to determine temporal resolution.")
+    return result
+
 def _get_aggregation_entries(options):
     """
     Get the list of different aggregation entries for the filter options.
@@ -741,7 +754,7 @@ def _create_gridded_files_netcdf(
             rrule.MONTHLY, dtstart=state.start_time, until=state.end_time
         ).count()
     elif state.temporal_resolution == "static":
-        t_num = time_index
+        t_num = 0
         t_shape = 1
 
     with THREAD_LOCK:
