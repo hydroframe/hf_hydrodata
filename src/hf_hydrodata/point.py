@@ -699,7 +699,6 @@ def get_site_variables(*args, **kwargs):
             for s in options["site_ids"]:
                 param_list.append(s)
         elif isinstance(options["site_ids"], str):
-            print(f"site_ids {options['site_ids']}")
             site_query = """ AND s.site_id == ?"""
             param_list.append(options["site_ids"])
         else:
@@ -1954,8 +1953,6 @@ def _get_data_nc(site_list, var_id, *args, **kwargs):
     if "date_end" in options:
         date_end_dt = np.datetime64(options["date_end"])
 
-    print("collecting data...")
-
     for i in range(len(site_list)):
         # open single site file
         temp = xr.open_dataset(file_list[i])[varname]
@@ -1990,8 +1987,6 @@ def _get_data_nc(site_list, var_id, *args, **kwargs):
 
     ds = ds.assign_coords({"site": (site_list)})
     ds = ds.rename({"datetime": "date"})
-
-    print("data collected.")
 
     data_df = _convert_to_pandas(ds)
     if "min_num_obs" in options and options["min_num_obs"] is not None:

@@ -1678,10 +1678,30 @@ def test_topographic_index():
         ds = xr.open_dataset("foo.nc")
         da = ds["topographic_index"]
         assert da.shape == (5, 5)
-        print(ds)
-        print(da.shape)
     os.chdir(cd)
 
+def test_gridded_files_default_temporal_resolution():
+    """Test reading gridded files without specifing temporal resolution."""
+    
+    cd = os.getcwd()
+    with tempfile.TemporaryDirectory() as tempdirname:
+        os.chdir(tempdirname)
+        options = {
+            "dataset": "conus1_current_conditions",
+            "variable": "soil_moisture",
+            "grid_bounds": [100, 100, 104, 104],
+            "start_time": "2024-03-01",
+            "end_time": "2024-03-03",
+        }
+        variables = ["soil_moisture"]
+        gr.get_gridded_files(options, filename_template="foo.nc", variables = variables)
+        assert os.path.exists("foo.nc")
+    os.chdir(cd)
 
+    assert gr._get_temporal_resolution_from_catalog(options) == "daily"
+    
+    with pytest.raises(ValueError):
+        gr._get_temporal_resolution_from_catalog({"dataset": "CW3E"})
+    
 if __name__ == "__main__":
     pytest.main([__file__])
