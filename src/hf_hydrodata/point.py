@@ -67,14 +67,14 @@ def get_point_data(*args, **kwargs):
     ----------
     dataset : str, required
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux'.
+        'scan', 'ameriflux', 'jasechko_2024'.
     variable : str, required
         Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
         'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str, required
-        Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
-        Please see the documentation for allowable combinations with `variable`.
+        Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous', and.
+        'yearly'. Please see the documentation for allowable combinations with `variable`.
     aggregation : str, required
         Additional information specifying the aggregation method for the variable to be returned.
         Options include descriptors such as 'mean' and 'sum'. Please see the documentation
@@ -241,7 +241,7 @@ def get_point_data(*args, **kwargs):
     if (var_id in (1, 2, 3, 4)) | (var_id in range(6, 25)):
         data_df = _get_data_nc(site_list, var_id, *args, **kwargs)
 
-    elif var_id == 5:
+    elif var_id in (5, 25):
         data_df = _get_data_sql(conn, site_list, var_id, *args, **kwargs)
 
     conn.close()
@@ -257,13 +257,14 @@ def get_point_metadata(*args, **kwargs):
     ----------
     dataset : str, required
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux'.
+        'scan', 'ameriflux', 'jasechko_2024'.
     variable : str, required
         Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
         'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str, required
-        Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
+        Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
+        and 'yearly'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str, required
         Additional information specifying the aggregation method for the variable to be returned.
@@ -1050,7 +1051,7 @@ def _get_point_citations(dataset):
     ----------
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux'.
+        'scan', 'ameriflux', 'jasechko_2024'.
 
     Returns
     -------
@@ -1058,10 +1059,10 @@ def _get_point_citations(dataset):
         String containing overall attribution instructions for the provided dataset.
     """
     try:
-        assert dataset in ["usgs_nwis", "snotel", "scan", "ameriflux"]
+        assert dataset in ["usgs_nwis", "snotel", "scan", "ameriflux", "jasechko_2024"]
     except:
         raise ValueError(
-            f"Unexpected value of dataset, {dataset}. Supported values include 'usgs_nwis', 'snotel', 'scan', and 'ameriflux'"
+            f"Unexpected value of dataset, {dataset}. Supported values include 'usgs_nwis', 'snotel', 'scan', 'ameriflux', and 'jasechko_2024"
         )
 
     if dataset == "usgs_nwis":
@@ -1094,6 +1095,9 @@ def _get_point_citations(dataset):
             "DataFrame returned by the hf_hydrodata get_point_metadata method, in the doi column.\n"
             "Source: https://ameriflux.lbl.gov/data/data-policy/"
         )
+
+    elif dataset == "jasechko_2024":
+        c = "Dataset DOI: 10.1038/s41586-023-06879-8"
 
     return c
 
@@ -1152,13 +1156,14 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
     ----------
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux'.
+        'scan', 'ameriflux', 'jasechko_2024'.
     variable : str, required
         Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
         'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str
-        Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
+        Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
+        and 'yearly'.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
         Options include descriptors such as 'mean' and 'sum'. Please see the documentation
@@ -1183,7 +1188,7 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
         options = kwargs
 
     try:
-        assert temporal_resolution in ["daily", "hourly", "instantaneous"]
+        assert temporal_resolution in ["daily", "hourly", "instantaneous", "yearly"]
     except:
         raise ValueError(
             f"Unexpected value for temporal_resolution, {temporal_resolution}. Please see the documentation for allowed values."
@@ -1212,6 +1217,7 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
     try:
         assert aggregation in [
             "mean",
+            "median",
             "instantaneous",
             "-",
             "sum",
@@ -1227,7 +1233,7 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
         )
 
     try:
-        assert dataset in ["usgs_nwis", "snotel", "scan", "ameriflux"]
+        assert dataset in ["usgs_nwis", "snotel", "scan", "ameriflux", "jasechko_2024"]
     except:
         raise ValueError(
             f"Unexpected value for dataset, {dataset} Please see the documentation for allowed values."
@@ -1255,13 +1261,14 @@ def _get_var_id(
         The Connection object associated with the SQLite database to query from.
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux'.
+        'scan', 'ameriflux', 'jasechko_2024'.
     variable : str, required
         Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
         'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str
-        Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
+        Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous', and
+        'yearly'.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
         Options include descriptors such as 'mean' and 'sum'. Please see the documentation
@@ -1393,13 +1400,14 @@ def _get_sites(
         query from.
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux'.
+        'scan', 'ameriflux', 'jasechko_2024'.
     variable : str, required
         Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
         'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str
-        Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
+        Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
+        and 'yearly'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
@@ -1521,6 +1529,8 @@ def _get_sites(
             tbl = "snotel_station_attributes"
         elif dataset == "ameriflux":
             tbl = "flux_tower_attributes"
+        elif dataset == "jasechko_2024":
+            tbl = "jasechko_attributes"
 
         grid = options["grid"]
         grid_bounds = options["grid_bounds"]
@@ -2034,7 +2044,14 @@ def _get_data_sql(conn, site_list, var_id, *args, **kwargs):
         Stacked observations data for a single variable, filtered to only sites that
         have the minimum number of observations specified.
     """
-    assert var_id == 5
+    assert var_id in (5, 25)
+    if var_id == 5:
+        tbl_name = "wtd_discrete_data"
+        var_names = "w.wtd, w.pumping_status"
+
+    elif var_id == 25:
+        tbl_name = "jasechko_wtd_data"
+        var_names = "w.wtd"
 
     if len(args) > 0 and isinstance(args[0], dict):
         options = args[0]
@@ -2076,11 +2093,11 @@ def _get_data_sql(conn, site_list, var_id, *args, **kwargs):
 
     # Filter on all spatial observations for the desired time range (if any)
     query = (
-        """
-            SELECT w.site_id, w.date, w.wtd, w.pumping_status
-            FROM wtd_discrete_data AS w
+        f"""
+            SELECT w.site_id, w.date, {var_names}
+            FROM {tbl_name} AS w
             INNER JOIN (SELECT w.site_id, COUNT(*) AS num_obs
-                FROM wtd_discrete_data AS w
+                FROM {tbl_name} AS w
                 """
         + date_query
         + """
