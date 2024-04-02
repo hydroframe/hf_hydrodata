@@ -51,6 +51,7 @@ SITE_ATTRIBUTE_TABLES = [
     "well_attributes",
     "snotel_station_attributes",
     "flux_tower_attributes",
+    "jasechko_attributes",
 ]
 
 
@@ -405,7 +406,9 @@ def get_point_metadata(*args, **kwargs):
         )
         metadata_df = pd.merge(metadata_df, attributes_df, how="left", on="site_id")
 
-    if "groundwater well" in metadata_df["site_type"].unique():
+    if ("groundwater well" in metadata_df["site_type"].unique()) and (
+        options["dataset"] == "usgs_nwis"
+    ):
         attributes_df = pd.read_sql_query(
             """SELECT site_id, conus1_i, conus1_j, conus2_i, conus2_j,
                       nat_aqfr_cd AS usgs_nat_aqfr_cd,
@@ -440,6 +443,18 @@ def get_point_metadata(*args, **kwargs):
                 on="site_id",
                 how="inner",
             )
+
+    if ("groundwater well" in metadata_df["site_type"].unique()) and (
+        options["dataset"] == "jasechko_2024"
+    ):
+        attributes_df = pd.read_sql_query(
+            """SELECT site_id, conus1_i, conus1_j, conus2_i, conus2_j, usgs_site
+               FROM jasechko_attributes WHERE site_id IN (%s)"""
+            % ",".join("?" * len(site_ids)),
+            conn,
+            params=site_ids,
+        )
+        metadata_df = pd.merge(metadata_df, attributes_df, how="left", on="site_id")
 
     if ("SNOTEL station" in metadata_df["site_type"].unique()) or (
         "SCAN station" in metadata_df["site_type"].unique()
@@ -603,7 +618,13 @@ def get_site_variables(*args, **kwargs):
     # Data source
     if "dataset" in options and options["dataset"] is not None:
         try:
-            assert options["dataset"] in ["usgs_nwis", "snotel", "scan", "ameriflux"]
+            assert options["dataset"] in [
+                "usgs_nwis",
+                "snotel",
+                "scan",
+                "ameriflux",
+                "jasechko_2024",
+            ]
         except:
             raise ValueError(
                 f"dataset must be one of 'usgs_nwis', 'snotel', 'scan', 'ameriflux'. You provided {options['dataset']}"
@@ -615,6 +636,9 @@ def get_site_variables(*args, **kwargs):
         elif options["dataset"] == "ameriflux":
             dataset_query = """ AND agency == ?"""
             param_list.append("AmeriFlux")
+        elif options["dataset"] == "jasechko_2024":
+            dataset_query = """ AND agency == ?"""
+            param_list.append("Jasechko_et_al_2024")
         elif options["dataset"] == "snotel":
             dataset_query = """ AND site_type == ?"""
             param_list.append("SNOTEL station")
@@ -2066,6 +2090,18 @@ def _get_data_sql(conn, site_list, var_id, *args, **kwargs):
         min_num_obs = 1
     else:
         min_num_obs = options["min_num_obs"]
+
+    # This is a yearly variable. For date filtering to work properly, only consider the
+    # year provided in the input arguments.
+    if var_id == 25:
+        if "date_start" in options and options["date_start"] is not None:
+            options["date_start"] = datetime.datetime.strptime(
+                options["date_start"], "%Y-%m-%d"
+            ).year
+        if "date_end" in options and options["date_end"] is not None:
+            options["date_end"] = datetime.datetime.strptime(
+                options["date_end"], "%Y-%m-%d"
+            ).year
 
     if ("date_start" not in options) and ("date_end" not in options):
         date_query = """"""

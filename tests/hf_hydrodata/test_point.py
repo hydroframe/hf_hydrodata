@@ -1657,5 +1657,73 @@ def test_fail_no_sites_get_site_variables():
     assert str(exc.value) == "There are no sites within the provided grid_bounds."
 
 
+def test_get_data_jasechko():
+    """Test getting data for Jasechko dataset."""
+    # No date range
+    df = point.get_point_data(
+        dataset="jasechko_2024",
+        variable="water_table_depth",
+        temporal_resolution="yearly",
+        aggregation="median",
+        site_ids=["1000000106"],
+    )
+    assert len(df) == 30
+
+    # Date range
+    df = point.get_point_data(
+        dataset="jasechko_2024",
+        variable="water_table_depth",
+        temporal_resolution="yearly",
+        aggregation="median",
+        date_start="2000-01-01",
+        date_end="2002-01-01",
+        site_ids=["1000000106"],
+    )
+    assert len(df) == 2
+
+
+def test_get_metadata_jasechko():
+    """Test getting metadata for Jasechko dataset."""
+    metadata_df = point.get_point_metadata(
+        dataset="jasechko_2024",
+        variable="water_table_depth",
+        temporal_resolution="yearly",
+        aggregation="median",
+        site_ids=["1000000106"],
+    )
+    assert len(metadata_df) == 1
+    assert "1000000106" in list(metadata_df["site_id"])
+
+    metadata_df = point.get_point_metadata(
+        dataset="jasechko_2024",
+        variable="water_table_depth",
+        temporal_resolution="yearly",
+        aggregation="median",
+        date_start="2021-01-01",
+        date_end="2022-12-31",
+        state="CO",
+    )
+    assert len(metadata_df) == 281
+    assert "usgs_site" in metadata_df.columns
+
+
+def test_get_citations_jasechko():
+    """Test citations for jasechko_2024 dataset."""
+    t = point._get_point_citations("jasechko_2024")
+    assert t == "Dataset DOI: 10.1038/s41586-023-06879-8"
+
+
+def test_get_site_variables_jasechko():
+    """Test for get_site_variables with jasechko dataset."""
+    df = point.get_site_variables(
+        dataset="jasechko_2024",
+        variable="water_table_depth",
+        date_start="2021-01-01",
+        date_end="2022-12-31",
+        state="CO",
+    )
+    assert len(df) == 281
+
+
 if __name__ == "__main__":
     pytest.main()
