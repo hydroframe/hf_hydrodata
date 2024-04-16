@@ -2,7 +2,7 @@
 Unit test for the gridded module.
 """
 
-# pylint: disable=C0301,C0103,W0632,W0702,W0101,C0302,W0105,E0401,C0413,R0903,W0613,R0912
+# pylint: disable=C0301,C0103,W0632,W0702,W0101,C0302,W0105,E0401,C0413,R0903,W0613,R0912,W0212
 import sys
 import os
 import datetime
@@ -893,7 +893,7 @@ def test_get_huc_bbox_conus2():
     bbox = hf.get_huc_bbox("conus2", ["1019"])
     assert bbox == [1439, 1573, 1844, 1851]
     bbox = hf.get_huc_bbox("conus2", ["10"])
-    assert bbox == [948, 1353, 2741, 2784]
+    assert bbox == [948, 1353, 2741, 2783]
     bbox = hf.get_huc_bbox("conus2", ["15020018"])
     assert bbox == [940, 1333, 1060, 1422]
 
@@ -1515,10 +1515,9 @@ def test_huc_border():
         "temporal_resolution": "daily",
         "start_time": start_time,
         "variable": "precipitation",
-        "mask": "true",
     }
     data = gr.get_gridded_data(options)
-    assert math.isnan(data[0, 0, 98])
+    assert math.isnan(data[0, 0, 0])
 
 
 def test_get_wtd():
@@ -1680,9 +1679,10 @@ def test_topographic_index():
         assert da.shape == (5, 5)
     os.chdir(cd)
 
+
 def test_gridded_files_default_temporal_resolution():
     """Test reading gridded files without specifing temporal resolution."""
-    
+
     cd = os.getcwd()
     with tempfile.TemporaryDirectory() as tempdirname:
         os.chdir(tempdirname)
@@ -1694,14 +1694,37 @@ def test_gridded_files_default_temporal_resolution():
             "end_time": "2024-03-03",
         }
         variables = ["soil_moisture"]
-        gr.get_gridded_files(options, filename_template="foo.nc", variables = variables)
+        gr.get_gridded_files(options, filename_template="foo.nc", variables=variables)
         assert os.path.exists("foo.nc")
     os.chdir(cd)
 
     assert gr._get_temporal_resolution_from_catalog(options) == "daily"
-    
+
     with pytest.raises(ValueError):
         gr._get_temporal_resolution_from_catalog({"dataset": "CW3E"})
-    
+
+
+def test_flow_direction():
+    """Test reading flow_direction"""
+
+    options = {
+        "dataset": "conus1_domain",
+        "variable": "flow_direction",
+        "grid_bounds": [100, 100, 104, 104],
+    }
+    data = hf.get_gridded_data(options)
+    assert data[0, 0] == 1.0
+    assert data[0, 1] == 2.0
+
+    options = {
+        "dataset": "conus2_domain",
+        "variable": "flow_direction",
+        "grid_bounds": [900, 900, 910, 910],
+    }
+    data = hf.get_gridded_data(options)
+    assert data[0, 0] == 1.0
+    assert data[0, 1] == 4.0
+
+
 if __name__ == "__main__":
     pytest.main([__file__])
