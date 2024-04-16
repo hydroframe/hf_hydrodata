@@ -1710,7 +1710,30 @@ def test_flow_direction():
     options = {
         "dataset": "conus1_domain",
         "variable": "flow_direction",
+        "grid_bounds": [0, 0, 5, 5],
+        "nomask": "true",
+        "file_type": "pfb",
+    }
+    data = hf.get_gridded_data(options)
+    assert data[0, 0] == 4.0
+    assert data[0, 3] == 1.0
+
+    options = {
+        "dataset": "conus1_domain",
+        "variable": "flow_direction",
+        "grid_bounds": [0, 0, 5, 5],
+        "nomask": "true",
+        "file_type": "tiff",
+    }
+    data = hf.get_gridded_data(options)
+    assert data[0, 0] == 4.0
+    assert data[0, 3] == 1.0
+
+    options = {
+        "dataset": "conus1_domain",
+        "variable": "flow_direction",
         "grid_bounds": [100, 100, 104, 104],
+        "nomask": "true",
     }
     data = hf.get_gridded_data(options)
     assert data[0, 0] == 1.0
@@ -1720,6 +1743,18 @@ def test_flow_direction():
         "dataset": "conus2_domain",
         "variable": "flow_direction",
         "grid_bounds": [900, 900, 910, 910],
+        "file_type": "pfb",
+    }
+    data = hf.get_gridded_data(options)
+    assert data[0, 0] == 1.0
+    assert data[0, 1] == 4.0
+
+    options = {
+        "dataset": "conus2_domain",
+        "variable": "flow_direction",
+        "grid_bounds": [900, 900, 910, 910],
+        "file_type": "tiff",
+        "grid": "conus2",
     }
     data = hf.get_gridded_data(options)
     assert data[0, 0] == 1.0

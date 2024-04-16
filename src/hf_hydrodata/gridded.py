@@ -1302,7 +1302,8 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
             raise ValueError(f"File type '{file_type}' is not supported yet.")
         if structure_type == "gridded":
             data = _adjust_dimensions(data, entry)
-            data = _apply_mask(data, entry, options)
+            if not options.get("nomask") == "true":
+                data = _apply_mask(data, entry, options)
         options = _convert_json_to_strings(options)
 
     return data
