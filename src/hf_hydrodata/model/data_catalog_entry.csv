@@ -245,7 +245,7 @@ id,dataset,file_type,variable,dataset_var,entry_start_date,entry_end_date,tempor
 264,conus2_domain,tiff,stream_segments,stream_segments,,,static,-,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.StreamSegments.tif,Mask of stream segments with their segment IDs.,
 266,conus2_domain,tiff,subbasins,subbasins,,,static,-,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.Subbasins.tif,Map of the subbasins drainage area for each stream segment.,
 267,conus2_domain,sa,lat_lon,lat_lon,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/domain_files/CONUS2.0.Final.LatLong.sa,,
-268,conus2_domain,tiff,mask,mask,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/domain_files/CONUS2.0.Final1km.Mask.tif,,
+268,conus2_domain,tiff,mask,band_data,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/domain_files/CONUS2.0.Final1km.Mask.tif,,
 271,observations,netcdf,streamflow,streamflow,,,daily,m3/s,mean,,site_id,0,/hydrodata/national_obs/streamflow/data/daily/{site_id}.nc,,streamflow
 272,observations,netcdf,anomaly,anomaly_daily_single_date,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/streamflow/data/daily/{site_id}.nc,,streamflow
 273,observations,netcdf,anomaly_daily_week_of_values,anomaly_daily_week_of_values,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/streamflow/data/daily/{site_id}.nc,,streamflow
