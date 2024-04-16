@@ -1739,6 +1739,7 @@ def test_flow_direction():
     assert data[0, 0] == 1.0
     assert data[0, 1] == 2.0
 
+    # Validate conus2 flow_direction
     options = {
         "dataset": "conus2_domain",
         "variable": "flow_direction",
