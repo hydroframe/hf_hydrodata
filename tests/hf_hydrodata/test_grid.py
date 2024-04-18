@@ -54,18 +54,18 @@ def test_latlng_to_grid():
     assert round(grid_bounds[1]) == 970
 
     (x, y) = hf_hydrodata.grid.from_latlon("conus1", 49.1423, -76.3369)
-    assert round(x) == 3324
-    assert round(y) == 1888
+    assert int(x) == 3324
+    assert int(y) == 1887
 
     (x, y) = hf_hydrodata.grid.to_ij("conus1", 49.1423, -76.3369)
     assert x == 3324
-    assert y == 1888
+    assert y == 1887
 
     (lat1, lon1, lat2, lon2) = hf_hydrodata.grid.to_latlon("conus1", 375, 239, 487, 329)
     (x1, y1, x2, y2) = hf_hydrodata.grid.to_ij("conus1", lat1, lon1, lat2, lon2)
     assert x1 == 375
     assert y1 == 239
-    assert x2 == 487
+    assert x2 == 486
     assert y2 == 329
 
 def test_meters_to_ij():
@@ -73,16 +73,16 @@ def test_meters_to_ij():
 
     meters = hf_hydrodata.grid.to_meters("conus1", 31.759219, -115.902573)
     (x, y) = hf_hydrodata.grid.meters_to_ij("conus1", *meters)
-    assert round(x) == 10
-    assert round(y) == 10
+    assert int(x) == 9
+    assert int(y) == 9
 
     (x, y) = hf_hydrodata.grid.meters_to_ij("conus1", meters[0], meters[1])
-    assert x == 10
-    assert y == 10
+    assert x == 9
+    assert y == 9
 
     (x, y) = hf_hydrodata.grid.meters_to_xy("conus1", meters[0], meters[1])
-    assert round(x) == 10
-    assert round(y) == 10
+    assert int(x) == 9
+    assert int(y) == 9
 
 def test_latlng_to_grid_out_of_bounds():
     """Unit tests for when latlng is out of bounds of conus1."""
@@ -92,8 +92,9 @@ def test_latlng_to_grid_out_of_bounds():
 
     (lat, lon) = hf_hydrodata.grid.to_latlon("conus1", 0, 0)
     (_, _) = hf_hydrodata.grid.to_ij("conus1", lat, lon)
+    (_, _) = hf_hydrodata.grid.to_ij("conus1", lat, lon+0.025)
     with pytest.raises(ValueError):
-        (_, _) = hf_hydrodata.grid.to_ij("conus1", lat, lon+0.025)
+        (_, _) = hf_hydrodata.grid.to_ij("conus1", lat, lon+0.055)
 
 def test_illegal_grid():
     """Unit test for unknown grid."""

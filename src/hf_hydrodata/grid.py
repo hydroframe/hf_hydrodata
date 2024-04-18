@@ -103,7 +103,7 @@ def from_latlon(grid: str, *args) -> List[float]:
             # Check if x,y points are within the grid bounds
             bounds_x = float(shape[2])
             bounds_y = float(shape[1])
-            if not (0 <= round(x) <= bounds_x and 0 <= round(y) <= bounds_y):
+            if not (0 <= int(x) <= bounds_x and 0 <= int(y) <= bounds_y):
                 raise ValueError(
                     f"The lat/lon point maps to {int(x)},{int(y)} which is outside of grid bounds {bounds_x}, {bounds_y}"
                 )
@@ -173,7 +173,7 @@ def to_ij(grid: str, *args) -> List[int]:
         ij_bounds = hf.to_ij("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     """
 
-    result = [round(v) for v in from_latlon(grid, *args)]
+    result = [int(v) for v in from_latlon(grid, *args)]
     return result
 
 
@@ -240,8 +240,8 @@ def meters_to_ij(grid: str, *args) -> List[int]:
         y = args[index + 1]
         x = float(x) / grid_resolution
         y = float(y) / grid_resolution
-        result.append(round(x))
-        result.append(round(y))
+        result.append(int(x))
+        result.append(int(y))
     return result
 
 
@@ -264,12 +264,12 @@ def meters_to_xy(grid: str, *args) -> List[float]:
         meters = hf.to_meters("conus1", 31.759219, -115.902573)
 
         (x, y) = hf.meters_to_xy("conus1", *meters)
-        assert round(x) == 10
-        assert round(y) == 10
+        assert int(x) == 10
+        assert int(y) == 10
 
         (x, y) = hf.meters_to_xy("conus1", meters[0], meters[1])
-        assert round(x) == 10
-        assert round(y) == 10
+        assert int(x) == 10
+        assert int(y) == 10
     """
     result = []
     data_model = load_data_model()
