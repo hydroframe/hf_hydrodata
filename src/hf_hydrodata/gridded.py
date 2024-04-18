@@ -523,8 +523,14 @@ def get_gridded_files(
     """
     verbose_start_time = time.time()
     temporal_resolution = options.get("temporal_resolution")
-    temporal_resolution = _get_temporal_resolution_from_catalog(options) if temporal_resolution is None else temporal_resolution
-    temporal_resolution = "static" if temporal_resolution == "-" else temporal_resolution
+    temporal_resolution = (
+        _get_temporal_resolution_from_catalog(options)
+        if temporal_resolution is None
+        else temporal_resolution
+    )
+    temporal_resolution = (
+        "static" if temporal_resolution == "-" else temporal_resolution
+    )
     if temporal_resolution not in ["daily", "hourly", "monthly", "static"]:
         raise ValueError(
             "The temporal_resolution must be hourly, daily, monthly, or static."
@@ -659,12 +665,15 @@ def _get_temporal_resolution_from_catalog(options):
     result = "static" if result == "-" else result
     for entry in entries:
         temporal_resolution = entry["temporal_resolution"]
-        temporal_resolution = "static" if temporal_resolution == "-" else temporal_resolution
-        if temporal_resolution is not None and not temporal_resolution == result:
+        temporal_resolution = (
+            "static" if temporal_resolution == "-" else temporal_resolution
+        )
+        if temporal_resolution != result:
             raise ValueError("Temporal resolution is not specified and is ambiguous.")
     if result is None:
         raise ValueError("Unable to determine temporal resolution.")
     return result
+
 
 def _get_aggregation_entries(options):
     """
@@ -1293,7 +1302,7 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
             raise ValueError(f"File type '{file_type}' is not supported yet.")
         if structure_type == "gridded":
             data = _adjust_dimensions(data, entry)
-            if options.get("mask") and options.get("mask").lower() in ["true", "yes"]:
+            if not options.get("nomask") == "true":
                 data = _apply_mask(data, entry, options)
         options = _convert_json_to_strings(options)
 
@@ -1311,15 +1320,18 @@ def _apply_mask(data, entry, options):
     """
 
     if options.get("dataset") == "huc_mapping":
+        # Do not mask the mask
         return data
     grid = entry["grid"]
     if grid not in ["conus1", "conus2"]:
         return data
     if not isinstance(data, np.ndarray):
+        # All results should be numpy arrays, but if it is not then do not do anything since it would not work
         return data
     grid_bounds = _get_grid_bounds(grid, options)
     huc_id = options.get("huc_id")
     if huc_id:
+        # Only mask using HUC masks if the query gives us list of huc_id
         huc_ids = huc_id.split(",")
         bbox = get_huc_bbox(grid, huc_ids)
         level = len(huc_ids[0])
@@ -1332,9 +1344,11 @@ def _apply_mask(data, entry, options):
                 "level": level,
             }
         )
+        # Apply the HUC mask to the data, mask with all huc_ids
         for h_id in huc_ids:
             data = np.where(mask == float(h_id), data, np.nan)
     elif grid_bounds:
+        # If subsetting with a grid using level 2 HUC mask to mask coastline
         mask = get_gridded_data(
             {
                 "dataset": "huc_mapping",
@@ -1344,7 +1358,7 @@ def _apply_mask(data, entry, options):
                 "level": 2,
             }
         )
-        data = np.where(mask, np.nan, data)
+        data = np.where(mask > 0, data, np.nan)
     return data
 
 
@@ -2144,9 +2158,13 @@ def _slice_da_bounds(da: xr.DataArray, grid: str, options: dict) -> xr.DataArray
 
     if grid_bounds:
         if len(da.shape) == 3:
-            result = da[:, grid_bounds[1] : grid_bounds[3], grid_bounds[0] : grid_bounds[2]]
+            result = da[
+                :, grid_bounds[1] : grid_bounds[3], grid_bounds[0] : grid_bounds[2]
+            ]
         elif len(da.shape) == 2:
-            result = da[grid_bounds[1] : grid_bounds[3], grid_bounds[0] : grid_bounds[2]]
+            result = da[
+                grid_bounds[1] : grid_bounds[3], grid_bounds[0] : grid_bounds[2]
+            ]
         else:
             raise ValueError(f"Unsupported shape size {len(da.shape)}")
     else:

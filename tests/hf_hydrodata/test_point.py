@@ -1065,7 +1065,7 @@ def test_get_variables_lat_lon():
     df = point.get_site_variables(latitude_range=(47, 50), longitude_range=(-75, -60))
 
     # Bounds are flexible for if more sites are added
-    assert (len(df) >= 36) & (len(df) <= 50)
+    assert (len(df) >= 36) & (len(df) <= 65)
     assert "01011000" in list(df["site_id"])
     assert "stream gauge" in list(df["site_type"])
     assert "groundwater well" in list(df["site_type"])
@@ -1078,7 +1078,7 @@ def test_get_variables_lat_lon_dict():
     df = point.get_site_variables(query_parameters)
 
     # Bounds are flexible for if more sites are added
-    assert (len(df) >= 36) & (len(df) <= 50)
+    assert (len(df) >= 36) & (len(df) <= 65)
     assert "01011000" in list(df["site_id"])
     assert "stream gauge" in list(df["site_type"])
     assert "groundwater well" in list(df["site_type"])
