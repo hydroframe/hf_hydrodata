@@ -162,3 +162,22 @@ datasets:
       - Consolidating multiple concurrent data series
         - The AmeriFlux data sometimes provides multiple concurrent observation series for the same variable for the same site. In these cases, we consolidate the multiple series into a single series following these prioritizations:
         - We prioritize series without any suffix in the original variable names. If none is present, we prioritize variables with a "PI" suffix in the variable name, to indicate the data has been QA/QC reviewed by the tower team. 
+
+  "jasechko_2024":
+    summary: >
+      A subset of the annual median water table depth measurements for sites included in `Jasechko et al. 2024 <https://www.nature.com/articles/s41586-023-06879-8>`_.
+      These sites are subset to only those within the `CONUS2 <https://hydroframe.org/parflow-conus2>`_ boundary, and only includes data that the authors were approved to publicly release. 
+
+    processing_notes: >
+      Details on the initial data processing and collection are provided in `Jasechko et al. 2024 <https://www.nature.com/articles/s41586-023-06879-8>`_.
+      The data provided here was acquired from https://zenodo.org/records/10003697. Data was filtered to the CONUS2 domain and all sites
+      were also mapped to the Natural Earth state boundary shapefiles to include each site's state, where this mapping was unambiguous.
+
+      All sites were compared to existing USGS well records. If a site was within 0.001 degree latitude/longitude of an existing well, the
+      site is flagged as being a usgs_site.
+
+      Notes:
+
+      - The data included here is only a subset of the data in the original paper as not all data was made publicly available. 
+       
+      - The data included in this dataset are a static entry matching only what was in the publication. For up to date groundwater records refer to the USGS well dataset which is updated regularly with the most recent observations.
