@@ -1218,7 +1218,7 @@ def test_get_datasets():
     """Test get_datasets."""
 
     datasets = hf.get_datasets()
-    assert len(datasets) == 18
+    assert len(datasets) == 19
     assert datasets[0] == "CW3E"
 
     datasets = hf.get_datasets(variable="air_temp")
