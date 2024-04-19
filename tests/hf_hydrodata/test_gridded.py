@@ -314,6 +314,7 @@ def test_files_exist():
             "253",
             "254",
             "522",
+            "525",
         ]:
             paths = gr.get_file_paths(
                 row,

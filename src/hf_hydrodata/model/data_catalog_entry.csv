@@ -399,3 +399,4 @@ id,dataset,file_type,variable,dataset_var,entry_start_date,entry_end_date,tempor
 522,usgs_nwis,sql,water_table_depth,wtd,01/01/1801,,instantaneous,m,-,,,1,,,groundwater
 523,conus1_domain,tiff,flow_direction,band_data,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/flow_direction.tif,"The flow directions for every grid cell (1=down, 2=left, 3=up, 4=right)",
 524,conus1_domain,pfb,flow_direction,band_data,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/flow_direction.pfb,"The flow directions for every grid cell (1=down, 2=left, 3=up, 4=right)",
+525,jasechko_2024,sql,water_table_depth,wtd,1801,2022,yearly,m,median,,,1,,,groundwater
