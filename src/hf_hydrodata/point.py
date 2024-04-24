@@ -68,7 +68,7 @@ def get_point_data(*args, **kwargs):
     ----------
     dataset : str, required
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux', 'jasechko_2024'.
+        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'.
     variable : str, required
         Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
@@ -242,7 +242,7 @@ def get_point_data(*args, **kwargs):
     if (var_id in (1, 2, 3, 4)) | (var_id in range(6, 25)):
         data_df = _get_data_nc(site_list, var_id, *args, **kwargs)
 
-    elif var_id in (5, 25):
+    elif var_id in (5, 25, 26):
         data_df = _get_data_sql(conn, site_list, var_id, *args, **kwargs)
 
     conn.close()
@@ -2063,14 +2063,18 @@ def _get_data_sql(conn, site_list, var_id, *args, **kwargs):
         Stacked observations data for a single variable, filtered to only sites that
         have the minimum number of observations specified.
     """
-    assert var_id in (5, 25)
+    assert var_id in (5, 25, 26)
     if var_id == 5:
         tbl_name = "wtd_discrete_data"
-        var_names = "w.wtd, w.pumping_status"
+        var_names = "w.site_id, w.date, w.wtd, w.pumping_status"
 
     elif var_id == 25:
         tbl_name = "jasechko_wtd_data"
-        var_names = "w.wtd"
+        var_names = "w.site_id, w.date, w.wtd"
+
+    elif var_id == 26:
+        tbl_name = "fan_wtd_data"
+        var_names = "w.site_id, w.wtd, record_count"
 
     if len(args) > 0 and isinstance(args[0], dict):
         options = args[0]
@@ -2098,47 +2102,91 @@ def _get_data_sql(conn, site_list, var_id, *args, **kwargs):
                 options["date_end"], "%Y-%m-%d"
             ).year
 
-    if ("date_start" not in options) and ("date_end" not in options):
-        date_query = """"""
-        param_list = [min_num_obs]
-    elif ("date_start" not in options) and ("date_end" in options):
-        date_query = """ WHERE w.date <= ?"""
-        param_list = [options["date_end"], min_num_obs, options["date_end"]]
-    elif ("date_start" in options) and ("date_end" not in options):
-        date_query = """ WHERE w.date >= ?"""
-        param_list = [options["date_start"], min_num_obs, options["date_start"]]
-    elif ("date_start" in options) and ("date_end" in options):
-        date_query = """ WHERE w.date >= ? AND w.date <= ?"""
-        param_list = [
-            options["date_start"],
-            options["date_end"],
-            min_num_obs,
-            options["date_start"],
-            options["date_end"],
-        ]
+    # These variables have w.date in the database to be able to filter on
+    if var_id in (5, 25):
+        if ("date_start" not in options) and ("date_end" not in options):
+            date_query = """"""
+            param_list = [min_num_obs]
+        elif ("date_start" not in options) and ("date_end" in options):
+            date_query = """ WHERE w.date <= ?"""
+            param_list = [options["date_end"], min_num_obs, options["date_end"]]
+        elif ("date_start" in options) and ("date_end" not in options):
+            date_query = """ WHERE w.date >= ?"""
+            param_list = [options["date_start"], min_num_obs, options["date_start"]]
+        elif ("date_start" in options) and ("date_end" in options):
+            date_query = """ WHERE w.date >= ? AND w.date <= ?"""
+            param_list = [
+                options["date_start"],
+                options["date_end"],
+                min_num_obs,
+                options["date_start"],
+                options["date_end"],
+            ]
 
-    # Add filter for only the site IDs in site_list
-    site_query = """ AND w.site_id IN (%s)""" % ",".join("?" * len(site_list))
-    for s in site_list:
-        param_list.append(s)
+        # Add filter for only the site IDs in site_list
+        site_query = """ AND w.site_id IN (%s)""" % ",".join("?" * len(site_list))
+        for s in site_list:
+            param_list.append(s)
 
-    # Filter on all spatial observations for the desired time range (if any)
-    query = (
-        f"""
-            SELECT w.site_id, w.date, {var_names}
+        query = (
+            f"""
+            SELECT {var_names}
             FROM {tbl_name} AS w
             INNER JOIN (SELECT w.site_id, COUNT(*) AS num_obs
                 FROM {tbl_name} AS w
                 """
-        + date_query
-        + """
+            + date_query
+            + """
                 GROUP BY site_id
                 HAVING num_obs >= ?) AS c
             ON w.site_id = c.site_id
             """
-        + date_query
-        + site_query
-    )
+            + date_query
+            + site_query
+        )
+
+    # Check start and end dates overlap with overall dataset date range of 1927-2009
+    elif var_id == 26:
+        if "date_start" in options and options["date_start"] is not None:
+            try:
+                options["date_start"] = datetime.datetime.strptime(
+                    options["date_start"], "%Y-%m-%d"
+                )
+                assert options["date_start"] <= datetime.datetime.strptime(
+                    "2009-12-31", "%Y-%m-%d"
+                )
+            except:
+                raise ValueError(
+                    f"The provided 'date_start' of {options['date_start']} is later than this dataset has data available."
+                )
+        if "date_end" in options and options["date_end"] is not None:
+            try:
+                options["date_end"] = datetime.datetime.strptime(
+                    options["date_end"], "%Y-%m-%d"
+                )
+                assert options["date_end"] >= datetime.datetime.strptime(
+                    "1927-01-01", "%Y-%m-%d"
+                )
+            except:
+                raise ValueError(
+                    f"The provided 'date_end' of {options['date_end']} is earlier than this dataset has data available."
+                )
+
+        param_list = [min_num_obs]
+        for s in site_list:
+            param_list.append(s)
+
+        query = f"""
+                    SELECT {var_names}
+                    FROM {tbl_name} AS w
+                    INNER JOIN (SELECT site_id, record_count
+                                FROM observations
+                                WHERE record_count >= ? AND site_id IN (%s)
+                                AND var_id = 26) AS o
+                    ON w.site_id = o.site_id
+                """ % ",".join(
+            "?" * len(site_list)
+        )
 
     df = pd.read_sql_query(query, conn, params=param_list)
 
