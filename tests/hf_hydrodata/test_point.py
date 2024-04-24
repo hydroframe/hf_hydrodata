@@ -1725,5 +1725,50 @@ def test_get_site_variables_jasechko():
     assert len(df) == 281
 
 
+def test_get_data_fan():
+    """Test getting data for Fan dataset."""
+    df = point.get_point_data(
+        dataset="fan_2013",
+        variable="water_table_depth",
+        temporal_resolution="multiyear",
+        aggregation="mean",
+        grid="conus2",
+        grid_bounds=[1500, 1300, 1550, 1500],
+    )
+    assert len(df) == 187
+
+
+def test_get_metadata_fan():
+    """Test getting metadata for Fan dataset."""
+    metadata_df = point.get_point_metadata(
+        dataset="fan_2013",
+        variable="water_table_depth",
+        temporal_resolution="multiyear",
+        aggregation="mean",
+        grid="conus2",
+        grid_bounds=[1500, 1300, 1550, 1500],
+    )
+    assert len(metadata_df) == 187
+
+
+def test_get_citations_fan():
+    """Test citations for fan_2013 dataset."""
+    t = point._get_point_citations("fan_2013")
+    assert t == "Dataset DOI: 10.1126/science.1229881"
+
+
+def test_get_site_variables_fan():
+    """Test for get_site_variables with Fan dataset."""
+    df = point.get_site_variables(
+        dataset="fan_2013",
+        variable="water_table_depth",
+        date_start="2000-01-01",
+        date_end="2022-12-31",
+        state="TX",
+        latitude_range=(27, 28),
+    )
+    assert len(df) == 22
+
+
 if __name__ == "__main__":
     pytest.main()

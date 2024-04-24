@@ -258,7 +258,7 @@ def get_point_metadata(*args, **kwargs):
     ----------
     dataset : str, required
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux', 'jasechko_2024'.
+        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'.
     variable : str, required
         Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
@@ -456,6 +456,19 @@ def get_point_metadata(*args, **kwargs):
         )
         metadata_df = pd.merge(metadata_df, attributes_df, how="left", on="site_id")
 
+    if ("groundwater well" in metadata_df["site_type"].unique()) and (
+        options["dataset"] == "fan_2013"
+    ):
+        attributes_df = pd.read_sql_query(
+            """SELECT site_id, conus1_i, conus1_j, conus2_i, conus2_j
+               FROM well_attributes WHERE site_id IN (%s)"""
+            % ",".join("?" * len(site_ids)),
+            conn,
+            params=site_ids,
+        )
+        metadata_df = pd.merge(metadata_df, attributes_df, how="left", on="site_id")
+        metadata_df["doi"] = "10.1126/science.1229881"
+
     if ("SNOTEL station" in metadata_df["site_type"].unique()) or (
         "SCAN station" in metadata_df["site_type"].unique()
     ):
@@ -624,10 +637,11 @@ def get_site_variables(*args, **kwargs):
                 "scan",
                 "ameriflux",
                 "jasechko_2024",
+                "fan_2013",
             ]
         except:
             raise ValueError(
-                f"dataset must be one of 'usgs_nwis', 'snotel', 'scan', 'ameriflux'. You provided {options['dataset']}"
+                f"dataset must be one of 'usgs_nwis', 'snotel', 'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'. You provided {options['dataset']}"
             )
 
         if options["dataset"] == "usgs_nwis":
@@ -645,6 +659,8 @@ def get_site_variables(*args, **kwargs):
         elif options["dataset"] == "scan":
             dataset_query = """ AND site_type == ?"""
             param_list.append("SCAN station")
+        elif options["dataset"] == "fan_2013":
+            dataset_query = """ AND fan_2013 == 1 AND var_id == 26"""
     else:
         dataset_query = """"""
 
@@ -1074,7 +1090,7 @@ def _get_point_citations(dataset):
     ----------
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux', 'jasechko_2024'.
+        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'.
 
     Returns
     -------
@@ -1082,10 +1098,17 @@ def _get_point_citations(dataset):
         String containing overall attribution instructions for the provided dataset.
     """
     try:
-        assert dataset in ["usgs_nwis", "snotel", "scan", "ameriflux", "jasechko_2024"]
+        assert dataset in [
+            "usgs_nwis",
+            "snotel",
+            "scan",
+            "ameriflux",
+            "jasechko_2024",
+            "fan_2013",
+        ]
     except:
         raise ValueError(
-            f"Unexpected value of dataset, {dataset}. Supported values include 'usgs_nwis', 'snotel', 'scan', 'ameriflux', and 'jasechko_2024"
+            f"Unexpected value of dataset, {dataset}. Supported values include 'usgs_nwis', 'snotel', 'scan', 'ameriflux', 'jasechko_2024', and 'fan_2013'"
         )
 
     if dataset == "usgs_nwis":
@@ -1121,6 +1144,9 @@ def _get_point_citations(dataset):
 
     elif dataset == "jasechko_2024":
         c = "Dataset DOI: 10.1038/s41586-023-06879-8"
+
+    elif dataset == "fan_2013":
+        c = "Dataset DOI: 10.1126/science.1229881"
 
     return c
 
@@ -1211,7 +1237,13 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
         options = kwargs
 
     try:
-        assert temporal_resolution in ["daily", "hourly", "instantaneous", "yearly"]
+        assert temporal_resolution in [
+            "daily",
+            "hourly",
+            "instantaneous",
+            "yearly",
+            "multiyear",
+        ]
     except:
         raise ValueError(
             f"Unexpected value for temporal_resolution, {temporal_resolution}. Please see the documentation for allowed values."
@@ -1256,7 +1288,14 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
         )
 
     try:
-        assert dataset in ["usgs_nwis", "snotel", "scan", "ameriflux", "jasechko_2024"]
+        assert dataset in [
+            "usgs_nwis",
+            "snotel",
+            "scan",
+            "ameriflux",
+            "jasechko_2024",
+            "fan_2013",
+        ]
     except:
         raise ValueError(
             f"Unexpected value for dataset, {dataset} Please see the documentation for allowed values."
@@ -1423,7 +1462,7 @@ def _get_sites(
         query from.
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux', 'jasechko_2024'.
+        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'.
     variable : str, required
         Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
@@ -1554,6 +1593,8 @@ def _get_sites(
             tbl = "flux_tower_attributes"
         elif dataset == "jasechko_2024":
             tbl = "jasechko_attributes"
+        elif dataset == "fan_2013":
+            tbl = "well_attributes"
 
         grid = options["grid"]
         grid_bounds = options["grid_bounds"]
