@@ -2188,31 +2188,6 @@ def _get_data_sql(conn, site_list, var_id, *args, **kwargs):
 
     # Check start and end dates overlap with overall dataset date range of 1927-2009
     elif var_id == 26:
-        if "date_start" in options and options["date_start"] is not None:
-            try:
-                options["date_start"] = datetime.datetime.strptime(
-                    options["date_start"], "%Y-%m-%d"
-                )
-                assert options["date_start"] <= datetime.datetime.strptime(
-                    "2009-12-31", "%Y-%m-%d"
-                )
-            except:
-                raise ValueError(
-                    f"The provided 'date_start' of {options['date_start']} is later than this dataset has data available."
-                )
-        if "date_end" in options and options["date_end"] is not None:
-            try:
-                options["date_end"] = datetime.datetime.strptime(
-                    options["date_end"], "%Y-%m-%d"
-                )
-                assert options["date_end"] >= datetime.datetime.strptime(
-                    "1927-01-01", "%Y-%m-%d"
-                )
-            except:
-                raise ValueError(
-                    f"The provided 'date_end' of {options['date_end']} is earlier than this dataset has data available."
-                )
-
         param_list = [min_num_obs]
         for s in site_list:
             param_list.append(s)

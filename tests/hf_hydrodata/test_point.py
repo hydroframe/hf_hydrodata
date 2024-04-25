@@ -1770,5 +1770,22 @@ def test_get_site_variables_fan():
     assert len(df) == 22
 
 
+def test_fail_fan_outside_timerange():
+    """
+    Test to ensure proper failure if filtering on dates outside of the
+    date range which the Fan dataset is available for (1927-2009).
+    """
+    with pytest.raises(Exception) as exc:
+        point.get_point_data(
+            dataset="fan_2013",
+            variable="water_table_depth",
+            temporal_resolution="multiyear",
+            aggregation="mean",
+            date_start="2010-01-01",
+            date_end="2010-12-31",
+        )
+    assert str(exc.value) == "There are zero sites that satisfy the given parameters."
+
+
 if __name__ == "__main__":
     pytest.main()
