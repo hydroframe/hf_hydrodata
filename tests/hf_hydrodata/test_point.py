@@ -1730,7 +1730,7 @@ def test_get_data_fan():
     df = point.get_point_data(
         dataset="fan_2013",
         variable="water_table_depth",
-        temporal_resolution="multiyear",
+        temporal_resolution="long_term",
         aggregation="mean",
         grid="conus2",
         grid_bounds=[1500, 1300, 1550, 1500],
@@ -1743,7 +1743,7 @@ def test_get_metadata_fan():
     metadata_df = point.get_point_metadata(
         dataset="fan_2013",
         variable="water_table_depth",
-        temporal_resolution="multiyear",
+        temporal_resolution="long_term",
         aggregation="mean",
         grid="conus2",
         grid_bounds=[1500, 1300, 1550, 1500],
@@ -1779,7 +1779,7 @@ def test_fail_fan_outside_timerange():
         point.get_point_data(
             dataset="fan_2013",
             variable="water_table_depth",
-            temporal_resolution="multiyear",
+            temporal_resolution="long_term",
             aggregation="mean",
             date_start="2010-01-01",
             date_end="2010-12-31",

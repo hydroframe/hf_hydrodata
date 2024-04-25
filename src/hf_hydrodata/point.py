@@ -74,8 +74,8 @@ def get_point_data(*args, **kwargs):
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
         'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str, required
-        Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous', and.
-        'yearly'. Please see the documentation for allowable combinations with `variable`.
+        Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
+        'yearly', and 'long_term'. Please see the documentation for allowable combinations with `variable`.
     aggregation : str, required
         Additional information specifying the aggregation method for the variable to be returned.
         Options include descriptors such as 'mean' and 'sum'. Please see the documentation
@@ -265,7 +265,7 @@ def get_point_metadata(*args, **kwargs):
         'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str, required
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
-        and 'yearly'.
+        'yearly', and 'multiyear'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str, required
         Additional information specifying the aggregation method for the variable to be returned.
@@ -522,13 +522,14 @@ def get_site_variables(*args, **kwargs):
     ----------
     dataset : str, optional
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux'.
+        'scan', 'ameriflux', 'jasechko_2024', and 'fan_2013'.
     variable : str, optional
         Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
         'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str, optional
-        Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
+        Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
+        'yearly', and 'long_term'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str, optional
         Additional information specifying the aggregation method for the variable to be returned.
@@ -1205,14 +1206,14 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
     ----------
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux', 'jasechko_2024'.
+        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'.
     variable : str, required
         Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
         'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
-        and 'yearly'.
+        'yearly', 'long_term'.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
         Options include descriptors such as 'mean' and 'sum'. Please see the documentation
@@ -1242,7 +1243,7 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
             "hourly",
             "instantaneous",
             "yearly",
-            "multiyear",
+            "long_term",
         ]
     except:
         raise ValueError(
@@ -1469,7 +1470,7 @@ def _get_sites(
         'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
-        and 'yearly'.
+        'yearly', 'long_term'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
