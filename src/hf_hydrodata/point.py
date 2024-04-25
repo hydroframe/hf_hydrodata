@@ -821,14 +821,13 @@ def get_site_variables(*args, **kwargs):
     final_df = merged.drop(
         columns=[
             "var_id",
-            "temporal_resolution",
             "variable_type",
-            "variable",
-            "aggregation",
-            "data_source",
             "depth_level",
         ]
     )
+
+    # Rename "data_source" to "dataset"
+    final_df = final_df.rename(columns={"data_source": "dataset"})
 
     # Re-order final columns
     ordered_cols = [
@@ -839,6 +838,10 @@ def get_site_variables(*args, **kwargs):
         "state",
         "variable_name",
         "units",
+        "dataset",
+        "variable",
+        "temporal_resolution",
+        "aggregation",
         "first_date_data_available",
         "last_date_data_available",
         "record_count",
