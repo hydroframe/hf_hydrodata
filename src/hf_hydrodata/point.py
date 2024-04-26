@@ -14,6 +14,7 @@ import numpy as np
 import requests
 import shapefile
 import pyproj
+import warnings
 from shapely import contains_xy
 from shapely.geometry import Point, shape
 from shapely.ops import transform
@@ -801,7 +802,6 @@ def get_site_variables(*args, **kwargs):
 
     # Map var_id into variable, temporal_resolution, aggregation
     variables = _get_variables(conn)
-    conn.close()
     merged = pd.merge(df, variables, on="var_id", how="left")
 
     # Add filter based on variable name
@@ -854,6 +854,29 @@ def get_site_variables(*args, **kwargs):
     ]
 
     final_df = final_df[ordered_cols]
+
+    # Merge on conus grid mappings
+    final_site_list = list(final_df["site_id"].unique())
+    conus_map_df = pd.DataFrame(
+        columns=(["site_id", "conus1_i", "conus1_j", "conus2_i", "conus2_j"])
+    )
+
+    for tbl in SITE_ATTRIBUTE_TABLES:
+        conus_map_query = f"""SELECT site_id, conus1_i, conus1_j, conus2_i, conus2_j
+                              FROM {tbl}
+                              WHERE site_id IN (%s)""" % ",".join(
+            "?" * len(final_site_list)
+        )
+        tbl_df = pd.read_sql_query(conus_map_query, conn, params=final_site_list)
+        if len(tbl_df) > 0:
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=FutureWarning)
+                conus_map_df = pd.concat(
+                    [conus_map_df, tbl_df], axis=0, ignore_index=True
+                )
+
+    final_df = pd.merge(final_df, conus_map_df, on="site_id", how="left")
+    conn.close()
     return final_df
 
 
