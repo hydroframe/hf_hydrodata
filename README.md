@@ -78,6 +78,7 @@ of (-75, -50).
                          )
     metadata_df.head(5)
 
+Please see the [How To](https://hf-hydrodata.readthedocs.io/en/latest/point_data/index.html#how-to) section of our documentation for in-depth examples using the point module functions. Additionally, our team has developed the [subsettools](https://hydroframesubsettools.readthedocs.io/en/latest/) Python package which uses `hf_hydrodata` to access data and subsequently run a [ParFlow](https://parflow.readthedocs.io/en/latest/) simulation. Please see the `subsettools` documentation for full walk-through examples of extracting data for a domain and subsequently running a ParFlow simulation.
 
 ## Build Instructions
 
@@ -96,6 +97,9 @@ Generate the documentation with:
 
 This will validate the model CSV files and 
 generate the read-the-docs html into the html folder.
+
+## Testing
+Our tests are located within the `tests/hf_hydrodata` directory of this repository. The full test suite is run automatically via Jenkins with each new Pull Request and subsequent commits. 
 
 ## License
 Copyright © 2024 The Trustees of Princeton University and The Arizona Board of Regents on behalf of The University of Arizona, College of Science Hydrology & Atmospheric Sciences. All rights reserved.
