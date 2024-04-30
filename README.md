@@ -99,7 +99,7 @@ This will validate the model CSV files and
 generate the read-the-docs html into the html folder.
 
 ## Testing
-Our tests are located within the `tests/hf_hydrodata` directory of this repository. The full test suite is run automatically via Jenkins with each new Pull Request and subsequent commits. 
+Our tests are located within the `tests/hf_hydrodata` directory of this repository. The full test suite is run automatically via Jenkins with each new Pull Request and subsequent commits. Jenkins executes the tests using `pytest` from the root directory.
 
 ## License
 Copyright © 2024 The Trustees of Princeton University and The Arizona Board of Regents on behalf of The University of Arizona, College of Science Hydrology & Atmospheric Sciences. All rights reserved.
