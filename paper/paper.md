@@ -67,6 +67,9 @@ The HydroData catalog also contains atmospheric forcing datasets that can be use
 
 The aim of the `hf_hydrodata` package is to provide a "one-stop shop" for all of a hydrologists' data needs and to eliminate the burden of each researcher needing to learn multiple syntaxes in order to obtain the data relevant for their study area. It also aims to facilitate the sharing of open-source hydrologic data across research groups. `hf_hydrodata` requires a simple yet flexible set of parameters to be able to include a new offering.This keeps the barrier to entry low for members of the hydrologic community to add additional data sources to the package and keeps `hf_hydrodata` relevant as new datasets are created.
 
+# State of the Field
+
+The `hf_hydrodata` package spans multiple agencies, and includes both site-level observations and national gridded datasets. This allows users to interact with data from many sources with a single API call. Existing packages such as the `dataRetrieval` R package [@dataRetrieval] provide some similar capabilities allowing users to access a breadth of hydrologic site-level surface water and groundwater observations from the USGS. However, the `dataRetreival` package is limited to USGS sources and is designed for R users. Our package goes beyond this to provide access to data from multiple agencies (for example the SNOTEL and FluxNet observation networks). The `hf_hydrodata` package provides a common syntax for acquiring such observations so that the user need not spend valuable research time learning multiple syntaxes to get all data relevant for their watershed. Additionally, the `hf_hydrodata` package provides users access to a wide selection of gridded data products. Many of these data products are not publicly available by other means including inputs and outputs from the national ParFlow model and multiple gridded atmospheric forcing datasets.
 
 # Functionality
 
