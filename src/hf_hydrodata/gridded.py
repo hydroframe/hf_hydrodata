@@ -1347,8 +1347,8 @@ def _apply_mask(data, entry, options):
         # Apply the HUC mask to the data, mask with all huc_ids
         for h_id in huc_ids:
             data = np.where(mask == float(h_id), data, np.nan)
-    elif grid_bounds:
-        # If subsetting with a grid using level 2 HUC mask to mask coastline
+    elif grid_bounds and grid != "conus1":
+        # If subsetting with a grid using level 2 HUC mask to mask coastline. Only mask coastlines for conus2
         mask = get_gridded_data(
             {
                 "dataset": "huc_mapping",

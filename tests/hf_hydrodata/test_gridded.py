@@ -1762,6 +1762,10 @@ def test_flow_direction():
     assert data[0, 0] == 1.0
     assert data[0, 1] == 4.0
 
+def test_nomask_conus1():
+    options = {'dataset': 'conus1_domain', 'file_type': 'pfb', 'grid_bounds': [1075, 719, 1124, 739], 'variable': 'van_genuchten_n'}
+    data = hf.get_gridded_data(options)
+    assert data.shape == (5, 20,49)
 
 if __name__ == "__main__":
     pytest.main([__file__])
