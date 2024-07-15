@@ -13,3 +13,4 @@ wy_minus1,The previous water year from one of the current time such as 2005
 scenario_id,A hydrogen scenario_id.
 domain_path,A hydrogen area of interest domain path.
 site_id,An point observation site_id
+cy,Calendar year of time such as 2006.
