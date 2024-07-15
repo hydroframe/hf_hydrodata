@@ -2367,6 +2367,7 @@ def _substitute_datapath(
     aggregation = entry["aggregation"]
     file_daynum = (time_value - start_time).days if start_time else 0
     wy = ""
+    cy = ""
     wy_plus1 = ""
     wy_minus1 = ""
     wy_daynum = 0
@@ -2394,6 +2395,7 @@ def _substitute_datapath(
         raise ValueError("No 'site_id' specified in filter options.")
     if time_value:
         (wy, wy_start) = _get_water_year(time_value)
+        cy = str(time_value.year)
         wy_plus1 = str(int(wy) + 1)
         wy_minus1 = str(int(wy) - 1)
         wy_daynum = (time_value - wy_start).days + 1
@@ -2408,6 +2410,7 @@ def _substitute_datapath(
     datapath = path.format(
         dataset_var=dataset_var,
         wy=wy,
+        cy=cy,
         wy_daynum=wy_daynum,
         wy_mdy=wy_mdy,
         ymd=ymd,
