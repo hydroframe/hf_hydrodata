@@ -15,12 +15,14 @@ import threading
 import dask
 import requests
 import pyproj
+import rioxarray
+import rasterio
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 import numpy as np
 import xarray as xr
 import pandas as pd
-from parflow import read_pfb_sequence, write_pfb
+from parflow import read_pfb_sequence, read_pfb, write_pfb
 from hf_hydrodata.data_model_access import ModelTableRow
 from hf_hydrodata.data_model_access import load_data_model
 from hf_hydrodata.data_catalog import _get_api_headers
@@ -2752,3 +2754,135 @@ class _FileDownloadState:
             while t < self.end_time:
                 self.time_coords.append(t)
                 t = t + relativedelta(months=1)
+
+
+def create_resolution_transform(
+    latitudes: np.ndarray, longitudes: np.ndarray, grid: str
+) -> np.ndarray:
+    """
+    Create transform map from lat-lon degree-based coordinates (EPSG:4326) to conus1 or conus2 grid.
+    This function returns an array transform map that maps the indices of the original grid to the
+    remapped grid (conus1 or conus2).
+
+    Args:
+        latitudes:     A NumPy array of original grid latitude values.
+        longitudes:    A NumPy array of original grid longitude values.
+        grid:          The name of the grid to re-map to: "conus1" or "conus2".
+    Return:
+        A NumPy array containing the transformation indices. The array is the size of the selected
+        conus grid and contains values that represent the row and column grid cell index from the
+        original (unmapped) grid.
+    """
+
+    # Convert lat/lon to coordinate in EPSG:6933
+    transformer = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:6933")
+
+    # For the transform code below, the latitude and longitude array inputs must be the same shape.
+    # It assumes they fully represent the values at each grid cell location.
+    # If instead your file's latitude and longitude fields only provide the *unique* values for each (ndim==1),
+    # the following code uses those to build out the full array.
+    num_lats = latitudes.size
+    num_lons = longitudes.size
+
+    if latitudes.ndim == 1:
+        latitudes = np.repeat(latitudes, num_lons).reshape(num_lats, num_lons)
+
+    if longitudes.ndim == 1:
+        longitudes = np.tile(longitudes, num_lats).reshape(num_lats, num_lons)
+
+    # Transform
+    lons, lats = transformer.transform(latitudes, longitudes)
+
+    # Create dataset with transformed coordinates
+    # Use zeros for the data here since we only care about the coordinate values
+    data_array = xr.DataArray(
+        data=np.zeros(shape=(lats.shape)),
+        dims=["lat", "lon"],
+        coords=[lats[:, 0], lons[0, :]],
+    )
+
+    var_dataset = data_array[:, :]
+    var_dataset = var_dataset.rio.set_spatial_dims(x_dim="lon", y_dim="lat")
+    var_dataset.rio.write_crs("epsg:6933", inplace=True)
+    var_dataset.rio.to_raster("intermediate_mapping.tif")
+
+    ### Create data mapping to CONUS2
+    ### This step outputs a .pfb file that is of CONUS2 size where each value represents the associated
+    ### row and column *index* of the matching MODIS (or other dataset) cell.
+    input_ds = rasterio.open("intermediate_mapping.tif")
+
+    # Extract spatial metadata
+    # The rasterio .transform accessor contains the same information as the gdal .GetGeoTransform(), but
+    # note that the order of returned values of the tuple is different. The following code uses the
+    # rasterio indexing to avoid the need for installing gdal.
+    input_geotransform = input_ds.transform
+
+    # Get CONUS grid latitude and longitude data
+    lats_conus = get_gridded_data(dataset=f"{grid}_domain", variable="latitude")
+    lons_conus = get_gridded_data(dataset=f"{grid}_domain", variable="longitude")
+
+    # Note: syntax updated to remove deprecated PyProj functions
+    # https://pyproj4.github.io/pyproj/stable/gotchas.html#upgrading-to-pyproj-2-from-pyproj-1
+    transformer = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:6933", always_xy=True)
+    repro_lons_meters, repro_lats_meters = transformer.transform(
+        lons_conus.reshape(-1), lats_conus.reshape(-1)
+    )
+
+    # Calcualte x_pixel and y_pixel from projected lat and lon values
+    x_pixel_arr = (
+        (repro_lons_meters - input_geotransform[2]) / input_geotransform[0]
+    ).astype(int)
+    y_pixel_arr = (
+        (input_geotransform[5] - repro_lats_meters) / input_geotransform[0]
+    ).astype(int)
+
+    x_pixel_arr[x_pixel_arr < 0] = 0
+    y_pixel_arr[y_pixel_arr < 0] = 0
+    x_pixel_arr[x_pixel_arr > input_ds.shape[1] - 1] = input_ds.shape[1] - 1
+    y_pixel_arr[y_pixel_arr > input_ds.shape[0] - 1] = input_ds.shape[0] - 1
+
+    # Set up and fill row-col mapping matrix
+    rol_col_transform_map = np.zeros((2, lons_conus.shape[0], lons_conus.shape[1]))
+    rol_col_transform_map[0, :, :] = y_pixel_arr.reshape(
+        lons_conus.shape[0], lons_conus.shape[1]
+    )
+    rol_col_transform_map[1, :, :] = x_pixel_arr.reshape(
+        lons_conus.shape[0], lons_conus.shape[1]
+    )
+
+    # Remove intermediate .tif file. There does not appear to currently exist a way to
+    # read in a geospatial rioxarray dataset directly from an object without saving as
+    # a geotiff first.
+    os.remove("intermediate_mapping.tif")
+
+    return rol_col_transform_map
+
+
+def apply_resolution_transform(
+    data: np.ndarray, rol_col_transform_map: np.ndarray
+) -> np.ndarray:
+    """
+    Apply resolution transform map to a single data array.
+
+    Args:
+        data:                     A NumPy array of original (unmapped) data.
+        rol_col_transform_map:    A NumPy array containing the transformation indices.
+                                    The array is the size of the selected
+                                    conus grid and contains values that represent the
+                                    row and column grid cell index from the original
+                                    (unmapped) grid.
+    Return:
+        A NumPy array containing the remapped data.
+    """
+
+    # Get the maps from original grid dimensions to CONUS dimensions
+    rol_col_transform_map = rol_col_transform_map.astype(int)
+    rows = rol_col_transform_map[0, :, :].flatten()
+    cols = rol_col_transform_map[1, :, :].flatten()
+
+    # Re-grid file from original grid to conus grid
+    array_conus = data[rows, cols].reshape(
+        (rol_col_transform_map.shape[1], rol_col_transform_map.shape[2])
+    )
+
+    return array_conus

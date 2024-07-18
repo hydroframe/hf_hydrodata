@@ -13,6 +13,7 @@ import xarray as xr
 import pytest
 import pytz
 import rioxarray
+import numpy as np
 
 from parflow import read_pfb_sequence
 
@@ -1761,6 +1762,54 @@ def test_flow_direction():
     data = hf.get_gridded_data(options)
     assert data[0, 0] == 1.0
     assert data[0, 1] == 4.0
+
+
+def test_create_transform_map():
+    """Test function for creating conus transform map from degree-based lat-lon projection."""
+    input_latitudes = np.array([50.3, 50.25, 50.2, 50.15, 50.1])
+    input_longitudes = np.array([-130.75, -130.7, -130.65, -130.6, -130.55])
+
+    conus2_transform_map = gr.create_resolution_transform(
+        input_latitudes, input_longitudes, "conus2"
+    )
+    assert conus2_transform_map.shape == (2, 3256, 4442)
+    assert np.isin(
+        np.arange(len(input_latitudes), dtype=float), np.unique(conus2_transform_map[0])
+    )
+    assert np.isin(
+        np.arange(len(input_longitudes), dtype=float),
+        np.unique(conus2_transform_map[1]),
+    )
+
+    conus1_transform_map = gr.create_resolution_transform(
+        input_latitudes, input_longitudes, "conus2"
+    )
+    assert conus1_transform_map.shape == (2, 1888, 3342)
+    assert np.isin(
+        np.arange(len(input_latitudes), dtype=float), np.unique(conus1_transform_map[0])
+    )
+    assert np.isin(
+        np.arange(len(input_longitudes), dtype=float),
+        np.unique(conus1_transform_map[1]),
+    )
+
+
+def test_apply_resolution_transform():
+    """Test function for applying resolution transform map onto 2D data array."""
+    data = np.array([[0, 0, 0], [1, 1, 1], [2, 3, 4]])
+    transform_map = np.array(
+        [
+            [[0, 0, 0, 0, 0], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [2, 2, 2, 2, 2]],
+            [[0, 1, 1, 2, 2], [0, 1, 1, 2, 2], [0, 1, 1, 2, 2], [0, 1, 1, 2, 2]],
+        ]
+    )
+
+    data_transform = np.array(
+        [[0, 0, 0, 0, 0], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [2, 3, 3, 4, 4]]
+    )
+    test_transform = gr.apply_resolution_transform(data, transform_map)
+
+    np.testing.assert_array_equal(test_transform, data_transform)
 
 
 if __name__ == "__main__":
