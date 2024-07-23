@@ -68,3 +68,4 @@ swe_anomaly,Snow Water Equivalent difference from normal,,surface_water,unitless
 wind_speed,WindSpeed,Wind Speed,atmospheric,rate,
 vapor_pressure_deficit,Vapor Pressure Deficit,Vapor Pressure Deficit,atmospheric,pressure,
 snow_cover,Snow Cover,Presence of Snow Cover,land_surface,unitless,
+ss_water_table_depth,Steady State Water Table Depth,Water table depth at the end of spinup,subsurface,length,

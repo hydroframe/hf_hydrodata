@@ -1239,13 +1239,13 @@ def test_get_variables():
     """Test get_variables."""
 
     variables = hf.get_variables()
-    assert len(variables) == 69
+    assert len(variables) == 70
     assert variables[0] == "air_temp"
     variables = hf.get_variables(dataset="CW3E")
     assert len(variables) == 8
     assert variables[0] == "air_temp"
     variables = hf.get_variables(grid="conus2")
-    assert len(variables) == 32
+    assert len(variables) == 33
     assert variables[0] == "air_temp"
 
     options = {"dataset": "NLDAS2", "grid": "conus1"}
