@@ -5,6 +5,8 @@ input datasets and point observations. Some of the datasets provided here are di
 (e.g. USGS streamflow observations) while other are model outputs (e.g. ParFlow-CONUS2) or data products 
 (e.g. remote sensing products). 
 
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.06623/status.svg)](https://doi.org/10.21105/joss.06623)
+
 ## Installation
 
 The best way to install `hf_hydrodata` is using pip. This installs our 
