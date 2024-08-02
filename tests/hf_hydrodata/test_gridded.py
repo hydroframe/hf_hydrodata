@@ -1763,5 +1763,22 @@ def test_flow_direction():
     assert data[0, 1] == 4.0
 
 
+def test_smap_current_conditions():
+    """Test a bug that happened when trying to read too many pfb files in a single call to get_gridded_data"""
+    x = 2387
+    y = 1673
+    st_dt = "2023-08-01"
+    options = {
+        "data_catalog_entry_id": "213",
+        "start_time": st_dt,
+        "end_time": "2024-02-01",
+        "x": x,
+        "y": y,
+    }
+    data = hf.get_gridded_data(options)
+    # This used to fail before fixing a bug to call read_pfb_sequence with a limited block size
+    assert (data[62] - 0.3409) <= 0.001, "Data for long block length not read properly"
+
+
 if __name__ == "__main__":
     pytest.main([__file__])
