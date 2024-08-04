@@ -26,6 +26,8 @@ from hf_hydrodata.data_model_access import load_data_model
 from hf_hydrodata.data_catalog import _get_api_headers
 from hf_hydrodata.grid import to_ij
 import hf_hydrodata.data_catalog as dc
+import parflow
+import logging
 
 C_PFB_MAP = {
     "eflx_lh_tot": 0,
@@ -1794,6 +1796,8 @@ def _read_and_filter_pfb_files(
 
     start_time_value = _parse_time(options.get("start_time"))
     end_time_value = _parse_time(options.get("end_time"))
+    x = options.get("x")
+    y = options.get("y")
     paths = get_paths(options)
     for path in paths:
         if not os.path.exists(path):
@@ -1806,7 +1810,7 @@ def _read_and_filter_pfb_files(
     # The read_pfb_sequence method has a limit to how many paths it can read
     # if the number of paths is more than the limit call read_pfb_sequence in blocks
     # then append together the blocks to return the correct result
-    max_block_size = 100
+    max_block_size = 1
     final_data = None
     block_start = 0
     while len(paths) > block_start:
@@ -1816,6 +1820,8 @@ def _read_and_filter_pfb_files(
             else len(paths)
         )
         path_block = paths[block_start:block_end]
+        #print(f"Block {block_start} - {block_end} Length {len(path_block)}")
+        #print(path_block)
         data = read_pfb_sequence(path_block, boundary_constraints)
         if final_data is None:
             # This is the first block
@@ -1829,6 +1835,22 @@ def _read_and_filter_pfb_files(
     # Remove an unused z dimension that is returned by read_pfb for 2D pfb files
     final_data = _remove_unused_z_dimension(final_data, entry)
     _collect_pfb_date_dimensions(time_values, final_data, start_time_value)
+
+    if len(paths) > 100:
+        for n in range(0, 120):
+            d = final_data[n]
+            dt = start_time_value + datetime.timedelta(days=n)
+            file_dt = dt.strftime("%m%d%Y")
+            yr = dt.year
+            wy = yr if dt.month < 10 else yr + 1
+            file_path = f"/hydrodata/HydroGEN/current_conditions/CONUS2/WY{wy}/soil_moisture.{file_dt}.pfb"
+            pfb_data = parflow.read_pfb(file_path)
+            pfb_v = pfb_data[0, y, x]
+
+            logging.info(f"Data {n} {dt} {file_path} {d} = {pfb_v}")
+            if abs(d - pfb_v) > .001:
+                logging.info(f"TOO FAR OFF! {d} {pfb_v}")
+            n = n + 1
 
     return final_data
 

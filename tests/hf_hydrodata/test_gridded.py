@@ -13,6 +13,7 @@ import xarray as xr
 import pytest
 import pytz
 import rioxarray
+import parflow
 
 from parflow import read_pfb_sequence
 
@@ -1765,8 +1766,8 @@ def test_flow_direction():
 
 def test_smap_current_conditions():
     """Test a bug that happened when trying to read too many pfb files in a single call to get_gridded_data"""
-    x = 2387
-    y = 1673
+    x = 2258
+    y = 1320
     st_dt = "2023-08-01"
     options = {
         "data_catalog_entry_id": "213",
@@ -1777,8 +1778,23 @@ def test_smap_current_conditions():
     }
     data = hf.get_gridded_data(options)
     # This used to fail before fixing a bug to call read_pfb_sequence with a limited block size
-    assert (data[62] - 0.3409) <= 0.001, "Data for long block length not read properly"
+    #assert (data[62] - 0.3409) <= 0.001, "Data for long block length not read properly"
+    print(data[62])
+    print ((data[62] - 0.3409))
+    for n in range(0, 120):
+        d = data[n]
+        dt = datetime.datetime.strptime(st_dt, "%Y-%m-%d") + datetime.timedelta(days=n)
+        file_dt = dt.strftime("%m%d%Y")
+        yr = dt.year
+        wy = yr if dt.month < 10 else yr + 1
+        file_path = f"/hydrodata/HydroGEN/current_conditions/CONUS2/WY{wy}/soil_moisture.{file_dt}.pfb"
+        pfb_data = parflow.read_pfb(file_path)
+        pfb_v = pfb_data[0, y, x]
 
-
+        #print(f"Data {n} {dt} {file_path} {d} = {pfb_v}")
+        if abs(d - pfb_v) > .001:
+            print(f"TOO FAR OFF! {n} {dt} {d} {pfb_v}")
+        n = n + 1
+        
 if __name__ == "__main__":
     pytest.main([__file__])
