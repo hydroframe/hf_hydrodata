@@ -1794,6 +1794,7 @@ def _read_and_filter_pfb_files(
     only populated the time values after filtering the data.
     """
 
+    logging.info("_read_and_filter_pfb_files")
     start_time_value = _parse_time(options.get("start_time"))
     end_time_value = _parse_time(options.get("end_time"))
     x = options.get("x")
