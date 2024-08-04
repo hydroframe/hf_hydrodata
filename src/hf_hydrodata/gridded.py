@@ -1841,7 +1841,7 @@ def _read_and_filter_pfb_files(
         x = int(x)
         y = int(y)
         logging.info("LOG get_gridded_data with result > 100")
-        for n in range(110, 130):
+        for n in range(125, 145):
             d = final_data[n]
             dt = start_time_value + datetime.timedelta(days=n)
             file_dt = dt.strftime("%m%d%Y")
