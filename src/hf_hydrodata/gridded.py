@@ -1837,6 +1837,7 @@ def _read_and_filter_pfb_files(
     _collect_pfb_date_dimensions(time_values, final_data, start_time_value)
 
     if len(paths) > 100:
+        logging.info("LOG get_gridded_data with result > 100")
         for n in range(0, 120):
             d = final_data[n]
             dt = start_time_value + datetime.timedelta(days=n)
