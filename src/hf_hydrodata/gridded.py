@@ -1802,11 +1802,35 @@ def _read_and_filter_pfb_files(
     boundary_constraints = _add_pfb_time_constraint(
         boundary_constraints, entry, start_time_value, end_time_value
     )
-    data = read_pfb_sequence(paths, boundary_constraints)
-    data = _remove_unused_z_dimension(data, entry)
-    _collect_pfb_date_dimensions(time_values, data, start_time_value)
 
-    return data
+    # The read_pfb_sequence method has a limit to how many paths it can read
+    # if the number of paths is more than the limit call read_pfb_sequence in blocks
+    # then append together the blocks to return the correct result
+    max_block_size = 100
+    final_data = None
+    block_start = 0
+    while len(paths) > block_start:
+        block_end = (
+            block_start + max_block_size
+            if len(paths) > block_start + max_block_size
+            else len(paths)
+        )
+        path_block = paths[block_start:block_end]
+        data = read_pfb_sequence(path_block, boundary_constraints)
+        if final_data is None:
+            # This is the first block
+            final_data = data
+        else:
+            # Append the next block to the final result
+            final_data = np.append(final_data, data, axis=0)
+        # Increment the block start to read the next block
+        block_start = block_end
+
+    # Remove an unused z dimension that is returned by read_pfb for 2D pfb files
+    final_data = _remove_unused_z_dimension(final_data, entry)
+    _collect_pfb_date_dimensions(time_values, final_data, start_time_value)
+
+    return final_data
 
 
 def _remove_unused_z_dimension(data: np.ndarray, entry: dict) -> np.ndarray:
