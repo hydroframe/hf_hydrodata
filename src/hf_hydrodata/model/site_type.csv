@@ -2,3 +2,4 @@ id,title
 streamflow,Streamflow
 groundwater,Water Table Depth
 snotel,Snow Water Equivalent
+"",No site_type

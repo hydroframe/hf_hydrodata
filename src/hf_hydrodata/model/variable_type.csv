@@ -9,3 +9,4 @@ stream_network,"Watershed and subbasin IDS, stream order, flow directions, HUCs"
 subsurface,"Watertable depth, soil moisture, soil temperature"
 surface_water,"Streamflow, irrigation, diversions"
 topography,"Elevation (raw and processed), slopes and topographic index"
+"",No variable type

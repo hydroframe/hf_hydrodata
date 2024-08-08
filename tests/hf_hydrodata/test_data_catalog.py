@@ -14,15 +14,19 @@ import hf_hydrodata.generate_hydrodata_catalog_yaml
 import hf_hydrodata as hf
 import hf_hydrodata.gridded as gr
 
+
 @pytest.fixture(autouse=True)
 def patch_api(mocker):
     """Mock api call to load model from API. This allows tests to work with model from the git repo."""
 
     def mock_return_model(option):
         return None
+
     mocker.patch(
-        "hf_hydrodata.data_model_access._load_model_from_api", side_effect=mock_return_model
+        "hf_hydrodata.data_model_access._load_model_from_api",
+        side_effect=mock_return_model,
     )
+
 
 def test_get_citations():
     """Test get_citation"""
@@ -109,6 +113,7 @@ def test_register_api():
     assert pin == "0000"
     assert email == "dummy@email.com"
 
+
 def test_generate_hydrodata_catalog_yaml():
     """Test generate_hydrodata_catalog_yaml"""
 
@@ -117,3 +122,12 @@ def test_generate_hydrodata_catalog_yaml():
         output_file = os.path.join(tempdirname, "foo.yaml")
         hf_hydrodata.generate_hydrodata_catalog_yaml.generate_yaml(output_file)
         assert os.path.exists(output_file)
+
+
+def test_dataset_version():
+    """Test reading catalog entries with dataset_versions"""
+
+    row = hf.get_catalog_entry(
+        dataset="CW3E", period="hourly", variable="precipitation"
+    )
+    assert row["id"] == "167"
