@@ -117,3 +117,10 @@ def test_generate_hydrodata_catalog_yaml():
         output_file = os.path.join(tempdirname, "foo.yaml")
         hf_hydrodata.generate_hydrodata_catalog_yaml.generate_yaml(output_file)
         assert os.path.exists(output_file)
+
+def test_dataset_version():
+    """Test reading catalog entries with dataset_versions"""
+
+    row = hf.get_catalog_entry(dataset="CW3E", period="hourly", variable="precipitation")
+    hf_hydrodata.data_model_access.DATA_MODEL_CACHE = None
+    assert row["id"] == "167"
