@@ -716,11 +716,14 @@ def _load_gridded_file_entry(
     file_name = _substitute_datapath(
         state.filename_template, entry, options, file_time, state.start_time
     )
+    print(f"Create file {file_name}")
     if os.path.exists(file_name):
         # File already exists, so just skip this
         return
 
+    print("Call get gridded data")
     data = get_gridded_data(options)
+    print(data.shape)
 
     if state.filename_template.endswith(".pfb"):
         # Creating pfb file for get_gridded_files
@@ -1985,6 +1988,8 @@ def _read_and_filter_netcdf_files(
     paths = get_paths(options)
     if len(paths) == 0:
         raise ValueError(f"No file path found for {entry['id']}")
+    if len(paths) > 1:
+        raise ValueError(f"Request attempts to return too much data. Try to limit dates to a single water year per call to get_gridded_data() or try to use get_gridded_files() instead.")
     file_path = paths[0]
     if file_path.endswith("*"):
         # Data path contins a wild card so use that to find the filename
