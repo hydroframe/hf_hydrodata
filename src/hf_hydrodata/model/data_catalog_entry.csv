@@ -1,404 +1,404 @@
-id,dataset,file_type,variable,dataset_var,entry_start_date,entry_end_date,temporal_resolution,units,aggregation,grid,file_grouping,security_level,path,documentation_notes,site_type
-1,conus1_baseline_85,pfmetadata,pressure_head,pressure,10/1/84,1/21/85,daily,m,mean,conus1,wy_daynum,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/conus1_pfclm_daily_1985.pfmetadata,,
-2,conus1_baseline_85,pfb,pressure_head,pressure,10/1/84,1/21/85,daily,m,mean,conus1,wy,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/WY{wy}/pressure.daily.mean.{wy_daynum:03d}.pfb,,
-3,conus1_baseline_mod,pfmetadata,evapotranspiration,et,,,daily,mm/d,sum,conus1,wy,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/conus1_pfclm_daily_{wy}.pfmetadata,,
-4,conus1_baseline_mod,pfmetadata,soil_moisture,soil_moisture,,,daily,kg/m2,mean,conus1,wy,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/conus1_pfclm_daily_{wy}.pfmetadata,,
-5,conus1_baseline_mod,pfmetadata,water_table_depth,water_table_depth,,,daily,m,mean,conus1,wy,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/conus1_pfclm_daily_{wy}.pfmetadata,,
-6,conus1_baseline_mod,pfmetadata,pressure_head,pressure,,,daily,m,mean,conus1,wy,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/conus1_pfclm_daily_{wy}.pfmetadata,,
-7,conus1_baseline_mod,pfmetadata,swe,swe,,,daily,m,eod,conus1,wy_daynum,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/conus1_pfclm_daily_{wy}.pfmetadata,,
-8,conus1_baseline_mod,pfb,evapotranspiration,et,,,daily,mm/d,sum,conus1,wy_daynum,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/WY{wy}/et.daily.sum.{wy_daynum:03d}.pfb,,
-9,conus1_baseline_mod,pfb,soil_moisture,soil_moisture,,,daily,kg/m2,mean,conus1,wy_daynum,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/WY{wy}/sm.daily.mean.{wy_daynum:03d}.pfb,,
-10,conus1_baseline_mod,pfb,water_table_depth,wtd,,,daily,m,mean,conus1,wy_daynum,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/WY{wy}/wtd.daily.mean.{wy_daynum:03d}.pfb,,
-11,conus1_baseline_mod,pfb,pressure_head,pressure,,,daily,m,mean,conus1,wy_daynum,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/WY{wy}/pressure.daily.mean.{wy_daynum:03d}.pfb,,
-12,conus1_baseline_mod,pfb,swe,swe,,,daily,m,eod,conus1,wy_daynum,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/WY{wy}/swe.daily.eod.{wy_daynum:03d}.pfb,,
-13,conus1_baseline_mod,zarr,evapotranspiration,et,,,daily,mm/d,sum,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
-14,conus1_baseline_mod,zarr,soil_moisture,soil_moisture,,,daily,kg/m2,mean,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
-15,conus1_baseline_mod,zarr,water_table_depth,water_table_depth,,,daily,m,mean,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
-16,conus1_baseline_mod,zarr,pressure_head,pressure,,,daily,m,mean,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
-17,conus1_baseline_mod,zarr,swe,swe,,,daily,m,eod,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
-18,conus1_baseline_mod,zarr,precipitation,APCP,,,daily,?,?,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
-19,conus1_baseline_mod,zarr,air_temp,Temp_Max,,,daily,K,max,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
-20,conus1_baseline_mod,zarr,air_temp,Temp_Min,,,daily,K,min,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
-21,conus1_baseline_mod,zarr,streamflow,streamflow,,,daily,m3/h,-,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
-22,conus1_baseline_mod,zarr,swe_melt,melt,,,daily,mm,,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
-23,conus1_baseline_mod,zarr,pressure_next,pressure_next,,,daily,m,tbd,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
-24,conus1_domain,zarr,latitude,latitude,,,static,degrees_north,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
-25,conus1_domain,zarr,longitude,longitude,,,static,degrees_east,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
-26,conus1_domain,zarr,permeability,permeability,,,static,m/h,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
-27,conus1_domain,zarr,topographic_index,topographic_index,,,static,-,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
-28,conus1_domain,zarr,drainage_area,drainage_area,,,static,km2,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
-29,conus1_domain,zarr,porosity,porosity,,,static,-,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
-30,conus1_domain,zarr,slope_x,slope_x,,,static,-,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
-31,conus1_domain,zarr,slope_y,slope_y,,,static,-,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
-32,conus1_domain,zarr,van_genuchten_alpha,van_genuchten_alpha,,,static,-,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
-33,conus1_domain,zarr,van_genuchten_n,van_genuchten_n,,,static,-,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
-34,conus1_domain,zarr,veg_type_IGBP,vegetation_type,,,static,-,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
-35,conus1_domain,zarr,veg_type_IGBP,vegtype,,,static,-,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
-36,conus1_baseline_85,pfb,pressure_head,Press,,,hourly,m,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.press.{wy_hour:05d}.pfb,,
-37,conus1_baseline_85,pfb,saturation,satur,,,hourly,-,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.satur.{wy_hour:05d}.pfb,,
-38,conus1_baseline_85,C.pfb,latent_heat,eflx_lh_tot,,,hourly,w/m2,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
-39,conus1_baseline_85,C.pfb,outward_longwave_radiation,eflx_lwrad_out,,,hourly,w/m2,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
-40,conus1_baseline_85,C.pfb,sensible_heat,eflx_sh_tot,,,hourly,w/m2,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
-41,conus1_baseline_85,C.pfb,ground_heat,eflx_soil_grnd,,,hourly,w/m2,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
-42,conus1_baseline_85,C.pfb,evapotranspiration,qflx_evap_tot,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
-43,conus1_baseline_85,C.pfb,ground_evap,qflx_evap_grnd,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
-44,conus1_baseline_85,C.pfb,ground_evap_heat,qflx_evap_soil,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
-45,conus1_baseline_85,C.pfb,transpiration_leaves,qflx_evap_veg,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
-46,conus1_baseline_85,C.pfb,transpiration,qflx_tran_veg,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
-47,conus1_baseline_85,C.pfb,infiltration,qflx_infl,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
-48,conus1_baseline_85,C.pfb,swe,swe_out,,,hourly,mm,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
-49,conus1_baseline_85,C.pfb,ground_temp,t_grnd,,,hourly,K,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
-50,conus1_baseline_85,C.pfb,irrigation,qflx_qirr,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
-51,conus1_baseline_85,C.pfb,soil_temp,tsoil,,,hourly,K,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
-52,conus1_baseline_mod,pfb,pressure_head,Press,,,hourly,m,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/pressure/CONUS.{wy}.out.press.{wy_hour:05d}.pfb,,
-53,conus1_baseline_mod,pfb,saturation,satur,,,hourly,-,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/saturation/CONUS.{wy}.out.satur.{wy_hour:05d}.pfb,,
-54,conus1_baseline_mod,C.pfb,latent_heat,eflx_lh_tot,,,hourly,w/m2,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
-55,conus1_baseline_mod,C.pfb,outward_longwave_radiation,eflx_lwrad_out,,,hourly,w/m2,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
-56,conus1_baseline_mod,C.pfb,sensible_heat,eflx_sh_tot,,,hourly,w/m2,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
-57,conus1_baseline_mod,C.pfb,ground_heat,eflx_soil_grnd,,,hourly,w/m2,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
-58,conus1_baseline_mod,C.pfb,evapotranspiration,qflx_evap_tot,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
-59,conus1_baseline_mod,C.pfb,ground_evap,qflx_evap_grnd,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
-60,conus1_baseline_mod,C.pfb,ground_evap_heat,qflx_evap_soil,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
-61,conus1_baseline_mod,C.pfb,transpiration_leaves,qflx_evap_veg,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
-62,conus1_baseline_mod,C.pfb,transpiration,qflx_tran_veg,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
-63,conus1_baseline_mod,C.pfb,infiltration,qflx_infl,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
-64,conus1_baseline_mod,C.pfb,swe,swe_out,,,hourly,mm,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
-65,conus1_baseline_mod,C.pfb,ground_temp,t_grnd,,,hourly,K,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
-66,conus1_baseline_mod,C.pfb,irrigation,qflx_qirr,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
-67,conus1_baseline_mod,C.pfb,soil_temp,tsoil,,,hourly,K,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
-68,conus1_domain,pfmetadata,latitude,latitude,,,static,degrees_north,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
-69,conus1_domain,pfmetadata,longitude,longitude,,,static,degrees_east,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
-70,conus1_domain,pfmetadata,van_genuchten_n,van_genuchten_n,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
-71,conus1_domain,pfmetadata,van_genuchten_alpha,van_genuchten_alpha,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
-72,conus1_domain,pfmetadata,slope_x,slope_x,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
-73,conus1_domain,pfmetadata,slope_y,slope_y,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
-74,conus1_domain,pfmetadata,porosity,porosity,,,static,,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
-75,conus1_domain,pfmetadata,permeability,permeability,,,static,m/h,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
-76,conus1_domain,pfmetadata,drainage_area,drainage_area,,,static,km2,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
-77,conus1_domain,pfmetadata,veg_type_IGBP,vegetation_type,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
-78,conus1_domain,pfmetadata,topographic_index,topographic_index,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
-79,conus1_domain,pfb,latitude,latitude,,,static,degrees_north,-,conus1,,1,/hydrodata/national_mapping/CONUS1/Latitude_CONUS1.pfb,,
-80,conus1_domain,pfb,longitude,longitude,,,static,degrees_east,-,conus1,,1,/hydrodata/national_mapping/CONUS1/Longitude_CONUS1.pfb,,
-81,conus1_domain,pfb,van_genuchten_n,van_genuchten_n,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_vgn_n.pfb,,
-82,conus1_domain,pfb,van_genuchten_alpha,van_genuchten_alpha,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_vgn_alpha.pfb,,
-83,conus1_domain,pfb,slope_x,slope_x,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/slopex.pfb,,
-84,conus1_domain,pfb,slope_y,slope_y,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/slopey.pfb,,
-85,conus1_domain,pfb,porosity,porosity,,,static,,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_porosity.pfb,,
-86,conus1_domain,pfb,permeability,permeability,,,static,m/h,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_permeability.pfb,,
-87,conus1_domain,pfb,drainage_area,drainage_area,,,static,km2,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_drainage_area.pfb,,
-88,conus1_domain,pfb,veg_type_IGBP,vegetation_type,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_vegtype.pfb,,
-90,conus1_domain,pfb,pme,pme,,,static,m/h,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/PmE.flux.pfb,PmE that was used for CONUS1 steady state spinup,
-91,conus1_domain,pftxt,elevation,elevation,,,static,m,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/CONUS.pitfill.txt,Processed surface elevaiton for every grid cell this is what was used to calculate the slopes,
-92,conus1_domain,pftxt,stream_order,stream_order,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/StreamOrder_pfFormat.txt,Stream orders are assigned for every subbasin. Headwaters and non-river cells are assigned a value of zero . The order for all other streams was determined by walking downstream from the headwater reaches. Streams are assigned the largest order possible (i.e. the longest route to get to them).,
-93,conus1_domain,pfb,pf_indicator,pf_indicator,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/grid3d.v3.pfb,Indicator file for CONUS1 subsurface,
-94,conus1_domain,pftxt,flow_direction_grass,flow_direction_grass,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/flodir.interp_format.txt,"The flow directions for every grid cell determined by Grass (2=up, 4=left, 6=down, 8=right)",
-95,conus1_domain,pftxt,stream_segments,stream_segments,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/stream.interp_format.txt,The reach number for every stream. Pretty much the same as the subbasin file except only the river cells have values.  Numbers in this file correspond to subbasin numers.,
-96,conus1_domain,pftxt,subbasins,subbasins,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/watershed.interp_format.txt,"The ~30,000 subbasins that were derived from the grass processing.  The numbers in this file correspond to the basin numbers (note that basin numbers count by 2). The zero values represent areas along the edge of the domain not included in any subbasins",
-97,conus1_domain,pftxt,aridity_index,aridity_index,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/conus_short_Annual_Aridity.format.txt,The annual aridity index. precip/(precip-evap),
-98,conus1_baseline_85,pftcl,parflow_run,parflow_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/run_scripts/5-layer.pfclm.baseline.spinup.tcl,Spinup script for Baseline 1985 runs,
-99,conus1_baseline_85,pftcl,parflow_run,parflow_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/run_scripts/CONUS.5layer.pfclm.run4.out.pftcl,Run script for Baseline 1985 runs,
-102,conus1_baseline_85,drv_clm,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/drv_clmin.startup.dat,clm driver file for starting from scratch,
-103,conus1_baseline_85,vegm,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/drv_vegm.fixed.dat,,
-104,conus1_baseline_85,vegp,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/drv_vegp.dat,,
-105,conus1_baseline_mod,pftcl,parflow_run,parflow_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/run_scripts/CONUS_WY2003_2007_Cheyenne/CONUS.2003.tcl,tcl script for 2003-2005 ParFlow runs,
-108,conus1_baseline_mod,drv_clm,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/run_scripts/CONUS_WY2003_2007_Cheyenne/drv_clmin.start.dat,clm driver file for starting from scratch,
-109,conus1_baseline_mod,vegm,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/drv_vegm.fixed.dat,,
-110,conus1_baseline_mod,vegp,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/drv_vegp.dat,,
-111,conus1_domain,pfb,ss_pressure_head,press,,,static,m,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/run_scripts/CONUS_WY2003_2007_Cheyenne/press.in.pfb,steady state pressure used to initialize modern runs,
-112,NLDAS2,pfb,precipitation,APCP,,,hourly,mm,-,conus1,wy_start_24hr,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/WY{wy}/NLDAS.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-113,NLDAS2,pfb,downward_longwave,DLWR,,,hourly,w/m2,-,conus1,wy_start_24hr,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/WY{wy}/NLDAS.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-114,NLDAS2,pfb,downward_shortwave,DSWR,,,hourly,w/m2,-,conus1,wy_start_24hr,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/WY{wy}/NLDAS.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-115,NLDAS2,pfb,specific_humidity,SPFH,,,hourly,kg/kg,-,conus1,wy_start_24hr,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/WY{wy}/NLDAS.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-116,NLDAS2,pfb,air_temp,Temp,,,hourly,K,-,conus1,wy_start_24hr,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/WY{wy}/NLDAS.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-117,NLDAS2,pfb,east_windspeed,UGRD,,,hourly,m/s,-,conus1,wy_start_24hr,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/WY{wy}/NLDAS.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-118,NLDAS2,pfb,north_windspeed,VGRD,,,hourly,m/s,-,conus1,wy_start_24hr,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/WY{wy}/NLDAS.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-119,NLDAS2,pfb,atmospheric_pressure,Press,,,hourly,pa,-,conus1,wy_start_24hr,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/WY{wy}/NLDAS.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-120,NLDAS2,pfmetadata,precipitation,APCP,,,daily,mm,sum,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-121,NLDAS2,pfmetadata,downward_longwave,DLWR,,,daily,w/m2,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-122,NLDAS2,pfmetadata,downward_shortwave,DSWR,,,daily,w/m2,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-123,NLDAS2,pfmetadata,specific_humidity,SPFH,,,daily,kg/kg,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-124,NLDAS2,pfmetadata,air_temp,Temp_min,,,daily,K,min,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-125,NLDAS2,pfmetadata,air_temp,Temp_max,,,daily,K,max,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-126,NLDAS2,pfmetadata,air_temp,Temp_mean,,,daily,K,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-127,NLDAS2,pfmetadata,east_windspeed,UGRD,,,daily,m/s,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-128,NLDAS2,pfmetadata,north_windspeed,VGRD,,,daily,m/s,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-129,NLDAS2,pfmetadata,atmospheric_pressure,Press_atmos,,,daily,pa,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-130,NLDAS2,pfb,precipitation,APCP,,,daily,mm,sum,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.APCP.daily.sum.{wy_daynum:03d}.pfb,,
-131,NLDAS2,pfb,downward_longwave,DLWR,,,daily,w/m2,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.DLWR.daily.mean.{wy_daynum:03d}.pfb,,
-132,NLDAS2,pfb,downward_shortwave,DSWR,,,daily,w/m2,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.DSWR.daily.mean.{wy_daynum:03d}.pfb,,
-133,NLDAS2,pfb,specific_humidity,SPFH,,,daily,kg/kg,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.SPFH.daily.mean.{wy_daynum:03d}.pfb,,
-134,NLDAS2,pfb,air_temp,Temp_min,,,daily,K,min,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.Temp.daily.min.{wy_daynum:03d}.pfb,,
-135,NLDAS2,pfb,air_temp,Temp_max,,,daily,K,max,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.Temp.daily.max.{wy_daynum:03d}.pfb,,
-136,NLDAS2,pfb,air_temp,Temp_mean,,,daily,K,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.Temp.daily.mean.{wy_daynum:03d}.pfb,,
-137,NLDAS2,pfb,east_windspeed,UGRD,,,daily,m/s,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.UGRD.daily.mean.{wy_daynum:03d}.pfb,,
-138,NLDAS2,pfb,north_windspeed,VGRD,,,daily,m/s,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.VGRD.daily.mean.{wy_daynum:03d}.pfb,,
-139,NLDAS2,pfb,atmospheric_pressure,Press_atmos,,,daily,pa,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.Press.daily.mean.{wy_daynum:03d}.pfb,,
-140,NLDAS2_85,pfmetadata,precipitation,APCP,,,daily,mm,sum,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-141,NLDAS2_85,pfmetadata,downward_longwave,DLWR,,,daily,w/m2,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-142,NLDAS2_85,pfmetadata,downward_shortwave,DSWR,,,daily,w/m2,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-143,NLDAS2_85,pfmetadata,specific_humidity,SPFH,,,daily,kg/kg,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-144,NLDAS2_85,pfmetadata,air_temp,Temp_min,,,daily,K,min,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-145,NLDAS2_85,pfmetadata,air_temp,Temp_max,,,daily,K,max,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-146,NLDAS2_85,pfmetadata,air_temp,Temp_mean,,,daily,K,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-147,NLDAS2_85,pfmetadata,east_windspeed,UGRD,,,daily,m/s,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-148,NLDAS2_85,pfmetadata,north_windspeed,VGRD,,,daily,m/s,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-149,NLDAS2_85,pfmetadata,atmospheric_pressure,Press_atmos,,,daily,pa,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
-150,NLDAS2_85,pfb,precipitation,APCP,,,daily,mm,sum,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.APCP.daily.sum.{wy_daynum:03d}.pfb,,
-151,NLDAS2_85,pfb,downward_longwave,DLWR,,,daily,w/m2,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.DLWR.daily.mean.{wy_daynum:03d}.pfb,,
-152,NLDAS2_85,pfb,downward_shortwave,DSWR,,,daily,w/m2,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.DSWR.daily.mean.{wy_daynum:03d}.pfb,,
-153,NLDAS2_85,pfb,specific_humidity,SPFH,,,daily,kg/kg,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.SPFH.daily.mean.{wy_daynum:03d}.pfb,,
-154,NLDAS2_85,pfb,air_temp,Temp_min,,,daily,K,min,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.Temp.daily.min.{wy_daynum:03d}.pfb,,
-155,NLDAS2_85,pfb,air_temp,Temp_max,,,daily,K,max,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.Temp.daily.max.{wy_daynum:03d}.pfb,,
-156,NLDAS2_85,pfb,air_temp,Temp_mean,,,daily,K,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.Temp.daily.mean.{wy_daynum:03d}.pfb,,
-157,NLDAS2_85,pfb,east_windspeed,UGRD,,,daily,m/s,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.UGRD.daily.mean.{wy_daynum:03d}.pfb,,
-158,NLDAS2_85,pfb,north_windspeed,VGRD,,,daily,m/s,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.VGRD.daily.mean.{wy_daynum:03d}.pfb,,
-159,NLDAS2_85,pfb,atmospheric_pressure,Press_atmos,,,daily,pa,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.Press.daily.mean.{wy_daynum:03d}.pfb,,
-160,NLDAS2,pfb,air_temp,temperature,,,monthly_clim,K,mean,conus1,month,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/climatology/temperature_climatological_means_month_{month}.pfb,Need a note here about what time period the climatology represents,
-161,NLDAS2,pfb,precipitation,precipitaiton,,,monthly_clim,mm,sum,conus1,month,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/climatology/precipitation_climatological_means_month_{month}.pfb,Need a note here about what time period the climatology represents,
-162,NLDAS2,pfb,air_temp,temperature,,,annual_clim,K,mean,conus1,,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/climatology/temperature_annual_means.pfb,Need a note here about what time period the climatology represents,
-163,NLDAS2,pfb,precipitation,precipitation,,,annual_clim,mm,sum,conus1,,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/climatology/precipitation_annual_means.pfb,Need a note here about what time period the climatology represents,
-164,NLDAS2_85,pfb,precipitation,APCP,,,monthly,mm,sum,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/monthly/NLDAS.APCP.monthly.sum.WY{wy}.pfb,,
-165,NLDAS2,pfb,air_temp,Temp_mean,,,monthly,K,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/monthly/NLDAS.Temp.monthly.mean.WY{wy}.pfb,,
-166,NLDAS2,pfb,precipitation,APCP,,,monthly,mm,sum,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/monthly/NLDAS.APCP.monthly.sum.WY{wy}.pfb,,
-167,CW3E,pfb,precipitation,APCP,,,hourly,mm,-,conus2,wy_start_24hr,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-168,CW3E,pfb,downward_longwave,DLWR,,,hourly,w/m2,-,conus2,wy_start_24hr,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-169,CW3E,pfb,downward_shortwave,DSWR,,,hourly,w/m2,-,conus2,wy_start_24hr,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-170,CW3E,pfb,specific_humidity,SPFH,,,hourly,kg/kg,-,conus2,wy_start_24hr,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-171,CW3E,pfb,air_temp,Temp,,,hourly,K,-,conus2,wy_start_24hr,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-172,CW3E,pfb,east_windspeed,UGRD,,,hourly,m/s,-,conus2,wy_start_24hr,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-173,CW3E,pfb,north_windspeed,VGRD,,,hourly,m/s,-,conus2,wy_start_24hr,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-174,CW3E,pfb,atmospheric_pressure,Press,,,hourly,pa,-,conus2,wy_start_24hr,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-175,CW3E,pfb,precipitation,APCP,,,daily,mm,sum,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.APCP.daily.sum.{wy_daynum:03d}.pfb,,
-176,CW3E,pfb,downward_longwave,DLWR,,,daily,w/m2,mean,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.DLWR.daily.mean.{wy_daynum:03d}.pfb,,
-177,CW3E,pfb,downward_shortwave,DSWR,,,daily,w/m2,mean,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.DSWR.daily.mean.{wy_daynum:03d}.pfb,,
-178,CW3E,pfb,specific_humidity,SPFH,,,daily,kg/kg,mean,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.SPFH.daily.mean.{wy_daynum:03d}.pfb,,
-179,CW3E,pfb,air_temp,Temp_min,,,daily,K,min,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.Temp.daily.min.{wy_daynum:03d}.pfb,,
-180,CW3E,pfb,air_temp,Temp_max,,,daily,K,max,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.Temp.daily.max.{wy_daynum:03d}.pfb,,
-181,CW3E,pfb,air_temp,Temp_mean,,,daily,K,mean,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.Temp.daily.mean.{wy_daynum:03d}.pfb,,
-182,CW3E,pfb,east_windspeed,UGRD,,,daily,m/s,mean,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.UGRD.daily.mean.{wy_daynum:03d}.pfb,,
-183,CW3E,pfb,north_windspeed,VGRD,,,daily,m/s,mean,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.VGRD.daily.mean.{wy_daynum:03d}.pfb,,
-184,CW3E,pfb,atmospheric_pressure,Press_atmos,,,daily,pa,mean,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.Press.daily.mean.{wy_daynum:03d}.pfb,,
-185,CW3E,pfmetadata,precipitation,APCP,,,daily,mm,sum,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
-186,CW3E,pfmetadata,downward_longwave,DLWR,,,daily,w/m2,mean,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
-187,CW3E,pfmetadata,downward_shortwave,DSWR,,,daily,w/m2,mean,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
-188,CW3E,pfmetadata,specific_humidity,SPFH,,,daily,kg/kg,mean,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
-189,CW3E,pfmetadata,air_temp,Temp_min,,,daily,K,min,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
-190,CW3E,pfmetadata,air_temp,Temp_max,,,daily,K,max,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
-191,CW3E,pfmetadata,air_temp,Temp_mean,,,daily,K,mean,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
-192,CW3E,pfmetadata,east_windspeed,UGRD,,,daily,m/s,mean,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
-193,CW3E,pfmetadata,north_windspeed,VGRD,,,daily,m/s,mean,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
-194,CW3E,pfmetadata,atmospheric_pressure,Press_atmos,,,daily,pa,mean,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
-195,CW3E,pfb,air_temp,Temp_mean,,,monthly,K,mean,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/monthly/CW3E.Temp.monthly.mean.WY{wy}.pfb,,
-196,CW3E,pfb,precipitation,APCP,,,monthly,mm,sum,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/monthly/CW3E.APCP.monthly.sum.WY{wy}.pfb,,
-197,NLDAS2_85,pfb,air_temp,Temp_mean,,,monthly,K,mean,conus1,level,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/monthly/NLDAS.Temp.monthly.mean.WY{wy}.pfb,,
-198,huc_mapping,tiff,huc_map,band_data,,,,,,conus1,level,1,/hydrodata/national_mapping/CONUS1/HUC{level}_CONUS1_grid.tif,,
-199,huc_mapping,tiff,huc_map,band_data,,,,,,conus2,,1,/hydrodata/national_mapping/CONUS2/CONUS2.0.Final1km.Subbasin_HUC{level}.remapped.tif,,
-200,conus2_domain,pfb,latitude,latitude,,,static,degrees_north,-,conus2,,1,/hydrodata/national_mapping/CONUS2/Latitude_CONUS2.pfb,,
-201,conus2_domain,pfb,longitude,longitude,,,static,degrees_east,-,conus2,wy_minus1,1,/hydrodata/national_mapping/CONUS2/Longitude_CONUS2.pfb,,
-202,nasa_smap,netcdf,soil_moisture,SoilMoisture,,,daily,-,mean,smapgrid,mdy,3,/hydrodata/national_obs/smap/data/Oct1_{wy_minus1}_Sept30_{wy}.nc,,
-203,conus1_current_conditions,pfb,soil_moisture,soil_moisture,5/20/22,,daily,cm3/cm3,mean,conus1,mdy,3,/hydrodata/HydroGEN/current_conditions/CONUS1/WY{wy}/{dataset_var}.{mdy}.pfb,,
-204,conus1_current_conditions,pfb,water_table_depth,water_table_depth,5/20/22,,daily,m,mean,conus1,,3,/hydrodata/HydroGEN/current_conditions/CONUS1/WY{wy}/{dataset_var}.{mdy}.pfb,,
-205,conus1_current_conditions,pfb,lat_lon,lat_lon,,,static,degrees,static,conus1,,3,/hydrodata/HydroGEN/current_conditions/supporting_data/CONUS1_row_col_in_SMAP.pfb,,
-206,conus2_current_conditions,pfb,lat_lon,lat_lon,,,static,degrees,static,conus2,,3,/hydrodata/temp/SM_estimation_CONUS2/CONUS2_row_col_in_SMAP.pfb,,
-207,nasa_smap,pfb,soil_moisture,soil_moisture_smap,8/1/23,,daily,cm3/cm3,mean,conus2,mdy,3,/hydrodata/HydroGEN/current_conditions/CONUS2/WY{wy}/{dataset_var}.{mdy}.pfb,,
-208,conus2_current_conditions,tiff,water_table_depth,band_data,,,,m,mean,conus2_wtd,,3,/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1000m_CONUS2_m_1s_remapped.tif,,
-209,conus2_current_conditions,tiff,water_table_depth,band_data,,,,m,mean,conus2_wtd.100,,3,/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_100m_CONUS2_m_1s_remapped.tif,,
-210,conus2_current_conditions,tiff,water_table_depth,band_data,,,,m,mean,conus2_wtd.30,,3,/hydrodata/temp/high_resolution_data/WTD_estimates/30m/compressed_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1s_CONUS2_m_remapped_unflip_compressed.tif,,
-211,nasa_smap,netcdf,latitude,Latitude,,,static,degrees,mean,smapgrid,wy,3,/hydrodata/national_obs/smap/data/Oct1_{wy_minus1}_Sept30_{wy}.nc,,
-212,nasa_smap,netcdf,longitude,Longitude,,,static,degrees,mean,smapgrid,wy,3,/hydrodata/national_obs/smap/data/Oct1_{wy_minus1}_Sept30_{wy}.nc,,
-213,conus2_current_conditions,pfb,soil_moisture,soil_moisture,8/1/23,,daily,cm3/cm3,mean,conus2,mdy,1,/hydrodata/HydroGEN/current_conditions/CONUS2/WY{wy}/{dataset_var}.{mdy}.pfb,,
-214,conus2_domain,pfb,veg_type_IGBP,vegetation_type,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/1km_CONUS2_landcover_IGBP_723.pfb,,
-215,conus2_domain,tiff,veg_type_IGBP,band_data,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/1km_CONUS2_landcover_IGBP_723.tif,,
-216,conus2_domain,pfb,veg_type_IGBP,vegetation_type,,,static,-,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/250m_CONUS2_landcover_IGBP_723.pfb,,
-217,conus2_domain,tiff,veg_type_IGBP,band_data,,,static,-,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/250m_CONUS2_landcover_IGBP_723.tif,,
-218,conus2_domain,pfb,slope_x,slope_x,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0.Final1km.slopex.pfb,,
-219,conus2_domain,pfb,slope_y,slope_y,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0.Final1km.slopey.pfb,,
-220,conus2_domain,drv_clm,clm_run,clm_run,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_clmin.dat,,
-221,conus2_domain,vegm,clm_run,clm_run,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_vegm.CONUS2_fixed.2.dat,,
-222,conus2_domain,vegp,clm_run,clm_run,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_vegp.dat,,
-223,conus2_domain,pfb,pme,pme,,,static,m/h,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/1km_CONUS2_PME.pfb,pme that was used for steady state CONUS2 spinup,
-224,conus2_domain,pfsol,pf_solid,pf_solid,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0_fix115.pfsol,,
-225,conus2_domain,pfb,mannings,mannings,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0.Final1km_mannings_rv50_original_values_Lake_Sink.pfb,,
-226,conus2_domain,pfb,pf_indicator,pf_indicator,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0.Final1km.Subsurface.pfb,,
-227,conus2_domain,pfb,pf_flowbarrier,pf_flowbarrier,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0.Shangguan_200m_FBZ.pfb,,
-228,conus2_domain,pfb,ss_pressure_head,pressure,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/steady_state_runs/2003_run/spinup.wy2003.out.press.08760.pfb,steady state pressure used to initialize transient runs,
-229,conus2_domain,pfb,distance_stream_lin,distance_stream_lin,,,static,km,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.DisToStream.pfb,Map of distance for each cell to the stream (CONUS2.0.Final1km.RiverMask) using the function StreamDist in PriorityFlow.,
-230,conus2_domain,tiff,distance_stream_lin,band_data,,,static,km,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.DisToStream.tif,Map of distance for each cell to the stream (CONUS2.0.Final1km.RiverMask) using the function StreamDist in PriorityFlow.,
-231,conus2_domain,pfb,drainage_area,drainage_area,,,static,km2,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.DrainageArea.pfb,Drainage area in km2 calculated based on the flow directions,
-232,conus2_domain,tiff,drainage_area,band_data,,,static,km2,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.DrainageArea.tif,Drainage area in km2 calculated based on the flow directions,
-233,conus2_domain,pfb,flow_direction,flow_direction,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.FlowDirection.pfb,"Primary flow direction for every grid cell (1=down, 2=left, 3=up, 4=right)",
-234,conus2_domain,tiff,flow_direction,band_data,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.FlowDirection.tif,"Primary flow direction for every grid cell (1=down, 2=left, 3=up, 4=right)",
-235,conus2_domain,pfb,elevation,elevation,,,static,m,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.ProcessedDEM.pfb,"Final DEM after, smoothing, applying PriroirtyFlow algorithm to ensure complete drainage and additional smoothing to create constant slopes along river segments.",
-236,conus2_domain,tiff,elevation,band_data,,,static,m,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.ProcessedDEM.tif,"Final DEM after, smoothing, applying PriroirtyFlow algorithm to ensure complete drainage and additional smoothing to create constant slopes along river segments.",
-247,conus2_domain,pfb,stream_order,stream_order,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.StreamOrder.pfb,Strahler stream order calculated from the 100km area threshold river mask using the function CalcStreamOrder in PriorityFlow,
-248,conus2_domain,tiff,stream_order,band_data,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.StreamOrder.tif,Strahler stream order calculated from the 100km area threshold river mask using the function CalcStreamOrder in PriorityFlow,
-249,conus2_domain,pfb,stream_segments,stream_segments,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.StreamSegments.pfb,Mask of stream segments with their segment IDs.,
-250,conus2_domain,tiff,stream_segments,band_data,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.StreamSegments.tif,Mask of stream segments with their segment IDs.,
-251,conus2_domain,pfb,subbasins,subbasins,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.Subbasins.pfb,Map of the subbasins drainage area for each stream segment.,
-252,conus2_domain,tiff,subbasins,band_data,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.Subbasins.tif,Map of the subbasins drainage area for each stream segment.,
-253,conus2_domain,pfb,distance_stream_lin,distance_stream_lin,,,static,km,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.DisToStream.pfb,Map of distance for each cell to the stream (CONUS2.0.Final1km.RiverMask) using the function StreamDist in PriorityFlow.,
-254,conus2_domain,tiff,distance_stream_lin,band_data,,,static,km,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.DisToStream.tif,Map of distance for each cell to the stream (CONUS2.0.Final1km.RiverMask) using the function StreamDist in PriorityFlow.,
-256,conus2_domain,tiff,drainage_area,band_data,,,static,km2,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.DrainageArea.tif,Drainage area in km2 calculated based on the flow directions,
-258,conus2_domain,tiff,flow_direction,band_data,,,static,-,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.FlowDirection.tif,"Primary flow direction for every grid cell (1=down, 2=left, 3=up, 4=right)",
-260,conus2_domain,tiff,elevation,band_data,,,static,m,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.ProcessedDEM.tif,"Final DEM after, smoothing, applying PriroirtyFlow algorithm to ensure complete drainage and additional smoothing to create constant slopes along river segments.",
-262,conus2_domain,tiff,stream_order,band_data,,,static,-,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.StreamOrder.tif,Strahler stream order calculated from the 100km area threshold river mask using the function CalcStreamOrder in PriorityFlow,
-264,conus2_domain,tiff,stream_segments,band_data,,,static,-,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.StreamSegments.tif,Mask of stream segments with their segment IDs.,
-266,conus2_domain,tiff,subbasins,band_data,,,static,-,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.Subbasins.tif,Map of the subbasins drainage area for each stream segment.,
-267,conus2_domain,sa,lat_lon,lat_lon,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/domain_files/CONUS2.0.Final.LatLong.sa,,
-268,conus2_domain,tiff,mask,band_data,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/domain_files/CONUS2.0.Final1km.Mask.tif,,
-271,observations,netcdf,streamflow,streamflow,,,daily,m3/s,mean,,site_id,0,/hydrodata/national_obs/streamflow/data/daily/{site_id}.nc,,streamflow
-272,observations,netcdf,anomaly,anomaly_daily_single_date,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/streamflow/data/daily/{site_id}.nc,,streamflow
-273,observations,netcdf,anomaly_daily_week_of_values,anomaly_daily_week_of_values,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/streamflow/data/daily/{site_id}.nc,,streamflow
-274,observations,netcdf,site_id,site,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/streamflow/data/daily/{site_id}.nc,,streamflow
-275,observations,netcdf,streamflow,streamflow,,,weekly,mm,sum,,site_id,0,/hydrodata/national_obs/streamflow/data/weekly/{site_id}.nc,,streamflow
-276,observations,netcdf,anomaly,anomaly_weekly,,,weekly,-,sum,,site_id,0,/hydrodata/national_obs/streamflow/data/weekly/{site_id}.nc,,streamflow
-277,observations,netcdf,site_id,site,,,weekly,-,sum,,site_id,0,/hydrodata/national_obs/streamflow/data/weekly/{site_id}.nc,,streamflow
-278,observations,netcdf,streamflow,streamflow,,,monthly,mm,sum,,site_id,0,/hydrodata/national_obs/streamflow/data/monthly/{site_id}.nc,,streamflow
-279,observations,netcdf,anomaly,anomaly_monthly,,,monthly,-,sum,,site_id,0,/hydrodata/national_obs/streamflow/data/monthly/{site_id}.nc,,streamflow
-280,observations,netcdf,site_id,site,,,monthly,-,sum,,site_id,0,/hydrodata/national_obs/streamflow/data/monthly/{site_id}.nc,,streamflow
-281,obs_anomalies,netcdf,anomaly,anomaly_daily_single_date,02/01/1857,,daily,-,mean,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/daily/WY{wy}.nc,,streamflow
-282,obs_anomalies,netcdf,anomaly_daily_week_of_values,anomaly_daily_week_of_values,02/01/1857,,daily,-,mean,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/daily/WY{wy}.nc,,streamflow
-283,obs_anomalies,netcdf,streamflow,streamflow,02/01/1857,,daily,m3/s,mean,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/daily/WY{wy}.nc,,streamflow
-284,obs_anomalies,netcdf,site_id,site,,,daily,m3/s,mean,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/daily/WY{wy}.nc,,streamflow
-285,obs_anomalies,netcdf,anomaly,anomaly_weekly,02/02/1857,,weekly,-,sum,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/weekly/WY{wy}.nc,,streamflow
-286,obs_anomalies,netcdf,streamflow,streamflow,02/02/1857,,weekly,m3/s,sum,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/weekly/WY{wy}.nc,,streamflow
-287,obs_anomalies,netcdf,site_id,site,,,weekly,m3/s,sum,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/weekly/WY{wy}.nc,,streamflow
-288,obs_anomalies,netcdf,anomaly,anomaly_monthly,02/01/1857,,monthly,-,sum,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/monthly/WY{wy}.nc,,streamflow
-289,obs_anomalies,netcdf,streamflow,streamflow,02/01/1857,,monthly,m3/s,sum,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/monthly/WY{wy}.nc,,streamflow
-290,obs_anomalies,netcdf,site_id,site,,,monthly,m3/s,sum,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/monthly/WY{wy}.nc,,streamflow
-291,observations,netcdf,water_table_depth,wtd,,,daily,m,mean,,site_id,0,/hydrodata/national_obs/groundwater/data/daily/{site_id}.nc,,groundwater
-292,observations,netcdf,anomaly,anomaly_daily_single_date,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/groundwater/data/daily/{site_id}.nc,,groundwater
-293,observations,netcdf,anomaly_daily_week_of_values,anomaly_daily_week_of_values,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/groundwater/data/daily/{site_id}.nc,,groundwater
-294,observations,netcdf,water_table_depth,wtd,,,weekly,mm,sum,,site_id,0,/hydrodata/national_obs/groundwater/data/weekly/{site_id}.nc,,groundwater
-295,observations,netcdf,anomaly,anomaly_weekly,,,weekly,-,sum,,site_id,0,/hydrodata/national_obs/groundwater/data/weekly/{site_id}.nc,,groundwater
-296,observations,netcdf,site_id,site,,,weekly,-,sum,,site_id,0,/hydrodata/national_obs/groundwater/data/weekly/{site_id}.nc,,groundwater
-297,observations,netcdf,water_table_depth,wtd,,,monthly,mm,sum,,site_id,0,/hydrodata/national_obs/groundwater/data/monthly/{site_id}.nc,,groundwater
-298,observations,netcdf,anomaly,anomaly_monthly,,,monthly,-,sum,,site_id,0,/hydrodata/national_obs/groundwater/data/monthly/{site_id}.nc,,groundwater
-299,observations,netcdf,site_id,site,,,monthly,-,sum,,site_id,0,/hydrodata/national_obs/groundwater/data/monthly/{site_id}.nc,,groundwater
-300,obs_anomalies,netcdf,anomaly,anomaly_daily_single_date,9/30/42,,daily,-,mean,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/daily/WY{wy}.nc,,groundwater
-301,obs_anomalies,netcdf,anomaly_daily_week_of_values,anomaly_daily_week_of_values,9/30/42,,daily,-,mean,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/daily/WY{wy}.nc,,groundwater
-302,obs_anomalies,netcdf,water_table_depth,wtd,9/30/42,,daily,m,mean,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/daily/WY{wy}.nc,,groundwater
-303,obs_anomalies,netcdf,site_id,site,,,daily,m,mean,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/daily/WY{wy}.nc,,groundwater
-304,obs_anomalies,netcdf,anomaly,anomaly_weekly,9/28/42,,weekly,-,sum,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/weekly/WY{wy}.nc,,groundwater
-305,obs_anomalies,netcdf,water_table_depth,wtd,9/28/42,,weekly,m,sum,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/weekly/WY{wy}.nc,,groundwater
-306,obs_anomalies,netcdf,site_id,site,,,weekly,m,sum,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/weekly/WY{wy}.nc,,groundwater
-307,obs_anomalies,netcdf,anomaly,anomaly_monthly,8/1/42,,monthly,-,sum,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/monthly/WY{wy}.nc,,groundwater
-308,obs_anomalies,netcdf,water_table_depth,wtd,8/1/42,,monthly,m,sum,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/monthly/WY{wy}.nc,,groundwater
-309,obs_anomalies,netcdf,site_id,site,,,monthly,m,sum,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/monthly/WY{wy}.nc,,groundwater
-310,observations,netcdf,swe,swe,,,daily,mm,mean,,site_id,0,/hydrodata/national_obs/swe/data/daily/{site_id}.nc,,snotel
-311,observations,netcdf,anomaly_daily_week_of_values,anomaly_daily_week_of_values,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/swe/data/daily/{site_id}.nc,,snotel
-412,observations,netcdf,anomaly,anomaly_daily_single_date,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/swe/data/daily/{site_id}.nc,,snotel
-413,observations,netcdf,site_id,site,,,daily,mm,mean,,site_id,0,/hydrodata/national_obs/swe/data/daily/{site_id}.nc,,snotel
-414,observations,netcdf,swe,swe,10/7/63,,weekly,mm,sum,,site_id,0,/hydrodata/national_obs/swe/data/weekly/{site_id}.nc,,snotel
-415,observations,netcdf,anomaly,anomaly_weekly,,,weekly,-,sum,,site_id,0,/hydrodata/national_obs/swe/data/weekly/{site_id}.nc,,snotel
-416,observations,netcdf,site_id,site,,,weekly,-,sum,,site_id,0,/hydrodata/national_obs/swe/data/weekly/{site_id}.nc,,snotel
-417,observations,netcdf,swe,swe,,,monthly,mm,sum,,site_id,0,/hydrodata/national_obs/swe/data/monthly/{site_id}.nc,,snotel
-418,observations,netcdf,anomaly,anomaly_monthly,,,monthly,-,sum,,site_id,0,/hydrodata/national_obs/swe/data/monthly/{site_id}.nc,,snotel
-419,observations,netcdf,site_id,site,,,monthly,-,sum,,site_id,0,/hydrodata/national_obs/swe/data/monthly/{site_id}.nc,,snotel
-420,observations,netcdf,precipitation,precip_inc,,,daily,mm,mean,,site_id,0,/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily/{site_id}.nc,,snotel
-421,observations,netcdf,air_temp,temp_avg,,,daily,c,mean,,site_id,0,/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily/{site_id}.nc,,snotel
-422,obs_anomalies,netcdf,anomaly,anomaly_daily_single_date,10/1/63,,daily,-,mean,,wy,0,/hydrodata/national_obs/swe/data/anomalies/daily/WY{wy}.nc,,snotel
-423,obs_anomalies,netcdf,anomaly_daily_week_of_values,anomaly_daily_week_of_values,10/1/63,,daily,-,mean,,wy,0,/hydrodata/national_obs/swe/data/anomalies/daily/WY{wy}.nc,,snotel
-425,obs_anomalies,netcdf,swe,swe,10/1/63,,daily,mm,mean,,wy,0,/hydrodata/national_obs/swe/data/anomalies/daily/WY{wy}.nc,,snotel
-426,obs_anomalies,netcdf,site_id,site,,,daily,mm,mean,,wy,0,/hydrodata/national_obs/swe/data/anomalies/daily/WY{wy}.nc,,snotel
-427,obs_anomalies,netcdf,anomaly,anomaly_weekly,10/1/63,,weekly,-,sum,,wy,0,/hydrodata/national_obs/swe/data/anomalies/weekly/WY{wy}.nc,,snotel
-428,obs_anomalies,netcdf,swe,swe,10/1/63,,weekly,mm,sum,,wy,0,/hydrodata/national_obs/swe/data/anomalies/weekly/WY{wy}.nc,,snotel
-429,obs_anomalies,netcdf,site_id,site,,,weekly,mm,sum,,wy,0,/hydrodata/national_obs/swe/data/anomalies/weekly/WY{wy}.nc,,snotel
-430,obs_anomalies,netcdf,anomaly,anomaly_monthly,10/1/63,,monthly,-,sum,,wy,0,/hydrodata/national_obs/swe/data/anomalies/monthly/WY{wy}.nc,,snotel
-431,obs_anomalies,netcdf,swe,swe,10/1/63,,monthly,mm,sum,,wy,0,/hydrodata/national_obs/swe/data/anomalies/monthly/WY{wy}.nc,,snotel
-432,obs_anomalies,netcdf,site_id,site,,,monthly,mm,sum,,wy,0,/hydrodata/national_obs/swe/data/anomalies/monthly/WY{wy}.nc,,snotel
-433,conus1_domain,pfb,frac_stream_dist,frac_stream_var,,,static,-,-,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/Frac_dist_100_withfilter.pfb,,
-434,conus1_current_conditions,pfb,pressure_head,pressure,5/20/22,,daily,m,mean,conus1,mdy,3,/hydrodata/HydroGEN/current_conditions/CONUS1/WY{wy}/{dataset_var}.{mdy}.pfb,,
-435,usgs_nwis,netcdf,streamflow,streamflow,,,daily,mm,mean,,site_id,1,/hydrodata/national_obs/streamflow/data/daily/{site_id}.nc,,streamflow
-436,usgs_nwis,netcdf,streamflow_anomaly,anomaly_daily_single_date,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/streamflow/data/daily/{site_id}.nc,,streamflow
-437,usgs_nwis,netcdf,site_id,site,,,daily,-,mean,,site_id,1,/hydrodata/national_obs/streamflow/data/daily/{site_id}.nc,,streamflow
-438,usgs_nwis,netcdf,streamflow,streamflow,,,weekly,mm,mean,,site_id,1,/hydrodata/national_obs/streamflow/data/weekly/{site_id}.nc,,streamflow
-439,usgs_nwis,netcdf,streamflow_anomaly,anomaly_weekly,,,weekly,-,mean,,site_id,0,/hydrodata/national_obs/streamflow/data/weekly/{site_id}.nc,,streamflow
-440,usgs_nwis,netcdf,site_id,site,,,weekly,-,mean,,site_id,1,/hydrodata/national_obs/streamflow/data/weekly/{site_id}.nc,,streamflow
-441,usgs_nwis,netcdf,streamflow,streamflow,,,monthly,mm,mean,,site_id,1,/hydrodata/national_obs/streamflow/data/monthly/{site_id}.nc,,streamflow
-442,usgs_nwis,netcdf,streamflow_anomaly,anomaly_monthly,,,monthly,-,mean,,site_id,0,/hydrodata/national_obs/streamflow/data/monthly/{site_id}.nc,,streamflow
-443,usgs_nwis,netcdf,site_id,site,,,monthly,-,mean,,site_id,1,/hydrodata/national_obs/streamflow/data/monthly/{site_id}.nc,,streamflow
-444,usgs_nwis,netcdf,streamflow,streamflow,02/01/1857,,daily,mm,mean,,wy,1,/hydrodata/national_obs/streamflow/data/anomalies/daily/WY{wy}.nc,,streamflow
-445,usgs_nwis,netcdf,streamflow_anomaly,anomaly_daily_single_date,02/01/1857,,daily,-,mean,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/daily/WY{wy}.nc,,streamflow
-446,usgs_nwis,netcdf,site_id,site,,,daily,,mean,,wy,1,/hydrodata/national_obs/streamflow/data/anomalies/daily/WY{wy}.nc,,streamflow
-447,usgs_nwis,netcdf,streamflow,streamflow,02/02/1857,,weekly,mm,mean,,wy,1,/hydrodata/national_obs/streamflow/data/anomalies/weekly/WY{wy}.nc,,streamflow
-448,usgs_nwis,netcdf,streamflow_anomaly,anomaly_weekly,02/02/1857,,weekly,-,mean,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/weekly/WY{wy}.nc,,streamflow
-449,usgs_nwis,netcdf,site_id,site,,,weekly,,mean,,wy,1,/hydrodata/national_obs/streamflow/data/anomalies/weekly/WY{wy}.nc,,streamflow
-450,usgs_nwis,netcdf,streamflow,streamflow,02/01/1857,,monthly,mm,mean,,wy,1,/hydrodata/national_obs/streamflow/data/anomalies/monthly/WY{wy}.nc,,streamflow
-451,usgs_nwis,netcdf,streamflow_anomaly,anomaly_monthly,02/01/1857,,monthly,-,mean,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/monthly/WY{wy}.nc,,streamflow
-452,usgs_nwis,netcdf,site_id,site,,,monthly,,mean,,wy,1,/hydrodata/national_obs/streamflow/data/anomalies/monthly/WY{wy}.nc,,streamflow
-453,usgs_nwis,netcdf,water_table_depth,wtd,,,daily,m,mean,,site_id,1,/hydrodata/national_obs/groundwater/data/daily/{site_id}.nc,,groundwater
-454,usgs_nwis,netcdf,wtd_anomaly,anomaly_daily_single_date,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/groundwater/data/daily/{site_id}.nc,,groundwater
-455,usgs_nwis,netcdf,site_id,site,,,daily,m,mean,,site_id,1,/hydrodata/national_obs/groundwater/data/daily/{site_id}.nc,,groundwater
-456,usgs_nwis,netcdf,water_table_depth,wtd,,,weekly,m,mean,,site_id,1,/hydrodata/national_obs/groundwater/data/weekly/{site_id}.nc,,groundwater
-457,usgs_nwis,netcdf,wtd_anomaly,anomaly_weekly,,,weekly,-,mean,,site_id,0,/hydrodata/national_obs/groundwater/data/weekly/{site_id}.nc,,groundwater
-458,usgs_nwis,netcdf,site_id,site,,,weekly,-,mean,,site_id,1,/hydrodata/national_obs/groundwater/data/weekly/{site_id}.nc,,groundwater
-459,usgs_nwis,netcdf,water_table_depth,wtd,,,monthly,m,mean,,site_id,1,/hydrodata/national_obs/groundwater/data/monthly/{site_id}.nc,,groundwater
-460,usgs_nwis,netcdf,wtd_anomaly,anomaly_monthly,,,monthly,-,mean,,site_id,0,/hydrodata/national_obs/groundwater/data/monthly/{site_id}.nc,,groundwater
-461,usgs_nwis,netcdf,site_id,site,,,monthly,-,mean,,site_id,1,/hydrodata/national_obs/groundwater/data/monthly/{site_id}.nc,,groundwater
-462,usgs_nwis,netcdf,water_table_depth,wtd,9/30/42,,daily,m,mean,,wy,1,/hydrodata/national_obs/groundwater/data/anomalies/daily/WY{wy}.nc,,groundwater
-463,usgs_nwis,netcdf,wtd_anomaly,anomaly_daily_single_date,9/30/42,,daily,-,mean,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/daily/WY{wy}.nc,,groundwater
-464,usgs_nwis,netcdf,site_id,site,,,daily,-,mean,,wy,1,/hydrodata/national_obs/groundwater/data/anomalies/weekly/WY{wy}.nc,,groundwater
-465,usgs_nwis,netcdf,water_table_depth,wtd,9/28/42,,weekly,m,mean,,wy,1,/hydrodata/national_obs/groundwater/data/anomalies/weekly/WY{wy}.nc,,groundwater
-466,usgs_nwis,netcdf,wtd_anomaly,anomaly_weekly,9/28/42,,weekly,-,mean,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/weekly/WY{wy}.nc,,groundwater
-467,usgs_nwis,netcdf,site_id,site,,,weekly,m,mean,,wy,1,/hydrodata/national_obs/groundwater/data/anomalies/weekly/WY{wy}.nc,,groundwater
-468,usgs_nwis,netcdf,water_table_depth,wtd,8/1/42,,monthly,m,mean,,wy,1,/hydrodata/national_obs/groundwater/data/anomalies/monthly/WY{wy}.nc,,groundwater
-469,usgs_nwis,netcdf,wtd_anomaly,anomaly_monthly,8/1/42,,monthly,-,mean,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/monthly/WY{wy}.nc,,groundwater
-470,usgs_nwis,netcdf,site_id,site,,,monthly,m,mean,,wy,1,/hydrodata/national_obs/groundwater/data/anomalies/monthly/WY{wy}.nc,,groundwater
-471,snotel,netcdf,swe,swe,,,daily,mm,mean,,site_id,1,/hydrodata/national_obs/swe/data/daily/{site_id}.nc,,snotel
-472,snotel,netcdf,swe_anomaly,anomaly_daily_single_date,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/swe/data/daily/{site_id}.nc,,snotel
-473,snotel,netcdf,site_id,site,,,daily,mm,mean,,site_id,1,/hydrodata/national_obs/swe/data/daily/{site_id}.nc,,snotel
-474,snotel,netcdf,swe,swe,10/7/63,,weekly,mm,mean,,site_id,1,/hydrodata/national_obs/swe/data/weekly/{site_id}.nc,,snotel
-475,snotel,netcdf,swe_anomaly,anomaly_weekly,,,weekly,-,mean,,site_id,0,/hydrodata/national_obs/swe/data/weekly/{site_id}.nc,,snotel
-476,snotel,netcdf,site_id,site,,,weekly,-,mean,,site_id,1,/hydrodata/national_obs/swe/data/weekly/{site_id}.nc,,snotel
-477,snotel,netcdf,swe,swe,,,monthly,mm,mean,,site_id,1,/hydrodata/national_obs/swe/data/monthly/{site_id}.nc,,snotel
-478,snotel,netcdf,swe_anomaly,anomaly_monthly,,,monthly,-,mean,,site_id,0,/hydrodata/national_obs/swe/data/monthly/{site_id}.nc,,snotel
-479,snotel,netcdf,site_id,site,,,monthly,-,mean,,site_id,1,/hydrodata/national_obs/swe/data/monthly/{site_id}.nc,,snotel
-480,snotel,netcdf,precipitation,precip_inc,,,daily,mm,mean,,site_id,1,/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily/{site_id}.nc,,snotel
-481,snotel,netcdf,air_temp,temp_avg,,,daily,c,mean,,site_id,1,/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily/{site_id}.nc,,snotel
-482,snotel,netcdf,swe,swe,10/1/63,,daily,mm,mean,,wy,1,/hydrodata/national_obs/swe/data/anomalies/daily/WY{wy}.nc,,snotel
-483,snotel,netcdf,swe_anomaly,anomaly_daily_single_date,10/1/63,,daily,-,mean,,wy,0,/hydrodata/national_obs/swe/data/anomalies/daily/WY{wy}.nc,,snotel
-484,snotel,netcdf,site_id,site,,,daily,mm,mean,,wy,1,/hydrodata/national_obs/swe/data/anomalies/daily/WY{wy}.nc,,snotel
-485,snotel,netcdf,swe,swe,10/1/63,,weekly,mm,mean,,wy,1,/hydrodata/national_obs/swe/data/anomalies/weekly/WY{wy}.nc,,snotel
-486,snotel,netcdf,swe_anomaly,anomaly_weekly,10/1/63,,weekly,-,mean,,wy,0,/hydrodata/national_obs/swe/data/anomalies/weekly/WY{wy}.nc,,snotel
-487,snotel,netcdf,site_id,site,,,weekly,mm,mean,,wy,1,/hydrodata/national_obs/swe/data/anomalies/weekly/WY{wy}.nc,,snotel
-488,snotel,netcdf,swe,swe,10/1/63,,monthly,mm,mean,,wy,1,/hydrodata/national_obs/swe/data/anomalies/monthly/WY{wy}.nc,,snotel
-489,snotel,netcdf,swe_anomaly,anomaly_monthly,10/1/63,,monthly,-,mean,,wy,0,/hydrodata/national_obs/swe/data/anomalies/monthly/WY{wy}.nc,,snotel
-490,snotel,netcdf,site_id,site,,,monthly,mm,mean,,wy,1,/hydrodata/national_obs/swe/data/anomalies/monthly/WY{wy}.nc,,snotel
-491,snotel,netcdf,soil_moisture,sms_2in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
-492,snotel,netcdf,soil_moisture,sms_4in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
-493,snotel,netcdf,soil_moisture,sms_8in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
-494,snotel,netcdf,soil_moisture,sms_20in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
-495,snotel,netcdf,soil_moisture,sms_40in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
-496,scan,netcdf,soil_moisture,sms_2in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
-497,scan,netcdf,soil_moisture,sms_4in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
-498,scan,netcdf,soil_moisture,sms_8in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
-499,scan,netcdf,soil_moisture,sms_20in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
-500,scan,netcdf,soil_moisture,sms_40in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
-501,scan,netcdf,precipitation,precip_acc,,,daily,mm,accumulated,,site_id,1,/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily/{site_id}.nc,,
-502,scan,netcdf,precipitation,precip_inc,,,daily,mm,sum,,site_id,1,/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily/{site_id}.nc,,
-503,scan,netcdf,precipitation,precip_inc_sa,,,daily,mm,sum_snow_adjusted,,site_id,1,/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily/{site_id}.nc,,
-504,scan,netcdf,air_temp,temp_min,,,daily,c,min,,site_id,1,/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily/{site_id}.nc,,
-505,scan,netcdf,air_temp,temp_max,,,daily,c,max,,site_id,1,/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily/{site_id}.nc,,
-506,scan,netcdf,air_temp,temp_avg,,,daily,c,mean,,site_id,1,/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily/{site_id}.nc,,
-507,ameriflux,netcdf,latent_heat,,,,hourly,w/m2,sum,,site_id,1,/hydrodata/national_obs/ameriflux/data/hourly/{site_id}.nc,,
-508,ameriflux,netcdf,sensible_heat,,,,hourly,w/m2,sum,,site_id,1,/hydrodata/national_obs/ameriflux/data/hourly/{site_id}.nc,,
-509,ameriflux,netcdf,downward_shortwave,,,,hourly,w/m2,mean,,site_id,1,/hydrodata/national_obs/ameriflux/data/hourly/{site_id}.nc,,
-510,ameriflux,netcdf,downward_longwave,,,,hourly,w/m2,mean,,site_id,1,/hydrodata/national_obs/ameriflux/data/hourly/{site_id}.nc,,
-511,ameriflux,netcdf,vapor_pressure_deficit,,,,hourly,hpa,mean,,site_id,1,/hydrodata/national_obs/ameriflux/data/hourly/{site_id}.nc,,
-512,ameriflux,netcdf,air_temp,,,,hourly,c,mean,,site_id,1,/hydrodata/national_obs/ameriflux/data/hourly/{site_id}.nc,,
-513,ameriflux,netcdf,wind_speed,,,,hourly,m/s,mean,,site_id,1,/hydrodata/national_obs/ameriflux/data/hourly/{site_id}.nc,,
-514,conus1_baseline_85,pfb,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/drv_vegm.fixed.pfb,,
-515,conus1_baseline_mod,pfb,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/drv_vegm.fixed.pfb,,
-516,conus2_domain,pfb,clm_run,clm_run,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_vegm.CONUS2_fixed.2.pfb,,
-517,noaa,pfb,precipitation,APCP,,,daily,mm,sum,conus1,wy,1,/hydrodata/national_obs/gridded_meteorology/NOAA_precipitation/CONUS1/WY{wy}/QPE.APCP.daily.regrid.{wy}.{wy_daynum:03d}.pfb,,
-518,noaa,pfb,air_temp,Temp_min,,,daily,K,min,conus1,wy_daynum,1,/hydrodata/national_obs/gridded_meteorology/NOAA_temperature/CONUS1/WY{wy}/HRRR.Temp_min.daily.regrid.{wy}.{wy_daynum:03d}.pfb,,
-519,noaa,pfb,air_temp,Temp_max,,,daily,K,max,conus1,wy_daynum,1,/hydrodata/national_obs/gridded_meteorology/NOAA_temperature/CONUS1/WY{wy}/HRRR.Temp_max.daily.regrid.{wy}.{wy_daynum:03d}.pfb,,
-520,noaa,pfb,air_temp,Temp_mean,,,daily,K,mean,conus1,wy_daynum,1,/hydrodata/national_obs/gridded_meteorology/NOAA_temperature/CONUS1/WY{wy}/HRRR.Temp_mean.daily.regrid.{wy}.{wy_daynum:03d}.pfb,,
-521,conus1_domain,pfb,topographic_index,topographic_index,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_topographic_index.pfb,,
-522,usgs_nwis,sql,water_table_depth,wtd,01/01/1801,,instantaneous,m,-,,,1,,,groundwater
-523,conus1_domain,tiff,flow_direction,band_data,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/flow_direction.tif,"The flow directions for every grid cell (1=down, 2=left, 3=up, 4=right)",
-524,conus1_domain,pfb,flow_direction,band_data,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/flow_direction.pfb,"The flow directions for every grid cell (1=down, 2=left, 3=up, 4=right)",
-525,jasechko_2024,sql,water_table_depth,wtd,01/01/1801,12/31/2022,yearly,m,median,,,1,,,groundwater
-526,modis,netcdf,snow_cover,snow_cover,3/10/00,2/28/17,daily,-,-,conus2,cy,1,/hydrodata/national_obs/modis/cloudfree_snow_cover/CONUS2/SnowUS_{cy}_CONUS2.nc,"This article presents a cloud-free snow cover dataset with a daily temporal resolution and 0.05degree spatial resolution from March 2000 to February 2017 over the contiguous United States (CONUS). The dataset was developed by completely removing clouds from the original NASA's Moderate Resolution Imaging Spectroradiometer (MODIS) Snow Cover Area product (MOD10C1) through a series of spatiotemporal filters followed by the Variational Interpolation (VI) algorithm; the filters and VI algorithm were evaluated using bootstrapping test. The dataset was validated over the period with the Landsat 7 ETM+ snow cover maps in the Seattle, Minneapolis, Rocky Mountains, and Sierra Nevada regions. The resulting cloud-free snow cover captured accurately dynamic changes of snow throughout the period in terms of Probability of Detection (POD) and False Alarm Ratio (FAR) with average values of 0.955 and 0.179 for POD and FAR, respectively. The dataset provides continuous inputs of snow cover area for hydrologic studies for almost two decades. The VI algorithm can be applied in other regions given that a proper validation can be performed. It should be noted that there is a number of 12, 17, and 9 days missed in the years 2000, 2001, and 2002 respectively due to the unavailability in the original MODIS record.",
-527,conus2_domain,pfb,ss_water_table_depth,wtd,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/steady_state_runs/2003_run/spinup.wy2003.wtd.pfb,steady state water table depth derived from steady state pressure and saturation,
+id,dataset,dataset_version,file_type,variable,dataset_var,entry_start_date,entry_end_date,temporal_resolution,units,aggregation,grid,file_grouping,security_level,path,documentation_notes,site_type
+1,conus1_baseline_85,,pfmetadata,pressure_head,pressure,10/1/84,1/21/85,daily,m,mean,conus1,wy_daynum,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/conus1_pfclm_daily_1985.pfmetadata,,
+2,conus1_baseline_85,,pfb,pressure_head,pressure,10/1/84,1/21/85,daily,m,mean,conus1,wy,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/WY{wy}/pressure.daily.mean.{wy_daynum:03d}.pfb,,
+3,conus1_baseline_mod,,pfmetadata,evapotranspiration,et,,,daily,mm/d,sum,conus1,wy,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/conus1_pfclm_daily_{wy}.pfmetadata,,
+4,conus1_baseline_mod,,pfmetadata,soil_moisture,soil_moisture,,,daily,kg/m2,mean,conus1,wy,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/conus1_pfclm_daily_{wy}.pfmetadata,,
+5,conus1_baseline_mod,,pfmetadata,water_table_depth,water_table_depth,,,daily,m,mean,conus1,wy,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/conus1_pfclm_daily_{wy}.pfmetadata,,
+6,conus1_baseline_mod,,pfmetadata,pressure_head,pressure,,,daily,m,mean,conus1,wy,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/conus1_pfclm_daily_{wy}.pfmetadata,,
+7,conus1_baseline_mod,,pfmetadata,swe,swe,,,daily,m,eod,conus1,wy_daynum,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/conus1_pfclm_daily_{wy}.pfmetadata,,
+8,conus1_baseline_mod,,pfb,evapotranspiration,et,,,daily,mm/d,sum,conus1,wy_daynum,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/WY{wy}/et.daily.sum.{wy_daynum:03d}.pfb,,
+9,conus1_baseline_mod,,pfb,soil_moisture,soil_moisture,,,daily,kg/m2,mean,conus1,wy_daynum,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/WY{wy}/sm.daily.mean.{wy_daynum:03d}.pfb,,
+10,conus1_baseline_mod,,pfb,water_table_depth,wtd,,,daily,m,mean,conus1,wy_daynum,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/WY{wy}/wtd.daily.mean.{wy_daynum:03d}.pfb,,
+11,conus1_baseline_mod,,pfb,pressure_head,pressure,,,daily,m,mean,conus1,wy_daynum,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/WY{wy}/pressure.daily.mean.{wy_daynum:03d}.pfb,,
+12,conus1_baseline_mod,,pfb,swe,swe,,,daily,m,eod,conus1,wy_daynum,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/WY{wy}/swe.daily.eod.{wy_daynum:03d}.pfb,,
+13,conus1_baseline_mod,,zarr,evapotranspiration,et,,,daily,mm/d,sum,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
+14,conus1_baseline_mod,,zarr,soil_moisture,soil_moisture,,,daily,kg/m2,mean,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
+15,conus1_baseline_mod,,zarr,water_table_depth,water_table_depth,,,daily,m,mean,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
+16,conus1_baseline_mod,,zarr,pressure_head,pressure,,,daily,m,mean,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
+17,conus1_baseline_mod,,zarr,swe,swe,,,daily,m,eod,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
+18,conus1_baseline_mod,,zarr,precipitation,APCP,,,daily,?,?,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
+19,conus1_baseline_mod,,zarr,air_temp,Temp_Max,,,daily,K,max,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
+20,conus1_baseline_mod,,zarr,air_temp,Temp_Min,,,daily,K,min,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
+21,conus1_baseline_mod,,zarr,streamflow,streamflow,,,daily,m3/h,-,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
+22,conus1_baseline_mod,,zarr,swe_melt,melt,,,daily,mm,,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
+23,conus1_baseline_mod,,zarr,pressure_next,pressure_next,,,daily,m,tbd,conus1,wy,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_{wy}_preprocessed.zarr,,
+24,conus1_domain,,zarr,latitude,latitude,,,static,degrees_north,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
+25,conus1_domain,,zarr,longitude,longitude,,,static,degrees_east,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
+26,conus1_domain,,zarr,permeability,permeability,,,static,m/h,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
+27,conus1_domain,,zarr,topographic_index,topographic_index,,,static,-,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
+28,conus1_domain,,zarr,drainage_area,drainage_area,,,static,km2,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
+29,conus1_domain,,zarr,porosity,porosity,,,static,-,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
+30,conus1_domain,,zarr,slope_x,slope_x,,,static,-,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
+31,conus1_domain,,zarr,slope_y,slope_y,,,static,-,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
+32,conus1_domain,,zarr,van_genuchten_alpha,van_genuchten_alpha,,,static,-,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
+33,conus1_domain,,zarr,van_genuchten_n,van_genuchten_n,,,static,-,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
+34,conus1_domain,,zarr,veg_type_IGBP,vegetation_type,,,static,-,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
+35,conus1_domain,,zarr,veg_type_IGBP,vegtype,,,static,-,static,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/zarr/conus1_2003_preprocessed.zarr,,
+36,conus1_baseline_85,,pfb,pressure_head,Press,,,hourly,m,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.press.{wy_hour:05d}.pfb,,
+37,conus1_baseline_85,,pfb,saturation,satur,,,hourly,-,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.satur.{wy_hour:05d}.pfb,,
+38,conus1_baseline_85,,C.pfb,latent_heat,eflx_lh_tot,,,hourly,w/m2,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
+39,conus1_baseline_85,,C.pfb,outward_longwave_radiation,eflx_lwrad_out,,,hourly,w/m2,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
+40,conus1_baseline_85,,C.pfb,sensible_heat,eflx_sh_tot,,,hourly,w/m2,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
+41,conus1_baseline_85,,C.pfb,ground_heat,eflx_soil_grnd,,,hourly,w/m2,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
+42,conus1_baseline_85,,C.pfb,evapotranspiration,qflx_evap_tot,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
+43,conus1_baseline_85,,C.pfb,ground_evap,qflx_evap_grnd,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
+44,conus1_baseline_85,,C.pfb,ground_evap_heat,qflx_evap_soil,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
+45,conus1_baseline_85,,C.pfb,transpiration_leaves,qflx_evap_veg,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
+46,conus1_baseline_85,,C.pfb,transpiration,qflx_tran_veg,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
+47,conus1_baseline_85,,C.pfb,infiltration,qflx_infl,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
+48,conus1_baseline_85,,C.pfb,swe,swe_out,,,hourly,mm,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
+49,conus1_baseline_85,,C.pfb,ground_temp,t_grnd,,,hourly,K,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
+50,conus1_baseline_85,,C.pfb,irrigation,qflx_qirr,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
+51,conus1_baseline_85,,C.pfb,soil_temp,tsoil,,,hourly,K,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/1985/raw_outputs/CONUS.5layer.pfclm.run4.out.clm_output.{wy_hour:05d}.C.pfb,,
+52,conus1_baseline_mod,,pfb,pressure_head,Press,,,hourly,m,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/pressure/CONUS.{wy}.out.press.{wy_hour:05d}.pfb,,
+53,conus1_baseline_mod,,pfb,saturation,satur,,,hourly,-,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/saturation/CONUS.{wy}.out.satur.{wy_hour:05d}.pfb,,
+54,conus1_baseline_mod,,C.pfb,latent_heat,eflx_lh_tot,,,hourly,w/m2,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
+55,conus1_baseline_mod,,C.pfb,outward_longwave_radiation,eflx_lwrad_out,,,hourly,w/m2,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
+56,conus1_baseline_mod,,C.pfb,sensible_heat,eflx_sh_tot,,,hourly,w/m2,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
+57,conus1_baseline_mod,,C.pfb,ground_heat,eflx_soil_grnd,,,hourly,w/m2,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
+58,conus1_baseline_mod,,C.pfb,evapotranspiration,qflx_evap_tot,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
+59,conus1_baseline_mod,,C.pfb,ground_evap,qflx_evap_grnd,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
+60,conus1_baseline_mod,,C.pfb,ground_evap_heat,qflx_evap_soil,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
+61,conus1_baseline_mod,,C.pfb,transpiration_leaves,qflx_evap_veg,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
+62,conus1_baseline_mod,,C.pfb,transpiration,qflx_tran_veg,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
+63,conus1_baseline_mod,,C.pfb,infiltration,qflx_infl,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
+64,conus1_baseline_mod,,C.pfb,swe,swe_out,,,hourly,mm,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
+65,conus1_baseline_mod,,C.pfb,ground_temp,t_grnd,,,hourly,K,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
+66,conus1_baseline_mod,,C.pfb,irrigation,qflx_qirr,,,hourly,mm/s,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
+67,conus1_baseline_mod,,C.pfb,soil_temp,tsoil,,,hourly,K,-,conus1,wy_hour,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/raw_outputs/clm_out/CONUS.{wy}.out.clm_output.{wy_hour:05d}.C.pfb,,
+68,conus1_domain,,pfmetadata,latitude,latitude,,,static,degrees_north,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
+69,conus1_domain,,pfmetadata,longitude,longitude,,,static,degrees_east,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
+70,conus1_domain,,pfmetadata,van_genuchten_n,van_genuchten_n,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
+71,conus1_domain,,pfmetadata,van_genuchten_alpha,van_genuchten_alpha,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
+72,conus1_domain,,pfmetadata,slope_x,slope_x,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
+73,conus1_domain,,pfmetadata,slope_y,slope_y,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
+74,conus1_domain,,pfmetadata,porosity,porosity,,,static,,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
+75,conus1_domain,,pfmetadata,permeability,permeability,,,static,m/h,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
+76,conus1_domain,,pfmetadata,drainage_area,drainage_area,,,static,km2,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
+77,conus1_domain,,pfmetadata,veg_type_IGBP,vegetation_type,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
+78,conus1_domain,,pfmetadata,topographic_index,topographic_index,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/conus1_parameters.pfmetadata,,
+79,conus1_domain,,pfb,latitude,latitude,,,static,degrees_north,-,conus1,,1,/hydrodata/national_mapping/CONUS1/Latitude_CONUS1.pfb,,
+80,conus1_domain,,pfb,longitude,longitude,,,static,degrees_east,-,conus1,,1,/hydrodata/national_mapping/CONUS1/Longitude_CONUS1.pfb,,
+81,conus1_domain,,pfb,van_genuchten_n,van_genuchten_n,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_vgn_n.pfb,,
+82,conus1_domain,,pfb,van_genuchten_alpha,van_genuchten_alpha,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_vgn_alpha.pfb,,
+83,conus1_domain,,pfb,slope_x,slope_x,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/slopex.pfb,,
+84,conus1_domain,,pfb,slope_y,slope_y,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/slopey.pfb,,
+85,conus1_domain,,pfb,porosity,porosity,,,static,,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_porosity.pfb,,
+86,conus1_domain,,pfb,permeability,permeability,,,static,m/h,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_permeability.pfb,,
+87,conus1_domain,,pfb,drainage_area,drainage_area,,,static,km2,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_drainage_area.pfb,,
+88,conus1_domain,,pfb,veg_type_IGBP,vegetation_type,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_vegtype.pfb,,
+90,conus1_domain,,pfb,pme,pme,,,static,m/h,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/PmE.flux.pfb,PmE that was used for CONUS1 steady state spinup,
+91,conus1_domain,,pftxt,elevation,elevation,,,static,m,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/CONUS.pitfill.txt,Processed surface elevaiton for every grid cell this is what was used to calculate the slopes,
+92,conus1_domain,,pftxt,stream_order,stream_order,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/StreamOrder_pfFormat.txt,Stream orders are assigned for every subbasin. Headwaters and non-river cells are assigned a value of zero . The order for all other streams was determined by walking downstream from the headwater reaches. Streams are assigned the largest order possible (i.e. the longest route to get to them).,
+93,conus1_domain,,pfb,pf_indicator,pf_indicator,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/grid3d.v3.pfb,Indicator file for CONUS1 subsurface,
+94,conus1_domain,,pftxt,flow_direction_grass,flow_direction_grass,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/flodir.interp_format.txt,"The flow directions for every grid cell determined by Grass (2=up, 4=left, 6=down, 8=right)",
+95,conus1_domain,,pftxt,stream_segments,stream_segments,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/stream.interp_format.txt,The reach number for every stream. Pretty much the same as the subbasin file except only the river cells have values.  Numbers in this file correspond to subbasin numers.,
+96,conus1_domain,,pftxt,subbasins,subbasins,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/watershed.interp_format.txt,"The ~30,000 subbasins that were derived from the grass processing.  The numbers in this file correspond to the basin numbers (note that basin numbers count by 2). The zero values represent areas along the edge of the domain not included in any subbasins",
+97,conus1_domain,,pftxt,aridity_index,aridity_index,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/conus_short_Annual_Aridity.format.txt,The annual aridity index. precip/(precip-evap),
+98,conus1_baseline_85,,pftcl,parflow_run,parflow_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/run_scripts/5-layer.pfclm.baseline.spinup.tcl,Spinup script for Baseline 1985 runs,
+99,conus1_baseline_85,,pftcl,parflow_run,parflow_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/run_scripts/CONUS.5layer.pfclm.run4.out.pftcl,Run script for Baseline 1985 runs,
+102,conus1_baseline_85,,drv_clm,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/drv_clmin.startup.dat,clm driver file for starting from scratch,
+103,conus1_baseline_85,,vegm,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/drv_vegm.fixed.dat,,
+104,conus1_baseline_85,,vegp,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/drv_vegp.dat,,
+105,conus1_baseline_mod,,pftcl,parflow_run,parflow_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/run_scripts/CONUS_WY2003_2007_Cheyenne/CONUS.2003.tcl,tcl script for 2003-2005 ParFlow runs,
+108,conus1_baseline_mod,,drv_clm,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/run_scripts/CONUS_WY2003_2007_Cheyenne/drv_clmin.start.dat,clm driver file for starting from scratch,
+109,conus1_baseline_mod,,vegm,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/drv_vegm.fixed.dat,,
+110,conus1_baseline_mod,,vegp,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/drv_vegp.dat,,
+111,conus1_domain,,pfb,ss_pressure_head,press,,,static,m,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/run_scripts/CONUS_WY2003_2007_Cheyenne/press.in.pfb,steady state pressure used to initialize modern runs,
+112,NLDAS2,,pfb,precipitation,APCP,,,hourly,mm,-,conus1,wy_start_24hr,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/WY{wy}/NLDAS.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
+113,NLDAS2,,pfb,downward_longwave,DLWR,,,hourly,w/m2,-,conus1,wy_start_24hr,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/WY{wy}/NLDAS.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
+114,NLDAS2,,pfb,downward_shortwave,DSWR,,,hourly,w/m2,-,conus1,wy_start_24hr,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/WY{wy}/NLDAS.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
+115,NLDAS2,,pfb,specific_humidity,SPFH,,,hourly,kg/kg,-,conus1,wy_start_24hr,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/WY{wy}/NLDAS.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
+116,NLDAS2,,pfb,air_temp,Temp,,,hourly,K,-,conus1,wy_start_24hr,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/WY{wy}/NLDAS.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
+117,NLDAS2,,pfb,east_windspeed,UGRD,,,hourly,m/s,-,conus1,wy_start_24hr,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/WY{wy}/NLDAS.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
+118,NLDAS2,,pfb,north_windspeed,VGRD,,,hourly,m/s,-,conus1,wy_start_24hr,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/WY{wy}/NLDAS.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
+119,NLDAS2,,pfb,atmospheric_pressure,Press,,,hourly,pa,-,conus1,wy_start_24hr,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/{wy}/WY{wy}/NLDAS.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
+120,NLDAS2,,pfmetadata,precipitation,APCP,,,daily,mm,sum,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+121,NLDAS2,,pfmetadata,downward_longwave,DLWR,,,daily,w/m2,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+122,NLDAS2,,pfmetadata,downward_shortwave,DSWR,,,daily,w/m2,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+123,NLDAS2,,pfmetadata,specific_humidity,SPFH,,,daily,kg/kg,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+124,NLDAS2,,pfmetadata,air_temp,Temp_min,,,daily,K,min,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+125,NLDAS2,,pfmetadata,air_temp,Temp_max,,,daily,K,max,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+126,NLDAS2,,pfmetadata,air_temp,Temp_mean,,,daily,K,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+127,NLDAS2,,pfmetadata,east_windspeed,UGRD,,,daily,m/s,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+128,NLDAS2,,pfmetadata,north_windspeed,VGRD,,,daily,m/s,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+129,NLDAS2,,pfmetadata,atmospheric_pressure,Press_atmos,,,daily,pa,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+130,NLDAS2,,pfb,precipitation,APCP,,,daily,mm,sum,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.APCP.daily.sum.{wy_daynum:03d}.pfb,,
+131,NLDAS2,,pfb,downward_longwave,DLWR,,,daily,w/m2,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.DLWR.daily.mean.{wy_daynum:03d}.pfb,,
+132,NLDAS2,,pfb,downward_shortwave,DSWR,,,daily,w/m2,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.DSWR.daily.mean.{wy_daynum:03d}.pfb,,
+133,NLDAS2,,pfb,specific_humidity,SPFH,,,daily,kg/kg,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.SPFH.daily.mean.{wy_daynum:03d}.pfb,,
+134,NLDAS2,,pfb,air_temp,Temp_min,,,daily,K,min,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.Temp.daily.min.{wy_daynum:03d}.pfb,,
+135,NLDAS2,,pfb,air_temp,Temp_max,,,daily,K,max,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.Temp.daily.max.{wy_daynum:03d}.pfb,,
+136,NLDAS2,,pfb,air_temp,Temp_mean,,,daily,K,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.Temp.daily.mean.{wy_daynum:03d}.pfb,,
+137,NLDAS2,,pfb,east_windspeed,UGRD,,,daily,m/s,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.UGRD.daily.mean.{wy_daynum:03d}.pfb,,
+138,NLDAS2,,pfb,north_windspeed,VGRD,,,daily,m/s,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.VGRD.daily.mean.{wy_daynum:03d}.pfb,,
+139,NLDAS2,,pfb,atmospheric_pressure,Press_atmos,,,daily,pa,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.Press.daily.mean.{wy_daynum:03d}.pfb,,
+140,NLDAS2_85,,pfmetadata,precipitation,APCP,,,daily,mm,sum,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+141,NLDAS2_85,,pfmetadata,downward_longwave,DLWR,,,daily,w/m2,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+142,NLDAS2_85,,pfmetadata,downward_shortwave,DSWR,,,daily,w/m2,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+143,NLDAS2_85,,pfmetadata,specific_humidity,SPFH,,,daily,kg/kg,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+144,NLDAS2_85,,pfmetadata,air_temp,Temp_min,,,daily,K,min,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+145,NLDAS2_85,,pfmetadata,air_temp,Temp_max,,,daily,K,max,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+146,NLDAS2_85,,pfmetadata,air_temp,Temp_mean,,,daily,K,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+147,NLDAS2_85,,pfmetadata,east_windspeed,UGRD,,,daily,m/s,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+148,NLDAS2_85,,pfmetadata,north_windspeed,VGRD,,,daily,m/s,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+149,NLDAS2_85,,pfmetadata,atmospheric_pressure,Press_atmos,,,daily,pa,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/conus1_nldas_daily_{wy}.pfmetadata,,
+150,NLDAS2_85,,pfb,precipitation,APCP,,,daily,mm,sum,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.APCP.daily.sum.{wy_daynum:03d}.pfb,,
+151,NLDAS2_85,,pfb,downward_longwave,DLWR,,,daily,w/m2,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.DLWR.daily.mean.{wy_daynum:03d}.pfb,,
+152,NLDAS2_85,,pfb,downward_shortwave,DSWR,,,daily,w/m2,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.DSWR.daily.mean.{wy_daynum:03d}.pfb,,
+153,NLDAS2_85,,pfb,specific_humidity,SPFH,,,daily,kg/kg,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.SPFH.daily.mean.{wy_daynum:03d}.pfb,,
+154,NLDAS2_85,,pfb,air_temp,Temp_min,,,daily,K,min,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.Temp.daily.min.{wy_daynum:03d}.pfb,,
+155,NLDAS2_85,,pfb,air_temp,Temp_max,,,daily,K,max,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.Temp.daily.max.{wy_daynum:03d}.pfb,,
+156,NLDAS2_85,,pfb,air_temp,Temp_mean,,,daily,K,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.Temp.daily.mean.{wy_daynum:03d}.pfb,,
+157,NLDAS2_85,,pfb,east_windspeed,UGRD,,,daily,m/s,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.UGRD.daily.mean.{wy_daynum:03d}.pfb,,
+158,NLDAS2_85,,pfb,north_windspeed,VGRD,,,daily,m/s,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.VGRD.daily.mean.{wy_daynum:03d}.pfb,,
+159,NLDAS2_85,,pfb,atmospheric_pressure,Press_atmos,,,daily,pa,mean,conus1,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.Press.daily.mean.{wy_daynum:03d}.pfb,,
+160,NLDAS2,,pfb,air_temp,temperature,,,monthly_clim,K,mean,conus1,month,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/climatology/temperature_climatological_means_month_{month}.pfb,Need a note here about what time period the climatology represents,
+161,NLDAS2,,pfb,precipitation,precipitaiton,,,monthly_clim,mm,sum,conus1,month,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/climatology/precipitation_climatological_means_month_{month}.pfb,Need a note here about what time period the climatology represents,
+162,NLDAS2,,pfb,air_temp,temperature,,,annual_clim,K,mean,conus1,,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/climatology/temperature_annual_means.pfb,Need a note here about what time period the climatology represents,
+163,NLDAS2,,pfb,precipitation,precipitation,,,annual_clim,mm,sum,conus1,,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/climatology/precipitation_annual_means.pfb,Need a note here about what time period the climatology represents,
+164,NLDAS2_85,,pfb,precipitation,APCP,,,monthly,mm,sum,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/monthly/NLDAS.APCP.monthly.sum.WY{wy}.pfb,,
+165,NLDAS2,,pfb,air_temp,Temp_mean,,,monthly,K,mean,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/monthly/NLDAS.Temp.monthly.mean.WY{wy}.pfb,,
+166,NLDAS2,,pfb,precipitation,APCP,,,monthly,mm,sum,conus1,wy,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/monthly/NLDAS.APCP.monthly.sum.WY{wy}.pfb,,
+167,CW3E,,pfb,precipitation,APCP,,,hourly,mm,-,conus2,wy_start_24hr,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
+168,CW3E,,pfb,downward_longwave,DLWR,,,hourly,w/m2,-,conus2,wy_start_24hr,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
+169,CW3E,,pfb,downward_shortwave,DSWR,,,hourly,w/m2,-,conus2,wy_start_24hr,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
+170,CW3E,,pfb,specific_humidity,SPFH,,,hourly,kg/kg,-,conus2,wy_start_24hr,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
+171,CW3E,,pfb,air_temp,Temp,,,hourly,K,-,conus2,wy_start_24hr,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
+172,CW3E,,pfb,east_windspeed,UGRD,,,hourly,m/s,-,conus2,wy_start_24hr,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
+173,CW3E,,pfb,north_windspeed,VGRD,,,hourly,m/s,-,conus2,wy_start_24hr,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
+174,CW3E,,pfb,atmospheric_pressure,Press,,,hourly,pa,-,conus2,wy_start_24hr,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
+175,CW3E,,pfb,precipitation,APCP,,,daily,mm,sum,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.APCP.daily.sum.{wy_daynum:03d}.pfb,,
+176,CW3E,,pfb,downward_longwave,DLWR,,,daily,w/m2,mean,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.DLWR.daily.mean.{wy_daynum:03d}.pfb,,
+177,CW3E,,pfb,downward_shortwave,DSWR,,,daily,w/m2,mean,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.DSWR.daily.mean.{wy_daynum:03d}.pfb,,
+178,CW3E,,pfb,specific_humidity,SPFH,,,daily,kg/kg,mean,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.SPFH.daily.mean.{wy_daynum:03d}.pfb,,
+179,CW3E,,pfb,air_temp,Temp_min,,,daily,K,min,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.Temp.daily.min.{wy_daynum:03d}.pfb,,
+180,CW3E,,pfb,air_temp,Temp_max,,,daily,K,max,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.Temp.daily.max.{wy_daynum:03d}.pfb,,
+181,CW3E,,pfb,air_temp,Temp_mean,,,daily,K,mean,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.Temp.daily.mean.{wy_daynum:03d}.pfb,,
+182,CW3E,,pfb,east_windspeed,UGRD,,,daily,m/s,mean,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.UGRD.daily.mean.{wy_daynum:03d}.pfb,,
+183,CW3E,,pfb,north_windspeed,VGRD,,,daily,m/s,mean,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.VGRD.daily.mean.{wy_daynum:03d}.pfb,,
+184,CW3E,,pfb,atmospheric_pressure,Press_atmos,,,daily,pa,mean,conus2,wy_daynum,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/WY{wy}/CW3E.Press.daily.mean.{wy_daynum:03d}.pfb,,
+185,CW3E,,pfmetadata,precipitation,APCP,,,daily,mm,sum,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
+186,CW3E,,pfmetadata,downward_longwave,DLWR,,,daily,w/m2,mean,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
+187,CW3E,,pfmetadata,downward_shortwave,DSWR,,,daily,w/m2,mean,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
+188,CW3E,,pfmetadata,specific_humidity,SPFH,,,daily,kg/kg,mean,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
+189,CW3E,,pfmetadata,air_temp,Temp_min,,,daily,K,min,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
+190,CW3E,,pfmetadata,air_temp,Temp_max,,,daily,K,max,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
+191,CW3E,,pfmetadata,air_temp,Temp_mean,,,daily,K,mean,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
+192,CW3E,,pfmetadata,east_windspeed,UGRD,,,daily,m/s,mean,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
+193,CW3E,,pfmetadata,north_windspeed,VGRD,,,daily,m/s,mean,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
+194,CW3E,,pfmetadata,atmospheric_pressure,Press_atmos,,,daily,pa,mean,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/daily/conus2_cw3e_daily_{wy}.pfmetadata,,
+195,CW3E,,pfb,air_temp,Temp_mean,,,monthly,K,mean,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/monthly/CW3E.Temp.monthly.mean.WY{wy}.pfb,,
+196,CW3E,,pfb,precipitation,APCP,,,monthly,mm,sum,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/monthly/CW3E.APCP.monthly.sum.WY{wy}.pfb,,
+197,NLDAS2_85,,pfb,air_temp,Temp_mean,,,monthly,K,mean,conus1,level,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/monthly/NLDAS.Temp.monthly.mean.WY{wy}.pfb,,
+198,huc_mapping,,tiff,huc_map,band_data,,,,,,conus1,level,1,/hydrodata/national_mapping/CONUS1/HUC{level}_CONUS1_grid.tif,,
+199,huc_mapping,,tiff,huc_map,band_data,,,,,,conus2,,1,/hydrodata/national_mapping/CONUS2/CONUS2.0.Final1km.Subbasin_HUC{level}.remapped.tif,,
+200,conus2_domain,,pfb,latitude,latitude,,,static,degrees_north,-,conus2,,1,/hydrodata/national_mapping/CONUS2/Latitude_CONUS2.pfb,,
+201,conus2_domain,,pfb,longitude,longitude,,,static,degrees_east,-,conus2,wy_minus1,1,/hydrodata/national_mapping/CONUS2/Longitude_CONUS2.pfb,,
+202,nasa_smap,,netcdf,soil_moisture,SoilMoisture,,,daily,-,mean,smapgrid,mdy,3,/hydrodata/national_obs/smap/data/Oct1_{wy_minus1}_Sept30_{wy}.nc,,
+203,conus1_current_conditions,,pfb,soil_moisture,soil_moisture,5/20/22,,daily,cm3/cm3,mean,conus1,mdy,3,/hydrodata/HydroGEN/current_conditions/CONUS1/WY{wy}/{dataset_var}.{mdy}.pfb,,
+204,conus1_current_conditions,,pfb,water_table_depth,water_table_depth,5/20/22,,daily,m,mean,conus1,,3,/hydrodata/HydroGEN/current_conditions/CONUS1/WY{wy}/{dataset_var}.{mdy}.pfb,,
+205,conus1_current_conditions,,pfb,lat_lon,lat_lon,,,static,degrees,static,conus1,,3,/hydrodata/HydroGEN/current_conditions/supporting_data/CONUS1_row_col_in_SMAP.pfb,,
+206,conus2_current_conditions,,pfb,lat_lon,lat_lon,,,static,degrees,static,conus2,,3,/hydrodata/temp/SM_estimation_CONUS2/CONUS2_row_col_in_SMAP.pfb,,
+207,nasa_smap,,pfb,soil_moisture,soil_moisture_smap,8/1/23,,daily,cm3/cm3,mean,conus2,mdy,3,/hydrodata/HydroGEN/current_conditions/CONUS2/WY{wy}/{dataset_var}.{mdy}.pfb,,
+208,conus2_current_conditions,,tiff,water_table_depth,band_data,,,,m,mean,conus2_wtd,,3,/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1000m_CONUS2_m_1s_remapped.tif,,
+209,conus2_current_conditions,,tiff,water_table_depth,band_data,,,,m,mean,conus2_wtd.100,,3,/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_100m_CONUS2_m_1s_remapped.tif,,
+210,conus2_current_conditions,,tiff,water_table_depth,band_data,,,,m,mean,conus2_wtd.30,,3,/hydrodata/temp/high_resolution_data/WTD_estimates/30m/compressed_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1s_CONUS2_m_remapped_unflip_compressed.tif,,
+211,nasa_smap,,netcdf,latitude,Latitude,,,static,degrees,mean,smapgrid,wy,3,/hydrodata/national_obs/smap/data/Oct1_{wy_minus1}_Sept30_{wy}.nc,,
+212,nasa_smap,,netcdf,longitude,Longitude,,,static,degrees,mean,smapgrid,wy,3,/hydrodata/national_obs/smap/data/Oct1_{wy_minus1}_Sept30_{wy}.nc,,
+213,conus2_current_conditions,,pfb,soil_moisture,soil_moisture,8/1/23,,daily,cm3/cm3,mean,conus2,mdy,1,/hydrodata/HydroGEN/current_conditions/CONUS2/WY{wy}/{dataset_var}.{mdy}.pfb,,
+214,conus2_domain,,pfb,veg_type_IGBP,vegetation_type,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/1km_CONUS2_landcover_IGBP_723.pfb,,
+215,conus2_domain,,tiff,veg_type_IGBP,band_data,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/1km_CONUS2_landcover_IGBP_723.tif,,
+216,conus2_domain,,pfb,veg_type_IGBP,vegetation_type,,,static,-,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/250m_CONUS2_landcover_IGBP_723.pfb,,
+217,conus2_domain,,tiff,veg_type_IGBP,band_data,,,static,-,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/250m_CONUS2_landcover_IGBP_723.tif,,
+218,conus2_domain,,pfb,slope_x,slope_x,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0.Final1km.slopex.pfb,,
+219,conus2_domain,,pfb,slope_y,slope_y,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0.Final1km.slopey.pfb,,
+220,conus2_domain,,drv_clm,clm_run,clm_run,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_clmin.dat,,
+221,conus2_domain,,vegm,clm_run,clm_run,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_vegm.CONUS2_fixed.2.dat,,
+222,conus2_domain,,vegp,clm_run,clm_run,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_vegp.dat,,
+223,conus2_domain,,pfb,pme,pme,,,static,m/h,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/1km_CONUS2_PME.pfb,pme that was used for steady state CONUS2 spinup,
+224,conus2_domain,,pfsol,pf_solid,pf_solid,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0_fix115.pfsol,,
+225,conus2_domain,,pfb,mannings,mannings,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0.Final1km_mannings_rv50_original_values_Lake_Sink.pfb,,
+226,conus2_domain,,pfb,pf_indicator,pf_indicator,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0.Final1km.Subsurface.pfb,,
+227,conus2_domain,,pfb,pf_flowbarrier,pf_flowbarrier,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/CONUS2.0.Shangguan_200m_FBZ.pfb,,
+228,conus2_domain,,pfb,ss_pressure_head,pressure,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/steady_state_runs/2003_run/spinup.wy2003.out.press.08760.pfb,steady state pressure used to initialize transient runs,
+229,conus2_domain,,pfb,distance_stream_lin,distance_stream_lin,,,static,km,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.DisToStream.pfb,Map of distance for each cell to the stream (CONUS2.0.Final1km.RiverMask) using the function StreamDist in PriorityFlow.,
+230,conus2_domain,,tiff,distance_stream_lin,band_data,,,static,km,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.DisToStream.tif,Map of distance for each cell to the stream (CONUS2.0.Final1km.RiverMask) using the function StreamDist in PriorityFlow.,
+231,conus2_domain,,pfb,drainage_area,drainage_area,,,static,km2,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.DrainageArea.pfb,Drainage area in km2 calculated based on the flow directions,
+232,conus2_domain,,tiff,drainage_area,band_data,,,static,km2,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.DrainageArea.tif,Drainage area in km2 calculated based on the flow directions,
+233,conus2_domain,,pfb,flow_direction,flow_direction,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.FlowDirection.pfb,"Primary flow direction for every grid cell (1=down, 2=left, 3=up, 4=right)",
+234,conus2_domain,,tiff,flow_direction,band_data,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.FlowDirection.tif,"Primary flow direction for every grid cell (1=down, 2=left, 3=up, 4=right)",
+235,conus2_domain,,pfb,elevation,elevation,,,static,m,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.ProcessedDEM.pfb,"Final DEM after, smoothing, applying PriroirtyFlow algorithm to ensure complete drainage and additional smoothing to create constant slopes along river segments.",
+236,conus2_domain,,tiff,elevation,band_data,,,static,m,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.ProcessedDEM.tif,"Final DEM after, smoothing, applying PriroirtyFlow algorithm to ensure complete drainage and additional smoothing to create constant slopes along river segments.",
+247,conus2_domain,,pfb,stream_order,stream_order,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.StreamOrder.pfb,Strahler stream order calculated from the 100km area threshold river mask using the function CalcStreamOrder in PriorityFlow,
+248,conus2_domain,,tiff,stream_order,band_data,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.StreamOrder.tif,Strahler stream order calculated from the 100km area threshold river mask using the function CalcStreamOrder in PriorityFlow,
+249,conus2_domain,,pfb,stream_segments,stream_segments,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.StreamSegments.pfb,Mask of stream segments with their segment IDs.,
+250,conus2_domain,,tiff,stream_segments,band_data,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.StreamSegments.tif,Mask of stream segments with their segment IDs.,
+251,conus2_domain,,pfb,subbasins,subbasins,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.Subbasins.pfb,Map of the subbasins drainage area for each stream segment.,
+252,conus2_domain,,tiff,subbasins,band_data,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/1km/CONUS2.0.Final1km.Subbasins.tif,Map of the subbasins drainage area for each stream segment.,
+253,conus2_domain,,pfb,distance_stream_lin,distance_stream_lin,,,static,km,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.DisToStream.pfb,Map of distance for each cell to the stream (CONUS2.0.Final1km.RiverMask) using the function StreamDist in PriorityFlow.,
+254,conus2_domain,,tiff,distance_stream_lin,band_data,,,static,km,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.DisToStream.tif,Map of distance for each cell to the stream (CONUS2.0.Final1km.RiverMask) using the function StreamDist in PriorityFlow.,
+256,conus2_domain,,tiff,drainage_area,band_data,,,static,km2,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.DrainageArea.tif,Drainage area in km2 calculated based on the flow directions,
+258,conus2_domain,,tiff,flow_direction,band_data,,,static,-,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.FlowDirection.tif,"Primary flow direction for every grid cell (1=down, 2=left, 3=up, 4=right)",
+260,conus2_domain,,tiff,elevation,band_data,,,static,m,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.ProcessedDEM.tif,"Final DEM after, smoothing, applying PriroirtyFlow algorithm to ensure complete drainage and additional smoothing to create constant slopes along river segments.",
+262,conus2_domain,,tiff,stream_order,band_data,,,static,-,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.StreamOrder.tif,Strahler stream order calculated from the 100km area threshold river mask using the function CalcStreamOrder in PriorityFlow,
+264,conus2_domain,,tiff,stream_segments,band_data,,,static,-,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.StreamSegments.tif,Mask of stream segments with their segment IDs.,
+266,conus2_domain,,tiff,subbasins,band_data,,,static,-,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/topography_files/250m/CONUS2.0.Final250m.Subbasins.tif,Map of the subbasins drainage area for each stream segment.,
+267,conus2_domain,,sa,lat_lon,lat_lon,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/domain_files/CONUS2.0.Final.LatLong.sa,,
+268,conus2_domain,,tiff,mask,band_data,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/domain_files/CONUS2.0.Final1km.Mask.tif,,
+271,observations,,netcdf,streamflow,streamflow,,,daily,m3/s,mean,,site_id,0,/hydrodata/national_obs/streamflow/data/daily/{site_id}.nc,,streamflow
+272,observations,,netcdf,anomaly,anomaly_daily_single_date,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/streamflow/data/daily/{site_id}.nc,,streamflow
+273,observations,,netcdf,anomaly_daily_week_of_values,anomaly_daily_week_of_values,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/streamflow/data/daily/{site_id}.nc,,streamflow
+274,observations,,netcdf,site_id,site,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/streamflow/data/daily/{site_id}.nc,,streamflow
+275,observations,,netcdf,streamflow,streamflow,,,weekly,mm,sum,,site_id,0,/hydrodata/national_obs/streamflow/data/weekly/{site_id}.nc,,streamflow
+276,observations,,netcdf,anomaly,anomaly_weekly,,,weekly,-,sum,,site_id,0,/hydrodata/national_obs/streamflow/data/weekly/{site_id}.nc,,streamflow
+277,observations,,netcdf,site_id,site,,,weekly,-,sum,,site_id,0,/hydrodata/national_obs/streamflow/data/weekly/{site_id}.nc,,streamflow
+278,observations,,netcdf,streamflow,streamflow,,,monthly,mm,sum,,site_id,0,/hydrodata/national_obs/streamflow/data/monthly/{site_id}.nc,,streamflow
+279,observations,,netcdf,anomaly,anomaly_monthly,,,monthly,-,sum,,site_id,0,/hydrodata/national_obs/streamflow/data/monthly/{site_id}.nc,,streamflow
+280,observations,,netcdf,site_id,site,,,monthly,-,sum,,site_id,0,/hydrodata/national_obs/streamflow/data/monthly/{site_id}.nc,,streamflow
+281,obs_anomalies,,netcdf,anomaly,anomaly_daily_single_date,02/01/1857,,daily,-,mean,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/daily/WY{wy}.nc,,streamflow
+282,obs_anomalies,,netcdf,anomaly_daily_week_of_values,anomaly_daily_week_of_values,02/01/1857,,daily,-,mean,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/daily/WY{wy}.nc,,streamflow
+283,obs_anomalies,,netcdf,streamflow,streamflow,02/01/1857,,daily,m3/s,mean,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/daily/WY{wy}.nc,,streamflow
+284,obs_anomalies,,netcdf,site_id,site,,,daily,m3/s,mean,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/daily/WY{wy}.nc,,streamflow
+285,obs_anomalies,,netcdf,anomaly,anomaly_weekly,02/02/1857,,weekly,-,sum,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/weekly/WY{wy}.nc,,streamflow
+286,obs_anomalies,,netcdf,streamflow,streamflow,02/02/1857,,weekly,m3/s,sum,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/weekly/WY{wy}.nc,,streamflow
+287,obs_anomalies,,netcdf,site_id,site,,,weekly,m3/s,sum,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/weekly/WY{wy}.nc,,streamflow
+288,obs_anomalies,,netcdf,anomaly,anomaly_monthly,02/01/1857,,monthly,-,sum,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/monthly/WY{wy}.nc,,streamflow
+289,obs_anomalies,,netcdf,streamflow,streamflow,02/01/1857,,monthly,m3/s,sum,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/monthly/WY{wy}.nc,,streamflow
+290,obs_anomalies,,netcdf,site_id,site,,,monthly,m3/s,sum,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/monthly/WY{wy}.nc,,streamflow
+291,observations,,netcdf,water_table_depth,wtd,,,daily,m,mean,,site_id,0,/hydrodata/national_obs/groundwater/data/daily/{site_id}.nc,,groundwater
+292,observations,,netcdf,anomaly,anomaly_daily_single_date,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/groundwater/data/daily/{site_id}.nc,,groundwater
+293,observations,,netcdf,anomaly_daily_week_of_values,anomaly_daily_week_of_values,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/groundwater/data/daily/{site_id}.nc,,groundwater
+294,observations,,netcdf,water_table_depth,wtd,,,weekly,mm,sum,,site_id,0,/hydrodata/national_obs/groundwater/data/weekly/{site_id}.nc,,groundwater
+295,observations,,netcdf,anomaly,anomaly_weekly,,,weekly,-,sum,,site_id,0,/hydrodata/national_obs/groundwater/data/weekly/{site_id}.nc,,groundwater
+296,observations,,netcdf,site_id,site,,,weekly,-,sum,,site_id,0,/hydrodata/national_obs/groundwater/data/weekly/{site_id}.nc,,groundwater
+297,observations,,netcdf,water_table_depth,wtd,,,monthly,mm,sum,,site_id,0,/hydrodata/national_obs/groundwater/data/monthly/{site_id}.nc,,groundwater
+298,observations,,netcdf,anomaly,anomaly_monthly,,,monthly,-,sum,,site_id,0,/hydrodata/national_obs/groundwater/data/monthly/{site_id}.nc,,groundwater
+299,observations,,netcdf,site_id,site,,,monthly,-,sum,,site_id,0,/hydrodata/national_obs/groundwater/data/monthly/{site_id}.nc,,groundwater
+300,obs_anomalies,,netcdf,anomaly,anomaly_daily_single_date,9/30/42,,daily,-,mean,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/daily/WY{wy}.nc,,groundwater
+301,obs_anomalies,,netcdf,anomaly_daily_week_of_values,anomaly_daily_week_of_values,9/30/42,,daily,-,mean,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/daily/WY{wy}.nc,,groundwater
+302,obs_anomalies,,netcdf,water_table_depth,wtd,9/30/42,,daily,m,mean,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/daily/WY{wy}.nc,,groundwater
+303,obs_anomalies,,netcdf,site_id,site,,,daily,m,mean,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/daily/WY{wy}.nc,,groundwater
+304,obs_anomalies,,netcdf,anomaly,anomaly_weekly,9/28/42,,weekly,-,sum,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/weekly/WY{wy}.nc,,groundwater
+305,obs_anomalies,,netcdf,water_table_depth,wtd,9/28/42,,weekly,m,sum,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/weekly/WY{wy}.nc,,groundwater
+306,obs_anomalies,,netcdf,site_id,site,,,weekly,m,sum,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/weekly/WY{wy}.nc,,groundwater
+307,obs_anomalies,,netcdf,anomaly,anomaly_monthly,8/1/42,,monthly,-,sum,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/monthly/WY{wy}.nc,,groundwater
+308,obs_anomalies,,netcdf,water_table_depth,wtd,8/1/42,,monthly,m,sum,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/monthly/WY{wy}.nc,,groundwater
+309,obs_anomalies,,netcdf,site_id,site,,,monthly,m,sum,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/monthly/WY{wy}.nc,,groundwater
+310,observations,,netcdf,swe,swe,,,daily,mm,mean,,site_id,0,/hydrodata/national_obs/swe/data/daily/{site_id}.nc,,snotel
+311,observations,,netcdf,anomaly_daily_week_of_values,anomaly_daily_week_of_values,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/swe/data/daily/{site_id}.nc,,snotel
+412,observations,,netcdf,anomaly,anomaly_daily_single_date,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/swe/data/daily/{site_id}.nc,,snotel
+413,observations,,netcdf,site_id,site,,,daily,mm,mean,,site_id,0,/hydrodata/national_obs/swe/data/daily/{site_id}.nc,,snotel
+414,observations,,netcdf,swe,swe,10/7/63,,weekly,mm,sum,,site_id,0,/hydrodata/national_obs/swe/data/weekly/{site_id}.nc,,snotel
+415,observations,,netcdf,anomaly,anomaly_weekly,,,weekly,-,sum,,site_id,0,/hydrodata/national_obs/swe/data/weekly/{site_id}.nc,,snotel
+416,observations,,netcdf,site_id,site,,,weekly,-,sum,,site_id,0,/hydrodata/national_obs/swe/data/weekly/{site_id}.nc,,snotel
+417,observations,,netcdf,swe,swe,,,monthly,mm,sum,,site_id,0,/hydrodata/national_obs/swe/data/monthly/{site_id}.nc,,snotel
+418,observations,,netcdf,anomaly,anomaly_monthly,,,monthly,-,sum,,site_id,0,/hydrodata/national_obs/swe/data/monthly/{site_id}.nc,,snotel
+419,observations,,netcdf,site_id,site,,,monthly,-,sum,,site_id,0,/hydrodata/national_obs/swe/data/monthly/{site_id}.nc,,snotel
+420,observations,,netcdf,precipitation,precip_inc,,,daily,mm,mean,,site_id,0,/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily/{site_id}.nc,,snotel
+421,observations,,netcdf,air_temp,temp_avg,,,daily,c,mean,,site_id,0,/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily/{site_id}.nc,,snotel
+422,obs_anomalies,,netcdf,anomaly,anomaly_daily_single_date,10/1/63,,daily,-,mean,,wy,0,/hydrodata/national_obs/swe/data/anomalies/daily/WY{wy}.nc,,snotel
+423,obs_anomalies,,netcdf,anomaly_daily_week_of_values,anomaly_daily_week_of_values,10/1/63,,daily,-,mean,,wy,0,/hydrodata/national_obs/swe/data/anomalies/daily/WY{wy}.nc,,snotel
+425,obs_anomalies,,netcdf,swe,swe,10/1/63,,daily,mm,mean,,wy,0,/hydrodata/national_obs/swe/data/anomalies/daily/WY{wy}.nc,,snotel
+426,obs_anomalies,,netcdf,site_id,site,,,daily,mm,mean,,wy,0,/hydrodata/national_obs/swe/data/anomalies/daily/WY{wy}.nc,,snotel
+427,obs_anomalies,,netcdf,anomaly,anomaly_weekly,10/1/63,,weekly,-,sum,,wy,0,/hydrodata/national_obs/swe/data/anomalies/weekly/WY{wy}.nc,,snotel
+428,obs_anomalies,,netcdf,swe,swe,10/1/63,,weekly,mm,sum,,wy,0,/hydrodata/national_obs/swe/data/anomalies/weekly/WY{wy}.nc,,snotel
+429,obs_anomalies,,netcdf,site_id,site,,,weekly,mm,sum,,wy,0,/hydrodata/national_obs/swe/data/anomalies/weekly/WY{wy}.nc,,snotel
+430,obs_anomalies,,netcdf,anomaly,anomaly_monthly,10/1/63,,monthly,-,sum,,wy,0,/hydrodata/national_obs/swe/data/anomalies/monthly/WY{wy}.nc,,snotel
+431,obs_anomalies,,netcdf,swe,swe,10/1/63,,monthly,mm,sum,,wy,0,/hydrodata/national_obs/swe/data/anomalies/monthly/WY{wy}.nc,,snotel
+432,obs_anomalies,,netcdf,site_id,site,,,monthly,mm,sum,,wy,0,/hydrodata/national_obs/swe/data/anomalies/monthly/WY{wy}.nc,,snotel
+433,conus1_domain,,pfb,frac_stream_dist,frac_stream_var,,,static,-,-,conus1,,3,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/Frac_dist_100_withfilter.pfb,,
+434,conus1_current_conditions,,pfb,pressure_head,pressure,5/20/22,,daily,m,mean,conus1,mdy,3,/hydrodata/HydroGEN/current_conditions/CONUS1/WY{wy}/{dataset_var}.{mdy}.pfb,,
+435,usgs_nwis,,netcdf,streamflow,streamflow,,,daily,mm,mean,,site_id,1,/hydrodata/national_obs/streamflow/data/daily/{site_id}.nc,,streamflow
+436,usgs_nwis,,netcdf,streamflow_anomaly,anomaly_daily_single_date,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/streamflow/data/daily/{site_id}.nc,,streamflow
+437,usgs_nwis,,netcdf,site_id,site,,,daily,-,mean,,site_id,1,/hydrodata/national_obs/streamflow/data/daily/{site_id}.nc,,streamflow
+438,usgs_nwis,,netcdf,streamflow,streamflow,,,weekly,mm,mean,,site_id,1,/hydrodata/national_obs/streamflow/data/weekly/{site_id}.nc,,streamflow
+439,usgs_nwis,,netcdf,streamflow_anomaly,anomaly_weekly,,,weekly,-,mean,,site_id,0,/hydrodata/national_obs/streamflow/data/weekly/{site_id}.nc,,streamflow
+440,usgs_nwis,,netcdf,site_id,site,,,weekly,-,mean,,site_id,1,/hydrodata/national_obs/streamflow/data/weekly/{site_id}.nc,,streamflow
+441,usgs_nwis,,netcdf,streamflow,streamflow,,,monthly,mm,mean,,site_id,1,/hydrodata/national_obs/streamflow/data/monthly/{site_id}.nc,,streamflow
+442,usgs_nwis,,netcdf,streamflow_anomaly,anomaly_monthly,,,monthly,-,mean,,site_id,0,/hydrodata/national_obs/streamflow/data/monthly/{site_id}.nc,,streamflow
+443,usgs_nwis,,netcdf,site_id,site,,,monthly,-,mean,,site_id,1,/hydrodata/national_obs/streamflow/data/monthly/{site_id}.nc,,streamflow
+444,usgs_nwis,,netcdf,streamflow,streamflow,02/01/1857,,daily,mm,mean,,wy,1,/hydrodata/national_obs/streamflow/data/anomalies/daily/WY{wy}.nc,,streamflow
+445,usgs_nwis,,netcdf,streamflow_anomaly,anomaly_daily_single_date,02/01/1857,,daily,-,mean,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/daily/WY{wy}.nc,,streamflow
+446,usgs_nwis,,netcdf,site_id,site,,,daily,,mean,,wy,1,/hydrodata/national_obs/streamflow/data/anomalies/daily/WY{wy}.nc,,streamflow
+447,usgs_nwis,,netcdf,streamflow,streamflow,02/02/1857,,weekly,mm,mean,,wy,1,/hydrodata/national_obs/streamflow/data/anomalies/weekly/WY{wy}.nc,,streamflow
+448,usgs_nwis,,netcdf,streamflow_anomaly,anomaly_weekly,02/02/1857,,weekly,-,mean,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/weekly/WY{wy}.nc,,streamflow
+449,usgs_nwis,,netcdf,site_id,site,,,weekly,,mean,,wy,1,/hydrodata/national_obs/streamflow/data/anomalies/weekly/WY{wy}.nc,,streamflow
+450,usgs_nwis,,netcdf,streamflow,streamflow,02/01/1857,,monthly,mm,mean,,wy,1,/hydrodata/national_obs/streamflow/data/anomalies/monthly/WY{wy}.nc,,streamflow
+451,usgs_nwis,,netcdf,streamflow_anomaly,anomaly_monthly,02/01/1857,,monthly,-,mean,,wy,0,/hydrodata/national_obs/streamflow/data/anomalies/monthly/WY{wy}.nc,,streamflow
+452,usgs_nwis,,netcdf,site_id,site,,,monthly,,mean,,wy,1,/hydrodata/national_obs/streamflow/data/anomalies/monthly/WY{wy}.nc,,streamflow
+453,usgs_nwis,,netcdf,water_table_depth,wtd,,,daily,m,mean,,site_id,1,/hydrodata/national_obs/groundwater/data/daily/{site_id}.nc,,groundwater
+454,usgs_nwis,,netcdf,wtd_anomaly,anomaly_daily_single_date,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/groundwater/data/daily/{site_id}.nc,,groundwater
+455,usgs_nwis,,netcdf,site_id,site,,,daily,m,mean,,site_id,1,/hydrodata/national_obs/groundwater/data/daily/{site_id}.nc,,groundwater
+456,usgs_nwis,,netcdf,water_table_depth,wtd,,,weekly,m,mean,,site_id,1,/hydrodata/national_obs/groundwater/data/weekly/{site_id}.nc,,groundwater
+457,usgs_nwis,,netcdf,wtd_anomaly,anomaly_weekly,,,weekly,-,mean,,site_id,0,/hydrodata/national_obs/groundwater/data/weekly/{site_id}.nc,,groundwater
+458,usgs_nwis,,netcdf,site_id,site,,,weekly,-,mean,,site_id,1,/hydrodata/national_obs/groundwater/data/weekly/{site_id}.nc,,groundwater
+459,usgs_nwis,,netcdf,water_table_depth,wtd,,,monthly,m,mean,,site_id,1,/hydrodata/national_obs/groundwater/data/monthly/{site_id}.nc,,groundwater
+460,usgs_nwis,,netcdf,wtd_anomaly,anomaly_monthly,,,monthly,-,mean,,site_id,0,/hydrodata/national_obs/groundwater/data/monthly/{site_id}.nc,,groundwater
+461,usgs_nwis,,netcdf,site_id,site,,,monthly,-,mean,,site_id,1,/hydrodata/national_obs/groundwater/data/monthly/{site_id}.nc,,groundwater
+462,usgs_nwis,,netcdf,water_table_depth,wtd,9/30/42,,daily,m,mean,,wy,1,/hydrodata/national_obs/groundwater/data/anomalies/daily/WY{wy}.nc,,groundwater
+463,usgs_nwis,,netcdf,wtd_anomaly,anomaly_daily_single_date,9/30/42,,daily,-,mean,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/daily/WY{wy}.nc,,groundwater
+464,usgs_nwis,,netcdf,site_id,site,,,daily,-,mean,,wy,1,/hydrodata/national_obs/groundwater/data/anomalies/weekly/WY{wy}.nc,,groundwater
+465,usgs_nwis,,netcdf,water_table_depth,wtd,9/28/42,,weekly,m,mean,,wy,1,/hydrodata/national_obs/groundwater/data/anomalies/weekly/WY{wy}.nc,,groundwater
+466,usgs_nwis,,netcdf,wtd_anomaly,anomaly_weekly,9/28/42,,weekly,-,mean,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/weekly/WY{wy}.nc,,groundwater
+467,usgs_nwis,,netcdf,site_id,site,,,weekly,m,mean,,wy,1,/hydrodata/national_obs/groundwater/data/anomalies/weekly/WY{wy}.nc,,groundwater
+468,usgs_nwis,,netcdf,water_table_depth,wtd,8/1/42,,monthly,m,mean,,wy,1,/hydrodata/national_obs/groundwater/data/anomalies/monthly/WY{wy}.nc,,groundwater
+469,usgs_nwis,,netcdf,wtd_anomaly,anomaly_monthly,8/1/42,,monthly,-,mean,,wy,0,/hydrodata/national_obs/groundwater/data/anomalies/monthly/WY{wy}.nc,,groundwater
+470,usgs_nwis,,netcdf,site_id,site,,,monthly,m,mean,,wy,1,/hydrodata/national_obs/groundwater/data/anomalies/monthly/WY{wy}.nc,,groundwater
+471,snotel,,netcdf,swe,swe,,,daily,mm,mean,,site_id,1,/hydrodata/national_obs/swe/data/daily/{site_id}.nc,,snotel
+472,snotel,,netcdf,swe_anomaly,anomaly_daily_single_date,,,daily,-,mean,,site_id,0,/hydrodata/national_obs/swe/data/daily/{site_id}.nc,,snotel
+473,snotel,,netcdf,site_id,site,,,daily,mm,mean,,site_id,1,/hydrodata/national_obs/swe/data/daily/{site_id}.nc,,snotel
+474,snotel,,netcdf,swe,swe,10/7/63,,weekly,mm,mean,,site_id,1,/hydrodata/national_obs/swe/data/weekly/{site_id}.nc,,snotel
+475,snotel,,netcdf,swe_anomaly,anomaly_weekly,,,weekly,-,mean,,site_id,0,/hydrodata/national_obs/swe/data/weekly/{site_id}.nc,,snotel
+476,snotel,,netcdf,site_id,site,,,weekly,-,mean,,site_id,1,/hydrodata/national_obs/swe/data/weekly/{site_id}.nc,,snotel
+477,snotel,,netcdf,swe,swe,,,monthly,mm,mean,,site_id,1,/hydrodata/national_obs/swe/data/monthly/{site_id}.nc,,snotel
+478,snotel,,netcdf,swe_anomaly,anomaly_monthly,,,monthly,-,mean,,site_id,0,/hydrodata/national_obs/swe/data/monthly/{site_id}.nc,,snotel
+479,snotel,,netcdf,site_id,site,,,monthly,-,mean,,site_id,1,/hydrodata/national_obs/swe/data/monthly/{site_id}.nc,,snotel
+480,snotel,,netcdf,precipitation,precip_inc,,,daily,mm,mean,,site_id,1,/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily/{site_id}.nc,,snotel
+481,snotel,,netcdf,air_temp,temp_avg,,,daily,c,mean,,site_id,1,/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily/{site_id}.nc,,snotel
+482,snotel,,netcdf,swe,swe,10/1/63,,daily,mm,mean,,wy,1,/hydrodata/national_obs/swe/data/anomalies/daily/WY{wy}.nc,,snotel
+483,snotel,,netcdf,swe_anomaly,anomaly_daily_single_date,10/1/63,,daily,-,mean,,wy,0,/hydrodata/national_obs/swe/data/anomalies/daily/WY{wy}.nc,,snotel
+484,snotel,,netcdf,site_id,site,,,daily,mm,mean,,wy,1,/hydrodata/national_obs/swe/data/anomalies/daily/WY{wy}.nc,,snotel
+485,snotel,,netcdf,swe,swe,10/1/63,,weekly,mm,mean,,wy,1,/hydrodata/national_obs/swe/data/anomalies/weekly/WY{wy}.nc,,snotel
+486,snotel,,netcdf,swe_anomaly,anomaly_weekly,10/1/63,,weekly,-,mean,,wy,0,/hydrodata/national_obs/swe/data/anomalies/weekly/WY{wy}.nc,,snotel
+487,snotel,,netcdf,site_id,site,,,weekly,mm,mean,,wy,1,/hydrodata/national_obs/swe/data/anomalies/weekly/WY{wy}.nc,,snotel
+488,snotel,,netcdf,swe,swe,10/1/63,,monthly,mm,mean,,wy,1,/hydrodata/national_obs/swe/data/anomalies/monthly/WY{wy}.nc,,snotel
+489,snotel,,netcdf,swe_anomaly,anomaly_monthly,10/1/63,,monthly,-,mean,,wy,0,/hydrodata/national_obs/swe/data/anomalies/monthly/WY{wy}.nc,,snotel
+490,snotel,,netcdf,site_id,site,,,monthly,mm,mean,,wy,1,/hydrodata/national_obs/swe/data/anomalies/monthly/WY{wy}.nc,,snotel
+491,snotel,,netcdf,soil_moisture,sms_2in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
+492,snotel,,netcdf,soil_moisture,sms_4in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
+493,snotel,,netcdf,soil_moisture,sms_8in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
+494,snotel,,netcdf,soil_moisture,sms_20in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
+495,snotel,,netcdf,soil_moisture,sms_40in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
+496,scan,,netcdf,soil_moisture,sms_2in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
+497,scan,,netcdf,soil_moisture,sms_4in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
+498,scan,,netcdf,soil_moisture,sms_8in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
+499,scan,,netcdf,soil_moisture,sms_20in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
+500,scan,,netcdf,soil_moisture,sms_40in,,,daily,mm,sod,,site_id,1,/hydrodata/national_obs/soil_moisture/data/daily/{site_id}.nc,,
+501,scan,,netcdf,precipitation,precip_acc,,,daily,mm,accumulated,,site_id,1,/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily/{site_id}.nc,,
+502,scan,,netcdf,precipitation,precip_inc,,,daily,mm,sum,,site_id,1,/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily/{site_id}.nc,,
+503,scan,,netcdf,precipitation,precip_inc_sa,,,daily,mm,sum_snow_adjusted,,site_id,1,/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily/{site_id}.nc,,
+504,scan,,netcdf,air_temp,temp_min,,,daily,c,min,,site_id,1,/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily/{site_id}.nc,,
+505,scan,,netcdf,air_temp,temp_max,,,daily,c,max,,site_id,1,/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily/{site_id}.nc,,
+506,scan,,netcdf,air_temp,temp_avg,,,daily,c,mean,,site_id,1,/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily/{site_id}.nc,,
+507,ameriflux,,netcdf,latent_heat,,,,hourly,w/m2,sum,,site_id,1,/hydrodata/national_obs/ameriflux/data/hourly/{site_id}.nc,,
+508,ameriflux,,netcdf,sensible_heat,,,,hourly,w/m2,sum,,site_id,1,/hydrodata/national_obs/ameriflux/data/hourly/{site_id}.nc,,
+509,ameriflux,,netcdf,downward_shortwave,,,,hourly,w/m2,mean,,site_id,1,/hydrodata/national_obs/ameriflux/data/hourly/{site_id}.nc,,
+510,ameriflux,,netcdf,downward_longwave,,,,hourly,w/m2,mean,,site_id,1,/hydrodata/national_obs/ameriflux/data/hourly/{site_id}.nc,,
+511,ameriflux,,netcdf,vapor_pressure_deficit,,,,hourly,hpa,mean,,site_id,1,/hydrodata/national_obs/ameriflux/data/hourly/{site_id}.nc,,
+512,ameriflux,,netcdf,air_temp,,,,hourly,c,mean,,site_id,1,/hydrodata/national_obs/ameriflux/data/hourly/{site_id}.nc,,
+513,ameriflux,,netcdf,wind_speed,,,,hourly,m/s,mean,,site_id,1,/hydrodata/national_obs/ameriflux/data/hourly/{site_id}.nc,,
+514,conus1_baseline_85,,pfb,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/drv_vegm.fixed.pfb,,
+515,conus1_baseline_mod,,pfb,clm_run,clm_run,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/inputs/drv_vegm.fixed.pfb,,
+516,conus2_domain,,pfb,clm_run,clm_run,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/drv_vegm.CONUS2_fixed.2.pfb,,
+517,noaa,,pfb,precipitation,APCP,,,daily,mm,sum,conus1,wy,1,/hydrodata/national_obs/gridded_meteorology/NOAA_precipitation/CONUS1/WY{wy}/QPE.APCP.daily.regrid.{wy}.{wy_daynum:03d}.pfb,,
+518,noaa,,pfb,air_temp,Temp_min,,,daily,K,min,conus1,wy_daynum,1,/hydrodata/national_obs/gridded_meteorology/NOAA_temperature/CONUS1/WY{wy}/HRRR.Temp_min.daily.regrid.{wy}.{wy_daynum:03d}.pfb,,
+519,noaa,,pfb,air_temp,Temp_max,,,daily,K,max,conus1,wy_daynum,1,/hydrodata/national_obs/gridded_meteorology/NOAA_temperature/CONUS1/WY{wy}/HRRR.Temp_max.daily.regrid.{wy}.{wy_daynum:03d}.pfb,,
+520,noaa,,pfb,air_temp,Temp_mean,,,daily,K,mean,conus1,wy_daynum,1,/hydrodata/national_obs/gridded_meteorology/NOAA_temperature/CONUS1/WY{wy}/HRRR.Temp_mean.daily.regrid.{wy}.{wy_daynum:03d}.pfb,,
+521,conus1_domain,,pfb,topographic_index,topographic_index,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_topographic_index.pfb,,
+522,usgs_nwis,,sql,water_table_depth,wtd,01/01/1801,,instantaneous,m,-,,,1,,,groundwater
+523,conus1_domain,,tiff,flow_direction,band_data,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/flow_direction.tif,"The flow directions for every grid cell (1=down, 2=left, 3=up, 4=right)",
+524,conus1_domain,,pfb,flow_direction,band_data,,,static,-,-,conus1,,1,/hydrodata/PFCLM/CONUS1_baseline/other_domain_files/flow_direction.pfb,"The flow directions for every grid cell (1=down, 2=left, 3=up, 4=right)",
+525,jasechko_2024,,sql,water_table_depth,wtd,01/01/1801,12/31/22,yearly,m,median,,,1,,,groundwater
+526,modis,,netcdf,snow_cover,snow_cover,3/10/00,2/28/17,daily,-,-,conus2,cy,1,/hydrodata/national_obs/modis/cloudfree_snow_cover/CONUS2/SnowUS_{cy}_CONUS2.nc,"This article presents a cloud-free snow cover dataset with a daily temporal resolution and 0.05degree spatial resolution from March 2000 to February 2017 over the contiguous United States (CONUS). The dataset was developed by completely removing clouds from the original NASA's Moderate Resolution Imaging Spectroradiometer (MODIS) Snow Cover Area product (MOD10C1) through a series of spatiotemporal filters followed by the Variational Interpolation (VI) algorithm; the filters and VI algorithm were evaluated using bootstrapping test. The dataset was validated over the period with the Landsat 7 ETM+ snow cover maps in the Seattle, Minneapolis, Rocky Mountains, and Sierra Nevada regions. The resulting cloud-free snow cover captured accurately dynamic changes of snow throughout the period in terms of Probability of Detection (POD) and False Alarm Ratio (FAR) with average values of 0.955 and 0.179 for POD and FAR, respectively. The dataset provides continuous inputs of snow cover area for hydrologic studies for almost two decades. The VI algorithm can be applied in other regions given that a proper validation can be performed. It should be noted that there is a number of 12, 17, and 9 days missed in the years 2000, 2001, and 2002 respectively due to the unavailability in the original MODIS record.",
+527,conus2_domain,,pfb,ss_water_table_depth,wtd,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/steady_state_runs/2003_run/spinup.wy2003.wtd.pfb,steady state water table depth derived from steady state pressure and saturation,

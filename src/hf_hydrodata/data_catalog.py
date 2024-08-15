@@ -479,10 +479,10 @@ def _get_preferred_catalog_entry(entries: List[dict]) -> dict:
                     preferred_entry_type = file_type
                 else:
                     if preferred_entry_type == file_type:
-                        raise ValueError(
-                            _ambiguous_error_message(entry, preferred_entry)
-                        )
-                    if preferred_file_types.index(
+                        ambiguous_entries.append(entry)
+                        ambiguous_entries.append(preferred_entry)
+                        preferred_entry = None
+                    elif preferred_file_types.index(
                         file_type
                     ) < preferred_file_types.index(preferred_entry["file_type"]):
                         preferred_entry = entry
@@ -493,9 +493,29 @@ def _get_preferred_catalog_entry(entries: List[dict]) -> dict:
         elif len(ambiguous_entries) == 1:
             result = ambiguous_entries[0]
         elif len(ambiguous_entries) > 1:
-            raise ValueError(
-                _ambiguous_error_message(ambiguous_entries[0], ambiguous_entries[1])
-            )
+            # Try to dis-ambiguate entries using dataset_version
+            max_dataset_version = None
+            preferred_entry = None
+            for ambiguous_entry in ambiguous_entries:
+                dataset_version = ambiguous_entry["dataset_version"]
+                if dataset_version is not None:
+                    if (
+                        max_dataset_version is None
+                        or dataset_version > max_dataset_version
+                    ):
+                        max_dataset_version = dataset_version
+                        preferred_entry = ambiguous_entry
+                    elif dataset_version == max_dataset_version:
+                        raise ValueError(
+                            _ambiguous_error_message(preferred_entry, ambiguous_entry)
+                        )
+            if preferred_entry is not None:
+                result = preferred_entry
+            else:
+                raise ValueError(
+                    _ambiguous_error_message(ambiguous_entries[0], ambiguous_entries[1])
+                )
+
     return result
 
 
