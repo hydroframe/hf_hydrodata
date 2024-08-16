@@ -506,7 +506,7 @@ def get_gridded_files(
         # The .nc file will have a time dimension with coordinates of the water year containing the data in the file.
         # For the example above the time dimension would be between 2005-10-1 to 2006-09-30 
         #    with only 3 days of data downloaded and stored in the file.
-        # The .nc file with have x dimension 100 and y dimensions 50 defined by the grid_bounds.
+        # The .nc file will have x dimension 100 and y dimensions 50 defined by the grid_bounds.
 
         # To download data into a GeoTiff file specify a filename_template ending with .tiff
         hf.get_gridded_files(
@@ -518,7 +518,7 @@ def get_gridded_files(
         #   NLDAS2.precipitation.tiff
         #   NLDAS2.air_temp.tiff
         # Only the first hour of the period "2005-10-01 00:00:00" is used to create the files.
-        # The files will contain projection information suitable to view with GIS.
+        # The tiff files will contain projection information suitable to view with GIS.
 
     For long downloads if the function execution is aborted before completion it can be restarted and will continue where it left off by skipping
     files that already exist. To re-download data, remember to delete previously created files first.
