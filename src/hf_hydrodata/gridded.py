@@ -503,7 +503,9 @@ def get_gridded_files(
         # The above function call will create a netcdf file named:
         #    NLDAS2_WY2006.nc
         # The .nc file will have two variables: precipitation and air_temp.
-        # The .nc file will have a time dimension with coordinates between 2005-10-1 to 2005-10-04.
+        # The .nc file will have a time dimension with coordinates of the water year containing the data in the file.
+        # For the example above the time dimension would be between 2005-10-1 to 2006-09-30 
+        #    with only 3 days of data downloaded and stored in the file.
         # The .nc file with have x dimension 100 and y dimensions 50 defined by the grid_bounds.
 
         # To download data into a GeoTiff file specify a filename_template ending with .tiff
