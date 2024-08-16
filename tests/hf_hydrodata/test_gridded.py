@@ -1401,9 +1401,9 @@ def test_get_gridded_files_netcdf():
         ds = xr.open_dataset("NLDAS2.2006.nc")
         assert len(ds.keys()) == 2
         ground_heat = ds["eflx_soil_grnd"]
-        assert ground_heat.shape == (120, 10, 4)
+        assert ground_heat.shape == (8760, 10, 4)
         pressure_head = ds["Press"]
-        assert pressure_head.shape == (120, 5, 10, 4)
+        assert pressure_head.shape == (8760, 5, 10, 4)
         lat_coord = ds["latitude"]
         assert lat_coord.shape == (10, 4)
 
@@ -1479,15 +1479,15 @@ def test_multiple_aggregations():
         assert os.path.exists("foo.nc")
         ds = xr.open_dataset("foo.nc")
         da = ds["APCP"]
-        assert da.shape == (2, 2, 2)
+        assert da.shape == (365, 2, 2)
         da = ds["DSWR"]
-        assert da.shape == (2, 2, 2)
+        assert da.shape == (365, 2, 2)
         da = ds["Temp_mean"]
-        assert da.shape == (2, 2, 2)
+        assert da.shape == (365, 2, 2)
         da = ds["Temp_min"]
-        assert da.shape == (2, 2, 2)
+        assert da.shape == (365, 2, 2)
         da = ds["Temp_max"]
-        assert da.shape == (2, 2, 2)
+        assert da.shape == (365, 2, 2)
     os.chdir(cd)
 
 
