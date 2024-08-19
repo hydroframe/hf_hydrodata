@@ -1351,7 +1351,7 @@ def _apply_mask(data, entry, options):
         )
         # Apply the HUC mask to the data, mask with all huc_ids
         for h_id in huc_ids:
-            data = np.where(mask == float(h_id), data, np.nan)
+            data = np.where(mask == int(h_id), data, np.nan)
     elif grid_bounds:
         # If subsetting with a grid using level 2 HUC mask to mask coastline
         mask = get_gridded_data(
@@ -1472,7 +1472,7 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
     result_jmin = 1000000
     result_jmax = 0
     for huc_id in huc_id_list:
-        tiff_value = int(huc_id) if grid == "conus1" else float(huc_id)
+        tiff_value = int(huc_id) if grid == "conus1" else int(huc_id)
         sel_huc = (tiff_ds == tiff_value).squeeze()
 
         # First find where along the y direction has "valid" cells
