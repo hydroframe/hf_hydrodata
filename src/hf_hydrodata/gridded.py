@@ -1399,6 +1399,8 @@ def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
         huc_id = data[y][x].item()
         if isinstance(huc_id, float):
             huc_id = str(huc_id).replace(".0", "")
+        else:
+            huc_id = str(huc_id)
     return huc_id
 
 
@@ -1432,6 +1434,8 @@ def get_huc_from_xy(grid: str, level: int, x: int, y: int) -> str:
         huc_id = data[y][x].item()
         if isinstance(huc_id, float):
             huc_id = str(huc_id).replace(".0", "")
+        else:
+            huc_id = str(huc_id)
     return huc_id
 
 def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
