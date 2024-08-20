@@ -1481,25 +1481,30 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
         tiff_value = int(huc_id) if np.issubdtype(tiff_np.dtype, np.integer) else float(huc_id)
         sel_huc = (tiff_np == tiff_value).squeeze()
 
-        # First find where along the y direction has "valid" cells
-        # Then, taking a diff along that dimension let's us see where the boundaries of that mask ar
-        diffed_y_mask = np.diff(    (sel_huc.sum(axis=1) > 0).astype(int), 1)
+        indices = np.argwhere(tiff_np == tiff_value)
+        [jmin, imin] = indices.min(axis=0)
+        [jmax, imax]= indices.max(axis=0)
 
-        # Taking the argmin and argmax get's us the locations of the boundaries
-        arr_jmax = (
-            np.argmin(diffed_y_mask) + 1
-        )  # this one is because you want to include this right bound in your slice
-        arr_jmin = (
-            np.argmax(diffed_y_mask) + 1
-        )  # because of the point you actually want to indicate from the diff function
+        if False:
+            # First find where along the y direction has "valid" cells
+            # Then, taking a diff along that dimension let's us see where the boundaries of that mask ar
+            diffed_y_mask = np.diff(    (sel_huc.sum(axis=1) > 0).astype(int), 1)
 
-        jmin = tiff_np.shape[0] - arr_jmax
-        jmax = tiff_np.shape[0] - arr_jmin
+            # Taking the argmin and argmax get's us the locations of the boundaries
+            arr_jmax = (
+                np.argmin(diffed_y_mask) + 1
+            )  # this one is because you want to include this right bound in your slice
+            arr_jmin = (
+                np.argmax(diffed_y_mask) + 1
+            )  # because of the point you actually want to indicate from the diff function
 
-        # Do the exact same thing for the x dimension
-        diffed_x_mask = np.diff(    (sel_huc.sum(axis=0) > 0).astype(int), 1)
-        imax = np.argmin(diffed_x_mask) + 1
-        imin = np.argmax(diffed_x_mask) + 1
+            jmin = tiff_np.shape[0] - arr_jmax
+            jmax = tiff_np.shape[0] - arr_jmin
+
+            # Do the exact same thing for the x dimension
+            diffed_x_mask = np.diff(    (sel_huc.sum(axis=0) > 0).astype(int), 1)
+            imax = np.argmin(diffed_x_mask) + 1
+            imin = np.argmax(diffed_x_mask) + 1
 
         # Extend the result values to combine multiple HUC ids
         result_imin = imin if imin < result_imin else result_imin
