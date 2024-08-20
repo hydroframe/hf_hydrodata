@@ -192,7 +192,7 @@ id,dataset,dataset_version,file_type,variable,dataset_var,entry_start_date,entry
 196,CW3E,,pfb,precipitation,APCP,,,monthly,mm,sum,conus2,wy,1,/hydrodata/forcing/processed_data/CONUS2/CW3E/monthly/CW3E.APCP.monthly.sum.WY{wy}.pfb,,
 197,NLDAS2_85,,pfb,air_temp,Temp_mean,,,monthly,K,mean,conus1,level,1,/hydrodata/forcing/processed_data/CONUS1/NLDAS2/monthly/NLDAS.Temp.monthly.mean.WY{wy}.pfb,,
 198,huc_mapping,,tiff,huc_map,band_data,,,,,,conus1,level,1,/hydrodata/national_mapping/CONUS1/HUC{level}_CONUS1_grid.tif,,
-199,huc_mapping,,tiff,huc_map,band_data,,,,,,conus2,,1,/hydrodata/national_mapping/CONUS2/CONUS2.0.Final1km.Subbasin_HUC{level}.remapped.tif,,
+199,huc_mapping,,tiff,huc_map,band_data,,,,,,conus2,,1,/hydrodata/temp/shape_bill/CONUS2.0.Final1km.Subbasin_HUC{level}.remapped.tif,,
 200,conus2_domain,,pfb,latitude,latitude,,,static,degrees_north,-,conus2,,1,/hydrodata/national_mapping/CONUS2/Latitude_CONUS2.pfb,,
 201,conus2_domain,,pfb,longitude,longitude,,,static,degrees_east,-,conus2,wy_minus1,1,/hydrodata/national_mapping/CONUS2/Longitude_CONUS2.pfb,,
 202,nasa_smap,,netcdf,soil_moisture,SoilMoisture,,,daily,-,mean,smapgrid,mdy,3,/hydrodata/national_obs/smap/data/Oct1_{wy_minus1}_Sept30_{wy}.nc,,

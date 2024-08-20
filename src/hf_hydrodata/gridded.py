@@ -26,6 +26,7 @@ from hf_hydrodata.data_model_access import load_data_model
 from hf_hydrodata.data_catalog import _get_api_headers
 from hf_hydrodata.grid import to_ij
 import hf_hydrodata.data_catalog as dc
+import tifffile
 
 C_PFB_MAP = {
     "eflx_lh_tot": 0,
@@ -1351,7 +1352,7 @@ def _apply_mask(data, entry, options):
         )
         # Apply the HUC mask to the data, mask with all huc_ids
         for h_id in huc_ids:
-            data = np.where(mask == int(h_id), data, np.nan)
+            data = np.where(mask == float(h_id), data, np.nan)
     elif grid_bounds:
         # If subsetting with a grid using level 2 HUC mask to mask coastline
         mask = get_gridded_data(
@@ -1389,13 +1390,13 @@ def get_huc_from_latlon(grid: str, level: int, lat: float, lon: float) -> str:
         assert huc_id == "181001"
     """
     huc_id = None
-    tiff_ds = __get_geotiff(grid, level)
+    tiff_np = _get_geotiff_np(grid, level)
     [x, y] = to_ij(grid, lat, lon)
     x = round(x)
     y = round(y)
-    data = np.flip(tiff_ds[0].to_numpy(), 0)
+    data = np.flip(tiff_np, 0)
     if 0 <= x <= data.shape[1] and 0 <= y <= data.shape[0]:
-        huc_id = np.flip(tiff_ds[0].to_numpy(), 0)[y][x].item()
+        huc_id = data[y][x].item()
         if isinstance(huc_id, float):
             huc_id = str(huc_id).replace(".0", "")
     return huc_id
@@ -1422,15 +1423,16 @@ def get_huc_from_xy(grid: str, level: int, x: int, y: int) -> str:
         huc_id = hf.get_huc_from_xy("conus1", 6, 300, 100)
         assert huc_id == "181001"
     """
-    tiff_ds = __get_geotiff(grid, level)
-    data = np.flip(tiff_ds[0].to_numpy(), 0)
     huc_id = None
+    tiff_np = _get_geotiff_np(grid, level)
+    x = round(x)
+    y = round(y)
+    data = np.flip(tiff_np, 0)
     if 0 <= x <= data.shape[1] and 0 <= y <= data.shape[0]:
         huc_id = data[y][x].item()
         if isinstance(huc_id, float):
             huc_id = str(huc_id).replace(".0", "")
     return huc_id
-
 
 def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
     """
@@ -1465,37 +1467,35 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
             raise ValueError("All HUC ids in the list must be the same length.")
 
     # Open the TIFF file of the grid and level
-    tiff_ds = __get_geotiff(grid, level)
+    tiff_np = _get_geotiff_np(grid, level)
 
     result_imin = 1000000
     result_imax = 0
     result_jmin = 1000000
     result_jmax = 0
     for huc_id in huc_id_list:
-        tiff_value = int(huc_id) if grid == "conus1" else int(huc_id)
-        sel_huc = (tiff_ds == tiff_value).squeeze()
+        tiff_value = int(huc_id) if np.issubdtype(tiff_np.dtype, np.integer) else float(huc_id)
+        sel_huc = (tiff_np == tiff_value).squeeze()
 
         # First find where along the y direction has "valid" cells
-        y_mask = (sel_huc.sum(dim="x") > 0).astype(int)
-
         # Then, taking a diff along that dimension let's us see where the boundaries of that mask ar
-        diffed_y_mask = y_mask.diff(dim="y")
+        diffed_y_mask = np.diff(    (sel_huc.sum(axis=1) > 0).astype(int), 1)
 
         # Taking the argmin and argmax get's us the locations of the boundaries
         arr_jmax = (
-            np.argmin(diffed_y_mask.values) + 1
+            np.argmin(diffed_y_mask) + 1
         )  # this one is because you want to include this right bound in your slice
         arr_jmin = (
-            np.argmax(diffed_y_mask.values) + 1
+            np.argmax(diffed_y_mask) + 1
         )  # because of the point you actually want to indicate from the diff function
 
-        jmin = tiff_ds.shape[1] - arr_jmax
-        jmax = tiff_ds.shape[1] - arr_jmin
+        jmin = tiff_np.shape[0] - arr_jmax
+        jmax = tiff_np.shape[0] - arr_jmin
 
         # Do the exact same thing for the x dimension
-        diffed_x_mask = (sel_huc.sum(dim="y") > 0).astype(int).diff(dim="x")
-        imax = np.argmin(diffed_x_mask.values) + 1
-        imin = np.argmax(diffed_x_mask.values) + 1
+        diffed_x_mask = np.diff(    (sel_huc.sum(axis=0) > 0).astype(int), 1)
+        imax = np.argmin(diffed_x_mask) + 1
+        imin = np.argmax(diffed_x_mask) + 1
 
         # Extend the result values to combine multiple HUC ids
         result_imin = imin if imin < result_imin else result_imin
@@ -2105,6 +2105,34 @@ def _flip_da_indexers_y(entry, da_indexers) -> bool:
         raise ValueError(f"The grid '{grid}' does not have a configured size.")
     return True
 
+def _get_geotiff_np(grid:str, level:int) -> np.ndarray:
+    """
+    Get an numpy array of a geotiff file for the grid at the level.
+    
+    Args:
+        grid:   grid name (e.g. conus1 or conus2)
+        level:  HUC level (length of HUC id to be returned). Must be 2, 4, 6, 8, or 10.
+    Returns:
+        An numpy array with the contents of the geotiff file for the grid and level.    
+    """
+
+    options = {
+        "dataset": "huc_mapping",
+        "variable": "huc_map",
+        "grid": grid,
+        "level": str(level),
+    }
+    entry = dc.get_catalog_entry(options)
+    if entry is None:
+        raise ValueError("No data catalog entry found for filter options.")
+    variable = entry["dataset_var"]
+    with tempfile.TemporaryDirectory() as tempdirname:
+        file_path = f"{tempdirname}/huc.tiff"
+        get_raw_file(file_path, options)
+        with tifffile.TiffFile(file_path) as tif:
+            page = tif.pages[0]
+            result = page.asarray()
+    return result
 
 def __get_geotiff(grid: str, level: int) -> xr.Dataset:
     """
