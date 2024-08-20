@@ -1482,9 +1482,11 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
         sel_huc = (tiff_np == tiff_value).squeeze()
 
         indices = np.argwhere(tiff_np == tiff_value)
-        [jmin, imin] = indices.min(axis=0)
-        [jmax, imax]= indices.max(axis=0)
-
+        [arr_jmin, imin] = indices.min(axis=0)
+        [arr_jmax, imax]= indices.max(axis=0)
+        jmin = tiff_np.shape[0] - (arr_jmax + 1)
+        jmax = tiff_np.shape[0] - (arr_jmin)
+        imax = imax + 1
         if False:
             # First find where along the y direction has "valid" cells
             # Then, taking a diff along that dimension let's us see where the boundaries of that mask ar
