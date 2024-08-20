@@ -969,6 +969,7 @@ def _execute_dask_items(dask_items, state, file_name: str):
             }
             if state.time_coords:
                 coords_definition["time"] = state.time_coords
+            enc = {}
             for variable in state.dataset_vars:
                 data = state.data_map.get(variable)
                 dims = state.dims_map.get(variable)
@@ -976,11 +977,18 @@ def _execute_dask_items(dask_items, state, file_name: str):
                     # This NetCDF file is being skipped
                     return
                 data_vars_definition[variable] = (dims, data)
+                enc[variable] = {
+                    "zlib": True,
+                    "complevel": 3,
+                    "fletcher32": True,
+                    "chunksizes": tuple(map(lambda x: x//2, data.shape))
+                }
+
             ds = xr.Dataset(data_vars=data_vars_definition, coords=coords_definition)
             file_name_dir = os.path.dirname(file_name)
             if file_name_dir and not os.path.exists(file_name_dir):
                 os.makedirs(file_name_dir, exist_ok=True)
-            ds.to_netcdf(file_name)
+            ds.to_netcdf(file_name, encoding=enc)
 
 
 def _consolate_dask_items(items):
@@ -1472,30 +1480,25 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
     result_jmin = 1000000
     result_jmax = 0
     for huc_id in huc_id_list:
-        tiff_value = int(huc_id) if grid == "conus1" else float(huc_id)
-        sel_huc = (tiff_ds == tiff_value).squeeze()
+        # Use a new algorithm that uses min/max of indices of the HUC
+        # This algorithm works for HUC like HUC 15 that has a complicated shape
+        # It gets the same answer as the old algorithm for other less complicated HUC
 
-        # First find where along the y direction has "valid" cells
-        y_mask = (sel_huc.sum(dim="x") > 0).astype(int)
+        # Slice for point with the HUC value
+        huc_value = int(huc_id) if np.issubdtype(tiff_ds.dtype, np.integer) else float(huc_id)
+        sel_huc = (tiff_ds == huc_value).squeeze()
 
-        # Then, taking a diff along that dimension let's us see where the boundaries of that mask ar
-        diffed_y_mask = y_mask.diff(dim="y")
+        # Get the min/max indicies of the points with the huc_value
+        sel_huc_np = sel_huc.values
+        indices = np.argwhere(sel_huc_np)
+        [arr_jmin, arr_imin] = indices.min(axis=0)
+        [arr_jmax, arr_imax]= indices.max(axis=0)
 
-        # Taking the argmin and argmax get's us the locations of the boundaries
-        arr_jmax = (
-            np.argmin(diffed_y_mask.values) + 1
-        )  # this one is because you want to include this right bound in your slice
-        arr_jmin = (
-            np.argmax(diffed_y_mask.values) + 1
-        )  # because of the point you actually want to indicate from the diff function
-
-        jmin = tiff_ds.shape[1] - arr_jmax
-        jmax = tiff_ds.shape[1] - arr_jmin
-
-        # Do the exact same thing for the x dimension
-        diffed_x_mask = (sel_huc.sum(dim="y") > 0).astype(int).diff(dim="x")
-        imax = np.argmin(diffed_x_mask.values) + 1
-        imin = np.argmax(diffed_x_mask.values) + 1
+        # Adjust for end conditions to get same answer as previous algorithm
+        jmin = sel_huc_np.shape[0] - (arr_jmax + 1)
+        jmax = sel_huc_np.shape[0] - arr_jmin
+        imax = arr_imax + 1
+        imin = arr_imin
 
         # Extend the result values to combine multiple HUC ids
         result_imin = imin if imin < result_imin else result_imin

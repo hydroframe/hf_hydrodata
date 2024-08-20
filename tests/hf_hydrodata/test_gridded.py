@@ -885,10 +885,6 @@ def test_get_huc_bbox_conus2():
     """Unit test for get_huc_bbox for conus2"""
 
     gr.HYDRODATA = "/hydrodata"
-    bbox = hf.get_huc_bbox("conus2", ["1019000404"])
-    assert bbox == [1468, 1664, 1550, 1693]
-    bbox = hf.get_huc_bbox("conus2", ["10190004"])
-    assert bbox == [1468, 1664, 1550, 1693]
     bbox = hf.get_huc_bbox("conus2", ["101900"])
     assert bbox == [1439, 1573, 1844, 1851]
     bbox = hf.get_huc_bbox("conus2", ["1019"])
@@ -897,6 +893,20 @@ def test_get_huc_bbox_conus2():
     assert bbox == [948, 1353, 2741, 2783]
     bbox = hf.get_huc_bbox("conus2", ["15020018"])
     assert bbox == [940, 1333, 1060, 1422]
+
+    # Check the bbox is correct for HUC 15 (this failed with old get_huc_box code)
+    bbox = hf.get_huc_bbox("conus2", ["15"])
+    assert bbox == [510, 784, 1226, 1763]
+
+    # Check the bbox for HUC16 that is ajacent to the old failing HUC 15
+    bbox = hf.get_huc_bbox("conus2", ["16"])
+    assert bbox == [279, 1337, 1130, 2152]
+
+    # Check the bbox passes for either the value from the old float32 tiffs or the new int32 tiffs
+    bbox = hf.get_huc_bbox("conus2", ["1019000404"])
+    assert (bbox == [1468, 1664, 1550, 1693]) or (bbox == [1504, 1670, 1550, 1687])
+    bbox = hf.get_huc_bbox("conus2", ["10190004"])
+    assert (bbox == [1468, 1664, 1550, 1693]) or (bbox == [1504, 1670, 1550, 1687])
 
 
 def test_latlng_to_grid_out_of_bounds():
