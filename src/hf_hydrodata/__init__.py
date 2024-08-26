@@ -21,7 +21,6 @@ from hf_hydrodata.data_catalog import (
 )
 
 from hf_hydrodata.gridded import (
-    get_numpy,
     get_gridded_data,
     get_gridded_files,
     get_raw_file,

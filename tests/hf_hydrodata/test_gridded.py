@@ -114,85 +114,33 @@ def test_get_drv_clm():
         os.remove("./vegp.dat")
 
 
-def test_start_time_in_get_ndarray():
-    """Test ability to pass start_time in get_ndarray method."""
+def test_start_time_in_get_gridded_data():
+    """Test ability to pass start_time in get_gridded_data method."""
 
     gr.HYDRODATA = "/hydrodata"
-    entry = hf.get_catalog_entry(
-        dataset="NLDAS2", file_type="pfb", period="hourly", variable="precipitation"
-    )
 
     start_time = datetime.datetime.strptime("2005-09-01", "%Y-%m-%d")
     end_time = start_time + datetime.timedelta(hours=96)
-    data = gr.get_ndarray(entry, start_time=start_time, end_time=end_time)
-    assert data.shape[0] == 96
-
-    start_time = "2005-09-01"
-    data = gr.get_ndarray(entry, start_time=start_time, end_time=end_time)
-    assert data.shape[0] == 96
-
-
-def test_get_numpy():
-    """Test the get_numpy helper method"""
-
-    data = gr.get_numpy(
+    data = gr.get_gridded_data(
         dataset="NLDAS2",
         file_type="pfb",
         period="hourly",
         variable="precipitation",
-        start_time="2005-09-01 00:00:00",
+        start_time=start_time,
+        end_time=end_time,
     )
-    assert data.shape == (1, 1888, 3342)
+    assert data.shape[0] == 96
 
-
-def test_get_date_dimension_pfb():
-    """Test get_date_dimension function for pfb data"""
-
-    gr.HYDRODATA = "/hydrodata"
-    entry = hf.get_catalog_entry(
-        dataset="NLDAS2", file_type="pfb", period="hourly", variable="precipitation"
+    start_time = "2005-09-01"
+    data = gr.get_gridded_data(
+        dataset="NLDAS2",
+        file_type="pfb",
+        period="hourly",
+        variable="precipitation",
+        start_time=start_time,
+        end_time=end_time,
     )
-
-    start_time = datetime.datetime.strptime("2005-09-01", "%Y-%m-%d")
-    end_time = start_time + datetime.timedelta(hours=96)
-    dates = []
-    gr.get_ndarray(entry, start_time=start_time, end_time=end_time, time_values=dates)
-
-    assert len(dates) == 4
-    assert dates[1] == "2005-09-02"
-
-    """
-    # test remote execution of get_ndarray()
-    gr.HYDRODATA = "/empty"
-    entry = hf.get_catalog_entry(
-        dataset="NLDAS2", file_type="pfb", period="hourly", variable="precipitation"
-    )
-    start_time = datetime.datetime.strptime("2005-09-01", "%Y-%m-%d")
-    end_time = start_time + datetime.timedelta(hours=24)
-    dates = []
-    gr.get_ndarray(
-        entry, start_time=start_time, end_time=end_time, time_values=dates
-    )
-
-    assert len(dates) == 1
-    assert dates[0] == "2005-09-01"
-    """
-
-
-def test_get_date_dimension_netcdf():
-    """Test get_date_dimension function for netcdf data"""
-
-    gr.HYDRODATA = "/hydrodata"
-    entry = hf.get_catalog_entry(
-        dataset="NLDAS2", file_type="pfb", period="hourly", variable="precipitation"
-    )
-
-    start_time = datetime.datetime.strptime("2005-09-01", "%Y-%m-%d")
-    end_time = start_time + datetime.timedelta(hours=96)
-    dates = []
-    gr.get_ndarray(entry, start_time=start_time, end_time=end_time, time_values=dates)
-    assert len(dates) == 4
-    assert dates[1] == "2005-09-02"
+    assert data.shape[0] == 96
 
 
 def test_get_paths_and_metadata():
@@ -421,8 +369,8 @@ def test_subsetting():
     assert data.shape[3] == 48  # 48 x points
 
 
-def test_get_ndarray_pfb_precipitation():
-    """Test get_ndarray of a NLDAS2 pfb precipitation variable sliced by bounds."""
+def test_get_gridded_data_pfb_precipitation():
+    """Test get_gridded_data of a NLDAS2 pfb precipitation variable sliced by bounds."""
 
     gr.HYDRODATA = "/hydrodata"
     if not os.path.exists("/hydrodata"):
@@ -443,18 +391,34 @@ def test_get_ndarray_pfb_precipitation():
     )
 
     # The data result has 4 days in the time dimension because end time is exclusive
-    data = gr.get_ndarray(
-        entry, start_time="2005-09-29", end_time="2005-10-03", grid_bounds=bounds
+    data = gr.get_gridded_data(
+        dataset="NLDAS2",
+        file_type="pfb",
+        period="daily",
+        variable="precipitation",
+        start_time="2005-09-29",
+        end_time="2005-10-03",
+        grid_bounds=bounds,
     )
     assert data.shape == (4, 50, 100)
 
     # Select a single time value with a bounds
-    data = gr.get_ndarray(entry, start_time="2005-09-29", grid_bounds=bounds)
+    data = gr.get_gridded_data(
+        dataset="NLDAS2",
+        file_type="pfb",
+        period="daily",
+        variable="precipitation",
+        start_time="2005-09-29",
+        grid_bounds=bounds,
+    )
     assert data.shape == (1, 50, 100)
 
     # The data result has 4 days in the time dimension because end time is exclusive
-    data = gr.get_ndarray(
-        entry,
+    data = gr.get_gridded_data(
+        dataset="NLDAS2",
+        file_type="pfb",
+        period="daily",
+        variable="precipitation",
         start_time="2005-09-29",
         end_time="2005-10-03",
         latlng_bounds=latlng_bounds,
@@ -464,26 +428,26 @@ def test_get_ndarray_pfb_precipitation():
     """
     gr.HYDRODATA = "/empty"
     # The data result has 4 days in the time dimension because end time is exclusive
-    data = gr.get_ndarray(
-        entry, start_time="2005-09-29", end_time="2005-10-03", grid_bounds=bounds
+    data = gr.get_gridded_data(
+        dataset="NLDAS2", file_type="pfb", period="daily", variable="precipitation", start_time="2005-09-29", end_time="2005-10-03", grid_bounds=bounds
     )
     assert data.shape == (4, 50, 100)
 
-    data = gr.get_ndarray(
-        entry, start_time="2005-09-29", end_time="2005-10-03", latlng_bounds=latlng_bounds
+    data = gr.get_gridded_data(
+        dataset="NLDAS2", file_type="pfb", period="daily", variable="precipitation", start_time="2005-09-29", end_time="2005-10-03", latlng_bounds=latlng_bounds
     )
     assert data.shape == (4, 50, 100)
 
     # Select a single time value with a bounds
-    data = gr.get_ndarray(
-        entry, start_time="2005-09-29", grid_bounds=bounds
+    data = gr.get_gridded_data(
+        dataset="NLDAS2", file_type="pfb", period="daily", variable="precipitation", start_time="2005-09-29", grid_bounds=bounds
     )
     assert data.shape == (1, 50, 100)
     """
 
 
-def test_get_ndarray_pfb_precipitation_string_input():
-    """Test get_ndarray of a NLDAS2 pfb precipitation variable sliced by bounds."""
+def test_get_gridded_data_pfb_precipitation_string_input():
+    """Test get_gridded_data of a NLDAS2 pfb precipitation variable sliced by bounds."""
 
     gr.HYDRODATA = "/hydrodata"
     if not os.path.exists("/hydrodata"):
@@ -492,20 +456,24 @@ def test_get_ndarray_pfb_precipitation_string_input():
     bounds = "[200, 200, 300, 250]"
     latlng_bounds = "[33.79169338210987, -114.34357566786298, 34.41096361516614, -113.38485056306695]"
 
-    # Get a daily precipitation entry from data catalog
-    entry = hf.get_catalog_entry(
-        dataset="NLDAS2", file_type="pfb", period="daily", variable="precipitation"
-    )
-
     # The data result has 4 days in the time dimension because end time is exclusive
-    data = gr.get_ndarray(
-        entry, start_time="2005-09-29", end_time="2005-10-03", grid_bounds=bounds
+    data = gr.get_gridded_data(
+        dataset="NLDAS2",
+        file_type="pfb",
+        period="daily",
+        variable="precipitation",
+        start_time="2005-09-29",
+        end_time="2005-10-03",
+        grid_bounds=bounds,
     )
     assert data.shape == (4, 50, 100)
 
     # The data result has 4 days in the time dimension because end time is exclusive
-    data = gr.get_ndarray(
-        entry,
+    data = gr.get_gridded_data(
+        dataset="NLDAS2",
+        file_type="pfb",
+        period="daily",
+        variable="precipitation",
         start_time="2005-09-29",
         end_time="2005-10-03",
         latlng_bounds=latlng_bounds,
@@ -513,33 +481,40 @@ def test_get_ndarray_pfb_precipitation_string_input():
     assert data.shape == (4, 50, 100)
 
     # Select a single time value with a bounds
-    data = gr.get_ndarray(entry, start_time="2005-09-29", grid_bounds=bounds)
+    data = gr.get_gridded_data(
+        dataset="NLDAS2",
+        file_type="pfb",
+        period="daily",
+        variable="precipitation",
+        start_time="2005-09-29",
+        grid_bounds=bounds,
+    )
     assert data.shape == (1, 50, 100)
 
     """
     gr.HYDRODATA = "/empty"
     # The data result has 4 days in the time dimension because end time is exclusive
     
-    data = gr.get_ndarray(
-        entry, start_time="2005-09-29", end_time="2005-10-03", grid_bounds=bounds
+    data = gr.get_gridded_data(
+        dataset="NLDAS2", file_type="pfb", period="daily", variable="precipitation", start_time="2005-09-29", end_time="2005-10-03", grid_bounds=bounds
     )
     assert data.shape == (4, 50, 100)
 
     # Select a single time value with a bounds
-    data = gr.get_ndarray(
-        entry, start_time="2005-09-29", grid_bounds=bounds
+    data = gr.get_gridded_data(
+        dataset="NLDAS2", file_type="pfb", period="daily", variable="precipitation", start_time="2005-09-29", grid_bounds=bounds
     )
     assert data.shape == (1, 50, 100)
     
-    data = gr.get_ndarray(
-        entry, start_time="2005-09-29", latlng_bounds=latlng_bounds
+    data = gr.get_gridded_data(
+        dataset="NLDAS2", file_type="pfb", period="daily", variable="precipitation", start_time="2005-09-29", latlng_bounds=latlng_bounds
     )
     assert data.shape == (1, 50, 100)
     """
 
 
 def test_get_nldas2_wind_pfb_hourly():
-    """Test get_ndarray of a NLDAS2 pfb wind variable sliced by bounds."""
+    """Test get_gridded_data of a NLDAS2 pfb wind variable sliced by bounds."""
 
     gr.HYDRODATA = "/hydrodata"
     if not os.path.exists("/hydrodata"):
@@ -552,17 +527,30 @@ def test_get_nldas2_wind_pfb_hourly():
     )
 
     # The result has 5 days of 24 hours in the time dimension and sliced to x,y shape 100x50 at origin 200, 200 in the conus1 grid.
-    data = gr.get_ndarray(
-        entry, start_time="2005-09-29", end_time="2005-10-04", grid_bounds=bounds
+    data = gr.get_gridded_data(
+        dataset="NLDAS2",
+        file_type="pfb",
+        period="hourly",
+        variable="east_windspeed",
+        start_time="2005-09-29",
+        end_time="2005-10-04",
+        grid_bounds=bounds,
     )
     assert data.shape == (120, 50, 100)
 
     # This result has only one day values but is hourly so will have one 24 hour time dimension in the result.
-    data = gr.get_ndarray(entry, start_time="2005-09-29", grid_bounds=bounds)
+    data = gr.get_gridded_data(
+        dataset="NLDAS2",
+        file_type="pfb",
+        period="hourly",
+        variable="east_windspeed",
+        start_time="2005-09-29",
+        grid_bounds=bounds,
+    )
     assert data.shape == (1, 50, 100)
 
 
-def test_get_ndarray_no_grid_bounds():
+def test_gridded_data_no_grid_bounds():
     """Test get ndarray without grid_bounds parameters."""
 
     gr.HYDRODATA = "/hydrodata"
@@ -573,7 +561,14 @@ def test_get_ndarray_no_grid_bounds():
     entry = hf.get_catalog_entry(
         dataset="NLDAS2", file_type="pfb", period="daily", variable="precipitation"
     )
-    data = gr.get_ndarray(entry, start_time="2005-09-29", end_time="2005-10-03")
+    data = gr.get_gridded_data(
+        dataset="NLDAS2",
+        file_type="pfb",
+        period="daily",
+        variable="precipitation",
+        start_time="2005-09-29",
+        end_time="2005-10-03",
+    )
 
     assert data.shape == (4, 1888, 3342)
 
@@ -602,8 +597,8 @@ def test_vegm():
     assert data.shape == (23, 90, 40)
 
 
-def test_get_ndarray_baseline85_pressure_head():
-    """Test get_ndarray from baseline85 dataset preasure_head variable."""
+def test_gridded_data_baseline85_pressure_head():
+    """Test get_gridded_data from baseline85 dataset preasure_head variable."""
 
     gr.HYDRODATA = "/hydrodata"
     if not os.path.exists("/hydrodata"):
@@ -612,22 +607,21 @@ def test_get_ndarray_baseline85_pressure_head():
 
     bounds = [200, 200, 300, 250]
 
-    entry = hf.get_catalog_entry(
+    data = gr.get_gridded_data(
         dataset="conus1_baseline_85",
         file_type="pfb",
         period="daily",
         variable="pressure_head",
-    )
-
-    data = gr.get_ndarray(
-        entry, start_time="1984-11-01", end_time="1984-11-03", grid_bounds=bounds
+        start_time="1984-11-01",
+        end_time="1984-11-03",
+        grid_bounds=bounds,
     )
 
     assert data.shape == (2, 5, 50, 100)
 
 
-def xxtest_get_ndarray_baseline85_pressure_head_hourly():
-    """Test get_ndarray from baseline85 dataset preasure_head variable."""
+def xxtest_gridded_data_baseline85_pressure_head_hourly():
+    """Test get_gridded_data from baseline85 dataset preasure_head variable."""
 
     gr.HYDRODATA = "/hydrodata"
     if not os.path.exists("/hydrodata"):
@@ -636,22 +630,21 @@ def xxtest_get_ndarray_baseline85_pressure_head_hourly():
 
     bounds = [200, 200, 300, 250]
 
-    entry = hf.get_catalog_entry(
+    data = gr.get_gridded_data(
         dataset="conus1_baseline_mod",
         file_type="pfb",
         period="hourly",
         variable="pressure_head",
-    )
-
-    data = gr.get_ndarray(
-        entry, start_time="2005-10-01", end_time="2005-10-03", grid_bounds=bounds
+        start_time="2005-10-01",
+        end_time="2005-10-03",
+        grid_bounds=bounds,
     )
 
     assert data.shape == (48, 5, 50, 100)
 
 
-def test_get_ndarray_baseline_mod_pressure_head():
-    """Test get_ndarray from baseline_mod dataset preasure_head variable."""
+def test_gridded_data_baseline_mod_pressure_head():
+    """Test get_gridded_data from baseline_mod dataset preasure_head variable."""
 
     gr.HYDRODATA = "/hydrodata"
     if not os.path.exists("/hydrodata"):
@@ -660,22 +653,21 @@ def test_get_ndarray_baseline_mod_pressure_head():
 
     bounds = [200, 200, 300, 250]
 
-    entry = hf.get_catalog_entry(
+    data = gr.get_gridded_data(
         dataset="conus1_baseline_mod",
         file_type="pfb",
         period="daily",
         variable="pressure_head",
-    )
-
-    data = gr.get_ndarray(
-        entry, start_time="2005-09-01", end_time="2005-09-03", grid_bounds=bounds
+        start_time="2005-09-01",
+        end_time="2005-09-03",
+        grid_bounds=bounds,
     )
 
     assert data.shape == (2, 5, 50, 100)
 
 
-def test_get_ndarray_conus1_domain_porosity():
-    """Test get_ndarray from conus1_domain dataset porosity variable."""
+def test_gridded_data_conus1_domain_porosity():
+    """Test get_gridded_data from conus1_domain dataset porosity variable."""
 
     gr.HYDRODATA = "/hydrodata"
     if not os.path.exists("/hydrodata"):
@@ -684,17 +676,18 @@ def test_get_ndarray_conus1_domain_porosity():
 
     bounds = [200, 200, 300, 250]
 
-    entry = hf.get_catalog_entry(
-        dataset="conus1_domain", file_type="pfb", variable="porosity"
+    data = gr.get_gridded_data(
+        dataset="conus1_domain",
+        file_type="pfb",
+        variable="porosity",
+        grid_bounds=bounds,
     )
-
-    data = gr.get_ndarray(entry, grid_bounds=bounds)
 
     assert data.shape == (5, 50, 100)
 
 
-def test_get_ndarray_pressure_hourly():
-    """Test get_ndarray from conus1_domain dataset porosity variable."""
+def test_gridded_data_pressure_hourly():
+    """Test get_gridded_data from conus1_domain dataset porosity variable."""
 
     gr.HYDRODATA = "/hydrodata"
     if not os.path.exists("/hydrodata"):
@@ -703,25 +696,32 @@ def test_get_ndarray_pressure_hourly():
 
     bounds = [200, 200, 300, 250]
 
-    entry = hf.get_catalog_entry(
+    # Get 1 day of one hour of pressure head
+    start_time = "2005-01-01 11:00:00"
+    data = gr.get_gridded_data(
         dataset="conus1_baseline_mod",
         file_type="pfb",
         variable="pressure_head",
         period="hourly",
+        grid_bounds=bounds,
+        start_time=start_time,
     )
-
-    # Get 1 day of one hour of pressure head
-    start_time = "2005-01-01 11:00:00"
-    data = gr.get_ndarray(entry, grid_bounds=bounds, start_time=start_time)
     assert data.shape == (1, 5, 50, 100)
 
     start_time = datetime.datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
-    data = gr.get_ndarray(entry, grid_bounds=bounds, start_time=start_time)
+    data = gr.get_gridded_data(
+        dataset="conus1_baseline_mod",
+        file_type="pfb",
+        period="hourly",
+        variable="pressure_head",
+        grid_bounds=bounds,
+        start_time=start_time,
+    )
     assert data.shape == (1, 5, 50, 100)
 
 
-def test_get_ndarray_wind_hourly():
-    """Test get_ndarray from conus1_domain dataset north_windspeed variable with no z values."""
+def test_gridded_data_wind_hourly():
+    """Test get_gridded_data from conus1_domain dataset north_windspeed variable with no z values."""
 
     gr.HYDRODATA = "/hydrodata"
     if not os.path.exists("/hydrodata"):
@@ -739,16 +739,30 @@ def test_get_ndarray_wind_hourly():
 
     # Get 1 day of one hour of pressure head
     start_time = "2005-01-01 11:00:00"
-    data = gr.get_ndarray(entry, grid_bounds=bounds, start_time=start_time)
+    data = gr.get_gridded_data(
+        dataset="NLDAS2",
+        file_type="pfb",
+        variable="north_windspeed",
+        period="hourly",
+        grid_bounds=bounds,
+        start_time=start_time,
+    )
     assert data.shape == (1, 50, 100)
 
     start_time = datetime.datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
-    data = gr.get_ndarray(entry, grid_bounds=bounds, start_time=start_time)
+    data = gr.get_gridded_data(
+        dataset="NLDAS2",
+        file_type="pfb",
+        variable="north_windspeed",
+        period="hourly",
+        grid_bounds=bounds,
+        start_time=start_time,
+    )
     assert data.shape == (1, 50, 100)
 
 
-def test_get_ndarray_smap_daily():
-    """Test get_ndarray from conus1_domain dataset daily soil_moisture variable with no z values."""
+def test_gridded_data_smap_daily():
+    """Test get_gridded_data from conus1_domain dataset daily soil_moisture variable with no z values."""
 
     gr.HYDRODATA = "/hydrodata"
     if not os.path.exists("/hydrodata"):
@@ -757,15 +771,16 @@ def test_get_ndarray_smap_daily():
 
     bounds = [200, 200, 300, 250]
 
-    entry = hf.get_catalog_entry(
+    # Get 1 day of smap
+    start_time = "2022-08-01"
+    data = gr.get_gridded_data(
         dataset="nasa_smap",
         variable="soil_moisture",
         period="daily",
         grid="smapgrid",
+        grid_bounds=bounds,
+        start_time=start_time,
     )
-    # Get 1 day of smap
-    start_time = "2022-08-01"
-    data = gr.get_ndarray(entry, grid_bounds=bounds, start_time=start_time)
     assert data.shape == (1, 1, 50, 100)
 
 
@@ -778,18 +793,19 @@ def test_pfmetadata():
         return
     bounds = [200, 200, 300, 250]
 
-    entry = hf.get_catalog_entry(
-        dataset="conus1_domain", file_type="pfmetadata", variable="van_genuchten_n"
+    data = gr.get_gridded_data(
+        dataset="conus1_domain",
+        file_type="pfmetadata",
+        variable="van_genuchten_n",
+        grid_bounds=bounds,
     )
-
-    data = gr.get_ndarray(entry, grid_bounds=bounds)
 
     # The result has 5 days in the time dimension and sliced to x,y shape 100x50 at origin 200, 200 in the conus1 grid.
     assert data.shape == (5, 50, 100)
 
 
-def test_get_ndarray_tiff():
-    """Test get_ndarray from a tiff file."""
+def test_gridded_data_tiff():
+    """Test get_gridded_data from a tiff file."""
 
     gr.HYDRODATA = "/hydrodata"
     if not os.path.exists("/hydrodata"):
@@ -798,46 +814,54 @@ def test_get_ndarray_tiff():
 
     bounds = [200, 200, 300, 250]
 
-    entry = hf.get_catalog_entry(
-        dataset="huc_mapping", file_type="tiff", variable="huc_map", grid="conus1"
+    data = gr.get_gridded_data(
+        dataset="huc_mapping",
+        file_type="tiff",
+        variable="huc_map",
+        grid="conus1",
+        grid_bounds=bounds,
+        level=4,
     )
-
-    data = gr.get_ndarray(entry, grid_bounds=bounds, level=4)
 
     assert data.shape == (50, 100)
 
-    data = gr.get_ndarray(entry, level=4)
+    data = gr.get_gridded_data(
+        dataset="huc_mapping",
+        file_type="tiff",
+        variable="huc_map",
+        grid="conus1",
+        level=4,
+    )
 
     assert data.shape == (1888, 3342)
 
-    entry = hf.get_catalog_entry(
-        dataset="huc_mapping", file_type="tiff", variable="huc_map", grid="conus2"
+    data = gr.get_gridded_data(
+        dataset="huc_mapping",
+        file_type="tiff",
+        variable="huc_map",
+        grid="conus2",
+        level=4,
     )
-
-    data = gr.get_ndarray(entry, level=4)
 
     assert data.shape == (3256, 4442)
 
 
-def test_get_ndarray_latlng():
-    """Test get_ndarray from a latitude and longitude file."""
+def test_gridded_data_latlng():
+    """Test get_gridded_data from a latitude and longitude file."""
 
     gr.HYDRODATA = "/hydrodata"
     if not os.path.exists("/hydrodata"):
         # Just skip test if this is run on a machine without /hydrodata access
         return
 
-    entry = hf.get_catalog_entry(
+    data = gr.get_gridded_data(
         dataset="conus1_domain", file_type="pfb", variable="latitude", grid="conus1"
     )
-
-    data = gr.get_ndarray(entry)
     assert data.shape == (1888, 3342)
 
-    entry = hf.get_catalog_entry(
+    data = gr.get_gridded_data(
         dataset="conus2_domain", file_type="pfb", variable="latitude", grid="conus2"
     )
-    data = gr.get_ndarray(entry)
     assert data.shape == (3256, 4442)
 
 
@@ -917,15 +941,14 @@ def test_latlng_to_grid_out_of_bounds():
         (_, _) = hf.from_latlon("conus1", 90, -180)
 
 
-def test_get_ndarray_no_entry_passed():
+def test_gridded_data_no_entry_passed():
     """Test able to get and ndarray passing None for entry"""
 
     if not os.path.exists("/hydrodata"):
         # Just skip test if this is run on a machine without /hydrodata access
         return
 
-    data = gr.get_ndarray(
-        None,
+    data = gr.get_gridded_data(
         dataset="NLDAS2",
         file_type="pfb",
         period="daily",
@@ -934,8 +957,7 @@ def test_get_ndarray_no_entry_passed():
     )
     assert data.shape == (1, 1888, 3342)
 
-    data = gr.get_ndarray(
-        None,
+    data = gr.get_gridded_data(
         dataset="NLDAS2",
         file_type="pfb",
         period="daily",
@@ -945,8 +967,7 @@ def test_get_ndarray_no_entry_passed():
     )
     assert data.shape == (2, 1888, 3342)
 
-    data = gr.get_ndarray(
-        None,
+    data = gr.get_gridded_data(
         dataset="NLDAS2",
         file_type="pfb",
         period="hourly",
@@ -956,8 +977,7 @@ def test_get_ndarray_no_entry_passed():
     )
     assert data.shape == (48, 1888, 3342)
 
-    data = gr.get_ndarray(
-        None,
+    data = gr.get_gridded_data(
         dataset="conus1_baseline_85",
         file_type="pfb",
         period="hourly",
@@ -978,7 +998,7 @@ def test_get_ndarray_no_entry_passed():
     assert "sum.093.pfb" in path
 
 
-def test_get_numpy_monthly():
+def test_get_gridded_data_monthly():
     """Test getting monthly files."""
 
     options = {
@@ -989,11 +1009,11 @@ def test_get_numpy_monthly():
         "start_time": "2006-01-31",
         "end_time": "2006-03-01",
     }
-    data = gr.get_numpy(options)
+    data = gr.get_gridded_data(options)
     assert data.shape == (2, 1888, 3342)
 
 
-def test_get_numpy_daily():
+def test_get_gridded_data_daily():
     """Test geting daily values from pfb"""
     options = {
         "dataset": "NLDAS2",
@@ -1004,7 +1024,7 @@ def test_get_numpy_daily():
         "start_time": "2005-10-01",
         "end_time": "2005-10-04",
     }
-    data = gr.get_numpy(options)
+    data = gr.get_gridded_data(options)
     assert data.shape == (3, 1888, 3342)
 
 
@@ -1019,7 +1039,7 @@ def xtest_get_numpy_nasa_smap_conus2():
         "start_time": "2023-08-01",
         "grid_bounds": grid_bounds,
     }
-    data = gr.get_numpy(options)
+    data = gr.get_gridded_data(options)
     print(data.shape)
 
 
@@ -1048,8 +1068,8 @@ def test_get_point_anomalies():
         "period": "daily",
     }
     options["start_time"] = "2002-03-01"
-    data = gr.get_numpy(options)
-    data = gr.get_numpy(
+    data = gr.get_gridded_data(options)
+    data = gr.get_gridded_data(
         site_type="streamflow",
         dataset="obs_anomalies",
         start_time="2002-05-01",
@@ -1062,7 +1082,7 @@ def test_get_point_anomalies():
 
 def test_filter_point_obs_by_time():
     """UNit test for stream flow filters."""
-    data = gr.get_numpy(
+    data = gr.get_gridded_data(
         site_type="streamflow",
         dataset="observations",
         start_time="1978-08-01",
@@ -1072,7 +1092,7 @@ def test_filter_point_obs_by_time():
         site_id="06787000",
     )
     assert data.shape[0] == 3
-    data = gr.get_numpy(
+    data = gr.get_gridded_data(
         site_type="streamflow",
         dataset="observations",
         start_time="1978-08-01",
@@ -1104,16 +1124,13 @@ def test_timezone():
         )
     end_date = start_date + datetime.timedelta(hours=7)
 
-    entry = hf.get_catalog_entry(
-        dataset="NLDAS2",
+
+    data = gr.get_gridded_data(
+                dataset="NLDAS2",
         variable="air_temp",
         grid="conus1",
         file_type="pfb",
         period="hourly",
-    )
-
-    data = gr.get_ndarray(
-        entry,
         start_time=start_date,
         end_time=end_date,
         grid_bounds=bounds,
@@ -1180,15 +1197,12 @@ def test_get_huc_bbox_conus1():
 
 
 def test_getndarray_site_id():
-    """Test for a bug using get_ndarray and site_id variable."""
+    """Test for a bug using get_gridded_data and site_id variable."""
 
-    entry = hf.get_catalog_entry(
-        site_type="streamflow",
+    data = gr.get_gridded_data(        site_type="streamflow",
         dataset="obs_anomalies",
         variable="site_id",
-        period="daily",
-    )
-    data = gr.get_ndarray(entry, start_time="2002-03-1")
+        period="daily", start_time="2002-03-1")
     assert data.shape[0] >= 8626
 
 
@@ -1208,7 +1222,7 @@ def test_filter_errors():
         "grid_bounds": [5000, 200, 50010, 300],
     }
     with pytest.raises(ValueError) as info:
-        gr.get_numpy(options)
+        gr.get_gridded_data(options)
     assert "is outside the grid shape 3342, 1888" in str(info.value)
 
     options = {
@@ -1220,7 +1234,7 @@ def test_filter_errors():
         "grid_point": [200, 2000],
     }
     with pytest.raises(ValueError) as info:
-        gr.get_numpy(options)
+        gr.get_gridded_data(options)
     assert "is outside the grid shape 3342, 1888" in str(info.value)
 
 
@@ -1275,19 +1289,11 @@ def test_get_catalog_bug():
         variable="precipitation",
     )
     assert len(entries) == 0
-    entry = hf.get_catalog_entry(
-        dataset="conus1_baseline_85",
-        file_type="pfb",
-        period="hourly",
-        variable="precipitation",
-    )
-    assert entry is None
 
     start_time = datetime.datetime.strptime("2005-09-01", "%Y-%m-%d")
     end_time = start_time + datetime.timedelta(hours=24)
     with pytest.raises(ValueError) as info:
-        gr.get_ndarray(
-            entry,
+        gr.get_gridded_data(
             start_time=start_time,
             end_time=end_time,
             grid_bounds=bounds,

@@ -346,86 +346,6 @@ def get_file_path(entry, *args, **kwargs) -> str:
     return result
 
 
-def get_numpy(*args, **kwargs) -> np.ndarray:
-    """
-    Deprecated. Use get_gridded_data() instead.
-
-    Get a numpy ndarray from files in /hydroframe. with the applied data filters.
-
-    The parameters to the function can be specified either by passing a dict with the parameter values
-    or by passing named parameters to the function.
-
-    Args:
-        dataset:        A dataset name (see Gridded Data documentation).
-        variable:       A variable from a dataset.
-        temporal_resolution: Time resolution of a the dataset variable. Must be hourly, daily, weekly, monthly.
-        grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
-        aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
-        start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
-        end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
-        grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.
-        latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
-        grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
-        latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
-        huc_id:         A comma seperated list of HUC id that specifies the grid_bounds using the HUC bounding box.
-        z:              A value of the z dimension to be used as a filter for this dismension when loading data.
-        level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
-        site_id:        Used when reading data associated with an observation site.
-        time_values:    Optional. An empty array that will be populated with time dimension values of returned data.
-    Returns:
-        A numpy ndarray containing the data loaded from the files identified by the entry and sliced by the data filter options.
-    Raises:
-        ValueError:  If both grid_bounds and latlng_bounds are specified as data filters.
-        ValueError:  If no data catalog entry is found associated with the filter parameters.
-        ValueError:  If any filter parameters are invalid.
-
-    For gridded results the returned numpy array has dimensions:
-        * [hour, y, x]                    temporal_resolution is hourly without z dimension
-        * [day, y, x]                     temporal_resolution is daily without z dimension
-        * [month, y, x]                   temporal_resolution is monthly without z dimension
-        * [y, x]                          temporal_resolution is static or blank without z dimension
-
-        * [hour, z, y, x]                 temporal_resolution is hourly with z dimension
-        * [day, z, y, x]                  temporal_resolution is daily with z dimension
-        * [month, z, y, x]                temporal_resolution is monthly with z dimension
-        * [z, y, x]                       temporal_resolution is static or blank with z dimension
-
-    If the dataset has ensembles then there is an ensemble dimension at the beginning.
-
-    Both start_time and end_time must be in the form "YYYY-MM-DD HH:MM:SS" or "YYYY-MM-DD" or a datetime object.
-
-    If only start_time is specified than only that month/day/hour is returned.
-    The start_time is inclusive the end_time is exclusive (data returned less than that time).
-
-    If either grid_bounds or latlng_bounds is specified then the result is sliced by the x,y values in the bounds.
-    If grid_point or latlon_point is specified this is mapped to a grid_bounds of size 1x1 at that point.
-
-    If z is specified then the result is sliced by the z dimension.
-
-    For example, to get data from the 3 daily files bewteen 9/30/2005 and 10/3/2005.
-
-    Example:
-
-    .. code-block:: python
-
-        import hf_hydrodata as hf
-
-        options = {
-            "dataset": "NLDAS2", "temporal_resolution": "daily", "variable": "precipitation",
-            "start_time":"2005-09-30", "end_time":"2005-10-03",
-            "grid_bounds":[200, 200, 300, 250]
-        }
-        # The result has 3 days in the time dimension
-        # The result is sliced to x,y size 100x50 in the conus1 grid.
-        data = hf.get_numpy(options)
-        assert data.shape == (3, 50, 100)
-
-        metadata = dc.get_catalog_entry(options)
-    """
-
-    result = get_ndarray(None, *args, **kwargs)
-    return result
-
 
 def get_gridded_files(
     options: dict,
@@ -995,87 +915,6 @@ def _consolate_dask_items(items):
     """Function to wait for all the dask items to complete."""
     return len(items)
 
-
-def get_gridded_data(*args, **kwargs) -> np.ndarray:
-    """
-    Get a numpy ndarray from files in /hydroframe. with the applied data filters.
-
-    The parameters to the function can be specified either by passing a dict with the parameter values
-    or by passing named parameters to the function.
-
-    Args:
-        dataset:        A dataset name (see Gridded Data documentation).
-        variable:       A variable from a dataset.
-        temporal_resolution: Time resolution of a the dataset variable. Must be hourly, daily, weekly, monthly.
-        grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
-        aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
-        start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
-        end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
-        grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.
-        latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
-        grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
-        latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
-        huc_id:         A comma seperated list of HUC id that specifies the grid_bounds using the HUC bounding box.
-        z:              A value of the z dimension to be used as a filter for this dismension when loading data.
-        level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
-        site_id:        Used when reading data associated with an observation site.
-        time_values:    Optional. An empty array that will be populated with time dimension values of returned data.
-        data_catalog_entry_id: Optional. The id of an entry in the data catalog to identify an entry.
-    Returns:
-        A numpy ndarray containing the data loaded from the files identified by the entry and sliced by the data filter options.
-    Raises:
-        ValueError:  If both grid_bounds and latlng_bounds are specified as data filters.
-        ValueError:  If no data catalog entry is found associated with the filter parameters.
-        ValueError:  If any filter parameters are invalid.
-
-    For gridded results the returned numpy array has dimensions:
-        * [hour, y, x]                    temporal_resolution is hourly without z dimension
-        * [day, y, x]                     temporal_resolution is daily without z dimension
-        * [month, y, x]                   temporal_resolution is monthly without z dimension
-        * [y, x]                          temporal_resolution is static or blank without z dimension
-
-        * [hour, z, y, x]                 temporal_resolution is hourly with z dimension
-        * [day, z, y, x]                  temporal_resolution is daily with z dimension
-        * [month, z, y, x]                temporal_resolution is monthly with z dimension
-        * [z, y, x]                       temporal_resolution is static or blank with z dimension
-
-    If the dataset has ensembles then there is an ensemble dimension at the beginning.
-
-    Both start_time and end_time must be in the form "YYYY-MM-DD HH:MM:SS" or "YYYY-MM-DD" or a datetime object.
-
-    If only start_time is specified than only that month/day/hour is returned.
-    The start_time is inclusive the end_time is exclusive (data returned less than that time).
-
-    If either grid_bounds or latlng_bounds is specified then the result is sliced by the x,y values in the bounds.
-    If grid_point or latlon_point is specified this is mapped to a grid_bounds of size 1x1 at that point.
-
-    If z is specified then the result is sliced by the z dimension.
-
-    For example, to get data from the 3 daily files bewteen 9/30/2005 and 10/3/2005.
-
-    Example:
-
-    .. code-block:: python
-
-        import hf_hydrodata as hf
-
-        options = {
-            "dataset": "NLDAS2", "temporal_resolution": "daily", "variable": "precipitation",
-            "start_time":"2005-09-30", "end_time":"2005-10-03",
-            "grid_bounds":[200, 200, 300, 250]
-        }
-        # The result has 3 days in the time dimension
-        # The result is sliced to x,y size 100x50 in the conus1 grid.
-        data = hf.get_numpy(options)
-        assert data.shape == (3, 50, 100)
-
-        metadata = dc.get_catalog_entry(options)
-    """
-
-    result = get_ndarray(None, *args, **kwargs)
-    return result
-
-
 def _construct_string_from_options(qparam_values):
     """
     Constructs the query parameters from the entry and options provided.
@@ -1195,7 +1034,7 @@ def get_date_range(*args, **kwargs) -> Tuple[datetime.datetime, datetime.datetim
 
     The parameters to the function can be specified either by passing a dict with the parameter values
     or by passing named parameters to the function.
-    You can pass any parameters used by get_numpy() or get_data_catalog_entry(), but only the dataset option is used.
+    You can pass any parameters used by get_gridded_data() or get_data_catalog_entry(), but only the dataset option is used.
 
     Args:
         dataset:        A dataset name (see Gridded Data documentation).
@@ -1241,18 +1080,80 @@ def get_date_range(*args, **kwargs) -> Tuple[datetime.datetime, datetime.datetim
     return result
 
 
-def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
+def get_gridded_data(*args, **kwargs) -> np.ndarray:
     """
-    Deprecated.
+    Get a numpy ndarray from files in /hydroframe. with the applied data filters.
 
-    Use get_numpy() instead.
+    The parameters to the function can be specified either by passing a dict with the parameter values
+    or by passing named parameters to the function.
+
+    Args:
+        dataset:        A dataset name (see Gridded Data documentation).
+        variable:       A variable from a dataset.
+        temporal_resolution: Time resolution of a the dataset variable. Must be hourly, daily, weekly, monthly.
+        grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
+        aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
+        start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
+        end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
+        grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.
+        latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
+        grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
+        latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
+        huc_id:         A comma seperated list of HUC id that specifies the grid_bounds using the HUC bounding box.
+        z:              A value of the z dimension to be used as a filter for this dismension when loading data.
+        level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
+        site_id:        Used when reading data associated with an observation site.
+        data_catalog_entry_id: Optional. The id of an entry in the data catalog to identify an entry.
+    Returns:
+        A numpy ndarray containing the data loaded from the files identified by the entry and sliced by the data filter options.
+    Raises:
+        ValueError:  If both grid_bounds and latlng_bounds are specified as data filters.
+        ValueError:  If no data catalog entry is found associated with the filter parameters.
+        ValueError:  If any filter parameters are invalid.
+
+    For gridded results the returned numpy array has dimensions:
+        * [hour, y, x]                    temporal_resolution is hourly without z dimension
+        * [day, y, x]                     temporal_resolution is daily without z dimension
+        * [month, y, x]                   temporal_resolution is monthly without z dimension
+        * [y, x]                          temporal_resolution is static or blank without z dimension
+
+        * [hour, z, y, x]                 temporal_resolution is hourly with z dimension
+        * [day, z, y, x]                  temporal_resolution is daily with z dimension
+        * [month, z, y, x]                temporal_resolution is monthly with z dimension
+        * [z, y, x]                       temporal_resolution is static or blank with z dimension
+
+    If the dataset has ensembles then there is an ensemble dimension at the beginning.
+
+    Both start_time and end_time must be in the form "YYYY-MM-DD HH:MM:SS" or "YYYY-MM-DD" or a datetime object.
+
+    If only start_time is specified than only that month/day/hour is returned.
+    The start_time is inclusive the end_time is exclusive (data returned less than that time).
+
+    If either grid_bounds or latlng_bounds is specified then the result is sliced by the x,y values in the bounds.
+    If grid_point or latlon_point is specified this is mapped to a grid_bounds of size 1x1 at that point.
+
+    If z is specified then the result is sliced by the z dimension.
+
+    For example, to get data from the 3 daily files bewteen 9/30/2005 and 10/3/2005.
+
+    Example:
+
+    .. code-block:: python
+
+        import hf_hydrodata as hf
+
+        options = {
+            "dataset": "NLDAS2", "temporal_resolution": "daily", "variable": "precipitation",
+            "start_time":"2005-09-30", "end_time":"2005-10-03",
+            "grid_bounds":[200, 200, 300, 250]
+        }
+        # The result has 3 days in the time dimension
+        # The result is sliced to x,y size 100x50 in the conus1 grid.
+        data = hf.get_gridded_data(options)
+        assert data.shape == (3, 50, 100)
+
+        metadata = dc.get_catalog_entry(options)
     """
-
-    if entry is not None and isinstance(entry, (int, str)):
-        # The entry is an ID of data catalog entry, so get the entry row of the table
-        data_model = load_data_model()
-        table = data_model.get_table("data_catalog_entry")
-        entry = table.get_row(str(entry))
 
     if len(args) > 0 and isinstance(args[0], dict):
         # The filter options are being passed using a dict
@@ -1261,54 +1162,31 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
         # The filter options are just named parameters in the argument list
         options = kwargs
 
-    if entry is None:
-        data_catalog_entry_id = options.get("data_catalog_entry_id")
-        if data_catalog_entry_id is not None:
-            entry = dc.get_table_row("data_catalog_entry", id=data_catalog_entry_id)
-        else:
-            entry = dc.get_catalog_entry(*args, **kwargs)
+    data = _get_gridded_data_from_api(options)
 
-    if entry is None:
-        args = " ".join([f"{k}={options[k]}" for k in options.keys()])
-        raise ValueError(f"No entry found in data catalog for {args}.")
-
-    # For backward compatibility between get_ndarray and get_numpy
-    time_values = options.get("time_values")
-    options = _convert_json_to_strings(options)
-    options["dataset"] = entry["dataset"]
-    options["variable"] = entry["variable"]
-    options["period"] = entry["period"]
-    options["temporal_resolution"] = entry["temporal_resolution"]
-    options["aggregation"] = entry["aggregation"]
-    options["grid"] = entry["grid"]
-    options["site_type"] = entry["site_type"]
-    options["file_type"] = entry["file_type"]
-    options["time_values"] = time_values
-
-    _verify_time_in_range(entry, options)
-
-    # An optional empty array passed as an option to be populated with the time dimension for graphing.
-    time_values = options.get("time_values")
-
-    data = _get_ndarray_from_api(entry, options)
 
     if data is None:
+        # This call is local to /hydrodata so we can get data catalog information
         options = _convert_strings_to_json(options)
-        time_values = options.get("time_values")
+        entry = dc.get_catalog_entry(options)
+        if entry is None:
+            args = " ".join([f"{k}={options[k]}" for k in options.keys()])
+            raise ValueError(f"No entry found in data catalog for {args}.")
+        _verify_time_in_range(entry, options)
 
         file_type = entry["file_type"]
         structure_type = entry["structure_type"]
         data = None
         if file_type == "pfb":
-            data = _read_and_filter_pfb_files(entry, options, time_values)
+            data = _read_and_filter_pfb_files(entry, options)
         elif file_type == "C.pfb":
-            data = _read_and_filter_c_pfb_files(entry, options, time_values)
+            data = _read_and_filter_c_pfb_files(entry, options)
         elif file_type == "pfmetadata":
-            data = _read_and_filter_pfmetadata_files(entry, options, time_values)
+            data = _read_and_filter_pfmetadata_files(entry, options)
         elif file_type == "vegm":
             data = _read_and_filter_vegm_files(options)
         elif file_type == "netcdf":
-            data = _read_and_filter_netcdf_files(entry, options, time_values)
+            data = _read_and_filter_netcdf_files(entry, options)
         elif file_type == "tiff":
             data = _read_and_filter_tiff_files(entry, options)
         else:
@@ -1317,7 +1195,6 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
             data = _adjust_dimensions(data, entry)
             if not options.get("nomask") == "true":
                 data = _apply_mask(data, entry, options)
-        options = _convert_json_to_strings(options)
 
     return data
 
@@ -1611,29 +1488,29 @@ def _convert_json_to_strings(options):
     return options
 
 
-def _get_ndarray_from_api(entry, options):
-    """
-    Constructs the query parameters from the entry and options provided.
+def _get_gridded_data_from_api(options):
+    """Get gridded_data using the remote API. Return None if running locally to /hydrodata.
 
     Parameters
     ----------
-    entry : hydroframe.data_catalog.data_model_access.ModelTableRow
-        variable to be downloaded.
-    options : dictionary
+    options : dict
         datast to which the variable belongs.
-    options : array
-        empty array to be populated with the time_values.
 
     Returns
     -------
-    data : numpy array
-        the requested data.
+    numpy array of the requested data or None if running locally.    
     """
+
     run_remote = not os.path.exists(HYDRODATA)
 
     if run_remote:
         options = _convert_json_to_strings(options)
-        q_params = _construct_string_from_qparams(entry, options)
+        options_list = [
+            f"{name}={value}" for name, value in options.items() if value is not None
+        ]
+        q_params = "&".join(options_list)
+
+
         gridded_data_url = f"{HYDRODATA_URL}/api/gridded-data?{q_params}"
 
         try:
@@ -1671,6 +1548,7 @@ def _get_ndarray_from_api(entry, options):
         with THREAD_LOCK:
             # The open_dataset call itself is not thread safe (it is safe after it is opened)
             netcdf_dataset = xr.open_dataset(file_obj)
+        entry = dc.get_catalog_entry(options)
         variable = entry["variable"]
         netcdf_variable = netcdf_dataset[variable]
         data = netcdf_variable.values
@@ -1679,12 +1557,11 @@ def _get_ndarray_from_api(entry, options):
 
     return None
 
-
 def _adjust_dimensions(data: np.ndarray, entry: ModelTableRow) -> np.ndarray:
     """
     Reshape the dimensions of the data array to match the conventions for the entry temporal_resolution and expected variable.
     Args:
-        data:       An numpy array to be returned by get_ndarray.
+        data:       An numpy array to be returned by get_gridded_data.
         entry:      A data catalog entry that contains temporal_resolution and variable attributes.
     Returns:
         A reshaped nd array with the same data, but possible different number of dimensions.
@@ -1785,7 +1662,6 @@ def _adjust_dimensions(data: np.ndarray, entry: ModelTableRow) -> np.ndarray:
 def _read_and_filter_pfb_files(
     entry: ModelTableRow,
     options: dict,
-    time_values: List[datetime.datetime],
 ) -> np.ndarray:
     """
     Read the PFB files in the file paths of the entry filter and filter the data.
@@ -1793,11 +1669,8 @@ def _read_and_filter_pfb_files(
     Args:
         entry:          A modelTableRow containing the data catalog entry.
         options:        The options passed to get_ndarray as a dict.
-        time_values:    An empty array that will be populated with the values from the data time dimension.
     Returns:
         An numpy ndarray of the filtered contents of the pfb files.
-    If time_values is not None the array will be populated with the time dimension of the data
-    only populated the time values after filtering the data.
     """
 
     start_time_value = _parse_time(options.get("start_time"))
@@ -1836,7 +1709,6 @@ def _read_and_filter_pfb_files(
 
     # Remove an unused z dimension that is returned by read_pfb for 2D pfb files
     final_data = _remove_unused_z_dimension(final_data, entry)
-    _collect_pfb_date_dimensions(time_values, final_data, start_time_value)
 
     return final_data
 
@@ -1861,7 +1733,6 @@ def _remove_unused_z_dimension(data: np.ndarray, entry: dict) -> np.ndarray:
 def _read_and_filter_c_pfb_files(
     entry: ModelTableRow,
     options: dict,
-    time_values: List[datetime.datetime],
 ) -> np.ndarray:
     """
     Read the c.PFB files in the file paths of the entry filter and filter the data.
@@ -1869,11 +1740,8 @@ def _read_and_filter_c_pfb_files(
     Args:
         entry:          A modelTableRow containing the data catalog entry.
         options:        The options passed to get_ndarray as a dict.
-        time_values:    An empty array that will be populated with the values from the data time dimension.
     Returns:
         An numpy ndarray of the filtered contents of the pfb files.
-    If time_values is not None the array will be populated with the time dimension of the data
-    only populated the time values after filtering the data.
     """
 
     start_time_value = _parse_time(options.get("start_time"))
@@ -1901,14 +1769,12 @@ def _read_and_filter_c_pfb_files(
         entry_id = entry.get("id")
         raise ValueError(f"Unknown dataset_var for C.pfb entry {entry_id}.")
     data = read_pfb_sequence(paths, boundary_constraints)
-    _collect_pfb_date_dimensions(time_values, data, start_time_value)
     return data
 
 
 def _read_and_filter_pfmetadata_files(
     entry: ModelTableRow,
     options: dict,
-    time_values: List[datetime.datetime],
 ) -> np.ndarray:
     """
     Read the pfmetadata files in the file paths of the entry filter and filter the data.
@@ -1916,11 +1782,8 @@ def _read_and_filter_pfmetadata_files(
     Args:
         entry:          A modelTableRow containing the data catalog entry.
         options:        The options passed to get_ndarray as a dict.
-        time_values:    An empty array that will be populated with the values from the data time dimension.
     Returns:
         An numpy ndarray of the filtered contents of the pfb files.
-    If time_values is not None the array will be populated with the time dimension of the data
-    only populated the time values after filtering the data.
     """
 
     start_time_value = _parse_time(options.get("start_time"))
@@ -1933,7 +1796,6 @@ def _read_and_filter_pfmetadata_files(
     da = ds[dataset_var]
     da = _slice_da_bounds(da, entry["grid"], options)
     data = da
-    _collect_pfb_date_dimensions(time_values, data, start_time_value)
     return data
 
 
@@ -1975,7 +1837,6 @@ def _read_and_filter_vegm_files(
 def _read_and_filter_netcdf_files(
     entry: ModelTableRow,
     options: dict,
-    time_values: List[datetime.datetime],
 ) -> np.ndarray:
     """
     Read the PFB files in the file paths of the entry filter and filter the data.
@@ -1983,11 +1844,8 @@ def _read_and_filter_netcdf_files(
     Args:
         entry:          A modelTableRow containing the data catalog entry.
         options:        The options passed to get_ndarray as a dict.
-        time_values:    An empty array that will be populated with the values from the data time dimension.
     Returns:
         An numpy ndarray of the filtered contents of the pfb files.
-    If time_values is not None the array will be populated with the time dimension of the data
-    only populated the time values after filtering the data.
     """
 
     paths = get_paths(options)
@@ -2014,16 +1872,6 @@ def _read_and_filter_netcdf_files(
     da_indexers = _create_da_indexer(options, entry, data_ds, data_da, file_path)
     data_da = data_da.isel(da_indexers)
     data = data_da.to_numpy()
-    if time_values is not None:
-        if "date" in list(data_ds.coords.keys()):
-            for t in data_ds["date"].values:
-                time_values.append(str(t))
-        elif "time" in list(data_ds.coords.keys()):
-            for t in data_da["time"].values:
-                time_values.append(str(t))
-        elif "datetime" in list(data_ds.coords.keys()):
-            for t in data_da["datetime"].values:
-                time_values.append(str(t))
     if data_da.dims == ("x", "y"):
         # The NetCDF file dimensions are in the order x, y
         # But get_ndarray must return the order y, x
@@ -2140,27 +1988,6 @@ def __get_geotiff(grid: str, level: int) -> xr.Dataset:
             # The open_dataset call itself is not thread safe (it is safe after it is opened)
             tiff_ds = xr.open_dataset(file_path).drop_vars(("x", "y"))[variable]
         return tiff_ds
-
-
-def _collect_pfb_date_dimensions(
-    time_values: List[str], data: np.ndarray, start_time_value: datetime.datetime
-):
-    """
-    Create the date strings of the time dimension of the data and add them to the
-    time_values array.
-
-    Args:
-        time_values:     An empty array to be filled with date strings.
-        data:               The ndarray returned by get_ndarray method
-        start_time_value:   The start_time of the data filter.
-    Assumes that the time dimension is the first dimension of the data array.
-    Assumes that the period is daily (for now).
-    """
-    if time_values is not None and start_time_value and data.shape[0] > 0:
-        dt = start_time_value
-        for _ in range(0, data.shape[0]):
-            time_values.append(dt.strftime("%Y-%m-%d"))
-            dt = dt + datetime.timedelta(days=1)
 
 
 def _match_filename_wild_card(data_path: str) -> str:
