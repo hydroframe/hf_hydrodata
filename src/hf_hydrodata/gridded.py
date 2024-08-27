@@ -1504,6 +1504,8 @@ def _get_gridded_data_from_api(options):
     run_remote = not os.path.exists(HYDRODATA)
 
     if run_remote:
+        if options.get("temporal_resolution"):
+            options["period"] = options["temporal_resolution"]        
         options = _convert_json_to_strings(options)
         options_list = [
             f"{name}={value}" for name, value in options.items() if value is not None
@@ -1512,7 +1514,6 @@ def _get_gridded_data_from_api(options):
 
 
         gridded_data_url = f"{HYDRODATA_URL}/api/gridded-data?{q_params}"
-
         try:
             headers = _get_api_headers()
             response = requests.get(gridded_data_url, headers=headers, timeout=1200)
