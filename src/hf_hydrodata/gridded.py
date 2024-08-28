@@ -1168,6 +1168,7 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
     if data is None:
         # This call is local to /hydrodata so we can get data catalog information
         options = _convert_strings_to_json(options)
+        time_values = options.get("time_values")
         entry = dc.get_catalog_entry(options)
         if entry is None:
             args = " ".join([f"{k}={options[k]}" for k in options.keys()])
@@ -1178,15 +1179,15 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
         structure_type = entry["structure_type"]
         data = None
         if file_type == "pfb":
-            data = _read_and_filter_pfb_files(entry, options)
+            data = _read_and_filter_pfb_files(entry, options, time_values)
         elif file_type == "C.pfb":
-            data = _read_and_filter_c_pfb_files(entry, options)
+            data = _read_and_filter_c_pfb_files(entry, options, time_values)
         elif file_type == "pfmetadata":
-            data = _read_and_filter_pfmetadata_files(entry, options)
+            data = _read_and_filter_pfmetadata_files(entry, options, time_values)
         elif file_type == "vegm":
             data = _read_and_filter_vegm_files(options)
         elif file_type == "netcdf":
-            data = _read_and_filter_netcdf_files(entry, options)
+            data = _read_and_filter_netcdf_files(entry, options, time_values)
         elif file_type == "tiff":
             data = _read_and_filter_tiff_files(entry, options)
         else:
@@ -1663,6 +1664,7 @@ def _adjust_dimensions(data: np.ndarray, entry: ModelTableRow) -> np.ndarray:
 def _read_and_filter_pfb_files(
     entry: ModelTableRow,
     options: dict,
+    time_values: List[datetime.datetime],
 ) -> np.ndarray:
     """
     Read the PFB files in the file paths of the entry filter and filter the data.
@@ -1670,8 +1672,11 @@ def _read_and_filter_pfb_files(
     Args:
         entry:          A modelTableRow containing the data catalog entry.
         options:        The options passed to get_ndarray as a dict.
+        time_values:    An empty array that will be populated with the values from the data time dimension.
     Returns:
         An numpy ndarray of the filtered contents of the pfb files.
+    If time_values is not None the array will be populated with the time dimension of the data
+    only populated the time values after filtering the data.
     """
 
     start_time_value = _parse_time(options.get("start_time"))
@@ -1710,6 +1715,7 @@ def _read_and_filter_pfb_files(
 
     # Remove an unused z dimension that is returned by read_pfb for 2D pfb files
     final_data = _remove_unused_z_dimension(final_data, entry)
+    _collect_pfb_date_dimensions(time_values, final_data, start_time_value)
 
     return final_data
 
@@ -1734,6 +1740,7 @@ def _remove_unused_z_dimension(data: np.ndarray, entry: dict) -> np.ndarray:
 def _read_and_filter_c_pfb_files(
     entry: ModelTableRow,
     options: dict,
+    time_values: List[datetime.datetime],
 ) -> np.ndarray:
     """
     Read the c.PFB files in the file paths of the entry filter and filter the data.
@@ -1743,6 +1750,8 @@ def _read_and_filter_c_pfb_files(
         options:        The options passed to get_ndarray as a dict.
     Returns:
         An numpy ndarray of the filtered contents of the pfb files.
+    If time_values is not None the array will be populated with the time dimension of the data
+    only populated the time values after filtering the data.
     """
 
     start_time_value = _parse_time(options.get("start_time"))
@@ -1770,12 +1779,14 @@ def _read_and_filter_c_pfb_files(
         entry_id = entry.get("id")
         raise ValueError(f"Unknown dataset_var for C.pfb entry {entry_id}.")
     data = read_pfb_sequence(paths, boundary_constraints)
+    _collect_pfb_date_dimensions(time_values, data, start_time_value)
     return data
 
 
 def _read_and_filter_pfmetadata_files(
     entry: ModelTableRow,
     options: dict,
+    time_values: List[datetime.datetime],
 ) -> np.ndarray:
     """
     Read the pfmetadata files in the file paths of the entry filter and filter the data.
@@ -1785,6 +1796,8 @@ def _read_and_filter_pfmetadata_files(
         options:        The options passed to get_ndarray as a dict.
     Returns:
         An numpy ndarray of the filtered contents of the pfb files.
+    If time_values is not None the array will be populated with the time dimension of the data
+    only populated the time values after filtering the data.
     """
 
     start_time_value = _parse_time(options.get("start_time"))
@@ -1797,6 +1810,7 @@ def _read_and_filter_pfmetadata_files(
     da = ds[dataset_var]
     da = _slice_da_bounds(da, entry["grid"], options)
     data = da
+    _collect_pfb_date_dimensions(time_values, data, start_time_value)
     return data
 
 
@@ -1838,6 +1852,7 @@ def _read_and_filter_vegm_files(
 def _read_and_filter_netcdf_files(
     entry: ModelTableRow,
     options: dict,
+    time_values: List[datetime.datetime],
 ) -> np.ndarray:
     """
     Read the PFB files in the file paths of the entry filter and filter the data.
@@ -1847,6 +1862,8 @@ def _read_and_filter_netcdf_files(
         options:        The options passed to get_ndarray as a dict.
     Returns:
         An numpy ndarray of the filtered contents of the pfb files.
+    If time_values is not None the array will be populated with the time dimension of the data
+    only populated the time values after filtering the data.
     """
 
     paths = get_paths(options)
@@ -1873,6 +1890,16 @@ def _read_and_filter_netcdf_files(
     da_indexers = _create_da_indexer(options, entry, data_ds, data_da, file_path)
     data_da = data_da.isel(da_indexers)
     data = data_da.to_numpy()
+    if time_values is not None:
+        if "date" in list(data_ds.coords.keys()):
+            for t in data_ds["date"].values:
+                time_values.append(str(t))
+        elif "time" in list(data_ds.coords.keys()):
+            for t in data_da["time"].values:
+                time_values.append(str(t))
+        elif "datetime" in list(data_ds.coords.keys()):
+            for t in data_da["datetime"].values:
+                time_values.append(str(t))
     if data_da.dims == ("x", "y"):
         # The NetCDF file dimensions are in the order x, y
         # But get_ndarray must return the order y, x
@@ -1990,6 +2017,25 @@ def __get_geotiff(grid: str, level: int) -> xr.Dataset:
             tiff_ds = xr.open_dataset(file_path).drop_vars(("x", "y"))[variable]
         return tiff_ds
 
+def _collect_pfb_date_dimensions(
+    time_values: List[str], data: np.ndarray, start_time_value: datetime.datetime
+):
+    """
+    Create the date strings of the time dimension of the data and add them to the
+    time_values array.
+
+    Args:
+        time_values:     An empty array to be filled with date strings.
+        data:               The ndarray returned by get_ndarray method
+        start_time_value:   The start_time of the data filter.
+    Assumes that the time dimension is the first dimension of the data array.
+    Assumes that the period is daily (for now).
+    """
+    if time_values is not None and start_time_value and data.shape[0] > 0:
+        dt = start_time_value
+        for _ in range(0, data.shape[0]):
+            time_values.append(dt.strftime("%Y-%m-%d"))
+            dt = dt + datetime.timedelta(days=1)
 
 def _match_filename_wild_card(data_path: str) -> str:
     """The data_path ends with a * wild card. Use this to find a file matching that file prefix."""
