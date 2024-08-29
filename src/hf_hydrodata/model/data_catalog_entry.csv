@@ -206,7 +206,7 @@ id,dataset,dataset_version,file_type,variable,dataset_var,entry_start_date,entry
 210,conus2_current_conditions,,tiff,water_table_depth,band_data,,,,m,mean,conus2_wtd.30,,3,/hydrodata/temp/high_resolution_data/WTD_estimates/30m/compressed_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1s_CONUS2_m_remapped_unflip_compressed.tif,,
 211,nasa_smap,,netcdf,latitude,Latitude,,,static,degrees,mean,smapgrid,wy,3,/hydrodata/national_obs/smap/data/Oct1_{wy_minus1}_Sept30_{wy}.nc,,
 212,nasa_smap,,netcdf,longitude,Longitude,,,static,degrees,mean,smapgrid,wy,3,/hydrodata/national_obs/smap/data/Oct1_{wy_minus1}_Sept30_{wy}.nc,,
-213,conus2_current_conditions,,tiff,soil_moisture,soil_moisture,8/1/23,,daily,cm3/cm3,mean,conus2,mdy,1,/hydrodata/temp/bill/CONUS2.0.Final1km.ProcessedDEM.tif,,
+213,conus2_current_conditions,,tiff,soil_moisture,band_data,8/1/23,,daily,cm3/cm3,mean,conus2,mdy,1,/hydrodata/temp/bill/CONUS2.0.Final1km.ProcessedDEM.tif,,
 214,conus2_domain,,pfb,veg_type_IGBP,vegetation_type,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/1km_CONUS2_landcover_IGBP_723.pfb,,
 215,conus2_domain,,tiff,veg_type_IGBP,band_data,,,static,-,-,conus2,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/1km_CONUS2_landcover_IGBP_723.tif,,
 216,conus2_domain,,pfb,veg_type_IGBP,vegetation_type,,,static,-,-,conus2.250,,1,/hydrodata/PFCLM/CONUS2_baseline/inputs/model_inputs/250m_CONUS2_landcover_IGBP_723.pfb,,
