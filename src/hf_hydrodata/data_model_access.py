@@ -63,7 +63,7 @@ class ModelTable:
 
     def __init__(self):
         """Constructor."""
-
+        self.table_name = None
         self.column_names = []
         """A list of the column names in the table."""
         self.row_ids = []
@@ -72,8 +72,36 @@ class ModelTable:
 
     def get_row(self, row_id: str) -> ModelTableRow:
         """Get the ModelTableRow of a row ID."""
-        return self.rows.get(row_id)
+        result = self.rows.get(row_id)
+        if result is None:
+            response = self._query_data_catalog({"id": row_id})
+            if response is not None:
+                result = response.get(row_id)
+                if result is not None:
+                    result = self._convert_json_columns(result)
+                    self.rows[row_id] = result
+        return result
 
+    def _convert_json_columns(self, row):
+        for key in row.keys():
+            value = row.get(key)
+            if value and value[0] == "[":
+                value = json.loads(value)
+                row[key] = value
+        return row
+
+    def _query_data_catalog(self, options:dict):
+        parameters = [f"{key}={options.get(key)}" for key in options.keys()]
+        parameters.append(f"table={self.table_name}")
+        parameter_list = "&".join(parameters)
+        url = f"{HYDRODATA_URL}/api/v2/data_catalog?{parameter_list}"
+        try:
+            response = requests.get(url, timeout=120)
+            if response.status_code == 200:
+                response_json = json.loads(response.text)
+                return response_json
+        except Exception:
+            return {}
 
 class DataModel:
     """Represents a data catalog model."""
@@ -88,7 +116,13 @@ class DataModel:
     def get_table(self, table_name: str) -> ModelTable:
         """Get the ModelTable object with the table_name."""
 
-        return self.table_index.get(table_name)
+        table = self.table_index.get(table_name)
+        if table is None:
+            table = ModelTable()
+            table.table_name = table_name
+            self.table_index[table_name] = table
+        return table
+        #return self.table_index.get(table_name)
 
     def export_to_dict(self) -> dict:
         """Export the csf files of the data model to a dict"""
@@ -164,7 +198,9 @@ def load_data_model(load_from_api=True) -> DataModel:
         if DATA_MODEL_CACHE is not None:
             return DATA_MODEL_CACHE
         data_model = DataModel()
-
+        DATA_MODEL_CACHE = data_model
+        return data_model
+    
         model_dir = f"{os.path.abspath(os.path.dirname(__file__))}/model"
         for file_name in os.listdir(model_dir):
             if file_name.endswith(".csv"):
@@ -349,3 +385,7 @@ def _load_model_from_api(data_model: DataModel):
         warn(
             f"Warning - unable to update model from API (no internet access?) using '{url}'"
         )
+
+
+
+

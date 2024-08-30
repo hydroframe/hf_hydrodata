@@ -336,6 +336,9 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
 
     data_model = load_data_model()
     table = data_model.get_table("data_catalog_entry")
+    rows = table._query_data_catalog(options)
+    result = [rows.get(id) for id in rows.keys()]
+    return result
     for row_id in table.row_ids:
         row = table.get_row(row_id)
         if _is_row_match_options(row, options):
