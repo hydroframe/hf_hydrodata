@@ -184,15 +184,15 @@ datasets:
 
   "fan_2013":
     summary: >
-      A subset of the site-level long-term mean water table depth measurements for sites in `Fan et al. 2013 <https://www.science.org/doi/10.1126/science.1229881>`_. 
-      These sites are subset to only those within the `CONUS2 <https://hydroframe.org/parflow-conus2>`_ boundary, and 
-      includes data that the authors used in this publication and are up to 2009.
+      A subset of the site-level long-term mean water table depth measurements for sites included in `Fan et al. 2013 <https://www.science.org/doi/10.1126/science.1229881>`_. 
+      These sites are subset to only those within the `CONUS2 <https://hydroframe.org/parflow-conus2>`_ boundary and 
+      include data that the authors used in this publication and are up to 12/31/2009.
 
     processing_notes: >
       Details on the initial data processing and collection are provided in `Fan et al. 2013 <https://www.science.org/doi/10.1126/science.1229881>`_. 
       The data provided here was acquired from an offline communication with the main author. Data was filtered to the
       CONUS2 domain and all sites were also mapped to the Natural Earth state boundary shapefiles to include each site's state,
-      where mapping was unambiguous.
+      where this mapping was unambiguous.
 
       This dataset contained site identifiers common with the USGS. Therefore, site-level attributes from the USGS are displayed for 
       sites that are still presently available in the USGS groundwater data portal.
@@ -201,7 +201,7 @@ datasets:
 
       - The data included here is only a subset of the data in the original paper to the CONUS2 geographic domain.
 
-      - The data included in this dataset are a static entry matching only what was in the publication. For up to date groundwater records refer to the `USGS instantaneous well dataset <https://hf-hydrodata.readthedocs.io/en/latest/gen_usgs_nwis.html>`_, which is updated regularly with the most recent observations.
+      - The data included in this dataset are a static entry matching only what was in the publication. For up to date groundwater records refer to the `USGS NWIS well dataset <https://hf-hydrodata.readthedocs.io/en/latest/gen_usgs_nwis.html>`_, which is updated regularly with the most recent observations.
 
   "modis":
     summary: >
