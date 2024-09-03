@@ -69,14 +69,14 @@ def get_point_data(*args, **kwargs):
     ----------
     dataset : str, required
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux', 'jasechko_2024'.
+        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'.
     variable : str, required
         Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
         'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str, required
-        Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous', and.
-        'yearly'. Please see the documentation for allowable combinations with `variable`.
+        Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
+        'yearly', and 'long_term'. Please see the documentation for allowable combinations with `variable`.
     aggregation : str, required
         Additional information specifying the aggregation method for the variable to be returned.
         Options include descriptors such as 'mean' and 'sum'. Please see the documentation
@@ -243,7 +243,7 @@ def get_point_data(*args, **kwargs):
     if (var_id in (1, 2, 3, 4)) | (var_id in range(6, 25)):
         data_df = _get_data_nc(site_list, var_id, *args, **kwargs)
 
-    elif var_id in (5, 25):
+    elif var_id in (5, 25, 26):
         data_df = _get_data_sql(conn, site_list, var_id, *args, **kwargs)
 
     conn.close()
@@ -259,14 +259,14 @@ def get_point_metadata(*args, **kwargs):
     ----------
     dataset : str, required
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux', 'jasechko_2024'.
+        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'.
     variable : str, required
         Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
         'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str, required
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
-        and 'yearly'.
+        'yearly', and 'multiyear'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str, required
         Additional information specifying the aggregation method for the variable to be returned.
@@ -457,6 +457,19 @@ def get_point_metadata(*args, **kwargs):
         )
         metadata_df = pd.merge(metadata_df, attributes_df, how="left", on="site_id")
 
+    if ("groundwater well" in metadata_df["site_type"].unique()) and (
+        options["dataset"] == "fan_2013"
+    ):
+        attributes_df = pd.read_sql_query(
+            """SELECT site_id, conus1_i, conus1_j, conus2_i, conus2_j
+               FROM well_attributes WHERE site_id IN (%s)"""
+            % ",".join("?" * len(site_ids)),
+            conn,
+            params=site_ids,
+        )
+        metadata_df = pd.merge(metadata_df, attributes_df, how="left", on="site_id")
+        metadata_df["doi"] = "10.1126/science.1229881"
+
     if ("SNOTEL station" in metadata_df["site_type"].unique()) or (
         "SCAN station" in metadata_df["site_type"].unique()
     ):
@@ -510,13 +523,14 @@ def get_site_variables(*args, **kwargs):
     ----------
     dataset : str, optional
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux'.
+        'scan', 'ameriflux', 'jasechko_2024', and 'fan_2013'.
     variable : str, optional
         Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
         'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str, optional
-        Collection frequency of data requested. Currently supported: 'daily', 'hourly', and 'instantaneous'.
+        Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
+        'yearly', and 'long_term'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str, optional
         Additional information specifying the aggregation method for the variable to be returned.
@@ -625,59 +639,62 @@ def get_site_variables(*args, **kwargs):
                 "scan",
                 "ameriflux",
                 "jasechko_2024",
+                "fan_2013",
             ]
         except:
             raise ValueError(
-                f"dataset must be one of 'usgs_nwis', 'snotel', 'scan', 'ameriflux'. You provided {options['dataset']}"
+                f"dataset must be one of 'usgs_nwis', 'snotel', 'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'. You provided {options['dataset']}"
             )
 
         if options["dataset"] == "usgs_nwis":
-            dataset_query = """ AND agency == ?"""
+            dataset_query = " AND agency == ?"
             param_list.append("USGS")
         elif options["dataset"] == "ameriflux":
-            dataset_query = """ AND agency == ?"""
+            dataset_query = " AND agency == ?"
             param_list.append("AmeriFlux")
         elif options["dataset"] == "jasechko_2024":
-            dataset_query = """ AND agency == ?"""
+            dataset_query = " AND agency == ?"
             param_list.append("Jasechko_et_al_2024")
         elif options["dataset"] == "snotel":
-            dataset_query = """ AND site_type == ?"""
+            dataset_query = " AND site_type == ?"
             param_list.append("SNOTEL station")
         elif options["dataset"] == "scan":
-            dataset_query = """ AND site_type == ?"""
+            dataset_query = " AND site_type == ?"
             param_list.append("SCAN station")
+        elif options["dataset"] == "fan_2013":
+            dataset_query = " AND fan_2013 == 1 AND var_id == 26"
     else:
-        dataset_query = """"""
+        dataset_query = ""
 
     # Date start
     if "date_start" in options and options["date_start"] is not None:
-        date_start_query = """ AND last_date_data_available >= ?"""
+        date_start_query = " AND last_date_data_available >= ?"
         param_list.append(options["date_start"])
     else:
-        date_start_query = """"""
+        date_start_query = ""
 
     # Date end
     if "date_end" in options and options["date_end"] is not None:
-        date_end_query = """ AND first_date_data_available <= ?"""
+        date_end_query = " AND first_date_data_available <= ?"
         param_list.append(options["date_end"])
     else:
-        date_end_query = """"""
+        date_end_query = ""
 
     # Latitude
     if "latitude_range" in options and options["latitude_range"] is not None:
-        lat_query = """ AND latitude BETWEEN ? AND ?"""
+        lat_query = " AND latitude BETWEEN ? AND ?"
         param_list.append(options["latitude_range"][0])
         param_list.append(options["latitude_range"][1])
     else:
-        lat_query = """"""
+        lat_query = ""
 
     # Longitude
     if "longitude_range" in options and options["longitude_range"] is not None:
-        lon_query = """ AND longitude BETWEEN ? AND ?"""
+        lon_query = " AND longitude BETWEEN ? AND ?"
         param_list.append(options["longitude_range"][0])
         param_list.append(options["longitude_range"][1])
     else:
-        lon_query = """"""
+        lon_query = ""
 
     # CONUS grid bounds
     if "grid_bounds" in options and options["grid_bounds"] is not None:
@@ -706,7 +723,7 @@ def get_site_variables(*args, **kwargs):
             grid_bounds_sites.extend(list(grid_bounds_df["site_id"]))
 
         if len(grid_bounds_sites) > 0:
-            grid_bounds_query = """ AND s.site_id IN (%s)""" % ",".join(
+            grid_bounds_query = " AND s.site_id IN (%s)" % ",".join(
                 "?" * len(grid_bounds_sites)
             )
             for s in grid_bounds_sites:
@@ -714,32 +731,32 @@ def get_site_variables(*args, **kwargs):
         else:
             raise Exception("There are no sites within the provided grid_bounds.")
     else:
-        grid_bounds_query = """"""
+        grid_bounds_query = ""
 
     # Site ID
     if "site_ids" in options and options["site_ids"] is not None:
         if isinstance(options["site_ids"], list):
-            site_query = """ AND s.site_id IN (%s)""" % ",".join(
+            site_query = " AND s.site_id IN (%s)" % ",".join(
                 "?" * len(options["site_ids"])
             )
             for s in options["site_ids"]:
                 param_list.append(s)
         elif isinstance(options["site_ids"], str):
-            site_query = """ AND s.site_id == ?"""
+            site_query = " AND s.site_id == ?"
             param_list.append(options["site_ids"])
         else:
             raise ValueError(
                 "Parameter site_ids must be either a single site ID string, or a list of site ID strings"
             )
     else:
-        site_query = """"""
+        site_query = ""
 
     # State
     if "state" in options and options["state"] is not None:
-        state_query = """ AND state == ?"""
+        state_query = " AND state == ?"
         param_list.append(options["state"])
     else:
-        state_query = """"""
+        state_query = ""
 
     # Site Networks
     if "site_networks" in options and options["site_networks"] is not None:
@@ -759,7 +776,7 @@ def get_site_variables(*args, **kwargs):
         for s in network_site_list:
             param_list.append(s)
     else:
-        network_query = """"""
+        network_query = ""
 
     query = (
         """
@@ -1100,7 +1117,7 @@ def _get_point_citations(dataset):
     ----------
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux', 'jasechko_2024'.
+        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'.
 
     Returns
     -------
@@ -1108,10 +1125,17 @@ def _get_point_citations(dataset):
         String containing overall attribution instructions for the provided dataset.
     """
     try:
-        assert dataset in ["usgs_nwis", "snotel", "scan", "ameriflux", "jasechko_2024"]
+        assert dataset in [
+            "usgs_nwis",
+            "snotel",
+            "scan",
+            "ameriflux",
+            "jasechko_2024",
+            "fan_2013",
+        ]
     except:
         raise ValueError(
-            f"Unexpected value of dataset, {dataset}. Supported values include 'usgs_nwis', 'snotel', 'scan', 'ameriflux', and 'jasechko_2024"
+            f"Unexpected value of dataset, {dataset}. Supported values include 'usgs_nwis', 'snotel', 'scan', 'ameriflux', 'jasechko_2024', and 'fan_2013'"
         )
 
     if dataset == "usgs_nwis":
@@ -1147,6 +1171,9 @@ def _get_point_citations(dataset):
 
     elif dataset == "jasechko_2024":
         c = "Dataset DOI: 10.1038/s41586-023-06879-8"
+
+    elif dataset == "fan_2013":
+        c = "Dataset DOI: 10.1126/science.1229881"
 
     return c
 
@@ -1205,14 +1232,14 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
     ----------
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux', 'jasechko_2024'.
+        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'.
     variable : str, required
         Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
         'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
-        and 'yearly'.
+        'yearly', 'long_term'.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
         Options include descriptors such as 'mean' and 'sum'. Please see the documentation
@@ -1237,7 +1264,13 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
         options = kwargs
 
     try:
-        assert temporal_resolution in ["daily", "hourly", "instantaneous", "yearly"]
+        assert temporal_resolution in [
+            "daily",
+            "hourly",
+            "instantaneous",
+            "yearly",
+            "long_term",
+        ]
     except:
         raise ValueError(
             f"Unexpected value for temporal_resolution, {temporal_resolution}. Please see the documentation for allowed values."
@@ -1282,7 +1315,14 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
         )
 
     try:
-        assert dataset in ["usgs_nwis", "snotel", "scan", "ameriflux", "jasechko_2024"]
+        assert dataset in [
+            "usgs_nwis",
+            "snotel",
+            "scan",
+            "ameriflux",
+            "jasechko_2024",
+            "fan_2013",
+        ]
     except:
         raise ValueError(
             f"Unexpected value for dataset, {dataset} Please see the documentation for allowed values."
@@ -1449,14 +1489,14 @@ def _get_sites(
         query from.
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux', 'jasechko_2024'.
+        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'.
     variable : str, required
         Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
         'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
         'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
-        and 'yearly'.
+        'yearly', 'long_term'.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
@@ -1580,6 +1620,8 @@ def _get_sites(
             tbl = "flux_tower_attributes"
         elif dataset == "jasechko_2024":
             tbl = "jasechko_attributes"
+        elif dataset == "fan_2013":
+            tbl = "well_attributes"
 
         grid = options["grid"]
         grid_bounds = options["grid_bounds"]
@@ -2089,14 +2131,18 @@ def _get_data_sql(conn, site_list, var_id, *args, **kwargs):
         Stacked observations data for a single variable, filtered to only sites that
         have the minimum number of observations specified.
     """
-    assert var_id in (5, 25)
+    assert var_id in (5, 25, 26)
     if var_id == 5:
         tbl_name = "wtd_discrete_data"
-        var_names = "w.wtd, w.pumping_status"
+        var_names = "w.site_id, w.date, w.wtd, w.pumping_status"
 
     elif var_id == 25:
         tbl_name = "jasechko_wtd_data"
-        var_names = "w.wtd"
+        var_names = "w.site_id, w.date, w.wtd"
+
+    elif var_id == 26:
+        tbl_name = "fan_wtd_data"
+        var_names = "w.site_id, w.wtd, record_count"
 
     if len(args) > 0 and isinstance(args[0], dict):
         options = args[0]
@@ -2124,47 +2170,66 @@ def _get_data_sql(conn, site_list, var_id, *args, **kwargs):
                 options["date_end"], "%Y-%m-%d"
             ).year
 
-    if ("date_start" not in options) and ("date_end" not in options):
-        date_query = """"""
-        param_list = [min_num_obs]
-    elif ("date_start" not in options) and ("date_end" in options):
-        date_query = """ WHERE w.date <= ?"""
-        param_list = [options["date_end"], min_num_obs, options["date_end"]]
-    elif ("date_start" in options) and ("date_end" not in options):
-        date_query = """ WHERE w.date >= ?"""
-        param_list = [options["date_start"], min_num_obs, options["date_start"]]
-    elif ("date_start" in options) and ("date_end" in options):
-        date_query = """ WHERE w.date >= ? AND w.date <= ?"""
-        param_list = [
-            options["date_start"],
-            options["date_end"],
-            min_num_obs,
-            options["date_start"],
-            options["date_end"],
-        ]
+    # These variables have w.date in the database to be able to filter on
+    if var_id in (5, 25):
+        if ("date_start" not in options) and ("date_end" not in options):
+            date_query = ""
+            param_list = [min_num_obs]
+        elif ("date_start" not in options) and ("date_end" in options):
+            date_query = " WHERE w.date <= ?"
+            param_list = [options["date_end"], min_num_obs, options["date_end"]]
+        elif ("date_start" in options) and ("date_end" not in options):
+            date_query = " WHERE w.date >= ?"
+            param_list = [options["date_start"], min_num_obs, options["date_start"]]
+        elif ("date_start" in options) and ("date_end" in options):
+            date_query = " WHERE w.date >= ? AND w.date <= ?"
+            param_list = [
+                options["date_start"],
+                options["date_end"],
+                min_num_obs,
+                options["date_start"],
+                options["date_end"],
+            ]
 
-    # Add filter for only the site IDs in site_list
-    site_query = """ AND w.site_id IN (%s)""" % ",".join("?" * len(site_list))
-    for s in site_list:
-        param_list.append(s)
+        # Add filter for only the site IDs in site_list
+        site_query = " AND w.site_id IN (%s)" % ",".join("?" * len(site_list))
+        for s in site_list:
+            param_list.append(s)
 
-    # Filter on all spatial observations for the desired time range (if any)
-    query = (
-        f"""
-            SELECT w.site_id, w.date, {var_names}
+        query = (
+            f"""
+            SELECT {var_names}
             FROM {tbl_name} AS w
             INNER JOIN (SELECT w.site_id, COUNT(*) AS num_obs
                 FROM {tbl_name} AS w
                 """
-        + date_query
-        + """
+            + date_query
+            + """
                 GROUP BY site_id
                 HAVING num_obs >= ?) AS c
             ON w.site_id = c.site_id
             """
-        + date_query
-        + site_query
-    )
+            + date_query
+            + site_query
+        )
+
+    # Check start and end dates overlap with overall dataset date range of 1927-2009
+    elif var_id == 26:
+        param_list = [min_num_obs]
+        for s in site_list:
+            param_list.append(s)
+
+        query = f"""
+                    SELECT {var_names}
+                    FROM {tbl_name} AS w
+                    INNER JOIN (SELECT site_id, record_count
+                                FROM observations
+                                WHERE record_count >= ? AND site_id IN (%s)
+                                AND var_id = 26) AS o
+                    ON w.site_id = o.site_id
+                """ % ",".join(
+            "?" * len(site_list)
+        )
 
     df = pd.read_sql_query(query, conn, params=param_list)
 
