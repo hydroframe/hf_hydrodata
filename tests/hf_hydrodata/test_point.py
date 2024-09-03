@@ -1738,6 +1738,24 @@ def test_get_data_fan():
     assert len(df) == 187
 
 
+def test_get_data_fan_date_range():
+    """Test getting data for Fan dataset with a date range provided.
+    This dataset is one record per site as a long-term average, so
+    as long as the date range overlaps with the data availiability range,
+    no sites should get excluded."""
+    df = point.get_point_data(
+        dataset="fan_2013",
+        variable="water_table_depth",
+        temporal_resolution="long_term",
+        aggregation="mean",
+        date_start="2008-01-01",
+        date_end="2010-12-31",
+        grid="conus2",
+        grid_bounds=[1500, 1300, 1550, 1500],
+    )
+    assert len(df) == 187
+
+
 def test_get_metadata_fan():
     """Test getting metadata for Fan dataset."""
     metadata_df = point.get_point_metadata(
