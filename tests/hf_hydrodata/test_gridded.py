@@ -885,10 +885,6 @@ def test_get_huc_bbox_conus2():
     """Unit test for get_huc_bbox for conus2"""
 
     gr.HYDRODATA = "/hydrodata"
-    bbox = hf.get_huc_bbox("conus2", ["1019000404"])
-    assert bbox == [1468, 1664, 1550, 1693]
-    bbox = hf.get_huc_bbox("conus2", ["10190004"])
-    assert bbox == [1468, 1664, 1550, 1693]
     bbox = hf.get_huc_bbox("conus2", ["101900"])
     assert bbox == [1439, 1573, 1844, 1851]
     bbox = hf.get_huc_bbox("conus2", ["1019"])
@@ -897,6 +893,20 @@ def test_get_huc_bbox_conus2():
     assert bbox == [948, 1353, 2741, 2783]
     bbox = hf.get_huc_bbox("conus2", ["15020018"])
     assert bbox == [940, 1333, 1060, 1422]
+
+    # Check the bbox is correct for HUC 15 (this failed with old get_huc_box code)
+    bbox = hf.get_huc_bbox("conus2", ["15"])
+    assert bbox == [510, 784, 1226, 1763]
+
+    # Check the bbox for HUC16 that is ajacent to the old failing HUC 15
+    bbox = hf.get_huc_bbox("conus2", ["16"])
+    assert bbox == [279, 1337, 1130, 2152]
+
+    # Check the bbox passes for either the value from the old float32 tiffs or the new int32 tiffs
+    bbox = hf.get_huc_bbox("conus2", ["1019000404"])
+    assert (bbox == [1468, 1664, 1550, 1693]) or (bbox == [1504, 1670, 1550, 1687])
+    bbox = hf.get_huc_bbox("conus2", ["10190004"])
+    assert (bbox == [1468, 1664, 1550, 1693]) or (bbox == [1504, 1670, 1550, 1687])
 
 
 def test_latlng_to_grid_out_of_bounds():
@@ -1218,7 +1228,7 @@ def test_get_datasets():
     """Test get_datasets."""
 
     datasets = hf.get_datasets()
-    assert len(datasets) == 19
+    assert len(datasets) == 20
     assert datasets[0] == "CW3E"
 
     datasets = hf.get_datasets(variable="air_temp")
@@ -1226,7 +1236,7 @@ def test_get_datasets():
     assert datasets[0] == "CW3E"
 
     datasets = hf.get_datasets(grid="conus2")
-    assert len(datasets) == 5
+    assert len(datasets) == 6
     assert datasets[0] == "CW3E"
 
     options = {"variable": "air_temp", "grid": "conus1"}
@@ -1239,13 +1249,13 @@ def test_get_variables():
     """Test get_variables."""
 
     variables = hf.get_variables()
-    assert len(variables) == 68
+    assert len(variables) == 70
     assert variables[0] == "air_temp"
     variables = hf.get_variables(dataset="CW3E")
     assert len(variables) == 8
     assert variables[0] == "air_temp"
     variables = hf.get_variables(grid="conus2")
-    assert len(variables) == 31
+    assert len(variables) == 33
     assert variables[0] == "air_temp"
 
     options = {"dataset": "NLDAS2", "grid": "conus1"}
@@ -1401,9 +1411,9 @@ def test_get_gridded_files_netcdf():
         ds = xr.open_dataset("NLDAS2.2006.nc")
         assert len(ds.keys()) == 2
         ground_heat = ds["eflx_soil_grnd"]
-        assert ground_heat.shape == (120, 10, 4)
+        assert ground_heat.shape == (8760, 10, 4)
         pressure_head = ds["Press"]
-        assert pressure_head.shape == (120, 5, 10, 4)
+        assert pressure_head.shape == (8760, 5, 10, 4)
         lat_coord = ds["latitude"]
         assert lat_coord.shape == (10, 4)
 
@@ -1479,15 +1489,15 @@ def test_multiple_aggregations():
         assert os.path.exists("foo.nc")
         ds = xr.open_dataset("foo.nc")
         da = ds["APCP"]
-        assert da.shape == (2, 2, 2)
+        assert da.shape == (365, 2, 2)
         da = ds["DSWR"]
-        assert da.shape == (2, 2, 2)
+        assert da.shape == (365, 2, 2)
         da = ds["Temp_mean"]
-        assert da.shape == (2, 2, 2)
+        assert da.shape == (365, 2, 2)
         da = ds["Temp_min"]
-        assert da.shape == (2, 2, 2)
+        assert da.shape == (365, 2, 2)
         da = ds["Temp_max"]
-        assert da.shape == (2, 2, 2)
+        assert da.shape == (365, 2, 2)
     os.chdir(cd)
 
 
@@ -1761,6 +1771,23 @@ def test_flow_direction():
     data = hf.get_gridded_data(options)
     assert data[0, 0] == 1.0
     assert data[0, 1] == 4.0
+
+
+def test_smap_current_conditions():
+    """Test a bug that happened when trying to read too many pfb files in a single call to get_gridded_data"""
+    x = 2387
+    y = 1673
+    st_dt = "2023-08-01"
+    options = {
+        "data_catalog_entry_id": "213",
+        "start_time": st_dt,
+        "end_time": "2024-02-01",
+        "x": x,
+        "y": y,
+    }
+    data = hf.get_gridded_data(options)
+    # This used to fail before fixing a bug to call read_pfb_sequence with a limited block size
+    assert (data[62] - 0.3409) <= 0.001, "Data for long block length not read properly"
 
 
 if __name__ == "__main__":

@@ -503,8 +503,10 @@ def get_gridded_files(
         # The above function call will create a netcdf file named:
         #    NLDAS2_WY2006.nc
         # The .nc file will have two variables: precipitation and air_temp.
-        # The .nc file will have a time dimension with coordinates between 2005-10-1 to 2005-10-04.
-        # The .nc file with have x dimension 100 and y dimensions 50 defined by the grid_bounds.
+        # The .nc file will have a time dimension with coordinates of the water year containing the data in the file.
+        # For the example above the time dimension would be between 2005-10-1 to 2006-09-30 
+        #    with only 3 days of data downloaded and stored in the file.
+        # The .nc file will have x dimension 100 and y dimensions 50 defined by the grid_bounds.
 
         # To download data into a GeoTiff file specify a filename_template ending with .tiff
         hf.get_gridded_files(
@@ -516,7 +518,7 @@ def get_gridded_files(
         #   NLDAS2.precipitation.tiff
         #   NLDAS2.air_temp.tiff
         # Only the first hour of the period "2005-10-01 00:00:00" is used to create the files.
-        # The files will contain projection information suitable to view with GIS.
+        # The tiff files will contain projection information suitable to view with GIS.
 
     For long downloads if the function execution is aborted before completion it can be restarted and will continue where it left off by skipping
     files that already exist. To re-download data, remember to delete previously created files first.
@@ -587,14 +589,6 @@ def get_gridded_files(
         variables = [entry["variable"]]
 
     # Start threads to download data
-    state = _FileDownloadState(
-        options,
-        filename_template,
-        temporal_resolution,
-        start_time,
-        end_time,
-        verbose,
-    )
     if temporal_resolution in ["daily", "hourly"]:
         delta = datetime.timedelta(days=1)
     elif temporal_resolution == "monthly":
@@ -610,6 +604,16 @@ def get_gridded_files(
     dask_items = []
     file_time = start_time
     time_index = 0
+    state = _FileDownloadState(
+        options,
+        filename_template,
+        temporal_resolution,
+        start_time,
+        end_time,
+        verbose,
+    )
+    state.generate_time_coords(file_time)
+
     while file_time < end_time:
         options = dict(options)
         options["start_time"] = file_time
@@ -637,10 +641,11 @@ def get_gridded_files(
                         end_time,
                         verbose,
                     )
+                    state.generate_time_coords(file_time)
                     dask_items = []
                 dask_items.append(
                     dask.delayed(_load_gridded_file_entry)(
-                        state, entry, options_copy, file_time, time_index
+                        state, entry, options_copy, file_time
                     )
                 )
             last_file_name = file_name
@@ -702,8 +707,7 @@ def _load_gridded_file_entry(
     state,
     entry: ModelTableRow,
     options: dict,
-    file_time: datetime.datetime,
-    time_index: int,
+    file_time: datetime.datetime
 ):
     """
     Get data from within a dask deferred thread.
@@ -716,6 +720,7 @@ def _load_gridded_file_entry(
     file_name = _substitute_datapath(
         state.filename_template, entry, options, file_time, state.start_time
     )
+
     if os.path.exists(file_name):
         # File already exists, so just skip this
         return
@@ -730,7 +735,7 @@ def _load_gridded_file_entry(
         _create_gridded_files_geotiff(data, state, entry, options, file_time)
     elif state.filename_template.endswith(".nc"):
         # Creating NetCDF file, put the data from the API response into the data object from state
-        _create_gridded_files_netcdf(data, state, entry, time_index, file_time)
+        _create_gridded_files_netcdf(data, state, entry, file_time)
 
     if state.verbose:
         if entry["temporal_resolution"] in ["daily", "hourly"]:
@@ -741,27 +746,26 @@ def _load_gridded_file_entry(
                 (state.end_time - state.start_time).days if state.start_time else 0
             )
             variable = options.get("variable")
-            print(f"Downloaded {variable} for day {file_daynum} of {num_days}")
+            (wy, _) = _get_water_year(file_time)
+            print(f"Downloaded day {file_daynum} of {variable} in water year {wy}")
         else:
             print(f"Downloaded {file_name}")
 
 
 def _create_gridded_files_netcdf(
-    data: np.ndarray, state, entry, time_index, file_time: datetime.datetime
+    data: np.ndarray, state, entry, file_time: datetime.datetime
 ):
+    (wy, wy_start_time) = _get_water_year(file_time)
+    days_in_year = 366 if int(wy) % 4 == 0 else 365
     if state.temporal_resolution == "daily":
-        t_num = (file_time - state.start_time).days if state.start_time else 0
-        t_shape = (state.end_time - state.start_time).days if state.start_time else 0
+        t_num = (file_time - wy_start_time).days
+        t_shape = days_in_year
     elif state.temporal_resolution == "hourly":
-        t_num = (file_time - state.start_time).days * 24 if state.start_time else 0
-        t_shape = (
-            (state.end_time - state.start_time).days * 24 if state.start_time else 0
-        )
+        t_shape = days_in_year * 24
+        t_num = (file_time - wy_start_time).days * 24
     elif state.temporal_resolution == "monthly":
-        t_num = time_index
-        t_shape = rrule.rrule(
-            rrule.MONTHLY, dtstart=state.start_time, until=state.end_time
-        ).count()
+        t_shape = 12
+        t_num = (file_time - wy_start_time).months
     elif state.temporal_resolution == "static":
         t_num = 0
         t_shape = 1
@@ -793,6 +797,7 @@ def _create_gridded_files_netcdf(
             else:
                 raise ValueError("Bad shape of data returned from API.")
             nc_data = np.zeros(data_shape)
+
             state.data_map[dataset_var] = nc_data
             state.dims_map[dataset_var] = dims
 
@@ -964,6 +969,7 @@ def _execute_dask_items(dask_items, state, file_name: str):
             }
             if state.time_coords:
                 coords_definition["time"] = state.time_coords
+            enc = {}
             for variable in state.dataset_vars:
                 data = state.data_map.get(variable)
                 dims = state.dims_map.get(variable)
@@ -971,11 +977,18 @@ def _execute_dask_items(dask_items, state, file_name: str):
                     # This NetCDF file is being skipped
                     return
                 data_vars_definition[variable] = (dims, data)
+                enc[variable] = {
+                    "zlib": True,
+                    "complevel": 3,
+                    "fletcher32": True,
+                    "chunksizes": tuple(map(lambda x: x//2, data.shape))
+                }
+
             ds = xr.Dataset(data_vars=data_vars_definition, coords=coords_definition)
             file_name_dir = os.path.dirname(file_name)
             if file_name_dir and not os.path.exists(file_name_dir):
                 os.makedirs(file_name_dir, exist_ok=True)
-            ds.to_netcdf(file_name)
+            ds.to_netcdf(file_name, encoding=enc)
 
 
 def _consolate_dask_items(items):
@@ -1467,30 +1480,25 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
     result_jmin = 1000000
     result_jmax = 0
     for huc_id in huc_id_list:
-        tiff_value = int(huc_id) if grid == "conus1" else float(huc_id)
-        sel_huc = (tiff_ds == tiff_value).squeeze()
+        # Use a new algorithm that uses min/max of indices of the HUC
+        # This algorithm works for HUC like HUC 15 that has a complicated shape
+        # It gets the same answer as the old algorithm for other less complicated HUC
 
-        # First find where along the y direction has "valid" cells
-        y_mask = (sel_huc.sum(dim="x") > 0).astype(int)
+        # Slice for point with the HUC value
+        huc_value = int(huc_id) if np.issubdtype(tiff_ds.dtype, np.integer) else float(huc_id)
+        sel_huc = (tiff_ds == huc_value).squeeze()
 
-        # Then, taking a diff along that dimension let's us see where the boundaries of that mask ar
-        diffed_y_mask = y_mask.diff(dim="y")
+        # Get the min/max indicies of the points with the huc_value
+        sel_huc_np = sel_huc.values
+        indices = np.argwhere(sel_huc_np)
+        [arr_jmin, arr_imin] = indices.min(axis=0)
+        [arr_jmax, arr_imax]= indices.max(axis=0)
 
-        # Taking the argmin and argmax get's us the locations of the boundaries
-        arr_jmax = (
-            np.argmin(diffed_y_mask.values) + 1
-        )  # this one is because you want to include this right bound in your slice
-        arr_jmin = (
-            np.argmax(diffed_y_mask.values) + 1
-        )  # because of the point you actually want to indicate from the diff function
-
-        jmin = tiff_ds.shape[1] - arr_jmax
-        jmax = tiff_ds.shape[1] - arr_jmin
-
-        # Do the exact same thing for the x dimension
-        diffed_x_mask = (sel_huc.sum(dim="y") > 0).astype(int).diff(dim="x")
-        imax = np.argmin(diffed_x_mask.values) + 1
-        imin = np.argmax(diffed_x_mask.values) + 1
+        # Adjust for end conditions to get same answer as previous algorithm
+        jmin = sel_huc_np.shape[0] - (arr_jmax + 1)
+        jmax = sel_huc_np.shape[0] - arr_jmin
+        imax = arr_imax + 1
+        imin = arr_imin
 
         # Extend the result values to combine multiple HUC ids
         result_imin = imin if imin < result_imin else result_imin
@@ -1802,11 +1810,35 @@ def _read_and_filter_pfb_files(
     boundary_constraints = _add_pfb_time_constraint(
         boundary_constraints, entry, start_time_value, end_time_value
     )
-    data = read_pfb_sequence(paths, boundary_constraints)
-    data = _remove_unused_z_dimension(data, entry)
-    _collect_pfb_date_dimensions(time_values, data, start_time_value)
 
-    return data
+    # The read_pfb_sequence method has a limit to how many paths it can read
+    # if the number of paths is more than the limit call read_pfb_sequence in blocks
+    # then append together the blocks to return the correct result
+    max_block_size = 100
+    final_data = None
+    block_start = 0
+    while len(paths) > block_start:
+        block_end = (
+            block_start + max_block_size
+            if len(paths) > block_start + max_block_size
+            else len(paths)
+        )
+        path_block = paths[block_start:block_end]
+        data = read_pfb_sequence(path_block, boundary_constraints)
+        if final_data is None:
+            # This is the first block
+            final_data = data
+        else:
+            # Append the next block to the final result
+            final_data = np.append(final_data, data, axis=0)
+        # Increment the block start to read the next block
+        block_start = block_end
+
+    # Remove an unused z dimension that is returned by read_pfb for 2D pfb files
+    final_data = _remove_unused_z_dimension(final_data, entry)
+    _collect_pfb_date_dimensions(time_values, final_data, start_time_value)
+
+    return final_data
 
 
 def _remove_unused_z_dimension(data: np.ndarray, entry: dict) -> np.ndarray:
@@ -1961,6 +1993,10 @@ def _read_and_filter_netcdf_files(
     paths = get_paths(options)
     if len(paths) == 0:
         raise ValueError(f"No file path found for {entry['id']}")
+    if len(paths) > 1:
+        raise ValueError(
+            "Request attempts to return too much data. Try to limit dates to a single water year per call to get_gridded_data() or try to use get_gridded_files() instead."
+        )
     file_path = paths[0]
     if file_path.endswith("*"):
         # Data path contins a wild card so use that to find the filename
@@ -2367,6 +2403,7 @@ def _substitute_datapath(
     aggregation = entry["aggregation"]
     file_daynum = (time_value - start_time).days if start_time else 0
     wy = ""
+    cy = ""
     wy_plus1 = ""
     wy_minus1 = ""
     wy_daynum = 0
@@ -2394,6 +2431,7 @@ def _substitute_datapath(
         raise ValueError("No 'site_id' specified in filter options.")
     if time_value:
         (wy, wy_start) = _get_water_year(time_value)
+        cy = str(time_value.year)
         wy_plus1 = str(int(wy) + 1)
         wy_minus1 = str(int(wy) - 1)
         wy_daynum = (time_value - wy_start).days + 1
@@ -2408,6 +2446,7 @@ def _substitute_datapath(
     datapath = path.format(
         dataset_var=dataset_var,
         wy=wy,
+        cy=cy,
         wy_daynum=wy_daynum,
         wy_mdy=wy_mdy,
         ymd=ymd,
@@ -2727,25 +2766,28 @@ class _FileDownloadState:
         self.filename_template = filename_template
         self.verbose = verbose
         self.threads = int(options.get("threads")) if options.get("threads") else 10
-        self.generate_time_coords()
 
-    def generate_time_coords(self):
+    def generate_time_coords(self, file_time):
         """Generate the self.time_coords with the time values of the time coordinate."""
+
+        (wy, wy_start_time) = _get_water_year(file_time)
+        days_in_year = 366 if int(wy) % 4 == 0 else 365
+
         if self.temporal_resolution == "daily":
             self.time_coords = []
-            t = self.start_time
-            for _ in range(0, (self.end_time - self.start_time).days):
+            t = wy_start_time
+            for _ in range(0, days_in_year):
                 self.time_coords.append(t)
                 t = t + datetime.timedelta(days=1)
         elif self.temporal_resolution == "hourly":
             self.time_coords = []
-            t = self.start_time
-            for _ in range(0, (self.end_time - self.start_time).days * 24):
+            t = wy_start_time
+            for _ in range(0, days_in_year * 24):
                 self.time_coords.append(t)
                 t = t + datetime.timedelta(hours=1)
         elif self.temporal_resolution == "monthly":
             self.time_coords = []
-            t = self.start_time
-            while t < self.end_time:
+            t = wy_start_time
+            for _ in range(0, 1):
                 self.time_coords.append(t)
                 t = t + relativedelta(months=1)

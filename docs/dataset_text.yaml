@@ -202,3 +202,20 @@ datasets:
       - The data included here is only a subset of the data in the original paper to the CONUS2 geographic domain.
 
       - The data included in this dataset are a static entry matching only what was in the publication. For up to date groundwater records refer to the `USGS instantaneous well dataset <https://hf-hydrodata.readthedocs.io/en/latest/gen_usgs_nwis.html>`_, which is updated regularly with the most recent observations.
+
+  "modis":
+    summary: >
+      A gridded mask of daily snow-on/snow-off coverage for the continental United States. MODIS satellite data was processed to 
+      remove the effect of clouds and thereby improve usable coverage. This version of the dataset has been remapped from the 
+      original 0.05 degree by 0.05 degree grid to the 1km by 1km CONUS2 grid.
+
+    processing_notes: >
+      The data provided here was acquired from https://figshare.com/articles/dataset/A_cloud-free_MODIS_snow_cover_dataset_for_the_contiguous_United_States_from_2000_to_2017/5902381/4.
+      The data were created by subtracting cloud cover from NASA's Moderate Resolution Imaging Spectroradiometer (MODIS) 
+      snow cover product using a variational interpolation algorithm. Details of the dataset creation and validation process 
+      are described in detail in `Tran et al, 2019 <https://www.nature.com/articles/sdata2018300>`_. 
+
+      The spatial resolution of the data is 0.05 by 0.05 degree, and the temporal resolution is daily from March 2000 to 
+      February 2017. Several days are missing from select years due to `MODIS outages <https://modaps.modaps.eosdis.nasa.gov/services/production/outages_terra.html>`_.
+
+      The data included in this dataset have been geospatially transformed from the 0.05 by 0.05 degree grid to the 1km by 1km CONUS2 grid.

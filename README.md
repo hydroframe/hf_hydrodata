@@ -5,6 +5,8 @@ input datasets and point observations. Some of the datasets provided here are di
 (e.g. USGS streamflow observations) while other are model outputs (e.g. ParFlow-CONUS2) or data products 
 (e.g. remote sensing products). 
 
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.06623/status.svg)](https://doi.org/10.21105/joss.06623)
+
 ## Installation
 
 The best way to install `hf_hydrodata` is using pip. This installs our 
@@ -78,6 +80,10 @@ of (-75, -50).
                          )
     metadata_df.head(5)
 
+Please see the [How To](https://hf-hydrodata.readthedocs.io/en/latest/point_data/index.html#how-to) section of our documentation for in-depth examples using the point module functions. Additionally, our team has developed the [subsettools](https://hydroframesubsettools.readthedocs.io/en/latest/) Python package which uses `hf_hydrodata` to access data and subsequently run a [ParFlow](https://parflow.readthedocs.io/en/latest/) simulation. Please see the `subsettools` documentation for full walk-through examples of extracting data for a domain and subsequently running a ParFlow simulation.
+
+## State of the Field
+The `hf_hydrodata` package spans multiple agencies, and includes both site-level observations and national gridded datasets. This allows users to interact with data from many sources with a single API call. Existing packages such as the [`dataRetrieval`](https://cran.r-project.org/web/packages/dataRetrieval/vignettes/dataRetrieval.html) R package provide some similar capabilities allowing users to access a breadth of hydrologic site-level surface water and groundwater observations from the USGS. However, the `dataRetreival` package is limited to USGS sources and is designed for R users. Our package goes beyond this to provide access to data from multiple agencies (for example the SNOTEL and FluxNet observation networks). The `hf_hydrodata` package provides a common syntax for acquiring such observations so that the user need not spend valuable research time learning multiple syntaxes to get all data relevant for their watershed. Additionally, the `hf_hydrodata` package provides users access to a wide selection of gridded data products. Many of these data products are not publicly available by other means including inputs and outputs from the national ParFlow model and multiple gridded atmospheric forcing datasets.
 
 ## Build Instructions
 
@@ -96,6 +102,9 @@ Generate the documentation with:
 
 This will validate the model CSV files and 
 generate the read-the-docs html into the html folder.
+
+## Testing
+Our tests are located within the `tests/hf_hydrodata` directory of this repository. The full test suite is run automatically via Jenkins with each new Pull Request and subsequent commits. Jenkins executes the tests using `pytest` from the root directory.
 
 ## License
 Copyright © 2024 The Trustees of Princeton University and The Arizona Board of Regents on behalf of The University of Arizona, College of Science Hydrology & Atmospheric Sciences. All rights reserved.
