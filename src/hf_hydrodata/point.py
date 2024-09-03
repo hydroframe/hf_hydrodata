@@ -647,54 +647,54 @@ def get_site_variables(*args, **kwargs):
             )
 
         if options["dataset"] == "usgs_nwis":
-            dataset_query = """ AND agency == ?"""
+            dataset_query = " AND agency == ?"
             param_list.append("USGS")
         elif options["dataset"] == "ameriflux":
-            dataset_query = """ AND agency == ?"""
+            dataset_query = " AND agency == ?"
             param_list.append("AmeriFlux")
         elif options["dataset"] == "jasechko_2024":
-            dataset_query = """ AND agency == ?"""
+            dataset_query = " AND agency == ?"
             param_list.append("Jasechko_et_al_2024")
         elif options["dataset"] == "snotel":
-            dataset_query = """ AND site_type == ?"""
+            dataset_query = " AND site_type == ?"
             param_list.append("SNOTEL station")
         elif options["dataset"] == "scan":
-            dataset_query = """ AND site_type == ?"""
+            dataset_query = " AND site_type == ?"
             param_list.append("SCAN station")
         elif options["dataset"] == "fan_2013":
-            dataset_query = """ AND fan_2013 == 1 AND var_id == 26"""
+            dataset_query = " AND fan_2013 == 1 AND var_id == 26"
     else:
-        dataset_query = """"""
+        dataset_query = ""
 
     # Date start
     if "date_start" in options and options["date_start"] is not None:
-        date_start_query = """ AND last_date_data_available >= ?"""
+        date_start_query = " AND last_date_data_available >= ?"
         param_list.append(options["date_start"])
     else:
-        date_start_query = """"""
+        date_start_query = ""
 
     # Date end
     if "date_end" in options and options["date_end"] is not None:
-        date_end_query = """ AND first_date_data_available <= ?"""
+        date_end_query = " AND first_date_data_available <= ?"
         param_list.append(options["date_end"])
     else:
-        date_end_query = """"""
+        date_end_query = ""
 
     # Latitude
     if "latitude_range" in options and options["latitude_range"] is not None:
-        lat_query = """ AND latitude BETWEEN ? AND ?"""
+        lat_query = " AND latitude BETWEEN ? AND ?"
         param_list.append(options["latitude_range"][0])
         param_list.append(options["latitude_range"][1])
     else:
-        lat_query = """"""
+        lat_query = ""
 
     # Longitude
     if "longitude_range" in options and options["longitude_range"] is not None:
-        lon_query = """ AND longitude BETWEEN ? AND ?"""
+        lon_query = " AND longitude BETWEEN ? AND ?"
         param_list.append(options["longitude_range"][0])
         param_list.append(options["longitude_range"][1])
     else:
-        lon_query = """"""
+        lon_query = ""
 
     # CONUS grid bounds
     if "grid_bounds" in options and options["grid_bounds"] is not None:
@@ -723,7 +723,7 @@ def get_site_variables(*args, **kwargs):
             grid_bounds_sites.extend(list(grid_bounds_df["site_id"]))
 
         if len(grid_bounds_sites) > 0:
-            grid_bounds_query = """ AND s.site_id IN (%s)""" % ",".join(
+            grid_bounds_query = " AND s.site_id IN (%s)" % ",".join(
                 "?" * len(grid_bounds_sites)
             )
             for s in grid_bounds_sites:
@@ -731,32 +731,32 @@ def get_site_variables(*args, **kwargs):
         else:
             raise Exception("There are no sites within the provided grid_bounds.")
     else:
-        grid_bounds_query = """"""
+        grid_bounds_query = ""
 
     # Site ID
     if "site_ids" in options and options["site_ids"] is not None:
         if isinstance(options["site_ids"], list):
-            site_query = """ AND s.site_id IN (%s)""" % ",".join(
+            site_query = " AND s.site_id IN (%s)" % ",".join(
                 "?" * len(options["site_ids"])
             )
             for s in options["site_ids"]:
                 param_list.append(s)
         elif isinstance(options["site_ids"], str):
-            site_query = """ AND s.site_id == ?"""
+            site_query = " AND s.site_id == ?"
             param_list.append(options["site_ids"])
         else:
             raise ValueError(
                 "Parameter site_ids must be either a single site ID string, or a list of site ID strings"
             )
     else:
-        site_query = """"""
+        site_query = ""
 
     # State
     if "state" in options and options["state"] is not None:
-        state_query = """ AND state == ?"""
+        state_query = " AND state == ?"
         param_list.append(options["state"])
     else:
-        state_query = """"""
+        state_query = ""
 
     # Site Networks
     if "site_networks" in options and options["site_networks"] is not None:
@@ -776,7 +776,7 @@ def get_site_variables(*args, **kwargs):
         for s in network_site_list:
             param_list.append(s)
     else:
-        network_query = """"""
+        network_query = ""
 
     query = (
         """
@@ -2173,16 +2173,16 @@ def _get_data_sql(conn, site_list, var_id, *args, **kwargs):
     # These variables have w.date in the database to be able to filter on
     if var_id in (5, 25):
         if ("date_start" not in options) and ("date_end" not in options):
-            date_query = """"""
+            date_query = ""
             param_list = [min_num_obs]
         elif ("date_start" not in options) and ("date_end" in options):
-            date_query = """ WHERE w.date <= ?"""
+            date_query = " WHERE w.date <= ?"
             param_list = [options["date_end"], min_num_obs, options["date_end"]]
         elif ("date_start" in options) and ("date_end" not in options):
-            date_query = """ WHERE w.date >= ?"""
+            date_query = " WHERE w.date >= ?"
             param_list = [options["date_start"], min_num_obs, options["date_start"]]
         elif ("date_start" in options) and ("date_end" in options):
-            date_query = """ WHERE w.date >= ? AND w.date <= ?"""
+            date_query = " WHERE w.date >= ? AND w.date <= ?"
             param_list = [
                 options["date_start"],
                 options["date_end"],
@@ -2192,7 +2192,7 @@ def _get_data_sql(conn, site_list, var_id, *args, **kwargs):
             ]
 
         # Add filter for only the site IDs in site_list
-        site_query = """ AND w.site_id IN (%s)""" % ",".join("?" * len(site_list))
+        site_query = " AND w.site_id IN (%s)" % ",".join("?" * len(site_list))
         for s in site_list:
             param_list.append(s)
 
