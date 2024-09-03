@@ -315,6 +315,7 @@ def test_files_exist():
             "254",
             "522",
             "525",
+            "528",
         ]:
             paths = gr.get_file_paths(
                 row,
@@ -1228,7 +1229,7 @@ def test_get_datasets():
     """Test get_datasets."""
 
     datasets = hf.get_datasets()
-    assert len(datasets) == 20
+    assert len(datasets) == 21
     assert datasets[0] == "CW3E"
 
     datasets = hf.get_datasets(variable="air_temp")
