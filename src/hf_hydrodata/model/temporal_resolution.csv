@@ -10,3 +10,4 @@ daily_of_week,Daily Over Week,Daily values aggregated over week
 instantaneous,Instantaneous,Data values reported at a given point in time
 yearly,Yearly,Data values stored per calendar year
 "",No temporal resolution,No temporal resolution
+long_term,Long Term,Long term value aggregated over multiple years
