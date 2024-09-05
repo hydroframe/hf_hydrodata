@@ -444,6 +444,8 @@ def get_gridded_files(
     files that already exist. To re-download data, remember to delete previously created files first.
     """
     verbose_start_time = time.time()
+    if options.get("period") and not options.get("temporal_resolution"):
+        options["temporal_resolution"] = options.get("period")
     temporal_resolution = options.get("temporal_resolution")
     temporal_resolution = (
         _get_temporal_resolution_from_catalog(options)
@@ -1162,6 +1164,9 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
         # The filter options are just named parameters in the argument list
         options = kwargs
 
+    if options.get("period") and not options.get("temporal_resolution"):
+        options["temporal_resolution"] = options["period"]        
+
     data = _get_gridded_data_from_api(options)
 
 
@@ -1505,7 +1510,7 @@ def _get_gridded_data_from_api(options):
     run_remote = not os.path.exists(HYDRODATA)
 
     if run_remote:
-        if options.get("temporal_resolution"):
+        if options.get("period") and not options.get("temporal_resolution"):
             options["period"] = options["temporal_resolution"]        
         options = _convert_json_to_strings(options)
         options_list = [

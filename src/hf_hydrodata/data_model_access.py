@@ -34,9 +34,9 @@ REMOTE_DATA_CATALOG_VERSION = "1.0.3"
 class ModelTableRow:
     """Represents one row in a model table."""
 
-    def __init__(self):
+    def __init__(self, values={}):
         """Constructor"""
-        self.row_values = {}
+        self.row_values = values
 
     def column_names(self):
         """Return the column names of the row."""
@@ -78,7 +78,7 @@ class ModelTable:
             if response is not None:
                 result = response.get(row_id)
                 if result is not None:
-                    result = self._convert_json_columns(result)
+                    result = ModelTableRow(result)
                     self.rows[row_id] = result
         return result
 
@@ -88,20 +88,65 @@ class ModelTable:
             if value and value[0] == "[":
                 value = json.loads(value)
                 row[key] = value
-        return row
 
     def _query_data_catalog(self, options:dict):
+        """
+        Call the API to get information from the data catalog using the options filter.
+        """
+
+        # Pass any options as parameters
         parameters = [f"{key}={options.get(key)}" for key in options.keys()]
         parameters.append(f"table={self.table_name}")
+
+        # pass the secret key if the process is running on verde with access to /hydrodata
+        # With the secret key the result will return private dc information such as the file path
+        # Without the correct secret key only public dc information will be returned
+        data_catalog_secret = _get_data_catalog_secret()
+        if data_catalog_secret:
+            parameters.append(f"secret={data_catalog_secret}")
+        
+        # Pass the data catalog schema to use to get the data catalog (for unit testing)
+        data_catalog_schema = _get_data_catalog_schema()
+        parameters.append(f"schema={data_catalog_schema}")
+
+        # Call the API and return information about the table as json
         parameter_list = "&".join(parameters)
         url = f"{HYDRODATA_URL}/api/v2/data_catalog?{parameter_list}"
         try:
             response = requests.get(url, timeout=120)
             if response.status_code == 200:
                 response_json = json.loads(response.text)
+                if response_json is not None:
+                    for key in response_json.keys():
+                        entry = response_json.get(key)
+                        if entry is not None:
+                            self._convert_json_columns(entry)
+
                 return response_json
         except Exception:
             return {}
+
+
+def _get_data_catalog_secret():
+    """
+    Get the data catalog secret if running on /hydrodata
+    """
+    result = ""
+    secret_file = "/hydrodata/.data_catalog_secret"
+    if os.path.exists(secret_file):
+        with open(secret_file) as src:
+            result = src.read()
+    return result
+
+def _get_data_catalog_schema():
+    """
+    Get the data catalog schema to be used to get the catalog from the SQL db.
+    This is normally the public schema, but is overridden by DC_SCHEMA env variable.
+    This is so unit tests can be run using the public schema by setting env variable.
+    """
+
+    result = os.environ.get("DC_SCHEMA", "public")
+    return result
 
 class DataModel:
     """Represents a data catalog model."""

@@ -329,15 +329,19 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
         options = args[0]
     else:
         options = kwargs
+    if options.get("period") and not options.get("temporal_resolution"):
+        options["temporal_resolution"] = options.get("period")
 
     # Getting the API headers has the side affect of setting the USER_ROLES global variable
     # The USER_ROLES variables contains the list of rules of the user using their registered API pin.
     _get_api_headers()
 
+    result = []
     data_model = load_data_model()
     table = data_model.get_table("data_catalog_entry")
     rows = table._query_data_catalog(options)
-    result = [rows.get(id) for id in rows.keys()]
+    if rows:
+        result = [ModelTableRow(rows.get(id)) for id in rows.keys()]
     return result
     for row_id in table.row_ids:
         row = table.get_row(row_id)
@@ -480,18 +484,23 @@ def _get_preferred_catalog_entry(entries: List[dict]) -> dict:
                 if preferred_entry is None:
                     preferred_entry = entry
                     preferred_entry_type = file_type
+                    ambiguous_entries = []
                 else:
                     if preferred_entry_type == file_type:
                         ambiguous_entries.append(entry)
                         ambiguous_entries.append(preferred_entry)
-                        preferred_entry = None
                     elif preferred_file_types.index(
                         file_type
                     ) < preferred_file_types.index(preferred_entry["file_type"]):
+                        # The new file type is preferred over the previous preferred
                         preferred_entry = entry
+                        ambiguous_entries = []
             else:
+                # Not preferred is ambiguous if we find more than one like this
                 ambiguous_entries.append(entry)
-        if preferred_entry:
+
+        # Return the preferred or not ambiguous entry
+        if preferred_entry and len(ambiguous_entries) <= 1:
             result = preferred_entry
         elif len(ambiguous_entries) == 1:
             result = ambiguous_entries[0]
@@ -597,10 +606,9 @@ def get_table_rows(table_name: str, *args, **kwargs) -> List[ModelTableRow]:
         options = kwargs
     data_model = load_data_model()
     table = data_model.get_table(table_name)
-    for row_id in table.row_ids:
-        row = table.get_row(row_id)
-        if _is_row_match_options(row, options):
-            result.append(row)
+    rows = table._query_data_catalog(options)
+    result = [ModelTableRow(rows.get(id)) for id in rows.keys()]
+
     return result
 
 

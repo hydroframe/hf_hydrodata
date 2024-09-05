@@ -250,7 +250,9 @@ def test_files_exist():
             start_time = "2002-01-01"
         elif dataset == "conus1_current_conditions":
             start_time = "2023-01-01"
-
+        elif dataset == "NLDAS2_85":
+            start_time = "2005-10-01"
+            
         row_id = row["id"]
         if not row_id in [
             "206",
@@ -1040,7 +1042,6 @@ def xtest_get_numpy_nasa_smap_conus2():
         "grid_bounds": grid_bounds,
     }
     data = gr.get_gridded_data(options)
-    print(data.shape)
 
 
 def test_get_entry_with_multiple_file_types():
