@@ -10,6 +10,7 @@ import tempfile
 import math
 from unittest.mock import patch
 import xarray as xr
+import numpy as np
 import pytest
 import pytz
 import rioxarray
@@ -1808,10 +1809,13 @@ def test_cw3e_version():
     cw3e_version09 = hf.get_gridded_data(options_version09)
     assert cw3e_version09[0, 0, 0] - 299.78436 <= 0.00001
 
-    options_version095 = options.copy()
-    options_version095["dataset_version"] = "0.95"
-    cw3e_version095 = hf.get_gridded_data(options_version095)
-    assert cw3e_version095[0, 0, 0] - 299.04806 <= 0.00001
+    options_version08 = options.copy()
+    options_version08["dataset_version"] = "0.8"
+    cw3e_version08 = hf.get_gridded_data(options_version08)
+    assert cw3e_version08[0, 0, 0] - 299.04806 <= 0.00001
+
+    cw3e_default = hf.get_gridded_data(options)
+    np.testing.assert_array_equal(cw3e_default, cw3e_version09)
 
 
 if __name__ == "__main__":

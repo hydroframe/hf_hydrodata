@@ -136,6 +136,16 @@ def test_dataset_version():
         dataset="CW3E",
         period="hourly",
         variable="precipitation",
-        dataset_version="0.95",
+        dataset_version="0.8",
     )
     assert row["id"] == "529"
+
+
+def test_dataset_version_default():
+    """Test the default dataset_version is the highest version number if not specified"""
+
+    row = hf.get_catalog_entry(
+        dataset="CW3E", period="hourly", variable="precipitation"
+    )
+    assert row["id"] == "167"
+    assert row["dataset_version"] == "0.9"
