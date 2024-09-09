@@ -1804,12 +1804,12 @@ def test_cw3e_version():
     }
 
     options_version09 = options.copy()
-    options_version09["dataset_version"] = 0.9
+    options_version09["dataset_version"] = "0.9"
     cw3e_version09 = hf.get_gridded_data(options_version09)
     assert cw3e_version09[0, 0, 0] - 299.78436 <= 0.00001
 
     options_version095 = options.copy()
-    options_version095["dataset_version"] = 0.95
+    options_version095["dataset_version"] = "0.95"
     cw3e_version095 = hf.get_gridded_data(options_version095)
     assert cw3e_version095[0, 0, 0] - 299.04806 <= 0.00001
 
