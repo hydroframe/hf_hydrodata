@@ -1791,5 +1791,28 @@ def test_smap_current_conditions():
     assert (data[62] - 0.3409) <= 0.001, "Data for long block length not read properly"
 
 
+def test_cw3e_version():
+    """Test request for CW3E dataset using dataset_version parameter."""
+    options = {
+        "dataset": "CW3E",
+        "variable": "air_temp",
+        "temporal_resolution": "hourly",
+        "start_time": "2002-10-01",
+        "end_time": "2002-10-02",
+        "grid": "conus2",
+        "grid_bounds": [1000, 1000, 1002, 1002],
+    }
+
+    options_version09 = options.copy()
+    options_version09["dataset_version"] = 0.9
+    cw3e_version09 = hf.get_gridded_data(options_version09)
+    assert cw3e_version09[0, 0, 0] - 299.78436 <= 0.00001
+
+    options_version1 = options.copy()
+    options_version1["dataset_version"] = 1.0
+    cw3e_version1 = hf.get_gridded_data(options_version1)
+    assert cw3e_version1[0, 0, 0] - 299.04806 <= 0.00001
+
+
 if __name__ == "__main__":
     pytest.main([__file__])
