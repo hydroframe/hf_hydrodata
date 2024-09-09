@@ -128,6 +128,11 @@ def test_dataset_version():
     """Test reading catalog entries with dataset_versions"""
 
     row = hf.get_catalog_entry(
-        dataset="CW3E", period="hourly", variable="precipitation"
+        dataset="CW3E", period="hourly", variable="precipitation", dataset_version=0.9
     )
     assert row["id"] == "167"
+
+    row = hf.get_catalog_entry(
+        dataset="CW3E", period="hourly", variable="precipitation", dataset_version=1.0
+    )
+    assert row["id"] == "529"
