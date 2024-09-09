@@ -36,6 +36,7 @@ INSERT INTO public.aggregation SELECT * from development.aggregation;
 INSERT INTO public.grid SELECT * from development.grid;
 INSERT INTO public.security_level SELECT * from development.security_level;
 INSERT INTO public.site_type SELECT * from development.site_type;
+INSERT INTO public.substitution_keys SELECT * FROM development.substitution_keys;
 INSERT INTO public.data_catalog_entry SELECT * from development.data_catalog_entry;
 
 UPDATE public.data_catalog_entry 
