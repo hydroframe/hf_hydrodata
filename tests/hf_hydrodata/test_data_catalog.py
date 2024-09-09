@@ -133,6 +133,6 @@ def test_dataset_version():
     assert row["id"] == "167"
 
     row = hf.get_catalog_entry(
-        dataset="CW3E", period="hourly", variable="precipitation", dataset_version=1.0
+        dataset="CW3E", period="hourly", variable="precipitation", dataset_version=0.95
     )
     assert row["id"] == "529"
