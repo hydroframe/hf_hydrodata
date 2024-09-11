@@ -298,6 +298,8 @@ def get_point_metadata(*args, **kwargs):
         Single site ID string or list of desired (string) site identifiers.
     state : str, optional
         Two-letter postal code state abbreviation (example: state='NJ').
+    huc_id : str or list of strings, optional
+        Single HUC ID string or list of adjacent HUC ID strings.
     polygon : str, optional
         Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     polygon_crs : str, optional
@@ -560,6 +562,8 @@ def get_site_variables(*args, **kwargs):
         Single site ID string or list of desired (string) site identifiers.
     state : str, optional
         Two-letter postal code state abbreviation (example: state='NJ').
+    huc_id : str or list of strings, optional
+        Single HUC ID string or list of adjacent HUC ID strings.
     polygon : str, optional
         Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     polygon_crs : str, optional
