@@ -11,7 +11,6 @@ import json
 import datetime
 import requests
 from hf_hydrodata.data_model_access import ModelTableRow, load_data_model
-import hf_hydrodata.point
 
 HYDRODATA = "/hydrodata"
 JWT_TOKEN = None
@@ -63,8 +62,15 @@ def get_citations(*args, **kwargs) -> str:
         raise ValueError("Dataset is not specified.")
 
     # If the dataset is a point observation dataset return the citation from point observation module
-    if dataset in ["usgs_nwis", "snotel", "scan", "ameriflux"]:
-        return hf_hydrodata.point._get_point_citations(dataset)
+    if dataset in [
+        "usgs_nwis",
+        "snotel",
+        "scan",
+        "ameriflux",
+        "jasechko_2024",
+        "fan_2013",
+    ]:
+        return _get_point_citations(dataset)
 
     entries = get_catalog_entries(dataset=dataset)
     if entries is None or len(entries) == 0:
@@ -654,6 +660,75 @@ def _is_row_match_options(row: ModelTableRow, options: dict) -> bool:
             result = False
             break
     return result
+
+
+def _get_point_citations(dataset):
+    """
+    Return a dictionary with relevant citation information.
+
+    Parameters
+    ----------
+    dataset : str
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
+        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'.
+
+    Returns
+    -------
+    str
+        String containing overall attribution instructions for the provided dataset.
+    """
+    try:
+        assert dataset in [
+            "usgs_nwis",
+            "snotel",
+            "scan",
+            "ameriflux",
+            "jasechko_2024",
+            "fan_2013",
+        ]
+    except:
+        raise ValueError(
+            f"Unexpected value of dataset, {dataset}. Supported values include 'usgs_nwis', 'snotel', 'scan', 'ameriflux', 'jasechko_2024', and 'fan_2013'"
+        )
+
+    if dataset == "usgs_nwis":
+        c = (
+            "Most U.S. Geological Survey (USGS) information resides in Public Domain and "
+            "may be used without restriction, though they do ask that proper credit be given. "
+            'An example credit statement would be: "(Product or data name) courtesy of the U.S. Geological Survey".\n'
+            "Source: https://www.usgs.gov/information-policies-and-instructions/acknowledging-or-crediting-usgs"
+        )
+
+    elif dataset in ["snotel", "scan"]:
+        c = (
+            "Most information presented on the USDA Web site is considered public domain information. "
+            "Public domain information may be freely distributed or copied, but use of appropriate "
+            "byline/photo/image credits is requested. Attribution may be cited as follows: "
+            '"U.S. Department of Agriculture"\nSource: https://www.usda.gov/policies-and-links'
+        )
+
+    elif dataset == "ameriflux":
+        c = (
+            "All AmeriFlux sites provided by the HydroData service follow the CC-BY-4.0 License. "
+            "The CC-BY-4.0 license specifies that the data user is free to Share (copy and "
+            "redistribute the material in any medium or format) and/or Adapt (remix, transform, "
+            "and build upon the material) for any purpose. "
+            "Users of this data must acknowledge the AmeriFlux data resource with the "
+            'following statement: "Funding for the AmeriFlux data portal was provided by the U.S. '
+            'Department of Energy Office of Science." '
+            "Additionally, for each AmeriFlux site used, you must provide a citation to the site "
+            "data product that includes the data product DOI. The DOI for each site is included in the "
+            "DataFrame returned by the hf_hydrodata get_point_metadata method, in the doi column.\n"
+            "Source: https://ameriflux.lbl.gov/data/data-policy/"
+        )
+
+    elif dataset == "jasechko_2024":
+        c = "Dataset DOI: 10.1038/s41586-023-06879-8"
+
+    elif dataset == "fan_2013":
+        c = "Dataset DOI: 10.1126/science.1229881"
+
+    return c
 
 
 def test_get_tables():

@@ -1045,20 +1045,6 @@ def test_polygon_filter_fail():
         )
 
 
-def test_get_citations_usgs():
-    """Test for get_citations function with return DataFrame."""
-    citation = point._get_point_citations(dataset="usgs_nwis")
-
-    assert isinstance(citation, str)
-
-
-def test_get_citations_ameriflux():
-    """Test for get_citations function with return DataFrame."""
-    citation = point._get_point_citations(dataset="ameriflux")
-
-    assert isinstance(citation, str)
-
-
 def test_get_variables_lat_lon():
     """Test get_site_variables function with lat/lon filter"""
 
@@ -1707,12 +1693,6 @@ def test_get_metadata_jasechko():
     assert "usgs_site" in metadata_df.columns
 
 
-def test_get_citations_jasechko():
-    """Test citations for jasechko_2024 dataset."""
-    t = point._get_point_citations("jasechko_2024")
-    assert t == "Dataset DOI: 10.1038/s41586-023-06879-8"
-
-
 def test_get_site_variables_jasechko():
     """Test for get_site_variables with jasechko dataset."""
     df = point.get_site_variables(
@@ -1769,12 +1749,6 @@ def test_get_metadata_fan():
     assert len(metadata_df) == 187
 
 
-def test_get_citations_fan():
-    """Test citations for fan_2013 dataset."""
-    t = point._get_point_citations("fan_2013")
-    assert t == "Dataset DOI: 10.1126/science.1229881"
-
-
 def test_get_site_variables_fan():
     """Test for get_site_variables with Fan dataset."""
     df = point.get_site_variables(
@@ -1810,6 +1784,8 @@ def test_get_metadata_by_huc():
     df = point.get_point_metadata(
         dataset="usgs_nwis",
         variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         huc_id=["02040106"],
@@ -1823,6 +1799,8 @@ def test_get_data_by_huc():
     df = point.get_point_data(
         dataset="usgs_nwis",
         variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="mean",
         date_start="2002-01-01",
         date_end="2002-01-05",
         huc_id=["02040106"],
