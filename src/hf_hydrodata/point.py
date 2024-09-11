@@ -1030,6 +1030,9 @@ def _convert_params_to_string_dict(options):
         if key == "site_ids":
             if not isinstance(value, str):
                 options[key] = str(value)
+        if key == "huc_id":
+            if not isinstance(value, str):
+                options[key] = str(value)
         if key == "min_num_obs":
             if not isinstance(value, str):
                 options[key] = str(value)
@@ -1070,6 +1073,14 @@ def _convert_strings_to_type(options):
                         options[key] = value
                 except:
                     options[key] = value  # when site_id is a single str
+        if key == "huc_id":
+            if isinstance(value, str):
+                try:
+                    options[key] = ast.literal_eval(value)
+                    if isinstance(options[key], int):
+                        options[key] = value
+                except:
+                    options[key] = value  # when huc_id is a single str
         if key == "site_networks":
             if isinstance(value, str):
                 try:
