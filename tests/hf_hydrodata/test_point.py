@@ -1805,5 +1805,39 @@ def test_fail_fan_outside_timerange():
     assert str(exc.value) == "There are zero sites that satisfy the given parameters."
 
 
+def test_get_metadata_by_huc():
+    """Test for get_point_metadata with HUC filter."""
+    df = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        huc_id=["02040106"],
+        grid="conus2",
+    )
+    assert len(df) == 14
+
+
+def test_get_data_by_huc():
+    """Test for get_point_data with HUC filter."""
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        huc_id=["02040106"],
+        grid="conus2",
+    )
+    assert df.shape[1] == 15
+
+
+def test_get_site_variables():
+    """Test for get_site_varaibles with HUC filter."""
+    df = point.get_site_variables(
+        huc_id=["02040106"], grid="conus2", dataset="usgs_nwis"
+    )
+    assert len(df) >= 2800 & len(df) <= 3000
+
+
 if __name__ == "__main__":
     pytest.main()

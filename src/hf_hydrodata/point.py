@@ -18,6 +18,7 @@ import warnings
 from shapely import contains_xy
 from shapely.geometry import Point, shape
 from shapely.ops import transform
+from hf_hydrodata.gridded import get_huc_bbox, get_gridded_data
 
 
 HYDRODATA = "/hydrodata"
@@ -44,6 +45,7 @@ SUPPORTED_FILTERS = [
     "min_num_obs",
     "grid",
     "grid_bounds",
+    "huc_id",
 ]
 
 # List of SQL tables in the database corresponding to site-type-specific attributes
@@ -103,6 +105,8 @@ def get_point_data(*args, **kwargs):
         Single site ID string or list of desired (string) site identifiers.
     state : str, optional
         Two-letter postal code state abbreviation (example: state='NJ').
+    huc_id : str or list of strings, optional
+        Single HUC ID string or list of adjacent HUC ID strings.
     polygon : str, optional
         Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     polygon_crs : str, optional
@@ -733,6 +737,19 @@ def get_site_variables(*args, **kwargs):
     else:
         grid_bounds_query = ""
 
+    # HUC ID filter
+    if "huc_id" in options and options["huc_id"] is not None:
+        # Make sure that the option "grid" is defined
+        try:
+            assert "grid" in options and options["grid"] in ("conus1", "conus2")
+        except:
+            raise ValueError(
+                "When providing the parameter `huc_id`, please also provide the parameter `grid` as either 'conus1' or 'conus2'."
+            )
+        huc_query, param_list = _get_huc_query(options, param_list, conn)
+    else:
+        huc_query = ""
+
     # Site ID
     if "site_ids" in options and options["site_ids"] is not None:
         if isinstance(options["site_ids"], list):
@@ -796,6 +813,7 @@ def get_site_variables(*args, **kwargs):
         + lat_query
         + lon_query
         + grid_bounds_query
+        + huc_query
         + site_query
         + state_query
         + network_query
@@ -1522,6 +1540,8 @@ def _get_sites(
         Single site ID string or list of desired (string) site identifiers.
     state : str, optional
         Two-letter postal code state abbreviation.
+    huc_id : str or list of strings, optional
+        Single HUC ID string or list of adjacent HUC ID strings.
     polygon : str, optional
         Path to location of shapefile. Must be readable by PyShp's `shapefile.Reader()`.
     polygon_crs : str, optional
@@ -1560,43 +1580,43 @@ def _get_sites(
 
     # Split site type by SNOTEL/SCAN station based on dataset
     if dataset in ["snotel", "scan"]:
-        site_type_query = """ AND s.site_type == ?"""
+        site_type_query = " AND s.site_type == ?"
         if dataset == "snotel":
             param_list.append("SNOTEL station")
         elif dataset == "scan":
             param_list.append("SCAN station")
     else:
-        site_type_query = """"""
+        site_type_query = ""
 
     # Date start
     if "date_start" in options and options["date_start"] is not None:
-        date_start_query = """ AND last_date_data_available >= ?"""
+        date_start_query = " AND last_date_data_available >= ?"
         param_list.append(options["date_start"])
     else:
-        date_start_query = """"""
+        date_start_query = ""
 
     # Date end
     if "date_end" in options and options["date_end"] is not None:
-        date_end_query = """ AND first_date_data_available <= ?"""
+        date_end_query = " AND first_date_data_available <= ?"
         param_list.append(options["date_end"])
     else:
-        date_end_query = """"""
+        date_end_query = ""
 
     # Latitude
     if "latitude_range" in options and options["latitude_range"] is not None:
-        lat_query = """ AND latitude BETWEEN ? AND ?"""
+        lat_query = " AND latitude BETWEEN ? AND ?"
         param_list.append(options["latitude_range"][0])
         param_list.append(options["latitude_range"][1])
     else:
-        lat_query = """"""
+        lat_query = ""
 
     # Longitude
     if "longitude_range" in options and options["longitude_range"] is not None:
-        lon_query = """ AND longitude BETWEEN ? AND ?"""
+        lon_query = " AND longitude BETWEEN ? AND ?"
         param_list.append(options["longitude_range"][0])
         param_list.append(options["longitude_range"][1])
     else:
-        lon_query = """"""
+        lon_query = ""
 
     # CONUS grid bounds
     if "grid_bounds" in options and options["grid_bounds"] is not None:
@@ -1637,7 +1657,7 @@ def _get_sites(
         grid_bounds_sites = list(grid_bounds_df["site_id"])
 
         if len(grid_bounds_sites) > 0:
-            grid_bounds_query = """ AND s.site_id IN (%s)""" % ",".join(
+            grid_bounds_query = " AND s.site_id IN (%s)" % ",".join(
                 "?" * len(grid_bounds_sites)
             )
             for s in grid_bounds_sites:
@@ -1645,45 +1665,60 @@ def _get_sites(
         else:
             raise Exception("There are no sites within the provided grid_bounds.")
     else:
-        grid_bounds_query = """"""
+        grid_bounds_query = ""
+
+    # HUC ID filter
+    if "huc_id" in options and options["huc_id"] is not None:
+        # Make sure that the option "grid" is defined
+        try:
+            assert "grid" in options and options["grid"] in ("conus1", "conus2")
+        except:
+            raise ValueError(
+                "When providing the parameter `huc_id`, please also provide the parameter `grid` as either 'conus1' or 'conus2'."
+            )
+        huc_query, param_list = _get_huc_query(
+            options, param_list, conn, dataset=dataset, variable=variable
+        )
+    else:
+        huc_query = ""
 
     # Site ID
     if "site_ids" in options and options["site_ids"] is not None:
         if isinstance(options["site_ids"], list):
-            site_query = """ AND s.site_id IN (%s)""" % ",".join(
+            site_query = " AND s.site_id IN (%s)" % ",".join(
                 "?" * len(options["site_ids"])
             )
             for s in options["site_ids"]:
                 param_list.append(s)
         elif isinstance(options["site_ids"], str):
-            site_query = """ AND s.site_id == ?"""
+            site_query = " AND s.site_id == ?"
             param_list.append(options["site_ids"])
         else:
             raise ValueError(
                 "Parameter site_ids must be either a single site ID string, or a list of site ID strings"
             )
     else:
-        site_query = """"""
+        site_query = ""
 
     # State
     if "state" in options and options["state"] is not None:
-        state_query = """ AND state == ?"""
+        state_query = " AND state == ?"
         param_list.append(options["state"])
     else:
-        state_query = """"""
+        state_query = ""
 
     # Site Networks
     if "site_networks" in options and options["site_networks"] is not None:
         network_site_list = _get_network_site_list(
             dataset, variable, options["site_networks"]
         )
-        network_query = """ AND s.site_id IN (%s)""" % ",".join(
+        network_query = " AND s.site_id IN (%s)" % ",".join(
             "?" * len(network_site_list)
         )
         for s in network_site_list:
             param_list.append(s)
     else:
-        network_query = """"""
+        network_query = ""
 
     query = (
         """
@@ -1702,6 +1737,7 @@ def _get_sites(
         + lat_query
         + lon_query
         + grid_bounds_query
+        + huc_query
         + site_query
         + state_query
         + network_query
@@ -2234,3 +2270,82 @@ def _get_data_sql(conn, site_list, var_id, *args, **kwargs):
     df = pd.read_sql_query(query, conn, params=param_list)
 
     return df
+
+
+def _get_huc_query(options, param_list, conn, dataset=None, variable=None):
+    """Get sql query for filtering on list of HUC IDs"""
+
+    grid = options["grid"]
+    huc_id = options["huc_id"]
+
+    # Define bbox and mask
+    bbox = get_huc_bbox(grid, huc_id)
+    hucs = [int(huc) for huc in huc_id]
+    level = len(huc_id[0])
+    conus_hucs = get_gridded_data(
+        {
+            "dataset": "huc_mapping",
+            "grid": grid,
+            "file_type": "tiff",
+            "level": level,
+        }
+    )
+    conus_huc_mask = np.isin(conus_hucs, hucs).squeeze()
+    imin, jmin, imax, jmax = bbox
+    mask = conus_huc_mask[jmin:jmax, imin:imax].astype(int)
+
+    # Determine which database table(s) to get conus coordinates from
+    if dataset is not None:
+        if dataset == "usgs_nwis":
+            if variable == "streamflow":
+                tbl_list = ["streamgauge_attributes"]
+            elif variable == "water_table_depth":
+                tbl_list = ["well_attributes"]
+        elif dataset in ("snotel", "scan"):
+            tbl_list = ["snotel_station_attributes"]
+        elif dataset == "ameriflux":
+            tbl_list = ["flux_tower_attributes"]
+        elif dataset == "jasechko_2024":
+            tbl_list = ["jasechko_attributes"]
+        elif dataset == "fan_2013":
+            tbl_list = ["well_attributes"]
+    else:
+        tbl_list = SITE_ATTRIBUTE_TABLES
+
+    huc_sites = []
+    for tbl in tbl_list:
+        # First filter on HUC bounding box to get subset list of sites
+        bbox_query = f"""SELECT site_id, {grid}_i, {grid}_j
+                        FROM {tbl}
+                        WHERE {grid}_i >= {bbox[0]}
+                          AND {grid}_j >= {bbox[1]}
+                          AND {grid}_i < {bbox[2]}
+                          AND {grid}_j < {bbox[3]}
+                        """
+        bbox_df = pd.read_sql_query(bbox_query, conn)
+
+        # Second filter on HUC mask to remove sites within bbox but not within HUC
+        if len(bbox_df) > 0:
+            # Shift i/j coordinates so that they index starting from the regional
+            # bounding box origin instead of the overall CONUS grid origin
+            bbox_df["domain_i"] = bbox_df.apply(
+                lambda x: int(x[f"{grid}_i"]) - bbox[0], axis=1
+            )
+            bbox_df["domain_j"] = bbox_df.apply(
+                lambda x: int(x[f"{grid}_j"]) - bbox[1], axis=1
+            )
+
+            # Filter sites to only those within HUC mask
+            bbox_df["mask"] = mask[bbox_df["domain_j"], bbox_df["domain_i"]]
+            bbox_df = bbox_df[bbox_df["mask"] == 1]
+
+            huc_sites.extend(list(bbox_df["site_id"]))
+
+    if len(huc_sites) > 0:
+        huc_query = " AND s.site_id IN (%s)" % ",".join("?" * len(huc_sites))
+        for s in huc_sites:
+            param_list.append(s)
+    else:
+        raise Exception("There are no sites within the provided huc_id.")
+
+    return huc_query, param_list
