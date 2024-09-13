@@ -8,13 +8,13 @@ import ast
 import os
 import json
 import sqlite3
+import warnings
 import pandas as pd
 import xarray as xr
 import numpy as np
 import requests
 import shapefile
 import pyproj
-import warnings
 from shapely import contains_xy
 from shapely.geometry import Point, shape
 from shapely.ops import transform
@@ -743,13 +743,6 @@ def get_site_variables(*args, **kwargs):
 
     # HUC ID filter
     if "huc_id" in options and options["huc_id"] is not None:
-        # Make sure that the option "grid" is defined
-        try:
-            assert "grid" in options and options["grid"] in ("conus1", "conus2")
-        except:
-            raise ValueError(
-                "When providing the parameter `huc_id`, please also provide the parameter `grid` as either 'conus1' or 'conus2'."
-            )
         huc_query, param_list = _get_huc_query(options, param_list, conn)
     else:
         huc_query = ""
@@ -1615,13 +1608,6 @@ def _get_sites(
 
     # HUC ID filter
     if "huc_id" in options and options["huc_id"] is not None:
-        # Make sure that the option "grid" is defined
-        try:
-            assert "grid" in options and options["grid"] in ("conus1", "conus2")
-        except:
-            raise ValueError(
-                "When providing the parameter `huc_id`, please also provide the parameter `grid` as either 'conus1' or 'conus2'."
-            )
         huc_query, param_list = _get_huc_query(
             options, param_list, conn, dataset=dataset, variable=variable
         )
@@ -2220,6 +2206,14 @@ def _get_data_sql(conn, site_list, var_id, *args, **kwargs):
 
 def _get_huc_query(options, param_list, conn, dataset=None, variable=None):
     """Get sql query for filtering on list of HUC IDs"""
+
+    # Make sure that the option "grid" is defined
+    try:
+        assert "grid" in options and options["grid"] in ("conus1", "conus2")
+    except:
+        raise ValueError(
+            "When providing the parameter `huc_id`, please also provide the parameter `grid` as either 'conus1' or 'conus2'."
+        )
 
     grid = options["grid"]
     huc_id = options["huc_id"]

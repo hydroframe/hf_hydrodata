@@ -175,3 +175,10 @@ def test_get_citations_fan():
     """Test citations for fan_2013 dataset."""
     t = hf.get_citations("fan_2013")
     assert "10.1126/science.1229881" in t
+
+
+def test_get_citations_fail():
+    """Test citations function exception for unknown dataset."""
+    with pytest.raises(Exception) as exc:
+        hf.get_citations("usgs")
+    assert str(exc.value) == "No such dataset 'usgs'"

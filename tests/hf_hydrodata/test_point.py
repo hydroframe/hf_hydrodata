@@ -1821,5 +1821,38 @@ def test_get_site_variables():
     assert len(df) >= 2800 & len(df) <= 3000
 
 
+def test_huc_no_grid_fail():
+    """Test data access for a huc fails when no grid is specified."""
+    with pytest.raises(Exception) as exc:
+        point.get_point_data(
+            dataset="usgs_nwis",
+            variable="streamflow",
+            temporal_resolution="daily",
+            aggregation="mean",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            huc_id=["02040106"],
+        )
+    assert (
+        str(exc.value)
+        == "When providing the parameter `huc_id`, please also provide the parameter `grid` as either 'conus1' or 'conus2'."
+    )
+
+
+def test_huc_list():
+    """Test using a list of multiple huc ids."""
+    df = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        huc_id=["02040106", "02040106"],
+        grid="conus2",
+    )
+    assert df.shape[1] == 30
+
+
 if __name__ == "__main__":
     pytest.main()

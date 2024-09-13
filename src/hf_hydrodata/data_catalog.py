@@ -677,19 +677,6 @@ def _get_point_citations(dataset):
     str
         String containing overall attribution instructions for the provided dataset.
     """
-    try:
-        assert dataset in [
-            "usgs_nwis",
-            "snotel",
-            "scan",
-            "ameriflux",
-            "jasechko_2024",
-            "fan_2013",
-        ]
-    except:
-        raise ValueError(
-            f"Unexpected value of dataset, {dataset}. Supported values include 'usgs_nwis', 'snotel', 'scan', 'ameriflux', 'jasechko_2024', and 'fan_2013'"
-        )
 
     if dataset == "usgs_nwis":
         c = (
