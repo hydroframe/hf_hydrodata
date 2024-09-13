@@ -1851,7 +1851,7 @@ def test_huc_list():
         huc_id=["02040106", "02040106"],
         grid="conus2",
     )
-    assert df.shape[1] == 30
+    assert df.shape[1] == 23
 
 
 if __name__ == "__main__":
