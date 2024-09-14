@@ -15,21 +15,21 @@ Functions to load the csv files of the data catalog model into a DataModel objec
 
     print(data_model.table_names)
 """
-# pylint: disable=R0903,W0603,W1514,C0103,R0912,R0914,W0718,W0707
+
+# pylint: disable=R0903,W0603,W1514,C0103,R0912,R0914,W0718,W0707,C0301
 
 import os
-import sys
 import csv
 import json
 import threading
-import logging
 from warnings import warn
 import requests
 
-HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
+HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev-wh.princeton.edu")
 THREAD_LOCK = threading.Lock()
 DATA_MODEL_CACHE = None
 REMOTE_DATA_CATALOG_VERSION = "1.0.3"
+
 
 class ModelTableRow:
     """Represents one row in a model table."""
@@ -89,7 +89,7 @@ class ModelTable:
                 value = json.loads(value)
                 row[key] = value
 
-    def _query_data_catalog(self, options:dict):
+    def _query_data_catalog(self, options: dict):
         """
         Call the API to get information from the data catalog using the options filter.
         """
@@ -104,7 +104,7 @@ class ModelTable:
         data_catalog_secret = _get_data_catalog_secret()
         if data_catalog_secret:
             parameters.append(f"secret={data_catalog_secret}")
-        
+
         # Pass the data catalog schema to use to get the data catalog (for unit testing)
         data_catalog_schema = _get_data_catalog_schema()
         parameters.append(f"schema={data_catalog_schema}")
@@ -112,19 +112,19 @@ class ModelTable:
         # Call the API and return information about the table as json
         parameter_list = "&".join(parameters)
         url = f"{HYDRODATA_URL}/api/v2/data_catalog?{parameter_list}"
-        try:
-            response = requests.get(url, timeout=120)
-            if response.status_code == 200:
-                response_json = json.loads(response.text)
-                if response_json is not None:
-                    for key in response_json.keys():
-                        entry = response_json.get(key)
-                        if entry is not None:
-                            self._convert_json_columns(entry)
+        response = requests.get(url, timeout=120)
+        if response.status_code == 200:
+            response_json = json.loads(response.text)
+            if response_json is not None:
+                for key in response_json.keys():
+                    entry = response_json.get(key)
+                    if entry is not None:
+                        self._convert_json_columns(entry)
 
-                return response_json
-        except Exception:
-            return {}
+            return response_json
+        raise ValueError(
+            f"Unable to connect to '{HYDRODATA_URL}' to get data catalog information."
+        )
 
 
 def _get_data_catalog_secret():
@@ -138,6 +138,7 @@ def _get_data_catalog_secret():
             result = src.read()
     return result
 
+
 def _get_data_catalog_schema():
     """
     Get the data catalog schema to be used to get the catalog from the SQL db.
@@ -147,6 +148,7 @@ def _get_data_catalog_schema():
 
     result = os.environ.get("DC_SCHEMA", "public")
     return result
+
 
 class DataModel:
     """Represents a data catalog model."""
@@ -167,7 +169,7 @@ class DataModel:
             table.table_name = table_name
             self.table_index[table_name] = table
         return table
-        #return self.table_index.get(table_name)
+        # return self.table_index.get(table_name)
 
     def export_to_dict(self) -> dict:
         """Export the csf files of the data model to a dict"""
@@ -244,49 +246,6 @@ def load_data_model(load_from_api=True) -> DataModel:
             return DATA_MODEL_CACHE
         data_model = DataModel()
         DATA_MODEL_CACHE = data_model
-        return data_model
-    
-        model_dir = f"{os.path.abspath(os.path.dirname(__file__))}/model"
-        for file_name in os.listdir(model_dir):
-            if file_name.endswith(".csv"):
-                try:
-                    table_name = file_name.replace(".csv", "")
-                    data_model.table_names.append(table_name)
-                    model_table = ModelTable()
-                    data_model.table_index[table_name] = model_table
-                    with open(f"{model_dir}/{file_name}") as csv_file:
-                        rows = csv.reader(csv_file, delimiter=",")
-                        for row_count, row in enumerate(list(rows)):
-                            if row_count == 0:
-                                for col_count, col in enumerate(list(row)):
-                                    if col_count == 0:
-                                        model_table.column_names.append("id")
-                                    else:
-                                        model_table.column_names.append(col)
-                            else:
-                                table_row = ModelTableRow()
-                                for col_count, col in enumerate(list(row)):
-                                    if col_count == 0:
-                                        table_row.row_values["id"] = col
-                                        model_table.row_ids.append(col)
-                                        model_table.rows[col] = table_row
-                                    else:
-                                        table_row.row_values[
-                                            model_table.column_names[col_count]
-                                        ] = _parse_column_value(col)
-
-                except Exception as e:
-                    raise ValueError(f"Error reading '{file_name}' {str(e)}") from e
-        _add_period_temporal_resolution_column(data_model)
-        _add_columns_to_catalog_entry_table(data_model)
-        data_model.table_names.sort()
-
-        if load_from_api:
-            # Replace the data model with the version from the API
-            sys.tracebacklimit = 0
-            _load_model_from_api(data_model)
-        DATA_MODEL_CACHE = data_model
-
     return data_model
 
 
@@ -430,7 +389,3 @@ def _load_model_from_api(data_model: DataModel):
         warn(
             f"Warning - unable to update model from API (no internet access?) using '{url}'"
         )
-
-
-
-

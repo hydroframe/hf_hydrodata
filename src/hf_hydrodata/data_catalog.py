@@ -18,7 +18,7 @@ JWT_TOKEN = None
 USER_ROLES = None
 THREAD_LOCK = threading.Lock()
 
-HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
+HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev-wh.princeton.edu")
 
 
 def get_citations(*args, **kwargs) -> str:
@@ -343,11 +343,6 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
     if rows:
         result = [ModelTableRow(rows.get(id)) for id in rows.keys()]
     return result
-    for row_id in table.row_ids:
-        row = table.get_row(row_id)
-        if _is_row_match_options(row, options):
-            result.append(row)
-    return result
 
 
 def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
@@ -474,61 +469,102 @@ def _get_preferred_catalog_entry(entries: List[dict]) -> dict:
     elif len(entries) == 1:
         result = entries[0]
     else:
-        preferred_file_types = ["pfb", "tif", "netcdf"]
-        ambiguous_entries = []
-        preferred_entry = None
-        preferred_entry_type = None
-        for entry in entries:
-            file_type = entry["file_type"]
-            if file_type in preferred_file_types:
-                if preferred_entry is None:
-                    preferred_entry = entry
-                    preferred_entry_type = file_type
-                    ambiguous_entries = []
-                else:
-                    if preferred_entry_type == file_type:
-                        ambiguous_entries.append(entry)
-                        ambiguous_entries.append(preferred_entry)
-                    elif preferred_file_types.index(
-                        file_type
-                    ) < preferred_file_types.index(preferred_entry["file_type"]):
-                        # The new file type is preferred over the previous preferred
-                        preferred_entry = entry
-                        ambiguous_entries = []
-            else:
-                # Not preferred is ambiguous if we find more than one like this
-                ambiguous_entries.append(entry)
+        # There is more than one entry that matches the filter so pick the preferred entry
+        preference_states = [
+            {
+                "preference_state_key": "file_type",
+                "preferred_values": ["pfb", "tif", "netcdf"],
+            },
+            {
+                "preference_state_key": "aggregation",
+                "preferred_values": ["mean", "sum", "median", "static", "max", "min"],
+            },
+            {"preference_state_key": "dateset_version", "preferred_values": None},
+        ]
 
-        # Return the preferred or not ambiguous entry
-        if preferred_entry and len(ambiguous_entries) <= 1:
-            result = preferred_entry
-        elif len(ambiguous_entries) == 1:
-            result = ambiguous_entries[0]
-        elif len(ambiguous_entries) > 1:
-            # Try to dis-ambiguate entries using dataset_version
-            max_dataset_version = None
-            preferred_entry = None
-            for ambiguous_entry in ambiguous_entries:
-                dataset_version = ambiguous_entry["dataset_version"]
-                if dataset_version is not None:
-                    if (
-                        max_dataset_version is None
-                        or dataset_version > max_dataset_version
-                    ):
-                        max_dataset_version = dataset_version
-                        preferred_entry = ambiguous_entry
-                    elif dataset_version == max_dataset_version:
-                        raise ValueError(
-                            _ambiguous_error_message(preferred_entry, ambiguous_entry)
-                        )
-            if preferred_entry is not None:
-                result = preferred_entry
-            else:
-                raise ValueError(
-                    _ambiguous_error_message(ambiguous_entries[0], ambiguous_entries[1])
-                )
+        # evaluate the ambiguous data catalog entries against a preference state to find preferences
+        ambiguous_entries = entries
+        for preference_state in preference_states:
+            for entry in ambiguous_entries:
+                _update_preference_state(preference_state, entry)
+
+            # If there are no ambiguous entries from this preference state then use preferred entry
+            ambiguous_entries = preference_state.get("ambiguous")
+            if ambiguous_entries is None or len(ambiguous_entries) <= 1:
+                result = preference_state.get("preferred_entry")
+                break
+
+        # If there are still ambiguous entries then raise an error
+        if ambiguous_entries is not None and len(ambiguous_entries) > 1:
+            raise ValueError(
+                _ambiguous_error_message(ambiguous_entries[0], ambiguous_entries[1])
+            )
 
     return result
+
+
+def _update_preference_state(preference_state, new_entry):
+    """
+    Update the preference_state of one data catalog column for one new ambiguous entrry.
+    This selects a preferred entry for a preferred value of the data catalog column (key).
+    It also updates the list of ambiguous data catalog entries for the state for this column.
+    """
+
+    preference_state_key = preference_state.get("preference_state_key")
+    new_entry_value = new_entry[preference_state_key]
+    preferred_values = preference_state.get("preferred_values")
+    preferred_entry = preference_state.get("preferred_entry")
+    preferred_value = preference_state.get("preferred_value")
+    if preferred_values is None:
+        # For preferences like dataset_version the preferred value is the largest value
+        if preferred_entry is None:
+            preference_state["preferred_entry"] = new_entry
+            preference_state["preferred_value"] = new_entry_value
+            preference_state["ambiguous"] = None
+        else:
+            if preferred_value == new_entry_value:
+                # There are two entries with the same value this is ambiguous
+                ambiguous = preference_state["ambiguous"]
+                if ambiguous is None:
+                    ambiguous = [preferred_entry]
+                ambiguous.append(new_entry)
+                preference_state["ambiguous"] = ambiguous
+            elif new_entry_value > preferred_value:
+                # The new entry is preferred over the previous preferred
+                preference_state["preferred_entry"] = new_entry
+                preference_state["preferred_value"] = new_entry_value
+                preference_state["ambiguous"] = None
+
+    else:
+        # For preferences with an ordered list of preferences use first values
+        if new_entry_value in preferred_values:
+            # new value of the new entry is one of the preferred values
+            if preferred_entry is None:
+                preference_state["preferred_entry"] = new_entry
+                preference_state["preferred_value"] = new_entry_value
+                preference_state["ambiguous"] = None
+            else:
+                if preferred_value == new_entry_value:
+                    # There is more than one entry with the same preferred value
+                    ambiguous = preference_state["ambiguous"]
+                    if ambiguous is None:
+                        ambiguous = [preferred_entry]
+                    ambiguous.append(new_entry)
+                    preference_state["ambiguous"] = ambiguous
+                elif preferred_values.index(new_entry_value) < preferred_values.index(
+                    preferred_entry[preference_state_key]
+                ):
+                    # The new preferred value is preferred over the previous preferred value
+                    preference_state["preferred_entry"] = new_entry
+                    preference_state["preferred_value"] = new_entry_value
+                    preference_state["ambiguous"] = None
+        elif preferred_entry is None:
+            # This is a value that is not preferred with no previous preferred value
+            ambiguous = preference_state.get("ambiguous")
+            if ambiguous is None:
+                ambiguous = []
+            ambiguous.append(new_entry)
+            preference_state["ambiguous"] = ambiguous
 
 
 def _ambiguous_error_message(entry_1: dict, entry_2: dict) -> str:

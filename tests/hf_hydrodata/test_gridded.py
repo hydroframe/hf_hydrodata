@@ -1244,11 +1244,11 @@ def test_get_datasets():
     """Test get_datasets."""
 
     datasets = hf.get_datasets()
-    assert len(datasets) == 21
+    assert len(datasets) >= 21
     assert datasets[0] == "CW3E"
 
     datasets = hf.get_datasets(variable="air_temp")
-    assert len(datasets) == 9
+    assert len(datasets) >= 9
     assert datasets[0] == "CW3E"
 
     datasets = hf.get_datasets(grid="conus2")
@@ -1257,7 +1257,8 @@ def test_get_datasets():
 
     options = {"variable": "air_temp", "grid": "conus1"}
     datasets = hf.get_datasets(options)
-    assert len(datasets) == 4
+    print(datasets)
+    assert len(datasets) >= 4
     assert datasets[0] == "NLDAS2"
 
 

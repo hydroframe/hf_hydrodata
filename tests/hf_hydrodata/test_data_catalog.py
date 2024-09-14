@@ -117,3 +117,15 @@ def test_dataset_version():
         dataset="CW3E", period="hourly", variable="precipitation"
     )
     assert row["id"] == "167"
+
+def test_catalog_preference():
+    """Test get_catalog_entry() preference algorithm."""
+
+    option = {
+        "dataset": "CW3E",
+        "variable": "air_temp",
+        "temporal_resolution": "daily",
+        "start_time": "2001-01-01"
+    }
+    entry = hf.get_catalog_entry(option)
+    assert entry["aggregation"] == "mean"

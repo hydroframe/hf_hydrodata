@@ -46,7 +46,7 @@ C_PFB_MAP = {
 
 
 HYDRODATA = "/hydrodata"
-HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
+HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev-wh.princeton.edu")
 THREAD_LOCK = threading.Lock()
 
 
