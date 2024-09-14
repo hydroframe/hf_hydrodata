@@ -246,7 +246,7 @@ def load_data_model(load_from_api=True) -> DataModel:
             return DATA_MODEL_CACHE
         data_model = DataModel()
         DATA_MODEL_CACHE = data_model
-    return data_model
+        return data_model
 
 
 def _add_period_temporal_resolution_column(data_model: DataModel):
