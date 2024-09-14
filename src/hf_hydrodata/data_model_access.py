@@ -123,7 +123,7 @@ class ModelTable:
 
             return response_json
         raise ValueError(
-            f"Unable to connect to '{HYDRODATA_URL}' to get data catalog information."
+            f"Unable to connect to '{HYDRODATA_URL}' code = '{response.status_code}' to get data catalog information."
         )
 
 
