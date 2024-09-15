@@ -18,7 +18,7 @@ JWT_TOKEN = None
 USER_ROLES = None
 THREAD_LOCK = threading.Lock()
 
-HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev-wh.princeton.edu")
+HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev.princeton.edu")
 
 
 def get_citations(*args, **kwargs) -> str:
