@@ -25,7 +25,7 @@ import threading
 from warnings import warn
 import requests
 
-HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev.princeton.edu")
+HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydro-dev-wh.princeton.edu")
 THREAD_LOCK = threading.Lock()
 DATA_MODEL_CACHE = None
 REMOTE_DATA_CATALOG_VERSION = "1.0.3"
