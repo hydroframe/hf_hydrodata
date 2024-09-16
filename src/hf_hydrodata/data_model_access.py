@@ -96,26 +96,25 @@ class ModelTable:
         """
 
         # Pass any options as parameters
-        parameters = [f"{key}={options.get(key)}" for key in options.keys()]
-        parameters.append(f"table={self.table_name}")
+        parameter_options = dict(options)
+        parameter_options["table"] = self.table_name
+        data_catalog_secret = _get_data_catalog_secret()
+        if data_catalog_secret:
+            # pass the secret key if the process is running on verde with access to /hydrodata
+            # With the secret key the result will return private dc information such as the file path
+            # Without the correct secret key only public dc information will be returned
+            parameter_options["secret"] = data_catalog_secret
+
+        # Pass the data catalog schema to use to get the data catalog (for unit testing)
+        data_catalog_schema = _get_data_catalog_schema()
+        parameter_options["schema"] = data_catalog_schema
+
         if READ_DC_CALLBACK:
             # A callback function is registered to read the DB
-            response_json = READ_DC_CALLBACK(self.table_name, options)
+            response_json = READ_DC_CALLBACK(parameter_options)
         else:
             # Make an API call to get the data catalog information from the database
-
-            data_catalog_secret = _get_data_catalog_secret()
-            if data_catalog_secret:
-                # pass the secret key if the process is running on verde with access to /hydrodata
-                # With the secret key the result will return private dc information such as the file path
-                # Without the correct secret key only public dc information will be returned
-                parameters.append(f"secret={data_catalog_secret}")
-
-            # Pass the data catalog schema to use to get the data catalog (for unit testing)
-            data_catalog_schema = _get_data_catalog_schema()
-            parameters.append(f"schema={data_catalog_schema}")
-
-            # Call the API and return information about the table as json
+            parameters = [f"{key}={parameter_options.get(key)}" for key in parameter_options.keys()]
             parameter_list = "&".join(parameters)
             url = f"{HYDRODATA_URL}/api/v2/data_catalog?{parameter_list}"
             response = requests.get(url, timeout=120)
