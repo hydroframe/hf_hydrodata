@@ -29,6 +29,7 @@ HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
 THREAD_LOCK = threading.Lock()
 DATA_MODEL_CACHE = None
 REMOTE_DATA_CATALOG_VERSION = "1.0.3"
+READ_DC_CALLBACK = None
 
 
 class ModelTableRow:
@@ -94,6 +95,10 @@ class ModelTable:
         Call the API to get information from the data catalog using the options filter.
         """
 
+        if READ_DC_CALLBACK:
+            # A callback function is registered to read the DB
+            response_json = READ_DC_CALLBACK(options)
+            return response_json
         # Pass any options as parameters
         parameters = [f"{key}={options.get(key)}" for key in options.keys()]
         parameters.append(f"table={self.table_name}")
@@ -159,7 +164,6 @@ class DataModel:
         self.table_names = []
         """A list of table names of the model."""
         self.table_index = {}
-        self.is_local = False
 
     def get_table(self, table_name: str) -> ModelTable:
         """Get the ModelTable object with the table_name."""
@@ -246,15 +250,6 @@ def load_data_model(load_from_api=True) -> DataModel:
         if DATA_MODEL_CACHE is not None:
             return DATA_MODEL_CACHE
         data_model = DataModel()
-        if _get_data_catalog_secret():
-            data_model.is_local = True
-            for preload_table_name in ["data_catalog_entry", "grid", "variable", "dataset"]:
-                table = data_model.get_table(preload_table_name)
-                options = {"table": preload_table_name}
-                rows = table._query_data_catalog(options)
-                if rows:
-                    for row_id in rows.keys():
-                        table.rows[row_id] = ModelTableRow(rows.get(row_id))
         DATA_MODEL_CACHE = data_model
         return data_model
 

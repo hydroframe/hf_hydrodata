@@ -339,14 +339,9 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
     result = []
     data_model = load_data_model()
     table = data_model.get_table("data_catalog_entry")
-    if data_model.is_local:
-        # Data model is local so it is pre-loaded, query in memory for API performance reasons
-        result = [table.rows[row_id] for row_id in table.rows.keys() if _is_row_match_options(table.rows[row_id], options)]
-    else:
-        # Data model is not local so it is not preloaded - query DB for entries
-        rows = table._query_data_catalog(options)
-        if rows:
-            result = [ModelTableRow(rows.get(id)) for id in rows.keys()]
+    rows = table._query_data_catalog(options)
+    if rows:
+        result = [ModelTableRow(rows.get(id)) for id in rows.keys()]
     return result
 
 
@@ -647,12 +642,8 @@ def get_table_rows(table_name: str, *args, **kwargs) -> List[ModelTableRow]:
         options = kwargs
     data_model = load_data_model()
     table = data_model.get_table(table_name)
-    if data_model.is_local:
-        # Data model is local so it is pre-loaded, query in memory for API performance reasons
-        result = [table.rows[row_id] for row_id in table.rows.keys() if _is_row_match_options(table.rows[row_id], options)]
-    else:
-        rows = table._query_data_catalog(options)
-        result = [ModelTableRow(rows.get(id)) for id in rows.keys()]
+    rows = table._query_data_catalog(options)
+    result = [ModelTableRow(rows.get(id)) for id in rows.keys()]
 
     return result
 
