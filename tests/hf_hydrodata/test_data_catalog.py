@@ -149,3 +149,36 @@ def test_dataset_version_default():
     )
     assert row["id"] == "167"
     assert row["dataset_version"] == "0.9"
+
+
+def test_get_citations_usgs():
+    """Test for get_citations function with return DataFrame."""
+    citation = hf.get_citations(dataset="usgs_nwis")
+
+    assert isinstance(citation, str)
+
+
+def test_get_citations_ameriflux():
+    """Test for get_citations function with return DataFrame."""
+    citation = hf.get_citations(dataset="ameriflux")
+
+    assert isinstance(citation, str)
+
+
+def test_get_citations_jasechko():
+    """Test citations for jasechko_2024 dataset."""
+    t = hf.get_citations("jasechko_2024")
+    assert "10.1038/s41586-023-06879-8" in t
+
+
+def test_get_citations_fan():
+    """Test citations for fan_2013 dataset."""
+    t = hf.get_citations("fan_2013")
+    assert "10.1126/science.1229881" in t
+
+
+def test_get_citations_fail():
+    """Test citations function exception for unknown dataset."""
+    with pytest.raises(Exception) as exc:
+        hf.get_citations("usgs")
+    assert str(exc.value) == "No such dataset 'usgs'"

@@ -1045,20 +1045,6 @@ def test_polygon_filter_fail():
         )
 
 
-def test_get_citations_usgs():
-    """Test for get_citations function with return DataFrame."""
-    citation = point._get_point_citations(dataset="usgs_nwis")
-
-    assert isinstance(citation, str)
-
-
-def test_get_citations_ameriflux():
-    """Test for get_citations function with return DataFrame."""
-    citation = point._get_point_citations(dataset="ameriflux")
-
-    assert isinstance(citation, str)
-
-
 def test_get_variables_lat_lon():
     """Test get_site_variables function with lat/lon filter"""
 
@@ -1707,12 +1693,6 @@ def test_get_metadata_jasechko():
     assert "usgs_site" in metadata_df.columns
 
 
-def test_get_citations_jasechko():
-    """Test citations for jasechko_2024 dataset."""
-    t = point._get_point_citations("jasechko_2024")
-    assert t == "Dataset DOI: 10.1038/s41586-023-06879-8"
-
-
 def test_get_site_variables_jasechko():
     """Test for get_site_variables with jasechko dataset."""
     df = point.get_site_variables(
@@ -1769,12 +1749,6 @@ def test_get_metadata_fan():
     assert len(metadata_df) == 187
 
 
-def test_get_citations_fan():
-    """Test citations for fan_2013 dataset."""
-    t = point._get_point_citations("fan_2013")
-    assert t == "Dataset DOI: 10.1126/science.1229881"
-
-
 def test_get_site_variables_fan():
     """Test for get_site_variables with Fan dataset."""
     df = point.get_site_variables(
@@ -1803,6 +1777,81 @@ def test_fail_fan_outside_timerange():
             date_end="2010-12-31",
         )
     assert str(exc.value) == "There are zero sites that satisfy the given parameters."
+
+
+def test_get_metadata_by_huc():
+    """Test for get_point_metadata with HUC filter."""
+    df = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        huc_id=["02040106"],
+        grid="conus2",
+    )
+    assert len(df) == 14
+    # site ID that is in bbox but not in huc
+    assert "01470736" not in list(df["site_id"])
+
+
+def test_get_data_by_huc():
+    """Test for get_point_data with HUC filter."""
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        huc_id=["02040106"],
+        grid="conus2",
+    )
+    assert df.shape[1] == 15
+    # site ID that is in bbox but not in huc
+    assert "01470736" not in list(df.columns)
+
+
+def test_get_site_variables():
+    """Test for get_site_varaibles with HUC filter."""
+    df = point.get_site_variables(
+        huc_id=["02040106"], grid="conus2", dataset="usgs_nwis"
+    )
+    assert len(df) >= 2800 & len(df) <= 3000
+
+
+def test_huc_no_grid_fail():
+    """Test data access for a huc fails when no grid is specified."""
+    with pytest.raises(Exception) as exc:
+        point.get_point_data(
+            dataset="usgs_nwis",
+            variable="streamflow",
+            temporal_resolution="daily",
+            aggregation="mean",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            huc_id=["02040106"],
+        )
+    assert (
+        str(exc.value)
+        == "When providing the parameter `huc_id`, please also provide the parameter `grid` as either 'conus1' or 'conus2'."
+    )
+
+
+def test_huc_list():
+    """Test using a list of multiple huc ids."""
+    df = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        huc_id=["02040106", "02040106"],
+        grid="conus2",
+    )
+    assert df.shape[1] == 23
 
 
 if __name__ == "__main__":
