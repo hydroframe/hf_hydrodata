@@ -95,13 +95,13 @@ class ModelTable:
         Call the API to get information from the data catalog using the options filter.
         """
 
-        if READ_DC_CALLBACK:
-            # A callback function is registered to read the DB
-            response_json = READ_DC_CALLBACK(options)
-            return response_json
         # Pass any options as parameters
         parameters = [f"{key}={options.get(key)}" for key in options.keys()]
         parameters.append(f"table={self.table_name}")
+        if READ_DC_CALLBACK:
+            # A callback function is registered to read the DB
+            response_json = READ_DC_CALLBACK(self.table_name, options)
+            return response_json
 
         # pass the secret key if the process is running on verde with access to /hydrodata
         # With the secret key the result will return private dc information such as the file path
