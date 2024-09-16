@@ -1801,18 +1801,23 @@ def test_cw3e_version():
         "start_time": "2002-10-01",
         "end_time": "2002-10-02",
         "grid": "conus2",
-        "grid_bounds": [1000, 1000, 1002, 1002],
+        "grid_bounds": [500, 2500, 501, 2501],
     }
 
     options_version09 = options.copy()
     options_version09["dataset_version"] = "0.9"
     cw3e_version09 = hf.get_gridded_data(options_version09)
-    assert cw3e_version09[0, 0, 0] - 299.78436 <= 0.00001
+    assert cw3e_version09[0, 0, 0] - 284.66085 <= 0.00001
 
     options_version08 = options.copy()
     options_version08["dataset_version"] = "0.8"
     cw3e_version08 = hf.get_gridded_data(options_version08)
-    assert cw3e_version08[0, 0, 0] - 299.04806 <= 0.00001
+    assert cw3e_version08[0, 0, 0] - 284.10281 <= 0.00001
+
+    options_version085 = options.copy()
+    options_version085["dataset_version"] = "0.85"
+    cw3e_version085 = hf.get_gridded_data(options_version085)
+    assert cw3e_version085[0, 0, 0] - 283.60281 <= 0.00001
 
     cw3e_default = hf.get_gridded_data(options)
     np.testing.assert_array_equal(cw3e_default, cw3e_version09)
