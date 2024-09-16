@@ -101,35 +101,38 @@ class ModelTable:
         if READ_DC_CALLBACK:
             # A callback function is registered to read the DB
             response_json = READ_DC_CALLBACK(self.table_name, options)
-            return response_json
+        else:
+            # Make an API call to get the data catalog information from the database
 
-        # pass the secret key if the process is running on verde with access to /hydrodata
-        # With the secret key the result will return private dc information such as the file path
-        # Without the correct secret key only public dc information will be returned
-        data_catalog_secret = _get_data_catalog_secret()
-        if data_catalog_secret:
-            parameters.append(f"secret={data_catalog_secret}")
+            data_catalog_secret = _get_data_catalog_secret()
+            if data_catalog_secret:
+                # pass the secret key if the process is running on verde with access to /hydrodata
+                # With the secret key the result will return private dc information such as the file path
+                # Without the correct secret key only public dc information will be returned
+                parameters.append(f"secret={data_catalog_secret}")
 
-        # Pass the data catalog schema to use to get the data catalog (for unit testing)
-        data_catalog_schema = _get_data_catalog_schema()
-        parameters.append(f"schema={data_catalog_schema}")
+            # Pass the data catalog schema to use to get the data catalog (for unit testing)
+            data_catalog_schema = _get_data_catalog_schema()
+            parameters.append(f"schema={data_catalog_schema}")
 
-        # Call the API and return information about the table as json
-        parameter_list = "&".join(parameters)
-        url = f"{HYDRODATA_URL}/api/v2/data_catalog?{parameter_list}"
-        response = requests.get(url, timeout=120)
-        if response.status_code == 200:
-            response_json = json.loads(response.text)
-            if response_json is not None:
-                for key in response_json.keys():
-                    entry = response_json.get(key)
-                    if entry is not None:
-                        self._convert_json_columns(entry)
+            # Call the API and return information about the table as json
+            parameter_list = "&".join(parameters)
+            url = f"{HYDRODATA_URL}/api/v2/data_catalog?{parameter_list}"
+            response = requests.get(url, timeout=120)
+            if response.status_code == 200:
+                response_json = json.loads(response.text)
+            else:
+                raise ValueError(
+                    f"Unable to connect to '{HYDRODATA_URL}' code = '{response.status_code}' to get data catalog information."
+                )
+        if response_json is not None:
+            # Convert the json columns from the database into json objects instead of strings from the DB
+            for key in response_json.keys():
+                entry = response_json.get(key)
+                if entry is not None:
+                    self._convert_json_columns(entry)
 
-            return response_json
-        raise ValueError(
-            f"Unable to connect to '{HYDRODATA_URL}' code = '{response.status_code}' to get data catalog information."
-        )
+        return response_json
 
 
 def _get_data_catalog_secret():
