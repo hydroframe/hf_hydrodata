@@ -1849,6 +1849,7 @@ def test_timeout_retry_logic(mocker):
     with pytest.raises(ValueError):
         hf.get_gridded_data(options)
     assert requests.get.call_count == 2
+    hf.gridded.HYDRODATA = "/hydrodata"
 
 def test_wateryear_one_point():
     """Test request for CW3E dataset water year for one point."""
