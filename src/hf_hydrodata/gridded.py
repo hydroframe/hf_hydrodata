@@ -1827,7 +1827,13 @@ def _read_and_filter_pfb_files(
             else len(paths)
         )
         path_block = paths[block_start:block_end]
+        print("Start READ_PFB_SEQUENCE")
+        print(len(path_block))
+        print(boundary_constraints)
+        st = time.time()
         data = read_pfb_sequence(path_block, boundary_constraints)
+        duration = time.time() - st
+        print(f"Duration = {duration}")
         if final_data is None:
             # This is the first block
             final_data = data

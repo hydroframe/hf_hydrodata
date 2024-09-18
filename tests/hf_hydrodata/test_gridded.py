@@ -1850,6 +1850,22 @@ def test_timeout_retry_logic(mocker):
         hf.get_gridded_data(options)
     assert requests.get.call_count == 2
 
+def test_wateryear_one_point():
+    """Test request for CW3E dataset water year for one point."""
+    options = {
+        "dataset": "CW3E",
+        "variable": "air_temp",
+        "temporal_resolution": "hourly",
+        "start_time": "2006-10-01",
+        "end_time": "2007-10-01",
+        "grid": "conus2",
+        "grid_bounds": [1000, 1000, 1001, 1001],
+    }
+
+    # This call makes 4 calls (blocks of 100 files) cached 0.97, .15, .14, .09 = 1.1 secibds
+    # When not cached 9.43, 8.68, 8.71, 6 = 33 seconds
+    data = hf.get_gridded_data(options)
+    assert data.shape == (8760, 1, 1)
 
 if __name__ == "__main__":
     pytest.main([__file__])
