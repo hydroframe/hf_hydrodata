@@ -1117,7 +1117,7 @@ def _write_file_from_api(filepath, options):
 
     try:
         headers = _get_api_headers()
-        response = requests.get(datafile_url, headers=headers, timeout=1200)
+        response = requests.get(datafile_url, headers=headers, timeout=4000)
         if response.status_code != 200:
             if response.status_code == 400:
                 content = response.content.decode()
