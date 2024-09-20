@@ -2,7 +2,7 @@
 Unit test for the gridded module.
 """
 
-# pylint: disable=C0301,C0103,W0632,W0702,W0101,C0302,W0105,E0401,C0413,R0903,W0613,R0912,W0212
+# pylint: disable=C0301,C0103,W0632,W0702,W0101,C0302,W0105,E0401,C0413,R0903,W0613,R0912,W0212,R1714,E1101
 import sys
 import os
 import datetime
@@ -14,6 +14,7 @@ import numpy as np
 import pytest
 import pytz
 import rioxarray
+import requests
 
 from parflow import read_pfb_sequence
 
@@ -1825,6 +1826,55 @@ def test_cw3e_version():
     cw3e_default = hf.get_gridded_data(options)
     np.testing.assert_array_equal(cw3e_default, cw3e_version09)
 
+
+def test_timeout_retry_logic(mocker):
+    """Test that API retry logic only retries once."""
+    options = {
+        "dataset": "CW3E",
+        "variable": "air_temp",
+        "temporal_resolution": "hourly",
+        "start_time": "2002-10-01",
+        "end_time": "2002-10-02",
+        "grid": "conus2",
+        "grid_bounds": [1000, 1000, 1002, 1002],
+    }
+
+    def mock_api_requests_get(url, headers, timeout):
+        response = MockResponse()
+        if requests.get.call_count == 1:
+            response.status_code = 500
+        elif requests.get.call_count == 2:
+            response.status_code = 500
+        else:
+            assert False, "Called too many times"
+        return response
+
+    mocker.patch(
+        "requests.get",
+        side_effect=mock_api_requests_get,
+    )
+    hf.gridded.HYDRODATA = "/foo"
+    with pytest.raises(ValueError):
+        hf.get_gridded_data(options)
+    assert requests.get.call_count == 2
+    hf.gridded.HYDRODATA = "/hydrodata"
+
+def test_wateryear_one_point():
+    """Test request for CW3E dataset water year for one point."""
+    options = {
+        "dataset": "CW3E",
+        "variable": "air_temp",
+        "temporal_resolution": "hourly",
+        "start_time": "2006-10-01",
+        "end_time": "2007-10-01",
+        "grid": "conus2",
+        "grid_bounds": [1000, 1000, 1001, 1001],
+    }
+
+    # This call makes 4 calls (blocks of 100 files) cached 0.97, .15, .14, .09 = 1.1 secibds
+    # When not cached 9.43, 8.68, 8.71, 6 = 33 seconds
+    data = hf.get_gridded_data(options)
+    assert data.shape == (8760, 1, 1)
 
 if __name__ == "__main__":
     pytest.main([__file__])
