@@ -1817,7 +1817,7 @@ def _read_and_filter_pfb_files(
     # The read_pfb_sequence method has a limit to how many paths it can read
     # if the number of paths is more than the limit call read_pfb_sequence in blocks
     # then append together the blocks to return the correct result
-    max_block_size = 100
+    max_block_size = _get_read_pfb_sequence_path_block_size(boundary_constraints)
     final_data = None
     block_start = 0
     while len(paths) > block_start:
@@ -1843,6 +1843,18 @@ def _read_and_filter_pfb_files(
 
     return final_data
 
+def _get_read_pfb_sequence_path_block_size(boundary_constraints):
+    """
+    Get the number of paths max block size as a function of the grid bounds.
+    We can use more paths at a time with a smaller grid bounds.
+    If possible handling 366 for a water year is best if the grid_bounds is small.
+    """
+    result = 100
+    if boundary_constraints and boundary_constraints.get("x") and boundary_constraints.get("y"):
+        x_size = boundary_constraints.get("x").get("stop") - boundary_constraints.get("x").get("start") if boundary_constraints.get("x") else None
+        y_size = boundary_constraints.get("y").get("stop") - boundary_constraints.get("y").get("start") if boundary_constraints.get("y") else None
+        result = 370 if x_size and y_size and x_size*y_size < 10 else 100
+    return result
 
 def _remove_unused_z_dimension(data: np.ndarray, entry: dict) -> np.ndarray:
     """Remove the z dimension from the data if the variable does not have z dimension."""

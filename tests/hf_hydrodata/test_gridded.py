@@ -1868,5 +1868,14 @@ def test_wateryear_one_point():
     data = hf.get_gridded_data(options)
     assert data.shape == (8760, 1, 1)
 
+def test_get_read_pfb_sequence_path_block_size():
+    """Test the algorithm for computing the read_pfb_sequence block size."""
+
+    boundary_constraints = {"x": {"start": 0, "stop": 10}, "y": {"start": 0, "stop": 10}}
+    assert hf.gridded._get_read_pfb_sequence_path_block_size(boundary_constraints) == 100
+    boundary_constraints = {"x": {"start": 0, "stop": 1}, "y": {"start": 0, "stop": 1}}
+    assert hf.gridded._get_read_pfb_sequence_path_block_size(boundary_constraints) == 370
+    assert hf.gridded._get_read_pfb_sequence_path_block_size(None) == 100
+
 if __name__ == "__main__":
     pytest.main([__file__])
