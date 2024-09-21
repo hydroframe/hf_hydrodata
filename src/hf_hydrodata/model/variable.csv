@@ -30,7 +30,7 @@ parflow_run,ParFlow Run files,Run scripts and other model configuration files,ru
 permeability,permeability,,hydrogeology,rate,TRUE
 pf_indicator,Indicator file for subsufrace units in ParFlow,,hydrogeology,unitless,TRUE
 pf_solid,ParFlow Solid File,File to define a domain shape for Parflow,run_file,,
-pf_flowbarrier,ParFlow Flow Barrier,File defining the depth to flow barier,hydrogeology,,
+pf_flowbarrier,ParFlow Flow Barrier,File defining the depth to flow barier,hydrogeology,,TRUE
 pme,Precipitation minus evaporation (net recharge),Recharge forcing used for ParFlow spinups,climate,rate,TRUE
 porosity,Porosity ,,hydrogeology,unitless,TRUE
 precipitation,Precipitation,,atmospheric,length,
