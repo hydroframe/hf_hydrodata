@@ -8,6 +8,7 @@ import os
 import datetime
 import tempfile
 import math
+import warnings
 from unittest.mock import patch
 import xarray as xr
 import numpy as np
@@ -1814,13 +1815,44 @@ def test_cw3e_version():
     cw3e_version08 = hf.get_gridded_data(options_version08)
     assert cw3e_version08[0, 0, 0] - 284.10281 <= 0.00001
 
-    options_version085 = options.copy()
-    options_version085["dataset_version"] = "0.85"
-    cw3e_version085 = hf.get_gridded_data(options_version085)
-    assert cw3e_version085[0, 0, 0] - 283.60281 <= 0.00001
+    options_version1 = options.copy()
+    options_version1["dataset_version"] = "1.0"
+    cw3e_version1 = hf.get_gridded_data(options_version1)
+    assert cw3e_version1[0, 0, 0] - 283.60281 <= 0.00001
 
     cw3e_default = hf.get_gridded_data(options)
-    np.testing.assert_array_equal(cw3e_default, cw3e_version09)
+    np.testing.assert_array_equal(cw3e_default, cw3e_version1)
+
+
+def test_cw3e_default_warning():
+    """Test user receives warning if receiving CW3E v1.0 dataset."""
+    options = {
+        "dataset": "CW3E",
+        "variable": "air_temp",
+        "temporal_resolution": "hourly",
+        "start_time": "2002-10-01",
+        "end_time": "2002-10-02",
+        "grid": "conus2",
+        "grid_bounds": [500, 2500, 501, 2501],
+    }
+
+    with warnings.catch_warnings(record=True) as w:
+        # Cause all warnings to always be triggered.
+        warnings.simplefilter("always")
+
+        # Trigger a warning.
+        hf.get_gridded_data(options)
+
+        # Verify content of warning is as expected (warning message is detailed,
+        # checking a few key points)
+        assert len(w) == 1
+        assert issubclass(w[0].category, UserWarning)
+        assert "YYYY-MM-DD" in str(w[0].message)
+        assert "default version" in str(w[0].message)
+        assert (
+            "If you would like to use the previous version of the CW3E dataset, please specify `dataset_version = '0.9'`"
+            in str(w[0].message)
+        )
 
 
 if __name__ == "__main__":

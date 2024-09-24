@@ -140,6 +140,14 @@ def test_dataset_version():
     )
     assert row["id"] == "529"
 
+    row = hf.get_catalog_entry(
+        dataset="CW3E",
+        period="hourly",
+        variable="precipitation",
+        dataset_version="1.0",
+    )
+    assert row["id"] == "537"
+
 
 def test_dataset_version_default():
     """Test the default dataset_version is the highest version number if not specified"""
@@ -147,8 +155,8 @@ def test_dataset_version_default():
     row = hf.get_catalog_entry(
         dataset="CW3E", period="hourly", variable="precipitation"
     )
-    assert row["id"] == "167"
-    assert row["dataset_version"] == "0.9"
+    assert row["id"] == "537"
+    assert row["dataset_version"] == "1.0"
 
 
 def test_get_citations_usgs():

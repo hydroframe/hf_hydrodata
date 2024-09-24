@@ -37,6 +37,30 @@ datasets:
     processing_notes: >
       ....
 
+    version_notes: >
+      **Version 1.0**:  
+      
+      *Text about modifications made to dataset done by Ming.*
+
+      Our team has implemented some additional adjustments to temperature and specific humidity for Water Years 2003-2005 at the HUC02
+      level. Temperature was adjusted as described for each region below. Specific humidity was adjusted anywhere that temperature was 
+      adjusted, using the Clausius-Clapeyron equation.
+
+      - Water Year 2003: 
+        - Great Basin (HUC 16): 0.5 degree uniform temperature decrease
+        - Pacific Northwest (HUC 17): 0.5 degree uniform temperature decrease
+        - Upper Colorado River Basin (HUC 14): temperature lapse rate correction at 4 K/km  
+
+      - Water Year 2004: 
+        - Great Basin (HUC 16): 0.5 degree uniform temperature decrease
+        - Upper Colorado River Basin (HUC 14): temperature lapse rate correction at 4 K/km 
+      
+      - Water Year 2005: 
+        - Upper Colorado River Basin (HUC 14): temperature lapse rate correction at 2.5 K/km 
+
+
+      **Version 0.9**: Initial version of CW3E dataset.
+
   "huc_mapping":
     summary: >
       USGS Hydrologic unit codes have been mapped to the CONUS1 and CONUS2 grids. This mapping generally respects the boundaries provided in the USGS shape files however small adjustments were made to ensure that the watershed boundaries align with topographic boundaries in the CONUS1 and CONUS2 domains.  This dataset contains mappings for ... 
