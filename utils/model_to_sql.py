@@ -148,7 +148,7 @@ def _create_table(connection, model_path, table_name):
                 ]
                 else "100"
             )
-            data_type = "date" if "date" in column_name else f"varchar({column_size})"
+            data_type = "date" if "date" in column_name else "json" if column_name in ["shape", "latlng_bounds", "origin"] else f"varchar({column_size})"
             column_def.append(f"{column_name} {data_type}")
         column_def.append(f"PRIMARY KEY ({primary_key})")
         column_def_list = ", ".join(column_def)
@@ -193,6 +193,8 @@ def _format_export(value, column_name):
             result = value.strftime("%Y-%m-%d")
         else:
             result = ""
+    elif column_name in ["shape", "latlng_bounds", "origin"]:
+        result = f'"{value}"' if value else ""
     else:
         result = f'"{value}"'
     return result
@@ -225,6 +227,8 @@ def _format_insert(value, column_name):
                             ).strftime("%Y-%m-%d")
                         except:
                             result = None
+    elif column_name in ["shape", "latlng_bounds", "origin"]:
+        result = value if value and len(value) > 0 else None
     else:
         result = value
     return result
