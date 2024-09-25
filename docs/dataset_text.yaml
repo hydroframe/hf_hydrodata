@@ -32,17 +32,19 @@ datasets:
     processing_notes: Bilinearly interpolated from the native resolution to 1km.
 
   "CW3E":
-    summary: A forcing dataset provided courtesy of Ming Pan at the Center for Western Weather and Water Extremes (CW3E).  This dataset is a 1km resolution forcing dataset that was used to force the `conus1_baseline_mod <https://hf-hydrodata.readthedocs.io/en/latest/gen_conus1_baseline_mod.html>`_ simulation.  Since the PF-CONUS2 grid is the same as the US National Water Model (and the same as the CW3E Western US Grid) no adjustments were needed.  
+    summary: An hourly meteorological forcing product at 1km resolution over the `CONUS2 <https://hydroframe.org/parflow-conus2>`_ domain. Detailed documentation is available `here <https://docs.google.com/document/d/1TsQaPide-NtFJ9Eq-6vwhNxF1YrcZgn2jRULtFD34NY/edit#heading=h.16rb5xyw20fo>`_ and version release notes are below. We recommend using the latest version, 1.0. 
 
     processing_notes: >
       ....
 
     version_notes: >
-      **Version 1.0**:  
+      **Version 1.0**: Second HydroFrame release of the CW3E dataset.
       
-      *Text about modifications made to dataset done by Ming.*
+      Updates from version 0.9:
 
-      Our team has implemented some additional adjustments to temperature and specific humidity for Water Years 2003-2005 at the HUC02
+      CW3E team: corrected an 11-hour (for P) and 12-hour (for T) time mismatch against PRISM.
+
+      HydroFrame team: implemented some additional adjustments to temperature and specific humidity for Water Years 2003-2005 at the HUC02
       level. Temperature was adjusted as described for each region below. Specific humidity was adjusted anywhere that temperature was 
       adjusted, using the Clausius-Clapeyron equation.
 
