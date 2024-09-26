@@ -1266,8 +1266,12 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
         else:
             entry = dc.get_catalog_entry(*args, **kwargs)
 
-            # Add warning for transition to CW3E dataset version 1.0
-            if entry["dataset"] == "CW3E" and entry["dataset_version"] == "1.0":
+            # Add warning for transition to CW3E dataset version 1.0 when dataset_version not explicit from user
+            if (
+                entry["dataset"] == "CW3E"
+                and entry["dataset_version"] == "1.0"
+                and "dataset_version" not in options
+            ):
                 warnings.warn(
                     "As of YYYY-MM-DD, version 1.0 of the CW3E dataset has been released. "
                     "Due to known improvements in the results, this dataset version is now "
