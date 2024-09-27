@@ -32,7 +32,7 @@ datasets:
     processing_notes: Bilinearly interpolated from the native resolution to 1km.
 
   "CW3E":
-    summary: An hourly meteorological forcing product at 1km resolution over the `CONUS2 <https://hydroframe.org/parflow-conus2>`_ domain. Detailed documentation is available `here <https://docs.google.com/document/d/1TsQaPide-NtFJ9Eq-6vwhNxF1YrcZgn2jRULtFD34NY/edit#heading=h.16rb5xyw20fo>`_ and version release notes are below. We recommend using the latest version, 1.0. 
+    summary: An hourly meteorological forcing product at 1km resolution over the `CONUS2 <https://hydroframe.org/parflow-conus2>`_ domain. Detailed documentation is available `here <https://www.reachhydro.org/home/records/1-km-conus-forcing>`_ and version release notes are below. We recommend using the latest version, 1.0. 
 
     processing_notes: >
       ....
