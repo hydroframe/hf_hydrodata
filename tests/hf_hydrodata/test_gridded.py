@@ -1876,5 +1876,18 @@ def test_wateryear_one_point():
     data = hf.get_gridded_data(options)
     assert data.shape == (8760, 1, 1)
 
+def test_pf_flow_barrier():
+    """Test the pf_flowbarrier variable is 3D."""
+    options = {
+        "dataset": "conus2_domain",
+        "variable": "pf_flowbarrier",
+        "grid_bounds": [1500, 1500, 1505, 1505],
+    }
+
+    data = hf.get_gridded_data(options)
+    assert data.shape == (10, 5, 5)
+    assert data[3, 0, 0] == 1.0
+    assert data[3, 3, 4] == 0.001
+
 if __name__ == "__main__":
     pytest.main([__file__])
