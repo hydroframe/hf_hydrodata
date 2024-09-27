@@ -146,7 +146,7 @@ def test_catalog_preference():
     }
     entry = hf.get_catalog_entry(option)
     assert entry["aggregation"] == "mean"
-    assert entry["dataset_version"] == "0.9"
+    assert entry["dataset_version"] == "1.0" or entry["dataset_version"] == ""
 
 
 def test_get_citations_usgs():

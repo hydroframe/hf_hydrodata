@@ -11,7 +11,7 @@ import json
 import generate_docs_options
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
-from hf_hydrodata.data_model_access import load_data_model
+from hf_hydrodata.data_model_access import load_data_model, ModelTableRow
 
 
 def main():
@@ -20,7 +20,21 @@ def main():
     """
 
     load_data_model(load_from_api=False)
+    load_rows()
     generate_datasets()
+
+def load_rows():
+    data_model = load_data_model()
+    for table_name in ["dataset", "grid", "temporal_resolution", "data_catalog_entry", "dataset_type"]:
+        table_object = data_model.get_table(table_name)
+        result_json = table_object._query_data_catalog({})
+        for row_id in result_json:
+            if not row_id in table_object.row_ids:
+                table_object.row_ids.append(row_id)
+                response_row = result_json.get(row_id)
+                if response_row is not None:
+                    row = ModelTableRow(response_row)
+                    table_object.rows[row_id] = row
 
 
 def generate_datasets():
@@ -47,6 +61,7 @@ def _generate_dataset_type_docs(
     """
     gen_dataset_list_path = f"{directory}/gen_dataset_list.rst"
     with open(gen_dataset_list_path, "a+") as stream:
+        print(f"Write to '{gen_dataset_list_path}")
         data_model = load_data_model()
         dataset_type_table = data_model.get_table("dataset_type")
         dataset_table = data_model.get_table("dataset")

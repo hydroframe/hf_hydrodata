@@ -207,7 +207,7 @@ def test_paths_hourly_files():
     )
 
 
-def test_files_exist():
+def moved_to_seperate_repo_test_files_exist():
     """Test that the files found in every data_catalog_entry exist."""
 
     gr.HYDRODATA = "/hydrodata"
