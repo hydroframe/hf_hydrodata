@@ -37,8 +37,11 @@ def publish_schema(source_schema: str, target_schema: str):
         for line in ddl.split(";"):
             line = line.strip()
             line = line.replace("\n", " ")
+            # Use a temp_schema during replacement to allow swap of public/development schema 
+            line = line.replace("public.", "temp_schema.")
             line = line.replace("public.", f"{target_schema}.")
             line = line.replace("development.", f"{source_schema}.")
+            line = line.replace("temp_schema.", f"{target_schema}.")
             if len(line) > 0 and not line.startswith("#"):
                 print(line)
                 _execute_sql(connection, line)

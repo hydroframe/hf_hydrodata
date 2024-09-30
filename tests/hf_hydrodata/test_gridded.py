@@ -207,137 +207,60 @@ def test_paths_hourly_files():
     )
 
 
-def moved_to_seperate_repo_test_files_exist():
-    """Test that the files found in every data_catalog_entry exist."""
+def test_files_exist():
+    """Test that the data catalog path template points to an actual file in /hydrodata."""
 
-    gr.HYDRODATA = "/hydrodata"
-    if not os.path.exists("/hydrodata"):
-        # Just skip test if this is run on a machine without /hydrodata access
-        return
+    def _get_start_time(entry):
+        """Get a start time used in substituting into the data catalog template appropriate for the dataset."""
 
-    rows = hf.get_catalog_entries()
+        result = None
+        if entry["dataset"] in ["conus1_current_conditions", "nasa_smap", "conus2_current_conditions", "conus2_domain", "noaa"]:
+            result = "2023-10-01"
+        else:
+            result = "2005-10-01"
+        return result
 
-    bad_row = False
-    for row in rows:
-        site_id = ""
-        dataset = row["dataset"]
-        site_type = row["site_type"]
-        if dataset == "conus1_baseline_85":
-            start_time = "1984-11-01"
-        elif dataset == "conus1_baseline_mod":
-            start_time = "2005-09-01"
-        elif dataset == "NLDAS2":
-            start_time = "2005-09-01"
-        elif dataset == "conus1_domain":
-            start_time = "2005-09-01"
-        elif dataset == "nasa_smap":
-            start_time = "2023-01-01"
-        elif dataset == "noaa":
-            start_time = "2023-01-01"
-        elif site_type == "streamflow":
-            site_id = "05490600"
-        elif site_type == "groundwater":
-            site_id = "351058106391002"
-        elif dataset == "snotel":
-            site_id = "348:UT:SNTL"
-            start_time = "2002-01-01"
-        elif dataset == "observations":
-            site_id = "348:UT:SNTL"
-            start_time = "2002-01-01"
-        elif dataset == "scan":
-            site_id = "2109:MS:SCAN"
-        elif dataset == "ameriflux":
-            site_id = "US-HB2"
-        elif dataset == "obs_anomolies":
-            start_time = "2002-01-01"
-        elif dataset == "conus1_current_conditions":
-            start_time = "2023-01-01"
-        elif dataset == "NLDAS2_85":
-            start_time = "2005-10-01"
-            
-        row_id = row["id"]
-        if not row_id in [
-            "206",
-            "207",
-            "208",
-            "209",
-            "210",
-            "213",
-            "253",
-            "254",
-            "522",
-            "525",
-            "528",
-        ]:
-            paths = gr.get_file_paths(
-                row,
-                start_time=start_time,
-                level="4",
-                site_type=site_type,
-                site_id=site_id,
-            )
-            for path in paths:
-                if not os.path.exists(path):
-                    print(
-                        f"Dataset '{dataset}' path not exist '{path}' for template '{row_id}'"
-                    )
-                    bad_row = True
-                    break
-    assert bad_row is False
+    def _get_site_id(entry):
+        """Get a site_id for point observation data catalog entries appropriate for entry."""
 
+        result = ""
+        path_template = entry["path"]
+        if "site_id" in path_template:
+            if "streamflow" in entry["path"]:
+                result = "06787000"
+            elif "groundwater" in entry["path"]:
+                result = "351058106391002"
+            elif "swe" in entry["path"]:
+                result = "348:UT:SNTL"
+            elif entry["variable"] == "swe":
+                result = "348:UT:SNTL"
+            elif "NRCS_precipitation" in entry["path"]:
+                result = "348:UT:SNTL"
+            elif "NRCS_temperature" in entry["path"]:
+                result = "348:UT:SNTL"
+            elif "soil_moisture" in entry["path"]:
+                result = "2028:PA:SCAN"
+            elif "ameriflux" in entry["path"]:
+                result = "US-Ho2"
+        return result
 
-def test_read_data_all_entries():
-    """Test that can read data for all entries"""
-
-    gr.HYDRODATA = "/hydrodata"
-    if not os.path.exists("/hydrodata"):
-        # Just skip test if this is run on a machine without /hydrodata access
-        return
-
-    # Skip this test for now because it takes more than 60 seconds to run (we will run it manually for now)
-    return
-
-    rows = hf.get_catalog_entries()
-
-    bad_row = False
-    for row in rows:
-        dataset = row["dataset"]
-        if dataset == "conus1_baseline_85":
-            start_time = "1984-11-01"
-        elif dataset == "conus1_baseline_mod":
-            start_time = "2005-09-01"
-        elif dataset == "NLDAS2":
-            start_time = "2005-09-01"
-        elif dataset == "NLDAS2_85":
-            start_time = "1984-11-01"
-        elif dataset == "conus1_domain":
-            start_time = "2005-09-01"
-        elif dataset == "CW3E":
-            start_time = "2005-09-02"
-
-        try:
-            entry_id = row["id"]
-            file_type = row["file_type"]
-            # Zarr not supported yet
-            # vegm is supported, but tested with a seperate unit test
-            # vegm, pftxt, drv_clm, pftcl are parflow configuration files and not read as data
-            # ID 1, 68, 69 are pfmetadata files referencing variables in model that are not in the pfmetadata file
-            if file_type not in [
-                "zarr",
-                "pftxt",
-                "drv_clm",
-                "vegp",
-                "vegm",
-                "pftcl",
-                "sql",
-            ] and entry_id not in ["1", "68", "69"]:
-                data = gr.get_ndarray(row, start_time=start_time, level=4)
-                if data is None:
-                    bad_row = True
-        except:
-            print(f"No data for {entry_id}")
-            bad_row = True
-    assert bad_row is False
+    # Verify the path of every entry in the data catalog points to an existing file after substitution
+    entries = hf.get_catalog_entries()
+    for entry in entries:
+        data_catalog_entry_id = entry["id"]
+        start_time = _get_start_time(entry)
+        site_id = _get_site_id(entry)
+        site_id = _get_site_id(entry)
+        level = "2"
+        path_template = entry["path"]
+        if path_template:
+            path_example = hf.get_path({"data_catalog_entry_id": data_catalog_entry_id, "start_time": start_time, "level": level, "site_id": site_id})
+            if data_catalog_entry_id not in ["253", "254", "10003", "10004", "10005", "10006", "10007", "10008", "10009", "10010", "10011"]:
+                # Ignore HydroGEN entries and files known to not exist
+                dataset = entry["dataset"]
+                if not os.path.exists(path_example):
+                    print(path_example, "does not exist")
+                assert os.path.exists(path_example), f"File '{data_catalog_entry_id}'dataset '{dataset}' template '{path_template}' time '{start_time}'"
 
 
 def test_subsetting():
