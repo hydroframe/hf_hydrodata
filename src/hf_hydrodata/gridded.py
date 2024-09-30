@@ -346,7 +346,6 @@ def get_file_path(entry, *args, **kwargs) -> str:
     return result
 
 
-
 def get_gridded_files(
     options: dict,
     filename_template: str = None,
@@ -424,7 +423,7 @@ def get_gridded_files(
         #    NLDAS2_WY2006.nc
         # The .nc file will have two variables: precipitation and air_temp.
         # The .nc file will have a time dimension with coordinates of the water year containing the data in the file.
-        # For the example above the time dimension would be between 2005-10-1 to 2006-09-30 
+        # For the example above the time dimension would be between 2005-10-1 to 2006-09-30
         #    with only 3 days of data downloaded and stored in the file.
         # The .nc file will have x dimension 100 and y dimensions 50 defined by the grid_bounds.
 
@@ -626,10 +625,7 @@ def _get_aggregation_entries(options):
 
 
 def _load_gridded_file_entry(
-    state,
-    entry: ModelTableRow,
-    options: dict,
-    file_time: datetime.datetime
+    state, entry: ModelTableRow, options: dict, file_time: datetime.datetime
 ):
     """
     Get data from within a dask deferred thread.
@@ -663,9 +659,6 @@ def _load_gridded_file_entry(
         if entry["temporal_resolution"] in ["daily", "hourly"]:
             file_daynum = (
                 (file_time - state.start_time).days + 1 if state.start_time else 0
-            )
-            num_days = (
-                (state.end_time - state.start_time).days if state.start_time else 0
             )
             variable = options.get("variable")
             (wy, _) = _get_water_year(file_time)
@@ -903,7 +896,7 @@ def _execute_dask_items(dask_items, state, file_name: str):
                     "zlib": True,
                     "complevel": 3,
                     "fletcher32": True,
-                    "chunksizes": tuple(map(lambda x: x//2, data.shape))
+                    "chunksizes": tuple(map(lambda x: x // 2, data.shape)),
                 }
 
             ds = xr.Dataset(data_vars=data_vars_definition, coords=coords_definition)
@@ -916,6 +909,7 @@ def _execute_dask_items(dask_items, state, file_name: str):
 def _consolate_dask_items(items):
     """Function to wait for all the dask items to complete."""
     return len(items)
+
 
 def _construct_string_from_options(qparam_values):
     """
@@ -1165,10 +1159,9 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
         options = kwargs
 
     if options.get("period") and not options.get("temporal_resolution"):
-        options["temporal_resolution"] = options["period"]        
+        options["temporal_resolution"] = options["period"]
 
     data = _get_gridded_data_from_api(options)
-
 
     if data is None:
         # This call is local to /hydrodata so we can get data catalog information
@@ -1368,14 +1361,16 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
         # It gets the same answer as the old algorithm for other less complicated HUC
 
         # Slice for point with the HUC value
-        huc_value = int(huc_id) if np.issubdtype(tiff_ds.dtype, np.integer) else float(huc_id)
+        huc_value = (
+            int(huc_id) if np.issubdtype(tiff_ds.dtype, np.integer) else float(huc_id)
+        )
         sel_huc = (tiff_ds == huc_value).squeeze()
 
         # Get the min/max indicies of the points with the huc_value
         sel_huc_np = sel_huc.values
         indices = np.argwhere(sel_huc_np)
         [arr_jmin, arr_imin] = indices.min(axis=0)
-        [arr_jmax, arr_imax]= indices.max(axis=0)
+        [arr_jmax, arr_imax] = indices.max(axis=0)
 
         # Adjust for end conditions to get same answer as previous algorithm
         jmin = sel_huc_np.shape[0] - (arr_jmax + 1)
@@ -1504,20 +1499,19 @@ def _get_gridded_data_from_api(options):
 
     Returns
     -------
-    numpy array of the requested data or None if running locally.    
+    numpy array of the requested data or None if running locally.
     """
 
     run_remote = not os.path.exists(HYDRODATA)
 
     if run_remote:
         if options.get("period") and not options.get("temporal_resolution"):
-            options["period"] = options["temporal_resolution"]        
+            options["period"] = options["temporal_resolution"]
         options = _convert_json_to_strings(options)
         options_list = [
             f"{name}={value}" for name, value in options.items() if value is not None
         ]
         q_params = "&".join(options_list)
-
 
         gridded_data_url = f"{HYDRODATA_URL}/api/gridded-data?{q_params}"
         try:
@@ -1566,6 +1560,7 @@ def _get_gridded_data_from_api(options):
         return data
 
     return None
+
 
 def _adjust_dimensions(data: np.ndarray, entry: ModelTableRow) -> np.ndarray:
     """
@@ -2025,6 +2020,7 @@ def __get_geotiff(grid: str, level: int) -> xr.Dataset:
             tiff_ds = xr.open_dataset(file_path).drop_vars(("x", "y"))[variable]
         return tiff_ds
 
+
 def _collect_pfb_date_dimensions(
     time_values: List[str], data: np.ndarray, start_time_value: datetime.datetime
 ):
@@ -2044,6 +2040,7 @@ def _collect_pfb_date_dimensions(
         for _ in range(0, data.shape[0]):
             time_values.append(dt.strftime("%Y-%m-%d"))
             dt = dt + datetime.timedelta(days=1)
+
 
 def _match_filename_wild_card(data_path: str) -> str:
     """The data_path ends with a * wild card. Use this to find a file matching that file prefix."""

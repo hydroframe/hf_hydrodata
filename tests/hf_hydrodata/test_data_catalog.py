@@ -15,18 +15,6 @@ import hf_hydrodata as hf
 import hf_hydrodata.gridded as gr
 
 
-@pytest.fixture(autouse=True)
-def patch_api(mocker):
-    """Mock api call to load model from API. This allows tests to work with model from the git repo."""
-
-    def mock_return_model(option):
-        return None
-
-    mocker.patch(
-        "hf_hydrodata.data_model_access._load_model_from_api",
-        side_effect=mock_return_model,
-    )
-
 
 def test_get_citations():
     """Test get_citation"""

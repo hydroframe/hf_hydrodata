@@ -28,13 +28,3 @@ def test_unit_types():
     units_table = data_model.get_table("units")
     assert units_table.get_row("m3/h")["unit_type"] == "volume_flux"
 
-def test_export_model():
-    """Test exporting the data model to a dict."""
-    return
-
-    data_model = hf_hydrodata.data_model_access.load_data_model(False)
-    model_dict = data_model.export_to_dict()
-    entries = model_dict.get("data_catalog_entry")
-    assert len(entries) > 300
-
-

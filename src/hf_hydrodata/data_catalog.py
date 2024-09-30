@@ -763,11 +763,3 @@ def _get_point_citations(dataset):
         c = "Dataset DOI: 10.1126/science.1229881"
 
     return c
-
-
-def test_get_tables():
-    """Test get_table_names."""
-
-    hf_hydrodata.gridded.HYDRODATA = "/hydrodata"
-    table_names = hf_hydrodata.get_table_names()
-    assert len(table_names) >= 14

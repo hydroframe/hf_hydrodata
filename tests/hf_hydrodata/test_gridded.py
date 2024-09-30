@@ -26,19 +26,6 @@ import hf_hydrodata.gridded as gr
 hf.data_model_access.DATA_MODEL_CACHE = None
 
 
-@pytest.fixture(autouse=True)
-def patch_api(mocker):
-    """Mock api call to load model from API. This allows tests to work with model from the git repo."""
-
-    def mock_return_model(option):
-        return None
-
-    mocker.patch(
-        "hf_hydrodata.data_model_access._load_model_from_api",
-        side_effect=mock_return_model,
-    )
-
-
 class MockResponse:
     """Mock the flask.request response."""
 

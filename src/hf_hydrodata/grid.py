@@ -173,7 +173,7 @@ def to_ij(grid: str, *args) -> List[int]:
         ij_bounds = hf.to_ij("conus1", *[31.651836, -115.982367, 31.759219, -115.902573])
     """
     epsilon = 0.001  # Account for floating point round off when truncating to int
-    result = [int(v+epsilon) for v in from_latlon(grid, *args)]
+    result = [int(v + epsilon) for v in from_latlon(grid, *args)]
     return result
 
 
