@@ -20,10 +20,11 @@ def test_get_citations():
     """Test get_citation"""
 
     result = hf.get_citations(dataset="conus1_domain")
-    #assert "10.5194" in result
-    #result = hf.get_citations("conus1_domain")
-    #assert "10.5194" in result
-    #result = hf.get_citations("CW3E")
+    assert "gmd-8-923-2015" in result
+    assert "10.5194" in result
+    result = hf.get_citations("conus1_domain")
+    assert "10.5194" in result
+    result = hf.get_citations("CW3E")
 
 
 
@@ -33,8 +34,7 @@ def test_get_entries():
     gr.HYDRODATA = "/hydrodata"
     rows = hf.get_catalog_entries(dataset="NLDAS2", file_type="pfb", period="daily")
     assert len(rows) == 10
-    # TODO NOT FOR SQL assert len(rows[0].column_names()) >= 25
-    for index in range(0, len(rows)):
+    for index, _ in enumerate(rows):
         row = rows[index]
         if row["variable"] == "air_temp":
             assert row.get_value("variable") == "air_temp"
@@ -92,7 +92,7 @@ def test_generate_hydrodata_catalog_yaml():
     """Test generate_hydrodata_catalog_yaml"""
 
     with tempfile.TemporaryDirectory() as tempdirname:
-        hf.load_data_model(True)
+        hf.load_data_model()
         output_file = os.path.join(tempdirname, "foo.yaml")
         hf_hydrodata.generate_hydrodata_catalog_yaml.generate_yaml(output_file)
         assert os.path.exists(output_file)

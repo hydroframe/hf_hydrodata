@@ -5,12 +5,13 @@ Functions to access data_catalog metadata.
 # pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702,W0212
 
 import os
-from typing import List, Tuple
+from typing import List
 import threading
-import json
-import datetime
-import requests
-from hf_hydrodata.data_model_access import ModelTableRow, load_data_model
+from hf_hydrodata.data_model_access import (
+    ModelTableRow,
+    load_data_model,
+    _get_api_headers,
+)
 
 HYDRODATA = "/hydrodata"
 JWT_TOKEN = None
@@ -130,42 +131,6 @@ def register_api_pin(email: str, pin: str):
         stream.write(line)
         stream.write("}")
     os.chmod(pin_path, 0o700)
-
-
-def get_registered_api_pin() -> Tuple[str, str]:
-    """
-    Get the email and pin registered by the current user on the current machine.
-
-    Returns:
-        A tuple (email, pin).
-    Raises:
-        ValueError:  if no email/pin was registered.
-
-    Example:
-
-    .. code-block:: python
-
-        import hf_hydrodata as hf
-        (email, pin) = hf.get_registered_api_pin()
-    """
-
-    pin_dir = os.path.expanduser("~/.hydrodata")
-    pin_path = f"{pin_dir}/pin.json"
-    if not os.path.exists(pin_path):
-        raise ValueError(
-            "No email/pin was registered'. Signup for an account with https://hydrogen.princeton.edu/signup. Create a pin with https://hydrogen.princeton.edu/pin. Register your pin with the python call 'hf_hydrodata.register_api_pin()'."
-        )
-    try:
-        with open(pin_path, "r") as stream:
-            contents = stream.read()
-            parsed_contents = json.loads(contents)
-            email = parsed_contents.get("email")
-            pin = parsed_contents.get("pin")
-            return (email, pin)
-    except Exception as e:
-        raise ValueError(
-            "No email/pin was registered'. Signup for an account with https://hydrogen.princeton.edu/signup. Create a pin with https://hydrogen.princeton.edu/pin. Register your pin with the python call 'hf_hydrodata.register_api_pin()'."
-        ) from e
 
 
 def get_datasets(*args, **kwargs) -> List[str]:
@@ -418,46 +383,6 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
     entries = get_catalog_entries(*args, **kwargs)
     entry = _get_preferred_catalog_entry(entries)
     return entry
-
-
-def _get_api_headers() -> dict:
-    """
-    Get the API headers containing the jwt token to be passed to API calls.
-    Returns:
-        A dict containing an 'Authorization' attribute with a JWT bearer token.
-    """
-
-    global JWT_TOKEN
-    global USER_ROLES
-    with THREAD_LOCK:
-        if not os.path.exists(HYDRODATA) and not JWT_TOKEN:
-            # Only do this if we do not already have a JWT_TOKEN and this is running remote
-
-            email, pin = get_registered_api_pin()
-            url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
-            response = requests.get(url_security, timeout=1200)
-            if not response.status_code == 200:
-                raise ValueError(
-                    f"No registered PIN for '{email}' (expired?). Re-register a pin with https://hydrogen.princeton.edu/pin . Signup with https://hydrogen.princeton.edu/signup. Register the pin with python by executing 'hf_hydrodata.register_api_pin()'."
-                )
-            json_string = response.content.decode("utf-8")
-            jwt_json = json.loads(json_string)
-            expires_string = jwt_json.get("expires")
-            if expires_string:
-                expires = datetime.datetime.strptime(
-                    expires_string, "%Y/%m/%d %H:%M:%S GMT-0000"
-                )
-                now = datetime.datetime.now()
-                if now > expires:
-                    raise ValueError(
-                        "PIN has expired. Re-register a pin with https://hydrogen.princeton.edu/pin . Signup with https://hydrogen.princeton.edu/signup. Register the pin with python by executing 'hf_hydrodata.register_api_pin()'."
-                    )
-            JWT_TOKEN = jwt_json["jwt_token"]
-            USER_ROLES = jwt_json.get("user_roles")
-
-    headers = {}
-    headers["Authorization"] = f"Bearer {JWT_TOKEN}"
-    return headers
 
 
 def _get_preferred_catalog_entry(entries: List[dict]) -> dict:
@@ -761,5 +686,7 @@ def _get_point_citations(dataset):
 
     elif dataset == "fan_2013":
         c = "Dataset DOI: 10.1126/science.1229881"
+    else:
+        c = ""
 
     return c

@@ -1,3 +1,4 @@
+"""Python module initialization to configure external entry points to the module."""
 from hf_hydrodata.grid import (
     to_ij,
     to_xy,
@@ -9,7 +10,6 @@ from hf_hydrodata.grid import (
 )
 from hf_hydrodata.data_catalog import (
     register_api_pin,
-    get_registered_api_pin,
     get_catalog_entries,
     get_catalog_entry,
     get_table_names,
@@ -39,6 +39,7 @@ from hf_hydrodata.point import (
 )
 
 from hf_hydrodata.data_model_access import (
+    get_registered_api_pin,
     ModelTableRow,
     ModelTable,
     DataModel,

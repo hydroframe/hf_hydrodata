@@ -4,7 +4,7 @@
     These will be included bv the hand referenced .vst files in the same directory.
 """
 
-# pylint: disable=E0401,C0413,C0103,C0301,W1514,R0914,W1309,W0212,R0915,R0912
+# pylint: disable=E0401,C0413,C0103,C0301,W1514,R0914,W1309,W0212,R0915,R0912,E1121
 import sys
 import os
 import json
@@ -19,7 +19,7 @@ def main():
     Main function for the docs generator.
     """
 
-    load_data_model(load_from_api=False)
+    load_data_model()
     load_rows()
     generate_datasets()
 

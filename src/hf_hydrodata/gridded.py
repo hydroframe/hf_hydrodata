@@ -2,7 +2,7 @@
 Functions to access gridded data from the data catalog index of the GPFS files.
 """
 
-# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702,R0903,R0902,C0415
+# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702,R0903,R0902,C0415,R0917
 import os
 import datetime
 import time
@@ -21,9 +21,11 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 from parflow import read_pfb_sequence, write_pfb
-from hf_hydrodata.data_model_access import ModelTableRow
-from hf_hydrodata.data_model_access import load_data_model
-from hf_hydrodata.data_catalog import _get_api_headers
+from hf_hydrodata.data_model_access import (
+    ModelTableRow,
+    _get_api_headers,
+    load_data_model,
+)
 from hf_hydrodata.grid import to_ij
 import hf_hydrodata.data_catalog as dc
 
@@ -97,6 +99,13 @@ def get_file_paths(entry, *args, **kwargs) -> List[str]:
                 else entry["period"]
             )
             path = entry["path"]
+    else:
+        path = entry["path"]
+        period = (
+            entry["temporal_resolution"]
+            if entry["temporal_resolution"]
+            else entry["period"]
+        )
     if entry is None:
         raise ValueError("No data catalog entry provided")
 
@@ -682,6 +691,9 @@ def _create_gridded_files_netcdf(
         t_shape = 12
         t_num = (file_time - wy_start_time).months
     elif state.temporal_resolution == "static":
+        t_num = 0
+        t_shape = 1
+    else:
         t_num = 0
         t_shape = 1
 
@@ -1519,6 +1531,7 @@ def _get_gridded_data_from_api(options):
             response = requests.get(gridded_data_url, headers=headers, timeout=4000)
             if response.status_code in [500, 502]:
                 # Retry because of timeout error
+                print("API timeout, performing retry.")
                 response = requests.get(gridded_data_url, headers=headers, timeout=4000)
             if response.status_code == 400:
                 content = response.content.decode()
@@ -1941,6 +1954,9 @@ def _read_and_filter_tiff_files(
             data = np.flip(data_da.to_numpy(), 1)
         elif len(data_da.shape) == 2:
             data = np.flip(data_da.to_numpy(), 0)
+        else:
+            raise ValueError("Unexpected shape of tiff file.")
+
     else:
         # Select the data and do not flip the result
         data_da = data_da.isel(da_indexers)
@@ -2508,6 +2524,8 @@ def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -
                     ).count()
                     - 1
                 )
+            else:
+                raise ValueError(f"Unexpected temporal resolution '{period}'.")
 
             if end_time_value is None:
                 # Slice time dimension to a single point in time because only start_time specified
@@ -2538,7 +2556,8 @@ def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -
                         ).count()
                         - 1
                     )
-
+                else:
+                    raise ValueError(f"Unexpected temporal resolution '{period}'.")
                 da_indexers[time_dimension_name] = slice(time_index, end_time_index)
     if x is not None:
         if y is None:

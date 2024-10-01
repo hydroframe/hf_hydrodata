@@ -20,13 +20,19 @@ Functions to load the csv files of the data catalog model into a DataModel objec
 
 import os
 import json
+import datetime
+from typing import Tuple
 import threading
+import platform
 import requests
 
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
 THREAD_LOCK = threading.Lock()
 DATA_MODEL_CACHE = None
 READ_DC_CALLBACK = None
+HYDRODATA = "/hydrodata"
+JWT_TOKEN = None
+USER_ROLES = None
 
 
 class ModelTableRow:
@@ -104,10 +110,14 @@ class ModelTable:
             response_json = READ_DC_CALLBACK(parameter_options)
         else:
             # Make an API call to get the data catalog information from the database
-            parameters = [f"{key}={parameter_options.get(key)}" for key in parameter_options.keys()]
+            parameters = [
+                f"{key}={parameter_options.get(key)}"
+                for key in parameter_options.keys()
+            ]
             parameter_list = "&".join(parameters)
             url = f"{HYDRODATA_URL}/api/v2/data_catalog?{parameter_list}"
-            response = requests.get(url, timeout=120)
+            headers = _get_api_headers()
+            response = requests.get(url, timeout=120, headers=headers)
             if response.status_code == 200:
                 response_json = json.loads(response.text)
             else:
@@ -161,12 +171,13 @@ class DataModel:
         return table
         # return self.table_index.get(table_name)
 
-def load_data_model(load_from_api=True) -> DataModel:
+
+def load_data_model() -> DataModel:
     """
-    Load the data catalog model from CSV files.
+    Create and return the data model object.
 
     Returns:
-        A DataModel object containing all the tables of the data model.
+        A DataModel object to access all the tables of the data model.
     """
 
     global DATA_MODEL_CACHE
@@ -178,4 +189,79 @@ def load_data_model(load_from_api=True) -> DataModel:
         return data_model
 
 
+def _get_api_headers() -> dict:
+    """
+    Get the API headers containing the jwt token to be passed to API calls.
+    Returns:
+        A dict containing an 'Authorization' attribute with a JWT bearer token.
+    """
 
+    global JWT_TOKEN
+    global USER_ROLES
+    if not JWT_TOKEN and not os.path.exists(HYDRODATA):
+        # Only do this if we do not already have a JWT_TOKEN and this is running remote
+
+        if "verde-" in platform.node() and not os.getenv("https_proxy"):
+            # This is to configure a proxy for a princeton environment if not already specified
+            os.environ["https_proxy"] = "http://verde:8080"
+        email, pin = get_registered_api_pin()
+        url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
+        response = requests.get(url_security, timeout=1200)
+        if not response.status_code == 200:
+            raise ValueError(
+                f"No registered PIN for '{email}' (expired?). Re-register a pin with https://hydrogen.princeton.edu/pin . Signup with https://hydrogen.princeton.edu/signup. Register the pin with python by executing 'hf_hydrodata.register_api_pin()'."
+            )
+        json_string = response.content.decode("utf-8")
+        jwt_json = json.loads(json_string)
+        expires_string = jwt_json.get("expires")
+        if expires_string:
+            expires = datetime.datetime.strptime(
+                expires_string, "%Y/%m/%d %H:%M:%S GMT-0000"
+            )
+            now = datetime.datetime.now()
+            if now > expires:
+                raise ValueError(
+                    "PIN has expired. Re-register a pin with https://hydrogen.princeton.edu/pin . Signup with https://hydrogen.princeton.edu/signup. Register the pin with python by executing 'hf_hydrodata.register_api_pin()'."
+                )
+        JWT_TOKEN = jwt_json["jwt_token"]
+        USER_ROLES = jwt_json.get("user_roles")
+
+    headers = {}
+    headers["Authorization"] = f"Bearer {JWT_TOKEN}"
+    return headers
+
+
+def get_registered_api_pin() -> Tuple[str, str]:
+    """
+    Get the email and pin registered by the current user on the current machine.
+
+    Returns:
+        A tuple (email, pin).
+    Raises:
+        ValueError:  if no email/pin was registered.
+
+    Example:
+
+    .. code-block:: python
+
+        import hf_hydrodata as hf
+        (email, pin) = hf.get_registered_api_pin()
+    """
+
+    pin_dir = os.path.expanduser("~/.hydrodata")
+    pin_path = f"{pin_dir}/pin.json"
+    if not os.path.exists(pin_path):
+        raise ValueError(
+            "No email/pin was registered'. Signup for an account with https://hydrogen.princeton.edu/signup. Create a pin with https://hydrogen.princeton.edu/pin. Register your pin with the python call 'hf_hydrodata.register_api_pin()'."
+        )
+    try:
+        with open(pin_path, "r") as stream:
+            contents = stream.read()
+            parsed_contents = json.loads(contents)
+            email = parsed_contents.get("email")
+            pin = parsed_contents.get("pin")
+            return (email, pin)
+    except Exception as e:
+        raise ValueError(
+            "No email/pin was registered'. Signup for an account with https://hydrogen.princeton.edu/signup. Create a pin with https://hydrogen.princeton.edu/pin. Register your pin with the python call 'hf_hydrodata.register_api_pin()'."
+        ) from e
