@@ -35,7 +35,7 @@ def generate_yaml(output_file: str = None):
 
     found_error = False
     try:
-        data_model = load_data_model(False)
+        data_model = load_data_model()
         found_error = _validate_data_model(data_model)
         output_file = output_file if output_file is not None else f"{YAML_FILE}"
         _generate_yaml_file(output_file, data_model)
