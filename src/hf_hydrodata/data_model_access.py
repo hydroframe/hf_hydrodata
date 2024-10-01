@@ -198,8 +198,8 @@ def _get_api_headers() -> dict:
 
     global JWT_TOKEN
     global USER_ROLES
-    if not JWT_TOKEN and not os.path.exists(HYDRODATA):
-        # Only do this if we do not already have a JWT_TOKEN and this is running remote
+    if not JWT_TOKEN:
+        # Only do this if we do not already have a JWT_TOKEN cached in the global variable
 
         if "verde-" in platform.node() and not os.getenv("https_proxy"):
             # This is to configure a proxy for a princeton environment if not already specified
