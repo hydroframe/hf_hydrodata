@@ -1697,9 +1697,13 @@ def _read_and_filter_pfb_files(
 
     start_time_value = _parse_time(options.get("start_time"))
     end_time_value = _parse_time(options.get("end_time"))
+
+    # Get paths by data_catalog_entry_id to eliminate unnecessary SQL DB reads
     path_options = dict(options)
     path_options["data_catalog_entry_id"] = entry["id"]
     paths = get_paths(path_options)
+
+    # Make sure all paths exist
     for path in paths:
         if not os.path.exists(path):
             raise ValueError(f"File {path} does not exist.")
