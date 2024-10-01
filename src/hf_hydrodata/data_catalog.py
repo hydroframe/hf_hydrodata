@@ -602,14 +602,27 @@ def get_table_row(table_name: str, *args, **kwargs) -> ModelTableRow:
         assert row["id"] == "atmospheric_pressure"
     """
 
-    rows = get_table_rows(table_name, *args, **kwargs)
-    if len(rows) == 0:
-        return None
-    if len(rows) > 1:
-        id1 = rows[0]["id"]
-        id2 = rows[1]["id"]
-        raise ValueError(f"Ambiguous result could be id {id1} or {id2}")
-    return rows[0]
+    if len(args) > 1 and isinstance(args[0], dict):
+        options = args[0]
+    else:
+        options = kwargs
+    row_id = options.get("id")
+    if row_id:
+        # Request is for a row by the id so use table.get_row which uses a cache if it was already read
+        data_model = load_data_model()
+        table = data_model.get_table(table_name)
+        row = table.get_row(row_id)
+        return row
+    else:
+        # Query the catalog with filter options to find the row
+        rows = get_table_rows(table_name, *args, **kwargs)
+        if len(rows) == 0:
+            return None
+        if len(rows) > 1:
+            id1 = rows[0]["id"]
+            id2 = rows[1]["id"]
+            raise ValueError(f"Ambiguous result could be id {id1} or {id2}")
+        return rows[0]
 
 
 def _is_row_match_options(row: ModelTableRow, options: dict) -> bool:
