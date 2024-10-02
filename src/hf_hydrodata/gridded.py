@@ -1115,7 +1115,7 @@ def _write_file_from_api(filepath, options):
 
     try:
         headers = _get_api_headers()
-        response = requests.get(datafile_url, headers=headers, timeout=1200)
+        response = requests.get(datafile_url, headers=headers, timeout=4000)
         if response.status_code != 200:
             if response.status_code == 400:
                 content = response.content.decode()
@@ -1655,17 +1655,20 @@ def _get_ndarray_from_api(entry, options):
 
         try:
             headers = _get_api_headers()
-            response = requests.get(gridded_data_url, headers=headers, timeout=1200)
+            response = requests.get(gridded_data_url, headers=headers, timeout=4000)
+            if response.status_code in [500, 502]:
+                # Retry because of timeout error
+                response = requests.get(gridded_data_url, headers=headers, timeout=4000)
+            if response.status_code == 400:
+                content = response.content.decode()
+                response_json = json.loads(content)
+                message = response_json.get("message")
+                raise ValueError(message)
+            if response.status_code in [500, 502]:
+                raise ValueError(
+                    "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+                )
             if response.status_code != 200:
-                if response.status_code == 400:
-                    content = response.content.decode()
-                    response_json = json.loads(content)
-                    message = response_json.get("message")
-                    raise ValueError(message)
-                if response.status_code == 502:
-                    raise ValueError(
-                        "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
-                    )
                 raise ValueError(
                     f"The  {gridded_data_url} returned error code {response.status_code}."
                 )
