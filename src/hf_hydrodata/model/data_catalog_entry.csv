@@ -411,7 +411,6 @@ id,dataset,dataset_version,file_type,variable,dataset_var,entry_start_date,entry
 534,CW3E,0.8,pfb,east_windspeed,UGRD,,,hourly,m/s,-,conus2,wy_start_24hr,2,/hydrodata/temp/CW3E_Forcing_Update_21_Jan_24/processing/processed_data/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
 535,CW3E,0.8,pfb,north_windspeed,VGRD,,,hourly,m/s,-,conus2,wy_start_24hr,2,/hydrodata/temp/CW3E_Forcing_Update_21_Jan_24/processing/processed_data/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
 536,CW3E,0.8,pfb,atmospheric_pressure,Press,,,hourly,pa,-,conus2,wy_start_24hr,2,/hydrodata/temp/CW3E_Forcing_Update_21_Jan_24/processing/processed_data/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-
 537,CW3E,1.0,pfb,precipitation,APCP,,,hourly,mm,-,conus2,wy_start_24hr,2,/hydrodata/forcing/processed_data/CONUS2/CW3E_v1.0/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
 538,CW3E,1.0,pfb,downward_longwave,DLWR,,,hourly,w/m2,-,conus2,wy_start_24hr,2,/hydrodata/forcing/processed_data/CONUS2/CW3E_v1.0/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
 539,CW3E,1.0,pfb,downward_shortwave,DSWR,,,hourly,w/m2,-,conus2,wy_start_24hr,2,/hydrodata/forcing/processed_data/CONUS2/CW3E_v1.0/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
@@ -420,4 +419,3 @@ id,dataset,dataset_version,file_type,variable,dataset_var,entry_start_date,entry
 542,CW3E,1.0,pfb,east_windspeed,UGRD,,,hourly,m/s,-,conus2,wy_start_24hr,2,/hydrodata/forcing/processed_data/CONUS2/CW3E_v1.0/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
 543,CW3E,1.0,pfb,north_windspeed,VGRD,,,hourly,m/s,-,conus2,wy_start_24hr,2,/hydrodata/forcing/processed_data/CONUS2/CW3E_v1.0/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
 544,CW3E,1.0,pfb,atmospheric_pressure,Press,,,hourly,pa,-,conus2,wy_start_24hr,2,/hydrodata/forcing/processed_data/CONUS2/CW3E_v1.0/hourly/WY{wy}/CW3E.{dataset_var}.{wy_start_24hr:06d}_to_{wy_end_24hr:06d}.pfb,,
-
