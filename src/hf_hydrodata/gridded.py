@@ -1204,7 +1204,10 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
             raise ValueError(f"File type '{file_type}' is not supported yet.")
         if structure_type == "gridded":
             data = _adjust_dimensions(data, entry)
-            if not options.get("nomask") == "true":
+            nomask_option = options.get("nomask", "false")
+            mask_option = options.get("mask", "true")
+            if nomask_option.lower() == "false" and mask_option.lower() == "true":
+                # By default apply the mask
                 data = _apply_mask(data, entry, options)
 
     return data
@@ -1601,21 +1604,14 @@ def _adjust_dimensions(data: np.ndarray, entry: ModelTableRow) -> np.ndarray:
         if entry["temporal_resolution"]
         else entry["period"]
     )
-    variable = entry["variable"]
-    dataset = entry["dataset"]
     if entry["file_type"] == "vegm":
         # Do not adjust vegm files
         return data
     period = period if period in ["hourly", "daily", "monthly", "weekly"] else "static"
-    variable_row = dc.get_table_row("variable", id=variable)
-    dataset_row = dc.get_table_row("dataset", id=dataset)
-    has_z = variable_row is not None and variable_row["has_z"].lower() == "true"
-    has_ensemble = False
-    if dataset_row is not None:
-        has_ensemble = (
-            dataset_row["has_ensemble"] is not None
-            and dataset_row["has_ensemble"].lower() == "true"
-        )
+    has_z = entry["has_z"] is not None and entry["has_z"].lower() == "true"
+    has_ensemble = (
+        entry["has_ensemble"] is not None and entry["has_ensemble"].lower() == "true"
+    )
     existing_shape = data.shape
     new_shape = existing_shape
     existing_dim_size = len(existing_shape)
@@ -1745,15 +1741,13 @@ def _read_and_filter_pfb_files(
 def _remove_unused_z_dimension(data: np.ndarray, entry: dict) -> np.ndarray:
     """Remove the z dimension from the data if the variable does not have z dimension."""
 
-    variable = entry["variable"]
     period = (
         entry["temporal_resolution"]
         if entry["temporal_resolution"]
         else entry["period"]
     )
-    variable_row = dc.get_table_row("variable", id=variable)
+    has_z = entry["has_z"] is not None and entry["has_z"].lower() == "true"
     uses_z_as_time = period in ["hourly", "monthly", "weekly"]
-    has_z = variable_row is not None and variable_row["has_z"].lower() == "true"
     if not uses_z_as_time and not has_z and len(data.shape) == 4:
         data = data[:, 0, :, :]
     return data
@@ -2192,10 +2186,8 @@ def _add_pfb_time_constraint(
         if entry["temporal_resolution"]
         else entry["period"]
     )
-    variable = entry["variable"]
-    variable_row = dc.get_table_row("variable", id=variable)
+    has_z = entry["has_z"] is not None and entry["has_z"].lower() == "true"
     uses_z_as_time = period in ["hourly", "monthly", "weekly"]
-    has_z = variable_row is not None and variable_row["has_z"].lower() == "true"
     if (
         uses_z_as_time
         and not has_z
