@@ -6,6 +6,7 @@ This is called by a jenkins job after the data acquisition jobs run to look at t
 recent acquired files and get the latest dates available to store in the data catalog.
 """
 
+# pylint: disable=C0301,E0401,W0212,R0914
 import os
 import datetime
 import re
@@ -13,7 +14,8 @@ import xarray as xr
 import hf_hydrodata as hf
 import public_release
 
-SCHEMA = "public"
+SCHEMA = os.getenv("DC_SCHEMA", "public")
+
 
 def main():
     """Main routine to collect dates and update catalog"""
@@ -21,7 +23,7 @@ def main():
     connection = public_release._get_connection(SCHEMA)
     _update_soil_moisture_dates(connection)
     _update_anomoly_dates(connection)
-    pass
+
 
 def _update_soil_moisture_dates(connection):
     """
@@ -34,9 +36,7 @@ def _update_soil_moisture_dates(connection):
     wy = 2024
     while True:
         # Find the latest files in the water year folder
-        soil_moisture_wy_path = (
-            f"/hydrodata/HydroGEN/current_conditions/CONUS2/WY{wy}"
-        )
+        soil_moisture_wy_path = f"/hydrodata/HydroGEN/current_conditions/CONUS2/WY{wy}"
         if not os.path.exists(soil_moisture_wy_path):
             # if no water year folder exists then we already found the latest date
             break
@@ -53,13 +53,18 @@ def _update_soil_moisture_dates(connection):
 
     end_date_str = end_date.strftime("%Y-%m-%d")
     sm_entry_id = "213"
-    sql = f"UPDATE public.data_catalog_entry SET entry_end_date='{end_date_str}' where id='{sm_entry_id}'"
+    sql = f"UPDATE {SCHEMA}.data_catalog_entry SET entry_end_date='{end_date_str}' where id='{sm_entry_id}'"
     public_release._execute_sql(connection, sql)
-    print(f"Updated {SCHEMA}.data_catalog_entry id '{sm_entry_id}' entry_end_date='{end_date_str}'")
+    print(
+        f"Updated {SCHEMA}.data_catalog_entry id '{sm_entry_id}' entry_end_date='{end_date_str}'"
+    )
     dataset_id = "conus2_current_conditions"
-    sql = f"UPDATE public.dataset SET dataset_end_date='{end_date_str}' where id='{dataset_id}'"
+    sql = f"UPDATE {SCHEMA}.dataset SET dataset_end_date='{end_date_str}' where id='{dataset_id}'"
     public_release._execute_sql(connection, sql)
-    print(f"Updated {SCHEMA}.dataset id '{dataset_id}' dataset_end_date='{end_date_str}'")
+    print(
+        f"Updated {SCHEMA}.dataset id '{dataset_id}' dataset_end_date='{end_date_str}'"
+    )
+
 
 def _update_anomoly_dates(connection):
     """
@@ -130,7 +135,9 @@ def _update_anomoly_dates(connection):
                 # Update the data catalog rows
                 sql = f"UPDATE {SCHEMA}.data_catalog_entry SET entry_end_date='{end_date_str}' where id = '{data_entry_id}'"
                 public_release._execute_sql(connection, sql)
-                print(f"Updated {SCHEMA}.data_catalog_entry id '{data_entry_id}' entry_end_date='{end_date_str}'")
+                print(
+                    f"Updated {SCHEMA}.data_catalog_entry id '{data_entry_id}' entry_end_date='{end_date_str}'"
+                )
 
 
 if __name__ == "__main__":

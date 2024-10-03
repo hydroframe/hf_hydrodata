@@ -1412,8 +1412,6 @@ def _verify_time_in_range(entry: dict, options: dict):
     temporal_resolution = entry["temporal_resolution"]
     dataset_start_date = entry["dataset_start_date"]
     dataset_end_date = entry["dataset_end_date"]
-    if dataset_end_date is None:
-        dataset_end_date = entry["dataset_dnd_Date"]
 
     start_time_value = _parse_time(start_time)
     dataset_start_date_value = _parse_time(dataset_start_date)

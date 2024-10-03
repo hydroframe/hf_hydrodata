@@ -42,6 +42,10 @@ class ModelTableRow:
         """Constructor"""
         self.row_values = values if values else {}
 
+    def get(self, column_name: str, default_value=None) -> str:
+        """Get the value of the named column in the row (simulate dict get method)."""
+        return self.row_values.get(column_name, default_value)
+
     def column_names(self):
         """Return the column names of the row."""
         return list(self.row_values.keys())
