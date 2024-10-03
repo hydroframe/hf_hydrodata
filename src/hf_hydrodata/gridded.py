@@ -1273,7 +1273,7 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
                 and "dataset_version" not in options
             ):
                 warnings.warn(
-                    "As of YYYY-MM-DD, version 1.0 of the CW3E dataset has been released. "
+                    "As of 2024-10-07, version 1.0 of the CW3E dataset has been released. "
                     "Due to known improvements in the results, this dataset version is now "
                     "the default version returned from `hf.get_gridded_data` when `dataset_version` "
                     "is not explicitly specified. If you would like to use the previous version "
