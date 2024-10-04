@@ -310,20 +310,21 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
     if row_id:
         # Use table.get_row() if we have a row_id because this is cached if already read
         row = table.get_row(row_id)
-        result = [row] if row else []
-    else:
-        # Get entries from the SQL DB with the API
-        if options.get("period") and not options.get("temporal_resolution"):
-            options["temporal_resolution"] = options.get("period")
+        if row:
+            result = [row]
+            return result
+    # Get entries from the SQL DB with the API
+    if options.get("period") and not options.get("temporal_resolution"):
+        options["temporal_resolution"] = options.get("period")
 
-        rows = table._query_data_catalog(options)
-        if rows:
-            result = [ModelTableRow(rows.get(id)) for id in rows.keys()]
-            # Add the query results to the cached results in the table.
-            for row_id in rows.keys():
-                if row_id not in table.row_ids:
-                    table.row_ids.append(row_id)
-                    table.rows[row_id] = rows.get(row_id)
+    rows = table._query_data_catalog(options)
+    if rows:
+        result = [ModelTableRow(rows.get(id)) for id in rows.keys()]
+        # Add the query results to the cached results in the table.
+        for row_id in rows.keys():
+            if row_id not in table.row_ids:
+                table.row_ids.append(row_id)
+                table.rows[row_id] = rows.get(row_id)
     return result
 
 

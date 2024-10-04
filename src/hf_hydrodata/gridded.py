@@ -1186,7 +1186,7 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
         _verify_time_in_range(entry, options)
 
         file_type = entry["file_type"]
-        structure_type = entry["structure_type"]
+        structure_type = entry.get("structure_type")
         data = None
         if file_type == "pfb":
             data = _read_and_filter_pfb_files(entry, options, time_values)
@@ -1410,8 +1410,8 @@ def _verify_time_in_range(entry: dict, options: dict):
     """
     start_time = options.get("start_time")
     temporal_resolution = entry["temporal_resolution"]
-    dataset_start_date = entry["dataset_start_date"]
-    dataset_end_date = entry["dataset_end_date"]
+    dataset_start_date = entry.get("dataset_start_date")
+    dataset_end_date = entry.get("dataset_end_date")
 
     start_time_value = _parse_time(start_time)
     dataset_start_date_value = _parse_time(dataset_start_date)
@@ -1598,9 +1598,9 @@ def _adjust_dimensions(data: np.ndarray, entry: ModelTableRow) -> np.ndarray:
     If the dataset has ensembles then there is an ensemble dimension at the beginning.
     """
     period = (
-        entry["temporal_resolution"]
-        if entry["temporal_resolution"]
-        else entry["period"]
+        entry.get("temporal_resolution")
+        if entry.get("temporal_resolution")
+        else entry.get("period")
     )
     if entry["file_type"] == "vegm":
         # Do not adjust vegm files
