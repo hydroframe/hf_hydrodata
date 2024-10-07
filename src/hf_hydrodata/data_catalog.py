@@ -78,9 +78,9 @@ def get_citations(*args, **kwargs) -> str:
         raise ValueError(f"No such dataset '{dataset}'")
     entry = entries[0]
     result = ""
-    description = entry["description"]
-    paper_dois = entry["paper_dois"]
-    dataset_dois = entry["dataset_dois"]
+    description = entry.get("description")
+    paper_dois = entry.get("paper_dois")
+    dataset_dois = entry.get("dataset_dois")
     result = result + f"{description}\n"
     found_reference = False
     if paper_dois:
@@ -176,7 +176,7 @@ def get_datasets(*args, **kwargs) -> List[str]:
     result = []
     entries = get_catalog_entries(*args, **kwargs)
     for entry in entries:
-        dataset = entry["dataset"]
+        dataset = entry.get("dataset")
         if dataset not in result:
             result.append(dataset)
     result.sort()
@@ -226,7 +226,7 @@ def get_variables(*args, **kwargs) -> List[str]:
     result = []
     entries = get_catalog_entries(*args, **kwargs)
     for entry in entries:
-        dataset = entry["variable"]
+        dataset = entry.get("variable")
         if dataset not in result:
             result.append(dataset)
     result.sort()
