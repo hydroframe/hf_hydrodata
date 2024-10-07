@@ -114,6 +114,14 @@ def test_dataset_version():
     )
     assert row["id"] == "529"
 
+    row = hf.get_catalog_entry(
+        dataset="CW3E",
+        period="hourly",
+        variable="precipitation",
+        dataset_version="1.0",
+    )
+    assert row["id"] == "537"
+
 
 def test_dataset_version_default():
     """Test the default dataset_version is the highest version number if not specified"""
@@ -121,7 +129,7 @@ def test_dataset_version_default():
     row = hf.get_catalog_entry(
         dataset="CW3E", period="hourly", variable="precipitation"
     )
-    assert row["id"] == "167"
+    assert row["id"] == "537"
 
 def test_catalog_preference():
     """Test get_catalog_entry() preference algorithm."""
@@ -129,11 +137,11 @@ def test_catalog_preference():
     option = {
         "dataset": "CW3E",
         "variable": "air_temp",
-        "temporal_resolution": "daily",
+        "temporal_resolution": "hourly",
         "start_time": "2001-01-01"
     }
     entry = hf.get_catalog_entry(option)
-    assert entry["aggregation"] == "mean"
+    assert entry["aggregation"] == "-"
     assert entry["dataset_version"] == "1.0" or entry["dataset_version"] == ""
 
 

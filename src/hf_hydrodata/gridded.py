@@ -5,6 +5,7 @@ Functions to access gridded data from the data catalog index of the GPFS files.
 # pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702,R0903,R0902,C0415,R0917
 import os
 import datetime
+import warnings
 import time
 import io
 from typing import List, Tuple
@@ -1173,7 +1174,22 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
     if options.get("period") and not options.get("temporal_resolution"):
         options["temporal_resolution"] = options["period"]
 
+    # Add warning for transition to CW3E dataset version 1.0 when dataset_version not explicit from user
+    if options.get("dataset") == "CW3E" and "dataset_version" not in options:
+        warnings.warn(
+            "As of 2024-10-07, version 1.0 of the CW3E dataset has been released. "
+            "Due to known improvements in the results, this dataset version is now "
+            "the default version returned from `hf.get_gridded_data` when `dataset_version` "
+            "is not explicitly specified. If you would like to use the previous version "
+            "of the CW3E dataset, please specify `dataset_version = '0.9'` as an additional "
+            "option in your request. Please see the documentation for additional details on "
+            "what is different in version 1.0: https://hf-hydrodata.readthedocs.io/en/latest/gen_CW3E.html.",
+            stacklevel=3,
+        )
     data = _get_gridded_data_from_api(options)
+
+    # An optional empty array passed as an option to be populated with the time dimension for graphing.
+    time_values = options.get("time_values")
 
     if data is None:
         # This call is local to /hydrodata so we can get data catalog information

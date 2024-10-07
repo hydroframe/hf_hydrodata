@@ -113,6 +113,9 @@ def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
     processing_notes = (
         dataset_text_entry.get("processing_notes") if dataset_text_entry else None
     )
+    version_notes = (
+        dataset_text_entry.get("version_notes") if dataset_text_entry else None
+    )
     description = dataset_row["description"]
     datasource = dataset_row["datasource"]
     paper_dois = dataset_row["paper_dois"]
@@ -138,6 +141,10 @@ def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
         if processing_notes:
             stream.write("**Data Collection or Processing Notes:**\n\n")
             for paragraph in processing_notes.split("\n"):
+                stream.write(f"    {paragraph}\n\n")
+        if version_notes:
+            stream.write("**Dataset Version Notes:**\n\n")
+            for paragraph in version_notes.split("\n"):
                 stream.write(f"    {paragraph}\n\n")
         if paper_dois or dataset_dois:
             stream.write("**Citations:**\n\n")

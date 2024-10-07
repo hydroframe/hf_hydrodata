@@ -124,20 +124,21 @@ def _update_anomoly_dates(connection):
                     last_year_dataset = xr.open_dataset(path.format(wy=last_year))
                     current_entry = last_year_dataset.to_dataframe().last_valid_index()
 
-                end_date = datetime.datetime.strptime(current_entry, "%Y-%m-%d")
-                end_date_str = end_date.strftime("%Y-%m-%d")
+                if current_entry and isinstance(current_entry, str):
+                    end_date = datetime.datetime.strptime(current_entry, "%Y-%m-%d")
+                    end_date_str = end_date.strftime("%Y-%m-%d")
 
-                # Update the date of the period for the site type in the dates_memo map
-                if not dates_memo.get(site_type):
-                    dates_memo[site_type] = {}
-                dates_memo[site_type][period] = end_date.strftime("%m/%d/%Y")
+                    # Update the date of the period for the site type in the dates_memo map
+                    if not dates_memo.get(site_type):
+                        dates_memo[site_type] = {}
+                    dates_memo[site_type][period] = end_date.strftime("%m/%d/%Y")
 
-                # Update the data catalog rows
-                sql = f"UPDATE {SCHEMA}.data_catalog_entry SET entry_end_date='{end_date_str}' where id = '{data_entry_id}'"
-                public_release._execute_sql(connection, sql)
-                print(
-                    f"Updated {SCHEMA}.data_catalog_entry id '{data_entry_id}' entry_end_date='{end_date_str}'"
-                )
+                    # Update the data catalog rows
+                    sql = f"UPDATE {SCHEMA}.data_catalog_entry SET entry_end_date='{end_date_str}' where id = '{data_entry_id}'"
+                    public_release._execute_sql(connection, sql)
+                    print(
+                        f"Updated {SCHEMA}.data_catalog_entry id '{data_entry_id}' entry_end_date='{end_date_str}'"
+                    )
 
 
 if __name__ == "__main__":
