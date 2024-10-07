@@ -1848,7 +1848,7 @@ def test_cw3e_default_warning():
         # checking a few key points)
         assert len(w) == 1
         assert issubclass(w[0].category, UserWarning)
-        assert "2024-10-07" in str(w[0].message)
+        assert "2024-10-09" in str(w[0].message)
         assert "default version" in str(w[0].message)
         assert (
             "If you would like to use the previous version of the CW3E dataset, please specify `dataset_version = '0.9'`"
