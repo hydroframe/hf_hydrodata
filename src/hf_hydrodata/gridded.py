@@ -1177,7 +1177,7 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
     # Add warning for transition to CW3E dataset version 1.0 when dataset_version not explicit from user
     if options.get("dataset") == "CW3E" and "dataset_version" not in options:
         warnings.warn(
-            "As of 2024-10-07, version 1.0 of the CW3E dataset has been released. "
+            "As of 2024-10-09, version 1.0 of the CW3E dataset has been released. "
             "Due to known improvements in the results, this dataset version is now "
             "the default version returned from `hf.get_gridded_data` when `dataset_version` "
             "is not explicitly specified. If you would like to use the previous version "
