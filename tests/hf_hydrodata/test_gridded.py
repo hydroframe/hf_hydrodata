@@ -8,6 +8,7 @@ import os
 import datetime
 import tempfile
 import math
+import warnings
 from unittest.mock import patch
 import xarray as xr
 import numpy as np
@@ -1802,21 +1803,82 @@ def test_cw3e_version():
         "start_time": "2002-10-01",
         "end_time": "2002-10-02",
         "grid": "conus2",
-        "grid_bounds": [1000, 1000, 1002, 1002],
+        "grid_bounds": [500, 2500, 501, 2501],
     }
 
     options_version09 = options.copy()
     options_version09["dataset_version"] = "0.9"
     cw3e_version09 = hf.get_gridded_data(options_version09)
-    assert cw3e_version09[0, 0, 0] - 299.78436 <= 0.00001
+    assert cw3e_version09[0, 0, 0] - 284.66085 <= 0.00001
 
     options_version08 = options.copy()
     options_version08["dataset_version"] = "0.8"
     cw3e_version08 = hf.get_gridded_data(options_version08)
-    assert cw3e_version08[0, 0, 0] - 299.04806 <= 0.00001
+    assert cw3e_version08[0, 0, 0] - 284.10281 <= 0.00001
+
+    options_version1 = options.copy()
+    options_version1["dataset_version"] = "1.0"
+    cw3e_version1 = hf.get_gridded_data(options_version1)
+    assert cw3e_version1[0, 0, 0] - 283.60281 <= 0.00001
 
     cw3e_default = hf.get_gridded_data(options)
-    np.testing.assert_array_equal(cw3e_default, cw3e_version09)
+    np.testing.assert_array_equal(cw3e_default, cw3e_version1)
+
+
+def test_cw3e_default_warning():
+    """Test user receives warning if receiving CW3E v1.0 dataset."""
+    options = {
+        "dataset": "CW3E",
+        "variable": "air_temp",
+        "temporal_resolution": "hourly",
+        "start_time": "2002-10-01",
+        "end_time": "2002-10-02",
+        "grid": "conus2",
+        "grid_bounds": [500, 2500, 501, 2501],
+    }
+
+    with warnings.catch_warnings(record=True) as w:
+        # Cause all warnings to always be triggered.
+        warnings.simplefilter("always")
+
+        # Trigger a warning.
+        hf.get_gridded_data(options)
+
+        # Verify content of warning is as expected (warning message is detailed,
+        # checking a few key points)
+        assert len(w) == 1
+        assert issubclass(w[0].category, UserWarning)
+        assert "2024-10-09" in str(w[0].message)
+        assert "default version" in str(w[0].message)
+        assert (
+            "If you would like to use the previous version of the CW3E dataset, please specify `dataset_version = '0.9'`"
+            in str(w[0].message)
+        )
+
+
+def test_cw3e_no_warning():
+    """Test user receives no warning if explicitly requesting CW3E v1.0 dataset."""
+    options = {
+        "dataset": "CW3E",
+        "variable": "air_temp",
+        "temporal_resolution": "hourly",
+        "start_time": "2002-10-01",
+        "end_time": "2002-10-02",
+        "grid": "conus2",
+        "grid_bounds": [500, 2500, 501, 2501],
+        "dataset_version": "1.0",
+    }
+
+    with warnings.catch_warnings(record=True) as w:
+        # Cause all warnings to always be triggered.
+        warnings.simplefilter("always")
+
+        # Trigger a warning.
+        hf.get_gridded_data(options)
+
+        # Verify the user does not get warning message if they
+        # explicitly request version 1.0
+        assert len(w) == 0
 
 
 def test_timeout_retry_logic(mocker):

@@ -6,8 +6,8 @@
 # pylint: disable=E0401,C0413,C0103,C0301,W1514,R0914,W1309
 import sys
 import os
-import yaml
 import json
+import yaml
 import generate_docs_options
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
@@ -27,7 +27,13 @@ def generate_datasets():
     """Generate the documentation of datasets"""
 
     directory = os.path.abspath(os.path.join(os.path.dirname(__file__), "source"))
-    (dataset_type_ids, dataset_ids, variable_ids, grid_ids, temporal_resolution_ids) = _collect_visible_ids()
+    (
+        dataset_type_ids,
+        dataset_ids,
+        variable_ids,
+        grid_ids,
+        temporal_resolution_ids,
+    ) = _collect_visible_ids()
 
     gen_dataset_list_path = f"{directory}/gen_dataset_list.rst"
     with open(gen_dataset_list_path, "w+") as stream:
@@ -38,8 +44,8 @@ def generate_datasets():
     _generate_grid_list_docs(directory)
     generate_temporal_resolution_list_docs(directory)
 
-def _generate_dataset_type_docs(
-    dataset_type_id, dataset_ids, directory):
+
+def _generate_dataset_type_docs(dataset_type_id, dataset_ids, directory):
     """
     Generate files for each each dataset for the dataset type.
     Generate a file named gen_{dataset_id}.rst for each dataset in the type.
@@ -75,6 +81,7 @@ def _generate_dataset_type_docs(
         stream.write("\n")
         stream.write("\n")
 
+
 def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
     """
     Generate rst file for documentation of the dataset.
@@ -87,7 +94,12 @@ def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
 
     dataset_text_entry = dataset_text_map.get(dataset_id)
     dataset_summary = dataset_text_entry.get("summary") if dataset_text_entry else None
-    processing_notes = dataset_text_entry.get("processing_notes") if dataset_text_entry else None
+    processing_notes = (
+        dataset_text_entry.get("processing_notes") if dataset_text_entry else None
+    )
+    version_notes = (
+        dataset_text_entry.get("version_notes") if dataset_text_entry else None
+    )
     description = dataset_row["description"]
     datasource = dataset_row["datasource"]
     paper_dois = dataset_row["paper_dois"]
@@ -114,9 +126,15 @@ def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
             stream.write("**Data Collection or Processing Notes:**\n\n")
             for paragraph in processing_notes.split("\n"):
                 stream.write(f"    {paragraph}\n\n")
+        if version_notes:
+            stream.write("**Dataset Version Notes:**\n\n")
+            for paragraph in version_notes.split("\n"):
+                stream.write(f"    {paragraph}\n\n")
         if paper_dois or dataset_dois:
             stream.write("**Citations:**\n\n")
-            stream.write("Please refer to the following citations for more information on this dataset and cite them if you use the data\n\n")
+            stream.write(
+                "Please refer to the following citations for more information on this dataset and cite them if you use the data\n\n"
+            )
             for entry in paper_dois.split(" "):
                 if entry:
                     stream.write(f"* https://doi.org/{entry}\n\n")
@@ -139,7 +157,7 @@ def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
 
 def _generate_grid_extent_docs(grids, stream):
     """Generate documentation of the grids into the stream."""
-    
+
     data_model = load_data_model()
     grid_table = data_model.get_table("grid")
     for grid in grids:
@@ -168,6 +186,7 @@ def _generate_grid_extent_docs(grids, stream):
             stream.write(f"  - Origin (meters): {grid_origin[0]}, {grid_origin[1]}\n\n")
         stream.write(f"  - Projection: {crs}\n\n")
 
+
 def _generate_dataset_variable_docs(dataset_row, stream):
     """
     Generate documentation for variables of the dataset.
@@ -193,7 +212,12 @@ def _generate_dataset_variable_docs(dataset_row, stream):
         variable_type_name = variable_type_id.strip().replace("_", " ").title()
 
         stream.write(f".. list-table:: {variable_type_name} Variables\n")
-        if _has_multiple_aggregations(dataset_row, variables) or dataset_id in ["usgs_nwis", "snotel", "scan", "ameriflux"]:
+        if _has_multiple_aggregations(dataset_row, variables) or dataset_id in [
+            "usgs_nwis",
+            "snotel",
+            "scan",
+            "ameriflux",
+        ]:
             stream.write("    :widths: 25 60 30 20 20 20")
         else:
             stream.write("    :widths: 25 60 30 20 20")
@@ -205,7 +229,12 @@ def _generate_dataset_variable_docs(dataset_row, stream):
         stream.write(f"      - description\n")
         stream.write(f"      - temporal_resolution\n")
         stream.write(f"      - units\n")
-        if _has_multiple_aggregations(dataset_row, variables) or dataset_id in ["usgs_nwis", "snotel", "scan", "ameriflux"]:
+        if _has_multiple_aggregations(dataset_row, variables) or dataset_id in [
+            "usgs_nwis",
+            "snotel",
+            "scan",
+            "ameriflux",
+        ]:
             stream.write(f"      - aggregation\n")
         if structure_type == "gridded":
             stream.write(f"      - grid\n")
@@ -215,7 +244,11 @@ def _generate_dataset_variable_docs(dataset_row, stream):
             if variable_row["variable_type"] == variable_type_id:
                 variable_title = variable_row["title"]
                 variable_description = variable_row["description"]
-                variable_description = variable_description if variable_description.strip() else variable_title
+                variable_description = (
+                    variable_description
+                    if variable_description.strip()
+                    else variable_title
+                )
                 variable_description = (
                     variable_description if variable_description else "No description"
                 )
@@ -231,7 +264,12 @@ def _generate_dataset_variable_docs(dataset_row, stream):
                 stream.write(f"      - {variable_description}\n")
                 stream.write(f"      - {variable_periods}\n")
                 stream.write(f"      - {variable_units}\n")
-                if _has_multiple_aggregations(dataset_row, variables) or dataset_id in ["usgs_nwis", "snotel", "scan", "ameriflux"]:
+                if _has_multiple_aggregations(dataset_row, variables) or dataset_id in [
+                    "usgs_nwis",
+                    "snotel",
+                    "scan",
+                    "ameriflux",
+                ]:
                     stream.write(f"      - {variable_aggregations}\n")
                 if structure_type == "gridded":
                     stream.write(f"      - {variable_grids}\n")
@@ -239,6 +277,7 @@ def _generate_dataset_variable_docs(dataset_row, stream):
 
         stream.write("\n")
         stream.write("\n")
+
 
 def _generate_variable_docs(variable_ids, directory):
     """
@@ -271,12 +310,24 @@ def _generate_variable_docs(variable_ids, directory):
             for variable_id in variable_ids:
                 variable_row = variable_table.get_row(variable_id)
                 if variable_row["variable_type"] == variable_type_id:
-                    (dataset_ids, unit_ids, aggregation_ids, grid_ids, temporal_resolution_ids) = _collect_variable_ids(variable_id)
+                    (
+                        dataset_ids,
+                        unit_ids,
+                        aggregation_ids,
+                        grid_ids,
+                        temporal_resolution_ids,
+                    ) = _collect_variable_ids(variable_id)
                     variable_title = variable_row["title"]
                     variable_description = variable_row["description"]
-                    variable_description = variable_description if variable_description.strip() else variable_title
                     variable_description = (
-                        variable_description if variable_description else "No description"
+                        variable_description
+                        if variable_description.strip()
+                        else variable_title
+                    )
+                    variable_description = (
+                        variable_description
+                        if variable_description
+                        else "No description"
                     )
                     variable_description = variable_description.strip().capitalize()
                     temporal_resolution_list = ", ".join(temporal_resolution_ids)
@@ -293,6 +344,7 @@ def _generate_variable_docs(variable_ids, directory):
                     stream.write(f"      - {aggregation_list}\n")
                     stream.write(f"      - {dataset_list}\n")
 
+
 def _generate_grid_list_docs(directory):
     """
     Generate documentation for all the grids in the data model.
@@ -302,6 +354,7 @@ def _generate_grid_list_docs(directory):
         data_model = load_data_model()
         grid_table = data_model.get_table("grid")
         _generate_grid_extent_docs(grid_table.row_ids, stream)
+
 
 def generate_temporal_resolution_list_docs(directory):
     """Generate the gen_temporal_resolution_list.rst file to document temporal resolutions"""
@@ -319,7 +372,9 @@ def generate_temporal_resolution_list_docs(directory):
         stream.write("    * - temporal_resolution\n")
         stream.write("      - description\n")
         for temporal_resolution_id in temporal_resolution_table.row_ids:
-            temporal_resolution_row = temporal_resolution_table.get_row(temporal_resolution_id)
+            temporal_resolution_row = temporal_resolution_table.get_row(
+                temporal_resolution_id
+            )
             description = temporal_resolution_row["period_description"]
             stream.write(f"    * - {temporal_resolution_id}\n")
             stream.write(f"      - {description}.\n")
@@ -336,10 +391,11 @@ def _has_multiple_aggregations(dataset_row, variables):
             break
     return result
 
+
 def _collect_variable_ids(variable_id):
     """
     Collect ids associated with variable_id.
-    
+
     Returns:
         A tuple of arrays (dataset_ids, unit_ids, aggregation_ids, grid_ids, temporal_resolution_ids)
     """
@@ -369,13 +425,22 @@ def _collect_variable_ids(variable_id):
                     unit_id = "static"
                 if unit_id not in units:
                     units.append(unit_id)
-            if temporal_resolution_id and temporal_resolution_id not in temporal_resolutions:
+            if (
+                temporal_resolution_id
+                and temporal_resolution_id not in temporal_resolutions
+            ):
                 temporal_resolutions.append(temporal_resolution_id)
-            if aggregation_id and aggregation_id != "" and aggregation_id != "-" and aggregation_id not in aggregations:
+            if (
+                aggregation_id
+                and aggregation_id != ""
+                and aggregation_id != "-"
+                and aggregation_id not in aggregations
+            ):
                 aggregations.append(aggregation_id)
             if dataset_id not in datasets:
                 datasets.append(dataset_id)
     return (datasets, units, aggregations, grids, temporal_resolutions)
+
 
 def _collect_variable_types(variable_ids):
     """Return the list of variable_type_ids that contain one of the variables in variable_ids."""
@@ -389,6 +454,7 @@ def _collect_variable_types(variable_ids):
         if variable_type_id and variable_type_id not in variable_types:
             variable_types.append(variable_type_id)
     return variable_types
+
 
 def _collect_variable_periods(dataset_id, variable_id):
     periods = []
@@ -407,6 +473,7 @@ def _collect_variable_periods(dataset_id, variable_id):
                 if period not in periods:
                     periods.append(period)
     return ", ".join(periods)
+
 
 def _collect_variable_units(dataset_id, variable_id):
     units_list = []
@@ -489,7 +556,9 @@ def _generate_grid_docs(grid_id, stream):
     lat2 = grid_crs_dict.get("lat_2")
     lat0 = grid_crs_dict.get("lat_0")
     lon0 = grid_crs_dict.get("lon_0")
-    stream.write(f"The projected coordinate system of '{grid_id}' is Lambert Conformal Conic.\n")
+    stream.write(
+        f"The projected coordinate system of '{grid_id}' is Lambert Conformal Conic.\n"
+    )
     if resolution:
         stream.write(f"The resolution is {resolution} meters.\n")
     stream.write("\n")
@@ -524,8 +593,11 @@ def _generate_grid_docs(grid_id, stream):
         west = latlng_bounds[1]
         north = latlng_bounds[2]
         east = latlng_bounds[3]
-        stream.write(f"\nThe grid has lat/lon bounds of south {south}, west {west}, north {north}, east {east}.\n")
+        stream.write(
+            f"\nThe grid has lat/lon bounds of south {south}, west {west}, north {north}, east {east}.\n"
+        )
     stream.write("\n")
+
 
 def _parse_crs_to_dict(grid_crs: str) -> dict:
     """Parse the crs string into a dict of attributes."""
@@ -624,7 +696,9 @@ def _collect_grids_in_dataset(dataset_row):
         data_catalog_entry_row = data_catalog_entry_table.get_row(data_catalog_entry_id)
         grid = data_catalog_entry_row["grid"]
         security_level = data_catalog_entry_row["security_level"]
-        if data_catalog_entry_row["dataset"] == dataset_id and _is_entry_visible(security_level):
+        if data_catalog_entry_row["dataset"] == dataset_id and _is_entry_visible(
+            security_level
+        ):
             if grid and not grid in result:
                 result.append(grid)
     return result
@@ -692,7 +766,13 @@ def _collect_visible_ids():
                         if not temporal_resolution_id in temporal_resolution_ids:
                             temporal_resolution_ids.append(temporal_resolution_id)
 
-    return (dataset_type_ids, dataset_ids, variable_ids, grid_ids, temporal_resolution_ids)
+    return (
+        dataset_type_ids,
+        dataset_ids,
+        variable_ids,
+        grid_ids,
+        temporal_resolution_ids,
+    )
 
 
 def _is_entry_visible(security_level: str) -> bool:
@@ -700,7 +780,8 @@ def _is_entry_visible(security_level: str) -> bool:
     result = security_level in generate_docs_options.SECURITY_LEVELS_VISIBLE
     return result
 
-def _load_dataset_text_map()->dict:
+
+def _load_dataset_text_map() -> dict:
     """
     Load the dataset_text.yaml file
     Returns:
@@ -712,6 +793,7 @@ def _load_dataset_text_map()->dict:
         result = yaml.safe_load(stream)
         result = result.get("datasets")
     return result
+
 
 if __name__ == "__main__":
     main()

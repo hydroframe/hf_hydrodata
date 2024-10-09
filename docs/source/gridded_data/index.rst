@@ -46,6 +46,51 @@ You use pass filter parameters as dict options as well.
 
 See the :ref:`api` or :ref:`available_datasets` for a list of all the filter parameters that may be provided.
 
+Dataset Versions
+^^^^^^^^^^^^^^^^^
+There are sometimes multiple versions of the same dataset that are available. When this is the case, the default function call
+will return the latest version of the dataset that is available. However, a user may explicitly specify which version of the dataset
+they want using the ``dataset_version`` filter parameter. An example of how different versions of the
+`CW3E dataset <https://hf-hydrodata.readthedocs.io/en/latest/gen_CW3E.html>`_ get returned is shown in the code block below. 
+
+.. code-block:: python
+
+      import hf_hydrodata as hf
+
+      # This function call will return version 0.9 of the CW3E dataset
+      options = {
+            "dataset": "CW3E", "variable": "precipitation",
+            "temporal_resolution": "hourly",
+            "start_time": "2001-10-01", "end_time": "2001-10-02",
+            "grid_bounds": [3660, 1657, 3732, 1837],
+            "grid": "conus2",
+            "dataset_version": "0.9"
+      }
+      data = hf.get_gridded_data(options)
+
+      # This function call will explicitly return the new version 1.0 CW3E dataset
+      options = {
+            "dataset": "CW3E", "variable": "precipitation",
+            "temporal_resolution": "hourly",
+            "start_time": "2001-10-01", "end_time": "2001-10-02",
+            "grid_bounds": [3660, 1657, 3732, 1837],
+            "grid": "conus2",
+            "dataset_version": "1.0"
+      }
+      data = hf.get_gridded_data(options)
+
+      # If NO dataset_version parameter is specified, this function call will implicitly
+      # return the latest version of the CW3E dataset, version 1.0
+      options = {
+            "dataset": "CW3E", "variable": "precipitation",
+            "temporal_resolution": "hourly",
+            "start_time": "2001-10-01", "end_time": "2001-10-02",
+            "grid_bounds": [3660, 1657, 3732, 1837],
+            "grid": "conus2"
+      }
+      data = hf.get_gridded_data(options)
+
+
 Metadata Descriptions
 -----------------------
 You can get metadata about the files in hydrodata using the ``get_catalog_entry`` function.

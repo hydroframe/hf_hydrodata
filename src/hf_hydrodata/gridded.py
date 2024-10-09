@@ -5,6 +5,7 @@ Functions to access gridded data from the data catalog index of the GPFS files.
 # pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702,R0903,R0902,C0415
 import os
 import datetime
+import warnings
 import time
 import io
 from typing import List, Tuple
@@ -504,7 +505,7 @@ def get_gridded_files(
         #    NLDAS2_WY2006.nc
         # The .nc file will have two variables: precipitation and air_temp.
         # The .nc file will have a time dimension with coordinates of the water year containing the data in the file.
-        # For the example above the time dimension would be between 2005-10-1 to 2006-09-30 
+        # For the example above the time dimension would be between 2005-10-1 to 2006-09-30
         #    with only 3 days of data downloaded and stored in the file.
         # The .nc file will have x dimension 100 and y dimensions 50 defined by the grid_bounds.
 
@@ -704,10 +705,7 @@ def _get_aggregation_entries(options):
 
 
 def _load_gridded_file_entry(
-    state,
-    entry: ModelTableRow,
-    options: dict,
-    file_time: datetime.datetime
+    state, entry: ModelTableRow, options: dict, file_time: datetime.datetime
 ):
     """
     Get data from within a dask deferred thread.
@@ -981,7 +979,7 @@ def _execute_dask_items(dask_items, state, file_name: str):
                     "zlib": True,
                     "complevel": 3,
                     "fletcher32": True,
-                    "chunksizes": tuple(map(lambda x: x//2, data.shape))
+                    "chunksizes": tuple(map(lambda x: x // 2, data.shape)),
                 }
 
             ds = xr.Dataset(data_vars=data_vars_definition, coords=coords_definition)
@@ -1268,6 +1266,23 @@ def get_ndarray(entry, *args, **kwargs) -> np.ndarray:
         else:
             entry = dc.get_catalog_entry(*args, **kwargs)
 
+            # Add warning for transition to CW3E dataset version 1.0 when dataset_version not explicit from user
+            if (
+                entry["dataset"] == "CW3E"
+                and entry["dataset_version"] == "1.0"
+                and "dataset_version" not in options
+            ):
+                warnings.warn(
+                    "As of 2024-10-09, version 1.0 of the CW3E dataset has been released. "
+                    "Due to known improvements in the results, this dataset version is now "
+                    "the default version returned from `hf.get_gridded_data` when `dataset_version` "
+                    "is not explicitly specified. If you would like to use the previous version "
+                    "of the CW3E dataset, please specify `dataset_version = '0.9'` as an additional "
+                    "option in your request. Please see the documentation for additional details on "
+                    "what is different in version 1.0: https://hf-hydrodata.readthedocs.io/en/latest/gen_CW3E.html.",
+                    stacklevel=3,
+                )
+
     if entry is None:
         args = " ".join([f"{k}={options[k]}" for k in options.keys()])
         raise ValueError(f"No entry found in data catalog for {args}.")
@@ -1485,14 +1500,16 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
         # It gets the same answer as the old algorithm for other less complicated HUC
 
         # Slice for point with the HUC value
-        huc_value = int(huc_id) if np.issubdtype(tiff_ds.dtype, np.integer) else float(huc_id)
+        huc_value = (
+            int(huc_id) if np.issubdtype(tiff_ds.dtype, np.integer) else float(huc_id)
+        )
         sel_huc = (tiff_ds == huc_value).squeeze()
 
         # Get the min/max indicies of the points with the huc_value
         sel_huc_np = sel_huc.values
         indices = np.argwhere(sel_huc_np)
         [arr_jmin, arr_imin] = indices.min(axis=0)
-        [arr_jmax, arr_imax]= indices.max(axis=0)
+        [arr_jmax, arr_imax] = indices.max(axis=0)
 
         # Adjust for end conditions to get same answer as previous algorithm
         jmin = sel_huc_np.shape[0] - (arr_jmax + 1)
