@@ -21,7 +21,6 @@ DELETE FROM public.security_level;
 DELETE FROM public.site_type;
 DELETE FROM public.structure_type;
 DELETE FROM public.substitution_keys;
-DELETE FROM public.version;
 
 INSERT INTO public.unit_type SELECT * from development.unit_type;
 INSERT INTO public.units SELECT * from development.units;
@@ -39,7 +38,7 @@ INSERT INTO public.security_level SELECT * from development.security_level;
 INSERT INTO public.site_type SELECT * from development.site_type;
 INSERT INTO public.substitution_keys SELECT * FROM development.substitution_keys;
 INSERT INTO public.data_catalog_entry SELECT * from development.data_catalog_entry;
-INSERT INTO public.version SELECT * from development.version;
+INSERT INTO public.version SELECT dev.* from development.version as dev where not dev.id in (SELECT id from public.version);
 
 UPDATE public.data_catalog_entry 
 SET entry_start_date=entry_dates.entry_start_date,
