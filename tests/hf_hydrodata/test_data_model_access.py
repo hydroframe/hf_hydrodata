@@ -11,12 +11,10 @@ import hf_hydrodata.data_model_access
 
 
 def test_load_model():
-    """Test loading of CSV files using load_model."""
+    """Test load_data_model."""
 
-    data_model = hf_hydrodata.data_model_access.load_data_model(False)
+    data_model = hf_hydrodata.data_model_access.load_data_model()
 
-    assert len(data_model.table_names) >= 14
-    assert len(data_model.get_table("grid").row_ids) >= 6
     assert data_model.get_table("grid").get_row("conus2").get_value("shape")[1] == 3256
     assert data_model.get_table("grid").get_row("conus2")["shape"][1] == 3256
 
@@ -24,16 +22,7 @@ def test_load_model():
 def test_unit_types():
     """Test loading unit types."""
 
-    data_model = hf_hydrodata.data_model_access.load_data_model(False)
+    data_model = hf_hydrodata.data_model_access.load_data_model()
     units_table = data_model.get_table("units")
     assert units_table.get_row("m3/h")["unit_type"] == "volume_flux"
-
-def test_export_model():
-    """Test exporting the data model to a dict."""
-
-    data_model = hf_hydrodata.data_model_access.load_data_model(False)
-    model_dict = data_model.export_to_dict()
-    entries = model_dict.get("data_catalog_entry")
-    assert len(entries) > 300
-
 

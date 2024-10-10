@@ -1,7 +1,0 @@
-id,description
-point_observations,"Point Observations"
-parflow,Parflow Simulation Outputs
-forcing,Meteorological Forcings
-parameters,Static model inputs and domain files
-current_conditions,Current Conditions
-remote_sensing,Remote Sensing

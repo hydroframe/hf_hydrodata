@@ -12,10 +12,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../s
 
 import hf_hydrodata.grid
 
-@pytest.fixture(autouse=True)
-def patch_api(mocker):
-    mocker.patch("hf_hydrodata.data_model_access._load_model_from_api", return_value=None)
-
 def test_grid_to_latlng():
     """Test grid_to_latlng."""
 

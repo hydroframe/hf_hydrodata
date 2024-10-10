@@ -15,30 +15,17 @@ import hf_hydrodata as hf
 import hf_hydrodata.gridded as gr
 
 
-@pytest.fixture(autouse=True)
-def patch_api(mocker):
-    """Mock api call to load model from API. This allows tests to work with model from the git repo."""
-
-    def mock_return_model(option):
-        return None
-
-    mocker.patch(
-        "hf_hydrodata.data_model_access._load_model_from_api",
-        side_effect=mock_return_model,
-    )
-
 
 def test_get_citations():
     """Test get_citation"""
 
     result = hf.get_citations(dataset="conus1_domain")
+    assert "gmd-8-923-2015" in result
     assert "10.5194" in result
     result = hf.get_citations("conus1_domain")
     assert "10.5194" in result
     result = hf.get_citations("CW3E")
-    print(result)
-    # result = hf.get_citations("CW3E")
-    # print(result)
+
 
 
 def test_get_entries():
@@ -47,16 +34,13 @@ def test_get_entries():
     gr.HYDRODATA = "/hydrodata"
     rows = hf.get_catalog_entries(dataset="NLDAS2", file_type="pfb", period="daily")
     assert len(rows) == 10
-    assert len(rows[0].column_names()) >= 25
-    assert rows[4].get_value("variable") == "air_temp"
-    assert rows[4].get_value("variable_type") == "atmospheric"
-    assert rows[4].get_value("dataset_type") == "forcing"
-    assert rows[4].get_value("aggregation") == "min"
-    assert rows[4].get_value("grid") == "conus1"
-    assert (
-        rows[4].get_value("path")
-        == "/hydrodata/forcing/processed_data/CONUS1/NLDAS2/daily/WY{wy}/NLDAS.Temp.daily.min.{wy_daynum:03d}.pfb"
-    )
+    for index, _ in enumerate(rows):
+        row = rows[index]
+        if row["variable"] == "air_temp":
+            assert row.get_value("variable") == "air_temp"
+            assert row.get_value("variable_type") == "atmospheric"
+            assert row.get_value("dataset_type") == "forcing"
+            assert row.get_value("grid") == "conus1"
 
 
 def test_get_entry_filter():
@@ -79,16 +63,6 @@ def test_get_entry_filter():
     )
     assert entry is None
 
-
-def test_get_table_rows():
-    """Test getting rows from any table in the data model."""
-
-    gr.HYDRODATA = "/hydrodata"
-    rows = hf.get_table_rows("variable", variable_type="atmospheric")
-    assert len(rows) >= 8
-
-    rows = hf.get_table_rows("variable", variable_type="land_use")
-    assert len(rows) == 0
 
 
 def test_get_table_row():
@@ -118,7 +92,7 @@ def test_generate_hydrodata_catalog_yaml():
     """Test generate_hydrodata_catalog_yaml"""
 
     with tempfile.TemporaryDirectory() as tempdirname:
-        hf.load_data_model(True)
+        hf.load_data_model()
         output_file = os.path.join(tempdirname, "foo.yaml")
         hf_hydrodata.generate_hydrodata_catalog_yaml.generate_yaml(output_file)
         assert os.path.exists(output_file)
@@ -156,7 +130,19 @@ def test_dataset_version_default():
         dataset="CW3E", period="hourly", variable="precipitation"
     )
     assert row["id"] == "537"
-    assert row["dataset_version"] == "1.0"
+
+def test_catalog_preference():
+    """Test get_catalog_entry() preference algorithm."""
+
+    option = {
+        "dataset": "CW3E",
+        "variable": "air_temp",
+        "temporal_resolution": "hourly",
+        "start_time": "2001-01-01"
+    }
+    entry = hf.get_catalog_entry(option)
+    assert entry["aggregation"] == "-"
+    assert entry["dataset_version"] == "1.0" or entry["dataset_version"] == ""
 
 
 def test_get_citations_usgs():

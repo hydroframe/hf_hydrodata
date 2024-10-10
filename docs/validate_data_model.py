@@ -5,11 +5,11 @@ between columns and tables.
 Display any violoations to stdout and return a non-zero return code if any
 violations are found
 """
+
 # pylint: disable=C0301,E0401,W0718,C0103,W1514,R1702,C0413
 
 import sys
 import os
-from typing import List
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 
@@ -17,9 +17,11 @@ from hf_hydrodata.data_model_access import load_data_model, DataModel
 
 YAML_FILE = "hydrodata_catalog.yaml"
 
+
 def main():
+    """Main routine to run validate_data_model."""
     try:
-        data_model = load_data_model(False)
+        data_model = load_data_model()
         found_error = _validate_data_model(data_model)
         if found_error:
             print("Failed validation check!")
@@ -27,6 +29,7 @@ def main():
     except Exception:
         print("Failed validation check!")
         sys.exit(-1)
+
 
 def _validate_data_model(data_model: DataModel):
     """
