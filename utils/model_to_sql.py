@@ -148,7 +148,7 @@ def _create_table(connection, model_path, table_name):
                 ]
                 else "100"
             )
-            data_type = "date" if "date" in column_name else "json" if column_name in ["shape", "latlng_bounds", "origin"] else f"varchar({column_size})"
+            data_type = "date" if "date" in column_name or (table_name == "version" and column_name == "id") else "json" if column_name in ["shape", "latlng_bounds", "origin"] else f"varchar({column_size})"
             column_def.append(f"{column_name} {data_type}")
         column_def.append(f"PRIMARY KEY ({primary_key})")
         column_def_list = ", ".join(column_def)
