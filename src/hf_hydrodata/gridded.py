@@ -2313,9 +2313,9 @@ def _substitute_datapath(
     Substitute the scenario_id or the domain_path from the options into the file path if they exists.
     This option is provided to support hydrogen specific file path substitutions.
     """
-    dataset_var = entry.get("dataset_var")
-    dataset = entry.get("dataset")
     variable = entry.get("variable")
+    dataset_var = entry.get("dataset_var") if entry.get("dataset_var") else variable
+    dataset = entry.get("dataset")
     aggregation = entry.get("aggregation")
     file_daynum = (time_value - start_time).days if start_time else 0
     wy = ""
