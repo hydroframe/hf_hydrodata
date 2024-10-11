@@ -355,6 +355,10 @@ def get_file_path(entry, *args, **kwargs) -> str:
     result = paths[0]
     return result
 
+def get_numpy(*args, **kwargs):
+    """Deprecated. Return an error."""
+    raise ValueError("The get_numpy() function is not supported anymore. Use get_gridded_data instead.")
+
 
 def get_gridded_files(
     options: dict,

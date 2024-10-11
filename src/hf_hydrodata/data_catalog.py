@@ -467,7 +467,7 @@ def _update_preference_state(preference_state, new_entry):
         else:
             if preferred_value == new_entry_value:
                 # There are two entries with the same value this is ambiguous
-                ambiguous = preference_state["ambiguous"]
+                ambiguous = preference_state.get("ambiguous")
                 if ambiguous is None:
                     ambiguous = [preferred_entry]
                 ambiguous.append(new_entry)
@@ -489,7 +489,7 @@ def _update_preference_state(preference_state, new_entry):
             else:
                 if preferred_value == new_entry_value:
                     # There is more than one entry with the same preferred value
-                    ambiguous = preference_state["ambiguous"]
+                    ambiguous = preference_state.get("ambiguous")
                     if ambiguous is None:
                         ambiguous = [preferred_entry]
                     ambiguous.append(new_entry)

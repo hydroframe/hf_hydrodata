@@ -52,8 +52,11 @@ def generate_datasets():
     (dataset_type_ids, dataset_ids, variable_ids) = _collect_visible_ids()
 
     gen_dataset_list_path = f"{directory}/gen_dataset_list.rst"
+    # Create the gen_dataset_list.rst file as an empty file that can be appended later
     with open(gen_dataset_list_path, "w+"):
         pass
+
+    # Append dataset reference lines to the gen_dataset_list.rst file
     for dataset_type_id in dataset_type_ids:
         _generate_dataset_type_docs(dataset_type_id, dataset_ids, directory)
     _generate_variable_docs(variable_ids, directory)

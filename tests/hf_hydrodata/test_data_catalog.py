@@ -15,7 +15,6 @@ import hf_hydrodata as hf
 import hf_hydrodata.gridded as gr
 
 
-
 def test_get_citations():
     """Test get_citation"""
 
@@ -25,7 +24,6 @@ def test_get_citations():
     result = hf.get_citations("conus1_domain")
     assert "10.5194" in result
     result = hf.get_citations("CW3E")
-
 
 
 def test_get_entries():
@@ -62,7 +60,6 @@ def test_get_entry_filter():
         variable="precipitation",
     )
     assert entry is None
-
 
 
 def test_get_table_row():
@@ -131,18 +128,70 @@ def test_dataset_version_default():
     )
     assert row["id"] == "537"
 
-def test_catalog_preference():
-    """Test get_catalog_entry() preference algorithm."""
+
+def test_catalog_preference_dataset_version():
+    """Test get_catalog_entry() preference for dataset version."""
 
     option = {
         "dataset": "CW3E",
         "variable": "air_temp",
         "temporal_resolution": "hourly",
-        "start_time": "2001-01-01"
+        "start_time": "2001-01-01",
     }
     entry = hf.get_catalog_entry(option)
     assert entry["aggregation"] == "-"
-    assert entry["dataset_version"] == "1.0" or entry["dataset_version"] == ""
+    assert entry["dataset_version"] == "1.0"
+
+    option = {
+        "dataset": "CW3E",
+        "variable": "air_temp",
+        "temporal_resolution": "hourly",
+        "dataset_version": "0.9",
+        "start_time": "2001-01-01",
+    }
+    entry = hf.get_catalog_entry(option)
+    assert entry["aggregation"] == "-"
+    assert entry["dataset_version"] == "0.9"
+
+
+def test_catalog_preference_file_type():
+    """Test get_catalog_entry() preference for file type."""
+
+    option = {"dataset": "conus1_domain", "variable": "flow_direction"}
+    entry = hf.get_catalog_entry(option)
+    assert entry["file_type"] == "pfb"
+
+    option = {
+        "dataset": "conus1_domain",
+        "variable": "flow_direction",
+        "file_type": "tiff",
+    }
+    entry = hf.get_catalog_entry(option)
+    assert entry["file_type"] == "tiff"
+
+
+def test_catalog_preference_aggregation():
+    """Test get_catalog_entry() preference for aggregation and dataset_version."""
+
+    option = {
+        "dataset": "CW3E",
+        "variable": "air_temp",
+        "temporal_resolution": "daily",
+    }
+    entry = hf.get_catalog_entry(option)
+    # Fow now there are no 1.0 daily entries. This test will break when we add 1.0 daily entries
+    assert entry["aggregation"] == "mean"
+    assert entry["dataset_version"] == "0.9"
+
+    option = {
+        "dataset": "CW3E",
+        "variable": "air_temp",
+        "aggregation": "max",
+        "temporal_resolution": "daily",
+    }
+    entry = hf.get_catalog_entry(option)
+    assert entry["aggregation"] == "max"
+    assert entry["dataset_version"] == "0.9"
 
 
 def test_get_citations_usgs():

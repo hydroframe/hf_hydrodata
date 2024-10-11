@@ -31,7 +31,8 @@ def publish_schema(source_schema: str, target_schema: str):
     """
     connection = _get_connection(target_schema)
 
-    with open("public_release.ddl", "r") as fp:
+    ddl_path = os.path.join(os.path.dirname(__file__), "public_release.ddl")
+    with open(ddl_path, "r") as fp:
         ddl = fp.read()
         # Split line by ; and execute each DDL command in the file seperately
         for line in ddl.split(";"):
