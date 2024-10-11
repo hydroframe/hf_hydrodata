@@ -555,15 +555,20 @@ def get_gridded_files(
         options["end_time"] = file_time + delta
         for variable in variables:
             options["variable"] = variable
-            aggregation_entries = _get_aggregation_entries(options)
             options_copy = dict(options)
+            aggregation_entries = _get_aggregation_entries(options)
+            aggregation_types = [agg_entry.get("aggregation") for agg_entry in aggregation_entries]
+            if "min" not in aggregation_types and "max" not in aggregation_types:
+                # No point looping through aggregation types if max or main are not options
+                entry = dc.get_catalog_entry(options)
+                aggregation_entries = [entry] if entry else []
             for entry in aggregation_entries:
                 if entry is None:
                     raise ValueError("No data catalog entry found for options.")
                 aggregation = entry.get("aggregation")
                 options_copy["aggregation"] = aggregation
                 file_name = _substitute_datapath(
-                    filename_template, entry, options, file_time, start_time
+                    filename_template, entry, options_copy, file_time, start_time
                 )
                 if file_name.endswith(".nc") and not file_name == last_file_name:
                     if last_file_name:
