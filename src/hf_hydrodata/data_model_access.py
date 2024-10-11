@@ -96,7 +96,7 @@ class ModelTable:
         """
 
         # Pass any options as parameters
-        parameter_options = dict(options)
+        parameter_options = {key:options.get(key) for key in options if options.get(key) is not None}
         parameter_options["table"] = self.table_name
         data_catalog_secret = _get_data_catalog_secret()
         if data_catalog_secret:
