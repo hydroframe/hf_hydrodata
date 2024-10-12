@@ -1557,7 +1557,7 @@ def _get_gridded_data_from_api(options):
             response = requests.get(gridded_data_url, headers=headers, timeout=4000)
             if response.status_code in [500, 502]:
                 # Retry because of timeout error
-                print("API timeout, performing retry.")
+                warnings.warn("API timeout, performing retry.")
                 response = requests.get(gridded_data_url, headers=headers, timeout=4000)
             if response.status_code == 400:
                 content = response.content.decode()

@@ -105,11 +105,10 @@ def _get_db_configuration(schema: str):
     """Read the database configuration options from a configuration file in protected user home directory."""
 
     result = {}
-    if schema in ["public", "public_test"]:
+    if schema in ["public"]:
         config_file = os.path.expanduser("~/.data_catalog/db_credentials_public")
     else:
         config_file = os.path.expanduser("~/.data_catalog/db_credentials_development")
-    print(config_file)
 
     if not os.path.exists(config_file):
         raise ValueError(f"Missing database configuration file '{config_file}'")
