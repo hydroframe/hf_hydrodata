@@ -5,12 +5,13 @@ Functions to access data_catalog metadata.
 # pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702,W0212
 
 import os
-from typing import List, Tuple
+from typing import List
 import threading
-import json
-import datetime
-import requests
-from hf_hydrodata.data_model_access import ModelTableRow, load_data_model
+from hf_hydrodata.data_model_access import (
+    ModelTableRow,
+    load_data_model,
+    _get_api_headers,
+)
 
 HYDRODATA = "/hydrodata"
 JWT_TOKEN = None
@@ -77,9 +78,9 @@ def get_citations(*args, **kwargs) -> str:
         raise ValueError(f"No such dataset '{dataset}'")
     entry = entries[0]
     result = ""
-    description = entry["description"]
-    paper_dois = entry["paper_dois"]
-    dataset_dois = entry["dataset_dois"]
+    description = entry.get("description")
+    paper_dois = entry.get("paper_dois")
+    dataset_dois = entry.get("dataset_dois")
     result = result + f"{description}\n"
     found_reference = False
     if paper_dois:
@@ -132,42 +133,6 @@ def register_api_pin(email: str, pin: str):
     os.chmod(pin_path, 0o700)
 
 
-def get_registered_api_pin() -> Tuple[str, str]:
-    """
-    Get the email and pin registered by the current user on the current machine.
-
-    Returns:
-        A tuple (email, pin).
-    Raises:
-        ValueError:  if no email/pin was registered.
-
-    Example:
-
-    .. code-block:: python
-
-        import hf_hydrodata as hf
-        (email, pin) = hf.get_registered_api_pin()
-    """
-
-    pin_dir = os.path.expanduser("~/.hydrodata")
-    pin_path = f"{pin_dir}/pin.json"
-    if not os.path.exists(pin_path):
-        raise ValueError(
-            "No email/pin was registered'. Signup for an account with https://hydrogen.princeton.edu/signup. Create a pin with https://hydrogen.princeton.edu/pin. Register your pin with the python call 'hf_hydrodata.register_api_pin()'."
-        )
-    try:
-        with open(pin_path, "r") as stream:
-            contents = stream.read()
-            parsed_contents = json.loads(contents)
-            email = parsed_contents.get("email")
-            pin = parsed_contents.get("pin")
-            return (email, pin)
-    except Exception as e:
-        raise ValueError(
-            "No email/pin was registered'. Signup for an account with https://hydrogen.princeton.edu/signup. Create a pin with https://hydrogen.princeton.edu/pin. Register your pin with the python call 'hf_hydrodata.register_api_pin()'."
-        ) from e
-
-
 def get_datasets(*args, **kwargs) -> List[str]:
     """
     Get available datasets.
@@ -211,7 +176,7 @@ def get_datasets(*args, **kwargs) -> List[str]:
     result = []
     entries = get_catalog_entries(*args, **kwargs)
     for entry in entries:
-        dataset = entry["dataset"]
+        dataset = entry.get("dataset")
         if dataset not in result:
             result.append(dataset)
     result.sort()
@@ -261,7 +226,7 @@ def get_variables(*args, **kwargs) -> List[str]:
     result = []
     entries = get_catalog_entries(*args, **kwargs)
     for entry in entries:
-        dataset = entry["variable"]
+        dataset = entry.get("variable")
         if dataset not in result:
             result.append(dataset)
     result.sort()
@@ -336,16 +301,30 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
     else:
         options = kwargs
 
-    # Getting the API headers has the side affect of setting the USER_ROLES global variable
-    # The USER_ROLES variables contains the list of rules of the user using their registered API pin.
-    _get_api_headers()
-
+    result = []
     data_model = load_data_model()
     table = data_model.get_table("data_catalog_entry")
-    for row_id in table.row_ids:
+
+    row_id = options.get("data_catalog_entry_id")
+    row_id = row_id if row_id else options.get("id")
+    if row_id:
+        # Use table.get_row() if we have a row_id because this is cached if already read
         row = table.get_row(row_id)
-        if _is_row_match_options(row, options):
-            result.append(row)
+        if row:
+            result = [row]
+            return result
+    # Get entries from the SQL DB with the API
+    if options.get("period") and not options.get("temporal_resolution"):
+        options["temporal_resolution"] = options.get("period")
+
+    rows = table._query_data_catalog(options)
+    if rows:
+        result = [ModelTableRow(rows.get(id)) for id in rows.keys()]
+        # Add the query results to the cached results in the table.
+        for row_id in rows.keys():
+            if row_id not in table.row_ids:
+                table.row_ids.append(row_id)
+                table.rows[row_id] = rows.get(row_id)
     return result
 
 
@@ -418,46 +397,6 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
     return entry
 
 
-def _get_api_headers() -> dict:
-    """
-    Get the API headers containing the jwt token to be passed to API calls.
-    Returns:
-        A dict containing an 'Authorization' attribute with a JWT bearer token.
-    """
-
-    global JWT_TOKEN
-    global USER_ROLES
-    with THREAD_LOCK:
-        if not os.path.exists(HYDRODATA) and not JWT_TOKEN:
-            # Only do this if we do not already have a JWT_TOKEN and this is running remote
-
-            email, pin = get_registered_api_pin()
-            url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
-            response = requests.get(url_security, timeout=1200)
-            if not response.status_code == 200:
-                raise ValueError(
-                    f"No registered PIN for '{email}' (expired?). Re-register a pin with https://hydrogen.princeton.edu/pin . Signup with https://hydrogen.princeton.edu/signup. Register the pin with python by executing 'hf_hydrodata.register_api_pin()'."
-                )
-            json_string = response.content.decode("utf-8")
-            jwt_json = json.loads(json_string)
-            expires_string = jwt_json.get("expires")
-            if expires_string:
-                expires = datetime.datetime.strptime(
-                    expires_string, "%Y/%m/%d %H:%M:%S GMT-0000"
-                )
-                now = datetime.datetime.now()
-                if now > expires:
-                    raise ValueError(
-                        "PIN has expired. Re-register a pin with https://hydrogen.princeton.edu/pin . Signup with https://hydrogen.princeton.edu/signup. Register the pin with python by executing 'hf_hydrodata.register_api_pin()'."
-                    )
-            JWT_TOKEN = jwt_json["jwt_token"]
-            USER_ROLES = jwt_json.get("user_roles")
-
-    headers = {}
-    headers["Authorization"] = f"Bearer {JWT_TOKEN}"
-    return headers
-
-
 def _get_preferred_catalog_entry(entries: List[dict]) -> dict:
     """
     Return the preferred catalog entry.
@@ -473,56 +412,102 @@ def _get_preferred_catalog_entry(entries: List[dict]) -> dict:
     elif len(entries) == 1:
         result = entries[0]
     else:
-        preferred_file_types = ["pfb", "tif", "netcdf"]
-        ambiguous_entries = []
-        preferred_entry = None
-        preferred_entry_type = None
-        for entry in entries:
-            file_type = entry["file_type"]
-            if file_type in preferred_file_types:
-                if preferred_entry is None:
-                    preferred_entry = entry
-                    preferred_entry_type = file_type
-                else:
-                    if preferred_entry_type == file_type:
-                        ambiguous_entries.append(entry)
-                        ambiguous_entries.append(preferred_entry)
-                        preferred_entry = None
-                    elif preferred_file_types.index(
-                        file_type
-                    ) < preferred_file_types.index(preferred_entry["file_type"]):
-                        preferred_entry = entry
-            else:
-                ambiguous_entries.append(entry)
-        if preferred_entry:
-            result = preferred_entry
-        elif len(ambiguous_entries) == 1:
-            result = ambiguous_entries[0]
-        elif len(ambiguous_entries) > 1:
-            # Try to dis-ambiguate entries using dataset_version
-            max_dataset_version = None
-            preferred_entry = None
-            for ambiguous_entry in ambiguous_entries:
-                dataset_version = ambiguous_entry["dataset_version"]
-                if dataset_version is not None:
-                    if (
-                        max_dataset_version is None
-                        or dataset_version > max_dataset_version
-                    ):
-                        max_dataset_version = dataset_version
-                        preferred_entry = ambiguous_entry
-                    elif dataset_version == max_dataset_version:
-                        raise ValueError(
-                            _ambiguous_error_message(preferred_entry, ambiguous_entry)
-                        )
-            if preferred_entry is not None:
-                result = preferred_entry
-            else:
-                raise ValueError(
-                    _ambiguous_error_message(ambiguous_entries[0], ambiguous_entries[1])
-                )
+        # There is more than one entry that matches the filter so pick the preferred entry
+        preference_states = [
+            {
+                "preference_state_key": "file_type",
+                "preferred_values": ["pfb", "tif", "netcdf"],
+            },
+            {
+                "preference_state_key": "aggregation",
+                "preferred_values": ["mean", "sum", "median", "static", "max", "min"],
+            },
+            {"preference_state_key": "dataset_version", "preferred_values": None},
+        ]
+
+        # evaluate the ambiguous data catalog entries against a preference state to find preferences
+        ambiguous_entries = entries.copy()
+        for preference_state in preference_states:
+            for entry in ambiguous_entries:
+                _update_preference_state(preference_state, entry)
+
+            # If there are no ambiguous entries from this preference state then use preferred entry
+            ambiguous_entries = preference_state.get("ambiguous")
+            if ambiguous_entries is None or len(ambiguous_entries) <= 1:
+                result = preference_state.get("preferred_entry")
+                break
+
+        # If there are still ambiguous entries then raise an error
+        if ambiguous_entries is not None and len(ambiguous_entries) > 1:
+            raise ValueError(
+                _ambiguous_error_message(ambiguous_entries[0], ambiguous_entries[1])
+            )
 
     return result
+
+
+def _update_preference_state(preference_state, new_entry):
+    """
+    Update the preference_state of one data catalog column for one new ambiguous entrry.
+    This selects a preferred entry for a preferred value of the data catalog column (key).
+    It also updates the list of ambiguous data catalog entries for the state for this column.
+    """
+
+    preference_state_key = preference_state.get("preference_state_key")
+    new_entry_value = new_entry[preference_state_key]
+    preferred_values = preference_state.get("preferred_values")
+    preferred_entry = preference_state.get("preferred_entry")
+    preferred_value = preference_state.get("preferred_value")
+    if preferred_values is None:
+        # For preferences like dataset_version the preferred value is the largest value
+        if preferred_entry is None:
+            preference_state["preferred_entry"] = new_entry
+            preference_state["preferred_value"] = new_entry_value
+            preference_state["ambiguous"] = None
+        else:
+            if preferred_value == new_entry_value:
+                # There are two entries with the same value this is ambiguous
+                ambiguous = preference_state.get("ambiguous")
+                if ambiguous is None:
+                    ambiguous = [preferred_entry]
+                ambiguous.append(new_entry)
+                preference_state["ambiguous"] = ambiguous
+            elif new_entry_value > preferred_value:
+                # The new entry is preferred over the previous preferred
+                preference_state["preferred_entry"] = new_entry
+                preference_state["preferred_value"] = new_entry_value
+                preference_state["ambiguous"] = None
+
+    else:
+        # For preferences with an ordered list of preferences use first values
+        if new_entry_value in preferred_values:
+            # new value of the new entry is one of the preferred values
+            if preferred_entry is None:
+                preference_state["preferred_entry"] = new_entry
+                preference_state["preferred_value"] = new_entry_value
+                preference_state["ambiguous"] = None
+            else:
+                if preferred_value == new_entry_value:
+                    # There is more than one entry with the same preferred value
+                    ambiguous = preference_state.get("ambiguous")
+                    if ambiguous is None:
+                        ambiguous = [preferred_entry]
+                    ambiguous.append(new_entry)
+                    preference_state["ambiguous"] = ambiguous
+                elif preferred_values.index(new_entry_value) < preferred_values.index(
+                    preferred_entry[preference_state_key]
+                ):
+                    # The new preferred value is preferred over the previous preferred value
+                    preference_state["preferred_entry"] = new_entry
+                    preference_state["preferred_value"] = new_entry_value
+                    preference_state["ambiguous"] = None
+        elif preferred_entry is None:
+            # This is a value that is not preferred with no previous preferred value
+            ambiguous = preference_state.get("ambiguous")
+            if ambiguous is None:
+                ambiguous = []
+            ambiguous.append(new_entry)
+            preference_state["ambiguous"] = ambiguous
 
 
 def _ambiguous_error_message(entry_1: dict, entry_2: dict) -> str:
@@ -600,10 +585,15 @@ def get_table_rows(table_name: str, *args, **kwargs) -> List[ModelTableRow]:
         options = kwargs
     data_model = load_data_model()
     table = data_model.get_table(table_name)
-    for row_id in table.row_ids:
+    row_id = options.get("id")
+    if row_id:
+        # Use table.get_row() if the request is by Id since this is cached if already read
         row = table.get_row(row_id)
-        if _is_row_match_options(row, options):
-            result.append(row)
+        result = [row] if row else []
+    else:
+        rows = table._query_data_catalog(options)
+        result = [ModelTableRow(rows.get(id)) for id in rows.keys()]
+
     return result
 
 
@@ -714,13 +704,7 @@ def _get_point_citations(dataset):
 
     elif dataset == "fan_2013":
         c = "Dataset DOI: 10.1126/science.1229881"
+    else:
+        c = ""
 
     return c
-
-
-def test_get_tables():
-    """Test get_table_names."""
-
-    hf_hydrodata.gridded.HYDRODATA = "/hydrodata"
-    table_names = hf_hydrodata.get_table_names()
-    assert len(table_names) >= 14

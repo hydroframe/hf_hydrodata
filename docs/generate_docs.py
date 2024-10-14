@@ -3,15 +3,15 @@
     Generate this these files into the directory docs/source with the gen_ prefix.
     These will be included bv the hand referenced .vst files in the same directory.
 """
-# pylint: disable=E0401,C0413,C0103,C0301,W1514,R0914,W1309
+
+# pylint: disable=E0401,C0413,C0103,C0301,W1514,R0914,W1309,W0212,R0915,R0912,E1121
 import sys
 import os
 import json
 import yaml
-import generate_docs_options
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
-from hf_hydrodata.data_model_access import load_data_model
+from hf_hydrodata.data_model_access import load_data_model, ModelTableRow
 
 
 def main():
@@ -19,25 +19,44 @@ def main():
     Main function for the docs generator.
     """
 
-    load_data_model(load_from_api=False)
+    load_data_model()
+    load_rows()
     generate_datasets()
+
+
+def load_rows():
+    """Load all rows from data model for table used to generate read-the-docs documentation."""
+    data_model = load_data_model()
+    for table_name in [
+        "dataset",
+        "grid",
+        "temporal_resolution",
+        "data_catalog_entry",
+        "dataset_type",
+    ]:
+        table_object = data_model.get_table(table_name)
+        result_json = table_object._query_data_catalog({})
+        for row_id in result_json:
+            if not row_id in table_object.row_ids:
+                table_object.row_ids.append(row_id)
+                response_row = result_json.get(row_id)
+                if response_row is not None:
+                    row = ModelTableRow(response_row)
+                    table_object.rows[row_id] = row
 
 
 def generate_datasets():
     """Generate the documentation of datasets"""
 
     directory = os.path.abspath(os.path.join(os.path.dirname(__file__), "source"))
-    (
-        dataset_type_ids,
-        dataset_ids,
-        variable_ids,
-        grid_ids,
-        temporal_resolution_ids,
-    ) = _collect_visible_ids()
+    (dataset_type_ids, dataset_ids, variable_ids) = _collect_visible_ids()
 
     gen_dataset_list_path = f"{directory}/gen_dataset_list.rst"
-    with open(gen_dataset_list_path, "w+") as stream:
+    # Create the gen_dataset_list.rst file as an empty file that can be appended later
+    with open(gen_dataset_list_path, "w+"):
         pass
+
+    # Append dataset reference lines to the gen_dataset_list.rst file
     for dataset_type_id in dataset_type_ids:
         _generate_dataset_type_docs(dataset_type_id, dataset_ids, directory)
     _generate_variable_docs(variable_ids, directory)
@@ -53,6 +72,7 @@ def _generate_dataset_type_docs(dataset_type_id, dataset_ids, directory):
     """
     gen_dataset_list_path = f"{directory}/gen_dataset_list.rst"
     with open(gen_dataset_list_path, "a+") as stream:
+        print(f"Write to '{gen_dataset_list_path}")
         data_model = load_data_model()
         dataset_type_table = data_model.get_table("dataset_type")
         dataset_table = data_model.get_table("dataset")
@@ -89,7 +109,6 @@ def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
 
     data_model = load_data_model()
     dataset_table = data_model.get_table("dataset")
-    grid_table = data_model.get_table("grid")
     dataset_row = dataset_table.get_row(dataset_id)
 
     dataset_text_entry = dataset_text_map.get(dataset_id)
@@ -291,7 +310,6 @@ def _generate_variable_docs(variable_ids, directory):
     with open(gen_variable_list_path, "w+") as stream:
         data_model = load_data_model()
         variable_table = data_model.get_table("variable")
-        variable_type_table = data_model.get_table("variable_type")
         for variable_type_id in variable_type_ids:
             variable_type_name = variable_type_id.strip().replace("_", " ").title()
             stream.write(f"{variable_type_name}\n")
@@ -314,7 +332,6 @@ def _generate_variable_docs(variable_ids, directory):
                         dataset_ids,
                         unit_ids,
                         aggregation_ids,
-                        grid_ids,
                         temporal_resolution_ids,
                     ) = _collect_variable_ids(variable_id)
                     variable_title = variable_row["title"]
@@ -336,7 +353,6 @@ def _generate_variable_docs(variable_ids, directory):
                     aggregation_list = ", ".join(aggregation_ids)
                     if not aggregation_list:
                         aggregation_list = " "
-                    grid_list = ", ".join(grid_ids)
                     stream.write(f"    * - {variable_id}\n")
                     stream.write(f"      - {variable_description}\n")
                     stream.write(f"      - {temporal_resolution_list}\n")
@@ -397,13 +413,12 @@ def _collect_variable_ids(variable_id):
     Collect ids associated with variable_id.
 
     Returns:
-        A tuple of arrays (dataset_ids, unit_ids, aggregation_ids, grid_ids, temporal_resolution_ids)
+        A tuple of arrays (dataset_ids, unit_ids, aggregation_ids, temporal_resolution_ids)
     """
 
     datasets = []
     units = []
     aggregations = []
-    grids = []
     temporal_resolutions = []
 
     data_model = load_data_model()
@@ -415,13 +430,9 @@ def _collect_variable_ids(variable_id):
         unit_id = data_catalog_entry_row["units"]
         temporal_resolution_id = data_catalog_entry_row["temporal_resolution"]
         aggregation_id = data_catalog_entry_row["aggregation"]
-        security_level = data_catalog_entry_row["security_level"]
-        grid_id = data_catalog_entry_row["grid"]
-        if dataset_variable_id == variable_id and _is_entry_visible(security_level):
-            if grid_id and grid_id not in grids:
-                grids.append(grid_id)
+        if dataset_variable_id == variable_id:
             if unit_id and not unit_id == "None" and unit_id not in units:
-                if unit_id == "" or unit_id == "-":
+                if unit_id in ["-", ""]:
                     unit_id = "static"
                 if unit_id not in units:
                     units.append(unit_id)
@@ -439,7 +450,7 @@ def _collect_variable_ids(variable_id):
                 aggregations.append(aggregation_id)
             if dataset_id not in datasets:
                 datasets.append(dataset_id)
-    return (datasets, units, aggregations, grids, temporal_resolutions)
+    return (datasets, units, aggregations, temporal_resolutions)
 
 
 def _collect_variable_types(variable_ids):
@@ -462,16 +473,14 @@ def _collect_variable_periods(dataset_id, variable_id):
     data_catalog_entry_table = data_model.get_table("data_catalog_entry")
     for data_catalog_entry_id in data_catalog_entry_table.row_ids:
         data_catalog_entry_row = data_catalog_entry_table.get_row(data_catalog_entry_id)
-        security_level = data_catalog_entry_row["security_level"]
-        if _is_entry_visible(security_level):
-            if (
-                data_catalog_entry_row["dataset"] == dataset_id
-                and data_catalog_entry_row["variable"] == variable_id
-            ):
-                period = data_catalog_entry_row["period"]
-                period = period if period else "static"
-                if period not in periods:
-                    periods.append(period)
+        if (
+            data_catalog_entry_row["dataset"] == dataset_id
+            and data_catalog_entry_row["variable"] == variable_id
+        ):
+            period = data_catalog_entry_row["period"]
+            period = period if period else "static"
+            if period not in periods:
+                periods.append(period)
     return ", ".join(periods)
 
 
@@ -481,16 +490,14 @@ def _collect_variable_units(dataset_id, variable_id):
     data_catalog_entry_table = data_model.get_table("data_catalog_entry")
     for data_catalog_entry_id in data_catalog_entry_table.row_ids:
         data_catalog_entry_row = data_catalog_entry_table.get_row(data_catalog_entry_id)
-        security_level = data_catalog_entry_row["security_level"]
-        if _is_entry_visible(security_level):
-            if (
-                data_catalog_entry_row["dataset"] == dataset_id
-                and data_catalog_entry_row["variable"] == variable_id
-            ):
-                units = data_catalog_entry_row["units"]
-                units = units if units and units not in ["-"] else "unitless"
-                if units not in units_list:
-                    units_list.append(units)
+        if (
+            data_catalog_entry_row["dataset"] == dataset_id
+            and data_catalog_entry_row["variable"] == variable_id
+        ):
+            units = data_catalog_entry_row["units"]
+            units = units if units and units not in ["-"] else "unitless"
+            if units not in units_list:
+                units_list.append(units)
     return ", ".join(units_list)
 
 
@@ -501,20 +508,16 @@ def _collect_variable_aggregation(dataset_row, variable_id):
     dataset_id = dataset_row["id"]
     for data_catalog_entry_id in data_catalog_entry_table.row_ids:
         data_catalog_entry_row = data_catalog_entry_table.get_row(data_catalog_entry_id)
-        security_level = data_catalog_entry_row["security_level"]
-        if _is_entry_visible(security_level):
-            if (
-                data_catalog_entry_row["dataset"] == dataset_id
-                and data_catalog_entry_row["variable"] == variable_id
-            ):
-                aggregation = data_catalog_entry_row["aggregation"].strip()
-                aggregation = (
-                    aggregation
-                    if len(aggregation) > 0 and not aggregation == "-"
-                    else ""
-                )
-                if aggregation and aggregation not in aggregations:
-                    aggregations.append(aggregation)
+        if (
+            data_catalog_entry_row["dataset"] == dataset_id
+            and data_catalog_entry_row["variable"] == variable_id
+        ):
+            aggregation = data_catalog_entry_row["aggregation"].strip()
+            aggregation = (
+                aggregation if len(aggregation) > 0 and not aggregation == "-" else ""
+            )
+            if aggregation and aggregation not in aggregations:
+                aggregations.append(aggregation)
     return aggregations
 
 
@@ -646,10 +649,7 @@ def _collect_variables_in_dataset(dataset_row):
     for data_catalog_entry_id in data_catalog_entry_table.row_ids:
         data_catalog_entry_row = data_catalog_entry_table.get_row(data_catalog_entry_id)
         variable_id = data_catalog_entry_row["variable"]
-        security_level = data_catalog_entry_row["security_level"]
-        if data_catalog_entry_row["dataset"] == dataset_id and _is_entry_visible(
-            security_level
-        ):
+        if data_catalog_entry_row["dataset"] == dataset_id:
             if variable_id and not variable_id in result:
                 result.append(variable_id)
     return result
@@ -669,12 +669,10 @@ def _collect_grids_in_variables(dataset_row, variable_id):
     for data_catalog_entry_id in data_catalog_entry_table.row_ids:
         data_catalog_entry_row = data_catalog_entry_table.get_row(data_catalog_entry_id)
         dataset_variable_id = data_catalog_entry_row["variable"]
-        security_level = data_catalog_entry_row["security_level"]
         grid = data_catalog_entry_row["grid"]
         if (
             data_catalog_entry_row["dataset"] == dataset_id
             and dataset_variable_id == variable_id
-            and _is_entry_visible(security_level)
         ):
             if grid and not grid in grids:
                 grids.append(grid)
@@ -695,10 +693,7 @@ def _collect_grids_in_dataset(dataset_row):
     for data_catalog_entry_id in data_catalog_entry_table.row_ids:
         data_catalog_entry_row = data_catalog_entry_table.get_row(data_catalog_entry_id)
         grid = data_catalog_entry_row["grid"]
-        security_level = data_catalog_entry_row["security_level"]
-        if data_catalog_entry_row["dataset"] == dataset_id and _is_entry_visible(
-            security_level
-        ):
+        if data_catalog_entry_row["dataset"] == dataset_id:
             if grid and not grid in result:
                 result.append(grid)
     return result
@@ -732,13 +727,11 @@ def _collect_visible_ids():
     Collect the visible datasets and dataset types.
 
     Returns:
-        A tuple (dataset_types, datasets, variables, grids, temporal_resolutions) with the list of ids of datset_types and datasets.
+        A tuple (dataset_types, datasets, variables) with the list of visiable ids of those tables.
     """
     dataset_type_ids = []
     dataset_ids = []
     variable_ids = []
-    grid_ids = []
-    temporal_resolution_ids = []
     data_model = load_data_model()
     dataset_type_table = data_model.get_table("dataset_type")
     dataset_table = data_model.get_table("dataset")
@@ -749,36 +742,20 @@ def _collect_visible_ids():
                 data_catalog_entry_row = data_catalog_entry_table.get_row(
                     data_catalog_entry_id
                 )
-                security_level = data_catalog_entry_row["security_level"]
                 variable_id = data_catalog_entry_row["variable"]
-                grid_id = data_catalog_entry_row["grid"]
-                temporal_resolution_id = data_catalog_entry_row["temporal_resolution"]
                 if dataset_id == data_catalog_entry_row["dataset"]:
-                    if _is_entry_visible(security_level):
-                        if not dataset_type_id in dataset_type_ids:
-                            dataset_type_ids.append(dataset_type_id)
-                        if not dataset_id in dataset_ids:
-                            dataset_ids.append(dataset_id)
-                        if not variable_id in variable_ids:
-                            variable_ids.append(variable_id)
-                        if not grid_id in grid_id:
-                            grid_ids.append(grid_id)
-                        if not temporal_resolution_id in temporal_resolution_ids:
-                            temporal_resolution_ids.append(temporal_resolution_id)
+                    if not dataset_type_id in dataset_type_ids:
+                        dataset_type_ids.append(dataset_type_id)
+                    if not dataset_id in dataset_ids:
+                        dataset_ids.append(dataset_id)
+                    if not variable_id in variable_ids:
+                        variable_ids.append(variable_id)
 
     return (
         dataset_type_ids,
         dataset_ids,
         variable_ids,
-        grid_ids,
-        temporal_resolution_ids,
     )
-
-
-def _is_entry_visible(security_level: str) -> bool:
-    """Return true if security_level is vislble"""
-    result = security_level in generate_docs_options.SECURITY_LEVELS_VISIBLE
-    return result
 
 
 def _load_dataset_text_map() -> dict:
