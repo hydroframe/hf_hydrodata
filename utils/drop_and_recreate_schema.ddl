@@ -1,3 +1,8 @@
+#######
+# DDL Commands to drop and re-create a data catalog SCHEMA.
+#
+# WARNING: This drops all the data. Do not use this on an existing SCHEMA.
+#######
 BEGIN TRANSACTION;
 DROP TABLE IF EXISTS version CASCADE;
 CREATE TABLE version (id date, modified_by varchar(100), comments varchar(100), PRIMARY KEY (id));
