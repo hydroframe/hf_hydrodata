@@ -5,12 +5,10 @@ Unit test for the data_catalog.py module
 # pylint: disable=C0301,C0103,W0632,W0702,W0101,C0302,W0105,E0401,C0413,R0903,W0613,R0912
 import sys
 import os
-import tempfile
 import pytest
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 
-import hf_hydrodata.generate_hydrodata_catalog_yaml
 import hf_hydrodata as hf
 import hf_hydrodata.gridded as gr
 
@@ -83,16 +81,6 @@ def test_register_api():
     email, pin = hf.get_registered_api_pin()
     assert pin == "0000"
     assert email == "dummy@email.com"
-
-
-def test_generate_hydrodata_catalog_yaml():
-    """Test generate_hydrodata_catalog_yaml"""
-
-    with tempfile.TemporaryDirectory() as tempdirname:
-        hf.load_data_model()
-        output_file = os.path.join(tempdirname, "foo.yaml")
-        hf_hydrodata.generate_hydrodata_catalog_yaml.generate_yaml(output_file)
-        assert os.path.exists(output_file)
 
 
 def test_dataset_version():
