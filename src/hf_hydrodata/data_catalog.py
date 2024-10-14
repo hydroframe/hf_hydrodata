@@ -426,7 +426,7 @@ def _get_preferred_catalog_entry(entries: List[dict]) -> dict:
         ]
 
         # evaluate the ambiguous data catalog entries against a preference state to find preferences
-        ambiguous_entries = entries
+        ambiguous_entries = entries.copy()
         for preference_state in preference_states:
             for entry in ambiguous_entries:
                 _update_preference_state(preference_state, entry)

@@ -1861,5 +1861,18 @@ def test_pf_flow_barrier():
     assert data[3, 0, 0] == 1.0
     assert data[3, 3, 4] == 0.001
 
+def test_get_pfb_vegm_for_zvalue():
+    """Test get vegm values using pfb file type and z value."""
+    bounds = [200, 200, 202, 202]
+    options = {"dataset": "conus2_domain", "variable": "clm_run", "file_type": "pfb", "grid_bounds": bounds, "z": 3, "nomask": "true"}
+    data = hf.get_gridded_data(options)
+    assert data.shape == (1, 2, 2)
+
+    # Test without the z option
+    bounds = [200, 200, 202, 202]
+    options = {"dataset": "conus2_domain", "variable": "clm_run", "file_type": "pfb", "grid_bounds": bounds, "nomask": "true"}
+    data = hf.get_gridded_data(options)
+    assert data.shape == (23, 2, 2)
+
 if __name__ == "__main__":
     pytest.main([__file__])

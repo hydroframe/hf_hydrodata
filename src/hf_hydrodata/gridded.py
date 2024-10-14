@@ -1730,7 +1730,7 @@ def _read_and_filter_pfb_files(
     boundary_constraints = _add_pfb_time_constraint(
         boundary_constraints, entry, start_time_value, end_time_value
     )
-
+    
     # The read_pfb_sequence method has a limit to how many paths it can read
     # if the number of paths is more than the limit call read_pfb_sequence in blocks
     # then append together the blocks to return the correct result
@@ -2183,6 +2183,10 @@ def _get_pfb_boundary_constraints(grid: str, options: dict) -> dict:
             "y": {"start": int(grid_bounds[1]), "stop": int(grid_bounds[3])},
             "z": {"start": 0, "stop": 0},
         }
+        if z is not None:
+            z = int(z)
+            result["z"] = {"start": z, "stop": z+1}
+
 
     return result
 
