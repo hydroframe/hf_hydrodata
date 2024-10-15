@@ -9,8 +9,7 @@ from typing import List
 import threading
 from hf_hydrodata.data_model_access import (
     ModelTableRow,
-    load_data_model,
-    _get_api_headers,
+    load_data_model
 )
 
 HYDRODATA = "/hydrodata"
