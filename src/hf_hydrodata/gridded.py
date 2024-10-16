@@ -375,6 +375,7 @@ def get_gridded_files(
 
     The extension of the filename_template determines the file format. Only extensions .pfb, .tiff, or .nc are supported at this time.
     For tiff files only the first time period of the selected data is saved in the file since a tiff is 2D.
+    For .nc files the files are always created one file per water year so the filename_template should contain {wy} in the name.
 
     The default filename_template saves data as pfb files:
         * hourly:   {dataset}.{dataset_var}.{hour_start:06d}_to_{hour_end:06d}.pfb

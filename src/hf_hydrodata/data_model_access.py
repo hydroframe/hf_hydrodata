@@ -125,7 +125,7 @@ class ModelTable:
                 headers = []
             else:
                 # Get api pin security headers that requires user with have local pin registered
-                headers = _get_api_headers()
+                headers = _get_api_headers(False)
             response = requests.get(url, timeout=120, headers=headers)
             if response.status_code == 200:
                 response_json = json.loads(response.text)
@@ -198,11 +198,15 @@ def load_data_model() -> DataModel:
         return data_model
 
 
-def _get_api_headers() -> dict:
+def _get_api_headers(required=True) -> dict:
     """
     Get the API headers containing the jwt token to be passed to API calls.
+    Parameters:
+        required:   If False then return None if no PIN is registered
     Returns:
-        A dict containing an 'Authorization' attribute with a JWT bearer token.
+        A dict containing an 'Authorization' attribute with a JWT bearer token or None.
+    Raises:
+        ValueError if no API key is registered or unable to create a JWT token.
     """
 
     global JWT_TOKEN
@@ -213,7 +217,9 @@ def _get_api_headers() -> dict:
         if "verde-" in platform.node() and not os.getenv("https_proxy"):
             # This is to configure a proxy for a princeton environment if not already specified
             os.environ["https_proxy"] = "http://verde:8080"
-        email, pin = get_registered_api_pin()
+        email, pin = get_registered_api_pin(required)
+        if not required and not email:
+            return {}
         url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
         response = requests.get(url_security, timeout=1200)
         if not response.status_code == 200:
@@ -240,10 +246,12 @@ def _get_api_headers() -> dict:
     return headers
 
 
-def get_registered_api_pin() -> Tuple[str, str]:
+def get_registered_api_pin(required=True) -> Tuple[str, str]:
     """
     Get the email and pin registered by the current user on the current machine.
 
+    Parameter:
+        required:   If False then return (None, None) if no PIN is registered.
     Returns:
         A tuple (email, pin).
     Raises:
@@ -260,9 +268,12 @@ def get_registered_api_pin() -> Tuple[str, str]:
     pin_dir = os.path.expanduser("~/.hydrodata")
     pin_path = f"{pin_dir}/pin.json"
     if not os.path.exists(pin_path):
-        raise ValueError(
-            "No email/pin was registered'. Signup for an account with https://hydrogen.princeton.edu/signup. Create a pin with https://hydrogen.princeton.edu/pin. Register your pin with the python call 'hf_hydrodata.register_api_pin()'."
-        )
+        if required:
+            raise ValueError(
+                "No email/pin was registered'. Signup for an account with https://hydrogen.princeton.edu/signup. Create a pin with https://hydrogen.princeton.edu/pin. Register your pin with the python call 'hf_hydrodata.register_api_pin()'."
+            )
+        else:
+            return (None, None)
     try:
         with open(pin_path, "r") as stream:
             contents = stream.read()
