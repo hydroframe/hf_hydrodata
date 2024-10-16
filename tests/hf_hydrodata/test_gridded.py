@@ -210,6 +210,8 @@ def test_files_exist():
             "noaa",
         ]:
             result = "2023-10-01"
+        elif entry["dataset"] in ["conus2_baseline"]:
+            result = "2002-10-01"
         else:
             result = "2005-10-01"
         return result
@@ -1214,7 +1216,7 @@ def test_get_variables():
     assert len(variables) == 8
     assert variables[0] == "air_temp"
     variables = hf.get_variables(grid="conus2")
-    assert len(variables) == 33
+    assert len(variables) == 53
     assert variables[0] == "air_temp"
 
     options = {"dataset": "NLDAS2", "grid": "conus1"}
