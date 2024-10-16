@@ -954,6 +954,8 @@ def _construct_string_from_options(qparam_values):
     string_parts = [
         f"{name}={value}" for name, value in qparam_values.items() if value is not None
     ]
+    schema = os.getenv("DC_SCHEMA", "public")
+    string_parts.append(f"schema={schema}")
     result_string = "&".join(string_parts)
     return result_string
 
@@ -1547,6 +1549,7 @@ def _get_gridded_data_from_api(options):
         if options.get("period") and not options.get("temporal_resolution"):
             options["period"] = options["temporal_resolution"]
         options = _convert_json_to_strings(options)
+        options["schema"] = os.getenv("DC_SCHEMA", "public")
         options_list = [
             f"{name}={value}" for name, value in options.items() if value is not None
         ]
