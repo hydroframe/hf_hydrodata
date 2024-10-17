@@ -120,12 +120,7 @@ class ModelTable:
             ]
             parameter_list = "&".join(parameters)
             url = f"{HYDRODATA_URL}/api/v2/data_catalog?{parameter_list}"
-            if os.path.exists(HYDRODATA):
-                # We are running on server with local access to files, no need for local pin file
-                headers = []
-            else:
-                # Get api pin security headers that requires user with have local pin registered
-                headers = _get_api_headers(False)
+            headers = _get_api_headers(False)
             response = requests.get(url, timeout=120, headers=headers)
             if response.status_code == 200:
                 response_json = json.loads(response.text)
