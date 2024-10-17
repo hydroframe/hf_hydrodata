@@ -1,8 +1,20 @@
-#######
-# DDL Commands to drop and re-create a data catalog SCHEMA.
-#
-# WARNING: This drops all the data. Do not use this on an existing SCHEMA.
-#######
+/****
+* DDL Commands to create the initial data catalog SCHEMA.
+* This creates the tables and constraints in the 'current' schema.
+* Set the current schema in postgres by setting the search path. For example,
+*   set search_path=development
+* Use the update schema commands in this folder to update an initial schema to latest version.
+*
+* This script should be used in an empty schema to create a new schema.
+* WARNING: This script will drop and create tables and destry all data in the schema.
+* DO NOT USE THIS SCRIPT ON AN EXISTING development OR public SCHEMA
+*
+* Use this script manually in a DB IDE such as DBBeaver or SQLWorkbench/J to manually
+* create a new schema.
+*****/
+
+set search_path=NEW_SCHEMA;
+
 BEGIN TRANSACTION;
 DROP TABLE IF EXISTS version CASCADE;
 CREATE TABLE version (id date, modified_by varchar(100), comments varchar(100), PRIMARY KEY (id));

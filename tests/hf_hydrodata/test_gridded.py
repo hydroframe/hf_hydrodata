@@ -202,8 +202,16 @@ def test_files_exist():
         """Get a start time used in substituting into the data catalog template appropriate for the dataset."""
 
         result = None
-        if entry["dataset"] in ["conus1_current_conditions", "nasa_smap", "conus2_current_conditions", "conus2_domain", "noaa"]:
+        if entry["dataset"] in [
+            "conus1_current_conditions",
+            "nasa_smap",
+            "conus2_current_conditions",
+            "conus2_domain",
+            "noaa",
+        ]:
             result = "2023-10-01"
+        elif entry["dataset"] in ["conus2_baseline"]:
+            result = "2002-10-01"
         else:
             result = "2005-10-01"
         return result
@@ -242,13 +250,34 @@ def test_files_exist():
         level = "2"
         path_template = entry["path"]
         if path_template:
-            path_example = hf.get_path({"data_catalog_entry_id": data_catalog_entry_id, "start_time": start_time, "level": level, "site_id": site_id})
-            if data_catalog_entry_id not in ["253", "254", "10003", "10004", "10005", "10006", "10007", "10008", "10009", "10010", "10011"]:
+            path_example = hf.get_path(
+                {
+                    "data_catalog_entry_id": data_catalog_entry_id,
+                    "start_time": start_time,
+                    "level": level,
+                    "site_id": site_id,
+                }
+            )
+            if data_catalog_entry_id not in [
+                "253",
+                "254",
+                "10003",
+                "10004",
+                "10005",
+                "10006",
+                "10007",
+                "10008",
+                "10009",
+                "10010",
+                "10011",
+            ]:
                 # Ignore HydroGEN entries and files known to not exist
                 dataset = entry["dataset"]
                 if not os.path.exists(path_example):
                     print(path_example, "does not exist")
-                assert os.path.exists(path_example), f"File '{data_catalog_entry_id}'dataset '{dataset}' template '{path_template}' time '{start_time}'"
+                assert os.path.exists(
+                    path_example
+                ), f"File '{data_catalog_entry_id}'dataset '{dataset}' template '{path_template}' time '{start_time}'"
 
 
 def test_subsetting():
@@ -1039,9 +1068,8 @@ def test_timezone():
         )
     end_date = start_date + datetime.timedelta(hours=7)
 
-
     data = gr.get_gridded_data(
-                dataset="NLDAS2",
+        dataset="NLDAS2",
         variable="air_temp",
         grid="conus1",
         file_type="pfb",
@@ -1114,10 +1142,13 @@ def test_get_huc_bbox_conus1():
 def test_getndarray_site_id():
     """Test for a bug using get_gridded_data and site_id variable."""
 
-    data = gr.get_gridded_data(        site_type="streamflow",
+    data = gr.get_gridded_data(
+        site_type="streamflow",
         dataset="obs_anomalies",
         variable="site_id",
-        period="daily", start_time="2002-03-1")
+        period="daily",
+        start_time="2002-03-1",
+    )
     assert data.shape[0] >= 8626
 
 
@@ -1165,7 +1196,7 @@ def test_get_datasets():
     assert datasets[0] == "CW3E"
 
     datasets = hf.get_datasets(grid="conus2")
-    assert len(datasets) == 6
+    assert len(datasets) == 7
     assert datasets[0] == "CW3E"
 
     options = {"variable": "air_temp", "grid": "conus1"}
@@ -1179,13 +1210,13 @@ def test_get_variables():
     """Test get_variables."""
 
     variables = hf.get_variables()
-    assert len(variables) == 70
+    assert len(variables) == 72
     assert variables[0] == "air_temp"
     variables = hf.get_variables(dataset="CW3E")
     assert len(variables) == 8
     assert variables[0] == "air_temp"
     variables = hf.get_variables(grid="conus2")
-    assert len(variables) == 33
+    assert len(variables) == 53
     assert variables[0] == "air_temp"
 
     options = {"dataset": "NLDAS2", "grid": "conus1"}
@@ -1831,6 +1862,7 @@ def test_timeout_retry_logic(mocker):
     assert requests.get.call_count == 2
     hf.gridded.HYDRODATA = "/hydrodata"
 
+
 def test_wateryear_one_point():
     """Test request for CW3E dataset water year for one point."""
     options = {
@@ -1848,6 +1880,7 @@ def test_wateryear_one_point():
     data = hf.get_gridded_data(options)
     assert data.shape == (8760, 1, 1)
 
+
 def test_pf_flow_barrier():
     """Test the pf_flowbarrier variable is 3D."""
     options = {
@@ -1861,18 +1894,33 @@ def test_pf_flow_barrier():
     assert data[3, 0, 0] == 1.0
     assert data[3, 3, 4] == 0.001
 
+
 def test_get_pfb_vegm_for_zvalue():
     """Test get vegm values using pfb file type and z value."""
     bounds = [200, 200, 202, 202]
-    options = {"dataset": "conus2_domain", "variable": "clm_run", "file_type": "pfb", "grid_bounds": bounds, "z": 3, "nomask": "true"}
+    options = {
+        "dataset": "conus2_domain",
+        "variable": "clm_run",
+        "file_type": "pfb",
+        "grid_bounds": bounds,
+        "z": 3,
+        "nomask": "true",
+    }
     data = hf.get_gridded_data(options)
     assert data.shape == (1, 2, 2)
 
     # Test without the z option
     bounds = [200, 200, 202, 202]
-    options = {"dataset": "conus2_domain", "variable": "clm_run", "file_type": "pfb", "grid_bounds": bounds, "nomask": "true"}
+    options = {
+        "dataset": "conus2_domain",
+        "variable": "clm_run",
+        "file_type": "pfb",
+        "grid_bounds": bounds,
+        "nomask": "true",
+    }
     data = hf.get_gridded_data(options)
     assert data.shape == (23, 2, 2)
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

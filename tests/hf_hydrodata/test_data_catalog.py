@@ -167,9 +167,9 @@ def test_catalog_preference_aggregation():
         "temporal_resolution": "daily",
     }
     entry = hf.get_catalog_entry(option)
-    # Fow now there are no 1.0 daily entries. This test will break when we add 1.0 daily entries
+
     assert entry["aggregation"] == "mean"
-    assert entry["dataset_version"] == "0.9"
+    assert entry["dataset_version"] == "1.0"
 
     option = {
         "dataset": "CW3E",
@@ -179,7 +179,7 @@ def test_catalog_preference_aggregation():
     }
     entry = hf.get_catalog_entry(option)
     assert entry["aggregation"] == "max"
-    assert entry["dataset_version"] == "0.9"
+    assert entry["dataset_version"] == "1.0"
 
 
 def test_get_citations_usgs():
