@@ -243,6 +243,12 @@ def get_paths(*args, **kwargs) -> List[str]:
         if entry.get("temporal_resolution")
         else entry.get("period")
     )
+
+    # For point module filtering, we want the directory path, not the full file path
+    if "for_point_module" in options and options["for_point_module"] is not None:
+        if path:
+            return [("/").join(path.split("/")[:-1])]
+
     if path:
         # Get option parameters
         start_time_value = _parse_time(options.get("start_time"))
@@ -355,9 +361,12 @@ def get_file_path(entry, *args, **kwargs) -> str:
     result = paths[0]
     return result
 
+
 def get_numpy(*args, **kwargs):
     """Deprecated. Return an error."""
-    raise ValueError("The get_numpy() function is not supported anymore. Use get_gridded_data instead.")
+    raise ValueError(
+        "The get_numpy() function is not supported anymore. Use get_gridded_data instead."
+    )
 
 
 def get_gridded_files(
@@ -558,7 +567,9 @@ def get_gridded_files(
             options["variable"] = variable
             options_copy = dict(options)
             aggregation_entries = _get_aggregation_entries(options)
-            aggregation_types = [agg_entry.get("aggregation") for agg_entry in aggregation_entries]
+            aggregation_types = [
+                agg_entry.get("aggregation") for agg_entry in aggregation_entries
+            ]
             if "min" not in aggregation_types and "max" not in aggregation_types:
                 # No point looping through aggregation types if max or main are not options
                 entry = dc.get_catalog_entry(options)
@@ -1637,7 +1648,8 @@ def _adjust_dimensions(data: np.ndarray, entry: ModelTableRow) -> np.ndarray:
     period = period if period in ["hourly", "daily", "monthly", "weekly"] else "static"
     has_z = entry.get("has_z") is not None and entry.get("has_z").lower() == "true"
     has_ensemble = (
-        entry.get("has_ensemble") is not None and entry.get("has_ensemble").lower() == "true"
+        entry.get("has_ensemble") is not None
+        and entry.get("has_ensemble").lower() == "true"
     )
     existing_shape = data.shape
     new_shape = existing_shape
@@ -1734,7 +1746,7 @@ def _read_and_filter_pfb_files(
     boundary_constraints = _add_pfb_time_constraint(
         boundary_constraints, entry, start_time_value, end_time_value
     )
-    
+
     # The read_pfb_sequence method has a limit to how many paths it can read
     # if the number of paths is more than the limit call read_pfb_sequence in blocks
     # then append together the blocks to return the correct result
@@ -2189,8 +2201,7 @@ def _get_pfb_boundary_constraints(grid: str, options: dict) -> dict:
         }
         if z is not None:
             z = int(z)
-            result["z"] = {"start": z, "stop": z+1}
-
+            result["z"] = {"start": z, "stop": z + 1}
 
     return result
 

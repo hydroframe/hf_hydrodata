@@ -18,8 +18,8 @@ import pyproj
 from shapely import contains_xy
 from shapely.geometry import Point, shape
 from shapely.ops import transform
-from hf_hydrodata.gridded import get_huc_bbox, get_gridded_data
-
+from hf_hydrodata.gridded import get_huc_bbox, get_gridded_data, get_path
+from hf_hydrodata.data_catalog import get_catalog_entry
 
 HYDRODATA = "/hydrodata"
 DB_PATH = f"{HYDRODATA}/national_obs/point_obs.sqlite"
@@ -245,7 +245,14 @@ def get_point_data(*args, **kwargs):
     site_list = list(sites_df["site_id"])
 
     if (var_id in (1, 2, 3, 4)) | (var_id in range(6, 25)):
-        data_df = _get_data_nc(site_list, var_id, *args, **kwargs)
+        data_df = _get_data_nc(
+            site_list,
+            options["dataset"],
+            options["variable"],
+            options["temporal_resolution"],
+            options["aggregation"],
+            options,
+        )
 
     elif var_id in (5, 25, 26):
         data_df = _get_data_sql(conn, site_list, var_id, *args, **kwargs)
@@ -1388,51 +1395,6 @@ def _get_var_id(
         )
 
 
-def _get_dirpath(var_id):
-    """
-    Map variable with location of data on /hydrodata.
-
-    Parameters
-    ----------
-    var_id : int
-        Integer variable ID associated with combination of `dataset`,
-        `variable`, `temporal_resolution`, and `aggregation`.
-
-    Returns
-    -------
-    dirpath : str
-        Directory path for observation data location.
-    """
-    dirpath_map = {
-        1: "/hydrodata/national_obs/streamflow/data/hourly",
-        2: "/hydrodata/national_obs/streamflow/data/daily",
-        3: "/hydrodata/national_obs/groundwater/data/hourly",
-        4: "/hydrodata/national_obs/groundwater/data/daily",
-        5: "",
-        6: "/hydrodata/national_obs/swe/data/daily",
-        7: "/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily",
-        8: "/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily",
-        9: "/hydrodata/national_obs/point_meteorology/NRCS_precipitation/data/daily",
-        10: "/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily",
-        11: "/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily",
-        12: "/hydrodata/national_obs/point_meteorology/NRCS_temperature/data/daily",
-        13: "/hydrodata/national_obs/soil_moisture/data/daily",
-        14: "/hydrodata/national_obs/soil_moisture/data/daily",
-        15: "/hydrodata/national_obs/soil_moisture/data/daily",
-        16: "/hydrodata/national_obs/soil_moisture/data/daily",
-        17: "/hydrodata/national_obs/soil_moisture/data/daily",
-        18: "/hydrodata/national_obs/ameriflux/data/hourly",
-        19: "/hydrodata/national_obs/ameriflux/data/hourly",
-        20: "/hydrodata/national_obs/ameriflux/data/hourly",
-        21: "/hydrodata/national_obs/ameriflux/data/hourly",
-        22: "/hydrodata/national_obs/ameriflux/data/hourly",
-        23: "/hydrodata/national_obs/ameriflux/data/hourly",
-        24: "/hydrodata/national_obs/ameriflux/data/hourly",
-    }
-
-    return dirpath_map[var_id]
-
-
 def _get_sites(
     conn, dataset, variable, temporal_resolution, aggregation, *args, **kwargs
 ):
@@ -1950,7 +1912,9 @@ def _filter_min_num_obs(df, min_num_obs):
     return df_filtered
 
 
-def _get_data_nc(site_list, var_id, *args, **kwargs):
+def _get_data_nc(
+    site_list, dataset, variable, temporal_resolution, aggregation, *args, **kwargs
+):
     """
     Get observations data for data that is stored in NetCDF files.
 
@@ -1958,9 +1922,21 @@ def _get_data_nc(site_list, var_id, *args, **kwargs):
     ----------
     site_list : list
         List of site IDs to query observations data for.
-    var_id : int
-        Integer variable ID associated with combination of `dataset`,
-        `variable`, `temporal_resolution`, and `aggregation`.
+    dataset : str
+        Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
+        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'.
+    variable : str, required
+        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
+        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
+        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
+    temporal_resolution : str
+        Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
+        'yearly', 'long_term'.
+        Please see the documentation for allowable combinations with `variable`.
+    aggregation : str
+        Additional information specifying the aggregation method for the variable to be returned.
+        Options include descriptors such as 'mean' and 'sum'. Please see the documentation
+        for allowable combinations with `variable`.
     args :
         Optional positional parameters that must be a dict with filter options.
     kwargs :
@@ -1986,37 +1962,24 @@ def _get_data_nc(site_list, var_id, *args, **kwargs):
     else:
         options = kwargs
 
-    dirpath = _get_dirpath(var_id)
+    dirpath = get_path(
+        dataset=dataset,
+        variable=variable,
+        temporal_resolution=temporal_resolution,
+        aggregation=aggregation,
+        file_grouping="site_id",
+        for_point_module=True,
+    )
     file_list = [f"{dirpath}/{site}.nc" for site in site_list]
 
-    varname_map = {
-        "1": "streamflow",
-        "2": "streamflow",
-        "3": "wtd",
-        "4": "wtd",
-        "5": "wtd",
-        "6": "swe",
-        "7": "precip_acc",
-        "8": "precip_inc",
-        "9": "precip_inc_sa",
-        "10": "temp_min",
-        "11": "temp_max",
-        "12": "temp_avg",
-        "13": "sms_2in",
-        "14": "sms_4in",
-        "15": "sms_8in",
-        "16": "sms_20in",
-        "17": "sms_40in",
-        "18": "latent heat flux",
-        "19": "sensible heat flux",
-        "20": "shortwave radiation",
-        "21": "longwave radiation",
-        "22": "vapor pressure deficit",
-        "23": "air temperature",
-        "24": "wind speed",
-    }
-
-    varname = varname_map[str(var_id)]
+    # Get varname as it is defined within the file
+    varname = get_catalog_entry(
+        dataset=dataset,
+        variable=variable,
+        temporal_resolution=temporal_resolution,
+        aggregation=aggregation,
+        file_grouping="site_id",
+    )["dataset_var"]
 
     if "date_start" in options:
         date_start_dt = np.datetime64(options["date_start"])
