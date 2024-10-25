@@ -277,6 +277,8 @@ def get_registered_api_pin(required=True) -> Tuple[str, str]:
             pin = parsed_contents.get("pin")
             return (email, pin)
     except Exception as e:
+        if not required:
+            return (None, None)
         raise ValueError(
             "No email/pin was registered'. Signup for an account with https://hydrogen.princeton.edu/signup. Create a pin with https://hydrogen.princeton.edu/pin. Register your pin with the python call 'hf_hydrodata.register_api_pin()'."
         ) from e
