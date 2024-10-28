@@ -9,6 +9,7 @@ import datetime
 import tempfile
 import math
 import warnings
+import platform
 from unittest.mock import patch
 import xarray as xr
 import numpy as np
@@ -58,20 +59,22 @@ def test_get_vegp():
     assert os.path.exists("./vegp.dat") is True
     os.remove("./vegp.dat")
 
-    with patch(
-        "requests.get",
-        new=mock_requests_get,
-    ):
-        gr.HYDRODATA = "/empty"
-        hf.get_raw_file(
-            filepath="./vegp.dat",
-            dataset="conus1_baseline_mod",
-            file_type="vegp",
-            variable="clm_run",
-        )
+    if not "verde" in platform.node():
+        # This test does not work on verde without an API key
+        with patch(
+            "requests.get",
+            new=mock_requests_get,
+        ):
+            gr.HYDRODATA = "/empty"
+            hf.get_raw_file(
+                filepath="./vegp.dat",
+                dataset="conus1_baseline_mod",
+                file_type="vegp",
+                variable="clm_run",
+            )
 
-        assert os.path.exists("./vegp.dat") is True
-        os.remove("./vegp.dat")
+            assert os.path.exists("./vegp.dat") is True
+            os.remove("./vegp.dat")
 
 
 def test_get_drv_clm():
@@ -88,20 +91,22 @@ def test_get_drv_clm():
     assert os.path.exists("./vegp.dat") is True
     os.remove("./vegp.dat")
 
-    with patch(
-        "requests.get",
-        new=mock_requests_get,
-    ):
-        gr.HYDRODATA = "/empty"
-        hf.get_raw_file(
-            filepath="./vegp.dat",
-            dataset="conus1_baseline_mod",
-            file_type="vegp",
-            variable="clm_run",
-        )
+    if not "verde" in platform.node():
+        # This test does not work on verde with no API
+        with patch(
+            "requests.get",
+            new=mock_requests_get,
+        ):
+            gr.HYDRODATA = "/empty"
+            hf.get_raw_file(
+                filepath="./vegp.dat",
+                dataset="conus1_baseline_mod",
+                file_type="vegp",
+                variable="clm_run",
+            )
 
-        assert os.path.exists("./vegp.dat") is True
-        os.remove("./vegp.dat")
+            assert os.path.exists("./vegp.dat") is True
+            os.remove("./vegp.dat")
 
 
 def test_start_time_in_get_gridded_data():
@@ -334,6 +339,7 @@ def test_get_gridded_data_pfb_precipitation():
     entry = hf.get_catalog_entry(
         dataset="NLDAS2", file_type="pfb", period="daily", variable="precipitation"
     )
+    assert entry is not None
 
     # The data result has 4 days in the time dimension because end time is exclusive
     data = gr.get_gridded_data(
@@ -470,6 +476,7 @@ def test_get_nldas2_wind_pfb_hourly():
     entry = hf.get_catalog_entry(
         dataset="NLDAS2", file_type="pfb", period="hourly", variable="east_windspeed"
     )
+    assert entry is not None
 
     # The result has 5 days of 24 hours in the time dimension and sliced to x,y shape 100x50 at origin 200, 200 in the conus1 grid.
     data = gr.get_gridded_data(
@@ -506,6 +513,8 @@ def test_gridded_data_no_grid_bounds():
     entry = hf.get_catalog_entry(
         dataset="NLDAS2", file_type="pfb", period="daily", variable="precipitation"
     )
+    assert entry is not None
+
     data = gr.get_gridded_data(
         dataset="NLDAS2",
         file_type="pfb",
@@ -681,6 +690,7 @@ def test_gridded_data_wind_hourly():
         variable="north_windspeed",
         period="hourly",
     )
+    assert entry is not None
 
     # Get 1 day of one hour of pressure head
     start_time = "2005-01-01 11:00:00"
@@ -973,7 +983,7 @@ def test_get_gridded_data_daily():
     assert data.shape == (3, 1888, 3342)
 
 
-def xtest_get_numpy_nasa_smap_conus2():
+def test_get_numpy_nasa_smap_conus2():
     """Test geting daily values from pfb"""
     grid_bounds = [100, 100, 150, 300]
     options = {
@@ -985,6 +995,7 @@ def xtest_get_numpy_nasa_smap_conus2():
         "grid_bounds": grid_bounds,
     }
     data = gr.get_gridded_data(options)
+    assert data.shape == (1, 1, 200, 50)
 
 
 def test_get_entry_with_multiple_file_types():
@@ -1832,6 +1843,10 @@ def test_cw3e_no_warning():
 
 def test_timeout_retry_logic(mocker):
     """Test that API retry logic only retries once."""
+    if "verde" in platform.node():
+        # Test test does not work on verde with no API PIN
+        return
+
     options = {
         "dataset": "CW3E",
         "variable": "air_temp",
@@ -1865,6 +1880,7 @@ def test_timeout_retry_logic(mocker):
 
 def test_wateryear_one_point():
     """Test request for CW3E dataset water year for one point."""
+
     options = {
         "dataset": "CW3E",
         "variable": "air_temp",

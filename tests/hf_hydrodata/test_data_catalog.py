@@ -5,6 +5,7 @@ Unit test for the data_catalog.py module
 # pylint: disable=C0301,C0103,W0632,W0702,W0101,C0302,W0105,E0401,C0413,R0903,W0613,R0912
 import sys
 import os
+import platform
 import pytest
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
@@ -76,6 +77,10 @@ def test_get_table_row():
 
 def test_register_api():
     """Test register and and get and email pin stored in users home directory."""
+
+    if "verde" in platform.node():
+        # This test does not work on verde with no API PIN
+        return
 
     hf.register_api_pin("dummy@email.com", "0000")
     email, pin = hf.get_registered_api_pin()
