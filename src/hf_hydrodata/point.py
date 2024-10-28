@@ -18,7 +18,7 @@ import pyproj
 from shapely import contains_xy
 from shapely.geometry import Point, shape
 from shapely.ops import transform
-from hf_hydrodata.gridded import get_huc_bbox, get_gridded_data, get_path
+from hf_hydrodata.gridded import get_huc_bbox, get_gridded_data
 from hf_hydrodata.data_catalog import get_catalog_entry
 
 HYDRODATA = "/hydrodata"
@@ -1962,24 +1962,38 @@ def _get_data_nc(
     else:
         options = kwargs
 
-    dirpath = get_path(
-        dataset=dataset,
-        variable=variable,
-        temporal_resolution=temporal_resolution,
-        aggregation=aggregation,
-        file_grouping="site_id",
-        for_point_module=True,
-    )
-    file_list = [f"{dirpath}/{site}.nc" for site in site_list]
+    # Users input a `depth_level` parameter to filter different soil moisture variables
+    # This is only distinguished in the data catalog with the dataset_var field, so this
+    # provides a mapping between the two to translate these queries.
+    sm_vars = {2: "sms_2in", 4: "sms_4in", 8: "sms_8in", 20: "sms_20in", 40: "sms_40in"}
 
-    # Get varname as it is defined within the file
-    varname = get_catalog_entry(
-        dataset=dataset,
-        variable=variable,
-        temporal_resolution=temporal_resolution,
-        aggregation=aggregation,
-        file_grouping="site_id",
-    )["dataset_var"]
+    # For soil moisture queries, we need the additional dataset_var filter to make the
+    # request un-ambiguous.
+    if "depth_level" in options and options["depth_level"] is not None:
+        dc_entry = get_catalog_entry(
+            dataset=dataset,
+            variable=variable,
+            temporal_resolution=temporal_resolution,
+            aggregation=aggregation,
+            dataset_var=sm_vars[options["depth_level"]],
+            file_grouping="site_id",
+        )
+    else:
+        dc_entry = get_catalog_entry(
+            dataset=dataset,
+            variable=variable,
+            temporal_resolution=temporal_resolution,
+            aggregation=aggregation,
+            file_grouping="site_id",
+        )
+
+    # Parse out the directory path rather than a specific file path
+    # Because the point data is one file per site ID, the code uses the
+    # generic directory path and fills in the necessary site ID file information
+    # when the data is requested.
+    dirpath = ("/").join(dc_entry["path"].split("/")[:-1])
+    file_list = [f"{dirpath}/{site}.nc" for site in site_list]
+    varname = dc_entry["dataset_var"]
 
     if "date_start" in options:
         date_start_dt = np.datetime64(options["date_start"])

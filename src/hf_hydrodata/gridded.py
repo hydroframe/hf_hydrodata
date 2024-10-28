@@ -244,11 +244,6 @@ def get_paths(*args, **kwargs) -> List[str]:
         else entry.get("period")
     )
 
-    # For point module filtering, we want the directory path, not the full file path
-    if "for_point_module" in options and options["for_point_module"] is not None:
-        if path:
-            return [("/").join(path.split("/")[:-1])]
-
     if path:
         # Get option parameters
         start_time_value = _parse_time(options.get("start_time"))
