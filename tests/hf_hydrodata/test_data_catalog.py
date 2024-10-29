@@ -86,6 +86,11 @@ def test_register_api():
     email, pin = hf.get_registered_api_pin()
     assert pin == "0000"
     assert email == "dummy@email.com"
+    pin_file = os.path.expanduser("~/.hydrodata/pin.json")
+    try:
+        os.remove(pin_file)
+    except:
+        pass
 
 
 def test_dataset_version():

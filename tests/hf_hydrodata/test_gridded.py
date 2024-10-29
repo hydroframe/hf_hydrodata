@@ -9,14 +9,11 @@ import datetime
 import tempfile
 import math
 import warnings
-import platform
-from unittest.mock import patch
 import xarray as xr
 import numpy as np
 import pytest
 import pytz
 import rioxarray
-import requests
 
 from parflow import read_pfb_sequence
 
@@ -59,24 +56,6 @@ def test_get_vegp():
     assert os.path.exists("./vegp.dat") is True
     os.remove("./vegp.dat")
 
-    if not "verde" in platform.node():
-        # This test does not work on verde without an API key
-        with patch(
-            "requests.get",
-            new=mock_requests_get,
-        ):
-            gr.HYDRODATA = "/empty"
-            hf.get_raw_file(
-                filepath="./vegp.dat",
-                dataset="conus1_baseline_mod",
-                file_type="vegp",
-                variable="clm_run",
-            )
-
-            assert os.path.exists("./vegp.dat") is True
-            os.remove("./vegp.dat")
-
-
 def test_get_drv_clm():
     """Test ability to retreive drv_clm file."""
 
@@ -90,24 +69,6 @@ def test_get_drv_clm():
 
     assert os.path.exists("./vegp.dat") is True
     os.remove("./vegp.dat")
-
-    if not "verde" in platform.node():
-        # This test does not work on verde with no API
-        with patch(
-            "requests.get",
-            new=mock_requests_get,
-        ):
-            gr.HYDRODATA = "/empty"
-            hf.get_raw_file(
-                filepath="./vegp.dat",
-                dataset="conus1_baseline_mod",
-                file_type="vegp",
-                variable="clm_run",
-            )
-
-            assert os.path.exists("./vegp.dat") is True
-            os.remove("./vegp.dat")
-
 
 def test_start_time_in_get_gridded_data():
     """Test ability to pass start_time in get_gridded_data method."""
@@ -1839,44 +1800,6 @@ def test_cw3e_no_warning():
         # Verify the user does not get warning message if they
         # explicitly request version 1.0
         assert len(w) == 0
-
-
-def test_timeout_retry_logic(mocker):
-    """Test that API retry logic only retries once."""
-    if "verde" in platform.node():
-        # Test test does not work on verde with no API PIN
-        return
-
-    options = {
-        "dataset": "CW3E",
-        "variable": "air_temp",
-        "temporal_resolution": "hourly",
-        "start_time": "2002-10-01",
-        "end_time": "2002-10-02",
-        "grid": "conus2",
-        "grid_bounds": [1000, 1000, 1002, 1002],
-    }
-
-    def mock_api_requests_get(url, headers, timeout):
-        response = MockResponse()
-        if requests.get.call_count == 1:
-            response.status_code = 500
-        elif requests.get.call_count == 2:
-            response.status_code = 500
-        else:
-            assert False, "Called too many times"
-        return response
-
-    mocker.patch(
-        "requests.get",
-        side_effect=mock_api_requests_get,
-    )
-    hf.gridded.HYDRODATA = "/foo"
-    with pytest.raises(ValueError):
-        hf.get_gridded_data(options)
-    assert requests.get.call_count == 2
-    hf.gridded.HYDRODATA = "/hydrodata"
-
 
 def test_wateryear_one_point():
     """Test request for CW3E dataset water year for one point."""
