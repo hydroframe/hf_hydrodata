@@ -4,8 +4,6 @@
 import sys
 import os
 import io
-import platform
-from unittest import mock
 import pytest
 import pandas as pd
 import numpy as np
@@ -105,7 +103,7 @@ def test_get_dataframe():
     """Test code that allows api to access metadata remotely, with api
     calls mocked out."""
 
-    # Remove this test and later add it to a test running on a remote server
+    # This test is removed and will be added later to be tested on remote server
 
 
 def test_get_meta_dataframe():

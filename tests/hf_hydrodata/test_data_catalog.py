@@ -5,7 +5,6 @@ Unit test for the data_catalog.py module
 # pylint: disable=C0301,C0103,W0632,W0702,W0101,C0302,W0105,E0401,C0413,R0903,W0613,R0912
 import sys
 import os
-import platform
 import pytest
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
@@ -76,21 +75,26 @@ def test_get_table_row():
 
 
 def test_register_api():
-    """Test register and and get and email pin stored in users home directory."""
+    """Test register and and get an email pin stored in users home directory."""
 
-    if "verde" in platform.node():
-        # This test does not work on verde with no API PIN
-        return
+    # Backup previous existing pin.json file so test is not destructive
+    pin_file = os.path.expanduser("~/.hydrodata/pin.json")
+    pin_file_backup = os.path.expanduser("~/.hydrodata/pin.json.backup")
+    if os.path.exists(pin_file_backup):
+        os.remove(pin_file_backup)
+    if os.path.exists(pin_file):
+        os.rename(pin_file, pin_file_backup)
 
+    # Register a pin and verify it was registered
     hf.register_api_pin("dummy@email.com", "0000")
     email, pin = hf.get_registered_api_pin()
     assert pin == "0000"
     assert email == "dummy@email.com"
-    pin_file = os.path.expanduser("~/.hydrodata/pin.json")
-    try:
-        os.remove(pin_file)
-    except:
-        pass
+
+    # Put back pin file to original state
+    os.remove(pin_file)
+    if os.path.exists(pin_file_backup):
+        os.rename(pin_file_backup, pin_file)
 
 
 def test_dataset_version():

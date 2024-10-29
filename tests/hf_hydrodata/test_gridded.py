@@ -56,6 +56,10 @@ def test_get_vegp():
     assert os.path.exists("./vegp.dat") is True
     os.remove("./vegp.dat")
 
+    # Remove old part of this test that tested calling remotely
+    # This old part of the test will be latest test from a remote server
+
+
 def test_get_drv_clm():
     """Test ability to retreive drv_clm file."""
 
@@ -69,6 +73,9 @@ def test_get_drv_clm():
 
     assert os.path.exists("./vegp.dat") is True
     os.remove("./vegp.dat")
+    # Remove old part of this test that tested calling remotely
+    # This old part of the test will be latest test from a remote server
+
 
 def test_start_time_in_get_gridded_data():
     """Test ability to pass start_time in get_gridded_data method."""
@@ -1800,6 +1807,7 @@ def test_cw3e_no_warning():
         # Verify the user does not get warning message if they
         # explicitly request version 1.0
         assert len(w) == 0
+
 
 def test_wateryear_one_point():
     """Test request for CW3E dataset water year for one point."""
