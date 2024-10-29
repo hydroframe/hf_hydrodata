@@ -75,7 +75,7 @@ def test_get_table_row():
 
 
 def test_register_api():
-    """Test register and and get an email pin stored in users home directory."""
+    """Test register and get an email pin stored in users home directory."""
 
     # Backup previous existing pin.json file so test is not destructive
     pin_file = os.path.expanduser("~/.hydrodata/pin.json")

@@ -57,7 +57,7 @@ def test_get_vegp():
     os.remove("./vegp.dat")
 
     # Remove old part of this test that tested calling remotely
-    # This old part of the test will be latest test from a remote server
+    # This old part of the test will be later tested from a remote server
 
 
 def test_get_drv_clm():
@@ -74,7 +74,7 @@ def test_get_drv_clm():
     assert os.path.exists("./vegp.dat") is True
     os.remove("./vegp.dat")
     # Remove old part of this test that tested calling remotely
-    # This old part of the test will be latest test from a remote server
+    # This old part of the test will be later tested from a remote server
 
 
 def test_start_time_in_get_gridded_data():
