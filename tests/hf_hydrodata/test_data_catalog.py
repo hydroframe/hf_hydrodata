@@ -75,12 +75,26 @@ def test_get_table_row():
 
 
 def test_register_api():
-    """Test register and and get and email pin stored in users home directory."""
+    """Test register and get an email pin stored in users home directory."""
 
+    # Backup previous existing pin.json file so test is not destructive
+    pin_file = os.path.expanduser("~/.hydrodata/pin.json")
+    pin_file_backup = os.path.expanduser("~/.hydrodata/pin.json.backup")
+    if os.path.exists(pin_file_backup):
+        os.remove(pin_file_backup)
+    if os.path.exists(pin_file):
+        os.rename(pin_file, pin_file_backup)
+
+    # Register a pin and verify it was registered
     hf.register_api_pin("dummy@email.com", "0000")
     email, pin = hf.get_registered_api_pin()
     assert pin == "0000"
     assert email == "dummy@email.com"
+
+    # Put back pin file to original state
+    os.remove(pin_file)
+    if os.path.exists(pin_file_backup):
+        os.rename(pin_file_backup, pin_file)
 
 
 def test_dataset_version():
