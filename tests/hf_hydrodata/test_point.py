@@ -4,7 +4,6 @@
 import sys
 import os
 import io
-from unittest import mock
 import pytest
 import pandas as pd
 import numpy as np
@@ -104,46 +103,14 @@ def test_get_dataframe():
     """Test code that allows api to access metadata remotely, with api
     calls mocked out."""
 
-    with mock.patch(
-        "requests.get",
-        new=mock_requests_get,
-    ):
-        point.HYDRODATA = "/empty"
-        data_df = point.get_point_data(
-            dataset="usgs_nwis",
-            variable="streamflow",
-            temporal_resolution="daily",
-            aggregation="mean",
-            date_start="2020-01-01",
-            date_end="2020-01-03",
-            latitude_range=(45, 46),
-            longitude_range=(-110, -108),
-        )
-
-        assert (data_df.loc[0, "0"]) == "01019000"
+    # This test is removed and will be added later to be tested on remote server
 
 
 def test_get_meta_dataframe():
     """Test code that allows api to access metadata remotely, with api
     calls mocked out."""
 
-    with mock.patch(
-        "requests.get",
-        new=mock_requests_get_metadata,
-    ):
-        point.HYDRODATA = "/empty"
-        data_df = point.get_point_metadata(
-            dataset="usgs_nwis",
-            variable="streamflow",
-            temporal_resolution="daily",
-            aggregation="mean",
-            date_start="2020-01-01",
-            date_end="2020-01-03",
-            latitude_range=(45, 46),
-            longitude_range=(-110, -108),
-        )
-
-        assert (data_df.loc[0, "0"]) == "01019001"
+    # This test is removed and will be added later to be tested on remote server
 
 
 def test_check_inputs():

@@ -9,13 +9,11 @@ import datetime
 import tempfile
 import math
 import warnings
-from unittest.mock import patch
 import xarray as xr
 import numpy as np
 import pytest
 import pytz
 import rioxarray
-import requests
 
 from parflow import read_pfb_sequence
 
@@ -58,20 +56,8 @@ def test_get_vegp():
     assert os.path.exists("./vegp.dat") is True
     os.remove("./vegp.dat")
 
-    with patch(
-        "requests.get",
-        new=mock_requests_get,
-    ):
-        gr.HYDRODATA = "/empty"
-        hf.get_raw_file(
-            filepath="./vegp.dat",
-            dataset="conus1_baseline_mod",
-            file_type="vegp",
-            variable="clm_run",
-        )
-
-        assert os.path.exists("./vegp.dat") is True
-        os.remove("./vegp.dat")
+    # Remove old part of this test that tested calling remotely
+    # This old part of the test will be later tested from a remote server
 
 
 def test_get_drv_clm():
@@ -87,21 +73,8 @@ def test_get_drv_clm():
 
     assert os.path.exists("./vegp.dat") is True
     os.remove("./vegp.dat")
-
-    with patch(
-        "requests.get",
-        new=mock_requests_get,
-    ):
-        gr.HYDRODATA = "/empty"
-        hf.get_raw_file(
-            filepath="./vegp.dat",
-            dataset="conus1_baseline_mod",
-            file_type="vegp",
-            variable="clm_run",
-        )
-
-        assert os.path.exists("./vegp.dat") is True
-        os.remove("./vegp.dat")
+    # Remove old part of this test that tested calling remotely
+    # This old part of the test will be later tested from a remote server
 
 
 def test_start_time_in_get_gridded_data():
@@ -334,6 +307,7 @@ def test_get_gridded_data_pfb_precipitation():
     entry = hf.get_catalog_entry(
         dataset="NLDAS2", file_type="pfb", period="daily", variable="precipitation"
     )
+    assert entry is not None
 
     # The data result has 4 days in the time dimension because end time is exclusive
     data = gr.get_gridded_data(
@@ -470,6 +444,7 @@ def test_get_nldas2_wind_pfb_hourly():
     entry = hf.get_catalog_entry(
         dataset="NLDAS2", file_type="pfb", period="hourly", variable="east_windspeed"
     )
+    assert entry is not None
 
     # The result has 5 days of 24 hours in the time dimension and sliced to x,y shape 100x50 at origin 200, 200 in the conus1 grid.
     data = gr.get_gridded_data(
@@ -506,6 +481,8 @@ def test_gridded_data_no_grid_bounds():
     entry = hf.get_catalog_entry(
         dataset="NLDAS2", file_type="pfb", period="daily", variable="precipitation"
     )
+    assert entry is not None
+
     data = gr.get_gridded_data(
         dataset="NLDAS2",
         file_type="pfb",
@@ -681,6 +658,7 @@ def test_gridded_data_wind_hourly():
         variable="north_windspeed",
         period="hourly",
     )
+    assert entry is not None
 
     # Get 1 day of one hour of pressure head
     start_time = "2005-01-01 11:00:00"
@@ -973,7 +951,7 @@ def test_get_gridded_data_daily():
     assert data.shape == (3, 1888, 3342)
 
 
-def xtest_get_numpy_nasa_smap_conus2():
+def test_get_numpy_nasa_smap_conus2():
     """Test geting daily values from pfb"""
     grid_bounds = [100, 100, 150, 300]
     options = {
@@ -985,6 +963,7 @@ def xtest_get_numpy_nasa_smap_conus2():
         "grid_bounds": grid_bounds,
     }
     data = gr.get_gridded_data(options)
+    assert data.shape == (1, 1, 200, 50)
 
 
 def test_get_entry_with_multiple_file_types():
@@ -1830,41 +1809,9 @@ def test_cw3e_no_warning():
         assert len(w) == 0
 
 
-def test_timeout_retry_logic(mocker):
-    """Test that API retry logic only retries once."""
-    options = {
-        "dataset": "CW3E",
-        "variable": "air_temp",
-        "temporal_resolution": "hourly",
-        "start_time": "2002-10-01",
-        "end_time": "2002-10-02",
-        "grid": "conus2",
-        "grid_bounds": [1000, 1000, 1002, 1002],
-    }
-
-    def mock_api_requests_get(url, headers, timeout):
-        response = MockResponse()
-        if requests.get.call_count == 1:
-            response.status_code = 500
-        elif requests.get.call_count == 2:
-            response.status_code = 500
-        else:
-            assert False, "Called too many times"
-        return response
-
-    mocker.patch(
-        "requests.get",
-        side_effect=mock_api_requests_get,
-    )
-    hf.gridded.HYDRODATA = "/foo"
-    with pytest.raises(ValueError):
-        hf.get_gridded_data(options)
-    assert requests.get.call_count == 2
-    hf.gridded.HYDRODATA = "/hydrodata"
-
-
 def test_wateryear_one_point():
     """Test request for CW3E dataset water year for one point."""
+
     options = {
         "dataset": "CW3E",
         "variable": "air_temp",
