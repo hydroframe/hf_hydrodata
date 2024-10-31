@@ -1845,7 +1845,8 @@ def test_pf_flow_barrier():
 def test_get_pfb_vegm_with_default_masking():
     """Test that get_gridded_data() does not mask vegm files."""
 
-    bounds = [200, 200, 202, 202]
+    # Test a point on coast line
+    bounds = [0, 0, 2, 2]
     options = {
         "dataset": "conus2_domain",
         "variable": "clm_run",
@@ -1855,10 +1856,24 @@ def test_get_pfb_vegm_with_default_masking():
     data = hf.get_gridded_data(options)
     assert data.shape == (23, 2, 2)
     assert data[4, 0, 0] == 4
-    assert pytest.approx(data[0, 0, 0], 0.0001) == 24.4858
+    assert pytest.approx(data[0, 0, 0], 0.0001) == 22.368969
     assert pytest.approx(data[2, 0, 0], 0.01) == .16
     assert pytest.approx(data[3, 0, 0], 0.01) == .19
 
+    # Test a point in a Great Lake
+    bounds = [2977, 2199, 2978, 2200]
+    options = {
+        "dataset": "conus2_domain",
+        "variable": "clm_run",
+        "file_type": "pfb",
+        "grid_bounds": bounds,
+    }
+    data = hf.get_gridded_data(options)
+    assert data.shape == (23, 1, 1)
+    assert data[4, 0, 0] == 4
+    assert pytest.approx(data[0, 0, 0], 0.0001) == 44.481031
+    assert pytest.approx(data[2, 0, 0], 0.01) == .04
+    assert pytest.approx(data[3, 0, 0], 0.01) == .19
 
 def test_get_pfb_vegm_for_zvalue():
     """Test get vegm values using pfb file type and z value."""
