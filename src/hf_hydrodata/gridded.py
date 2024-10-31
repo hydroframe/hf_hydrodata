@@ -1252,7 +1252,10 @@ def _apply_mask(data, entry, options):
     """
 
     if options.get("dataset") == "huc_mapping":
-        # Do not mask the mask
+        # Do not mask any entry from the huc_mapping dataset that is used for masking
+        return data        
+    if options.get("variable") == "clm_run":
+        # Do not mask any entry with the clm_run variable that contains vegm data
         return data
     grid = entry.get("grid")
     if grid not in ["conus1", "conus2"]:
