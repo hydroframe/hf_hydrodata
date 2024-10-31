@@ -1251,8 +1251,8 @@ def _apply_mask(data, entry, options):
     The second option masks only against ocean and outer HUC bounds. The first option masks with internal HUC boundaries.
     """
 
-    if options.get("dataset") == "huc_mapping":
-        # Do not mask the mask
+    if options.get("dataset") == "huc_mapping" or options.get("variable") == "clm_run":
+        # Do not mask mask
         return data
     grid = entry.get("grid")
     if grid not in ["conus1", "conus2"]:
