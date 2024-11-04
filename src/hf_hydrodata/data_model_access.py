@@ -218,6 +218,9 @@ def _get_api_headers(required=True) -> dict:
         url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
         response = requests.get(url_security, timeout=1200)
         if not response.status_code == 200:
+            if not required:
+                # The PIN is not required so it is ok that the API request returned an error.
+                return {}
             raise ValueError(
                 f"No registered PIN for '{email}' (expired?). Re-register a pin with https://hydrogen.princeton.edu/pin . Signup with https://hydrogen.princeton.edu/signup. Register the pin with python by executing 'hf_hydrodata.register_api_pin()'."
             )
