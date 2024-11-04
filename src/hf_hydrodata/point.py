@@ -57,6 +57,8 @@ SITE_ATTRIBUTE_TABLES = [
     "jasechko_attributes",
 ]
 
+DEPTH_LEVELS = [2, 4, 8, 20, 40]
+
 
 def get_point_data(*args, **kwargs):
     """
@@ -1295,10 +1297,17 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
     if variable == "soil_moisture":
         try:
             assert "depth_level" in options
-            assert options["depth_level"] in [2, 4, 8, 20, 40]
+            assert options["depth_level"] in DEPTH_LEVELS
         except:
             raise ValueError(
                 "Please provide depth_level with one of the supported values. Please see the documentation for allowed values."
+            )
+    else:
+        try:
+            assert "depth_level" not in options or options["depth_level"] is None
+        except:
+            raise ValueError(
+                "Parameter depth_level is only supported when variable=='soil_moisture'."
             )
 
 
@@ -1962,20 +1971,20 @@ def _get_data_nc(
     else:
         options = kwargs
 
-    # Users input a `depth_level` parameter to filter different soil moisture variables
-    # This is only distinguished in the data catalog with the dataset_var field, so this
-    # provides a mapping between the two to translate these queries.
-    sm_vars = {2: "sms_2in", 4: "sms_4in", 8: "sms_8in", 20: "sms_20in", 40: "sms_40in"}
-
     # For soil moisture queries, we need the additional dataset_var filter to make the
     # request un-ambiguous.
     if "depth_level" in options and options["depth_level"] is not None:
+        # Users input a `depth_level` parameter to filter different soil moisture variables
+        # Values of depth_level are checked within the function _check_inputs.
+        # This defines the dataset_var associated with that depth level for the request.
+        sm_var = f"sms_{options['depth_level']}in"
+
         dc_entry = get_catalog_entry(
             dataset=dataset,
             variable=variable,
             temporal_resolution=temporal_resolution,
             aggregation=aggregation,
-            dataset_var=sm_vars[options["depth_level"]],
+            dataset_var=sm_var,
             file_grouping="site_id",
         )
     else:
