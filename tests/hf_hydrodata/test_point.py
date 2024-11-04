@@ -1821,5 +1821,26 @@ def test_huc_list():
     assert df.shape[1] == 23
 
 
+def test_depth_level_provided_not_sm():
+    """Test for if depth_level parameter is provided by the user
+    for a variable other than soil moisture."""
+    with pytest.raises(Exception) as exc:
+        point.get_point_data(
+            dataset="usgs_nwis",
+            variable="streamflow",
+            temporal_resolution="daily",
+            aggregation="mean",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+            latitude_range=(47, 50),
+            longitude_range=(-75, -50),
+            depth_level=2,
+        )
+    assert (
+        str(exc.value)
+        == "Parameter depth_level is only supported when variable=='soil_moisture'."
+    )
+
+
 if __name__ == "__main__":
     pytest.main()
