@@ -14,6 +14,7 @@ import numpy as np
 import pytest
 import pytz
 import rioxarray
+import rasterio
 
 from parflow import read_pfb_sequence
 
@@ -1245,6 +1246,63 @@ def test_temporal_resolution():
     assert entry["period"] == "hourly"
 
 
+def test_static_huc_gridded_files_tiff():
+    """Unit test for subsetting static files by HUC and storing as a tiff using get_gridded_files"""
+
+    cd = os.getcwd()
+    with tempfile.TemporaryDirectory() as tempdirname:
+        os.chdir(tempdirname)
+        huc_id = "0205"
+        options = {
+            "dataset": "huc_mapping",
+            "variable": "huc_map",
+            "huc_id": huc_id,
+            "grid": "conus2",
+            "level": "4",
+        }
+        file_name = "mask.tiff"
+        gr.get_gridded_files(options, filename_template=file_name)
+        with rasterio.open(file_name) as src:
+            data = src.read()
+            assert data.shape == (1, 396, 291)
+            assert pytest.approx(data[0, 200, 200]) == 205
+            assert pytest.approx(src.transform.a) == 1000
+            assert pytest.approx(src.transform.c) == 1463999.69
+            assert pytest.approx(src.transform.f) == 554000.35
+            assert src.crs.to_dict().get("lat_1") == 30
+    os.chdir(cd)
+
+
+def test_huc_gridded_files_tiff():
+    """Unit test for subsetting daily files by HUC and storing as a tiff using get_gridded_files"""
+
+    cd = os.getcwd()
+    with tempfile.TemporaryDirectory() as tempdirname:
+        os.chdir(tempdirname)
+        huc_id = "0205"
+
+        options = {
+            "dataset": "CW3E",
+            "variable": "precipitation",
+            "huc_id": huc_id,
+            "grid": "conus2",
+            "start_time": "2020-01-01",
+            "end_time": "2020-01-01",
+            "temporal_resolution": "daily",
+        }
+        file_name = "precip.tiff"
+        gr.get_gridded_files(options, filename_template=file_name)
+        with rasterio.open(file_name) as src:
+            data = src.read()
+            assert data.shape == (1, 396, 291)
+            assert pytest.approx(data[0, 200, 200], 0.01) == 0.2767
+            assert pytest.approx(src.transform.a) == 1000
+            assert pytest.approx(src.transform.c) == 1463999.69
+            assert pytest.approx(src.transform.f) == 554000.35
+            assert src.crs.to_dict().get("lat_1") == 30
+    os.chdir(cd)
+
+
 def test_get_gridded_files_pfb():
     """Unit test for get_gridded_files not passing variables list."""
 
@@ -1363,7 +1421,6 @@ def test_get_gridded_files_tiff():
     cd = os.getcwd()
     with tempfile.TemporaryDirectory() as tempdirname:
         os.chdir(tempdirname)
-        variables = ["ground_heat", "pressure_head"]
         variables = ["ground_heat"]
         grid_bounds = [10, 10, 14, 20]
         options = {
@@ -1857,8 +1914,8 @@ def test_get_pfb_vegm_with_default_masking():
     assert data.shape == (23, 2, 2)
     assert data[4, 0, 0] == 4
     assert pytest.approx(data[0, 0, 0], 0.0001) == 22.368969
-    assert pytest.approx(data[2, 0, 0], 0.01) == .16
-    assert pytest.approx(data[3, 0, 0], 0.01) == .19
+    assert pytest.approx(data[2, 0, 0], 0.01) == 0.16
+    assert pytest.approx(data[3, 0, 0], 0.01) == 0.19
 
     # Test a point in a Great Lake
     bounds = [2977, 2199, 2978, 2200]
@@ -1872,8 +1929,9 @@ def test_get_pfb_vegm_with_default_masking():
     assert data.shape == (23, 1, 1)
     assert data[4, 0, 0] == 4
     assert pytest.approx(data[0, 0, 0], 0.0001) == 44.481031
-    assert pytest.approx(data[2, 0, 0], 0.01) == .04
-    assert pytest.approx(data[3, 0, 0], 0.01) == .19
+    assert pytest.approx(data[2, 0, 0], 0.01) == 0.04
+    assert pytest.approx(data[3, 0, 0], 0.01) == 0.19
+
 
 def test_get_pfb_vegm_for_zvalue():
     """Test get vegm values using pfb file type and z value."""
@@ -1900,6 +1958,7 @@ def test_get_pfb_vegm_for_zvalue():
     }
     data = hf.get_gridded_data(options)
     assert data.shape == (23, 2, 2)
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

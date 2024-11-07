@@ -471,7 +471,11 @@ def get_gridded_files(
         else temporal_resolution
     )
     temporal_resolution = (
-        "static" if temporal_resolution == "-" else temporal_resolution
+        "static"
+        if temporal_resolution == "-"
+        or temporal_resolution is None
+        or temporal_resolution == ""
+        else temporal_resolution
     )
     if temporal_resolution not in ["daily", "hourly", "monthly", "static"]:
         raise ValueError(
@@ -1259,7 +1263,7 @@ def _apply_mask(data, entry, options):
 
     if options.get("dataset") == "huc_mapping":
         # Do not mask any entry from the huc_mapping dataset that is used for masking
-        return data        
+        return data
     if options.get("variable") == "clm_run":
         # Do not mask any entry with the clm_run variable that contains vegm data
         return data
