@@ -22,6 +22,7 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 from parflow import read_pfb_sequence, write_pfb
+import hf_hydrodata.fast_pfb_reader
 from hf_hydrodata.data_model_access import (
     ModelTableRow,
     _get_api_headers,
@@ -1735,6 +1736,7 @@ def _read_and_filter_pfb_files(
     path_options = dict(options)
     path_options["data_catalog_entry_id"] = entry.get("id")
     paths = get_paths(path_options)
+    use_read_pfb_seq = path_options.get("fast_pfb", None) == "false"
 
     # Make sure all paths exist
     for path in paths:
@@ -1758,7 +1760,11 @@ def _read_and_filter_pfb_files(
             else len(paths)
         )
         path_block = paths[block_start:block_end]
-        data = read_pfb_sequence(path_block, boundary_constraints)
+        if use_read_pfb_seq:
+            data = read_pfb_sequence(path_block, boundary_constraints)
+        else:
+            data = hf_hydrodata.fast_pfb_reader.read_files(path_block, boundary_constraints)
+
         if final_data is None:
             # This is the first block
             final_data = data

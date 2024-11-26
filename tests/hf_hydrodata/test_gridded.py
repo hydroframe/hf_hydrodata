@@ -1180,7 +1180,6 @@ def test_get_datasets():
 
     options = {"variable": "air_temp", "grid": "conus1"}
     datasets = hf.get_datasets(options)
-    print(datasets)
     assert len(datasets) >= 4
     assert datasets[0] == "NLDAS2"
 
