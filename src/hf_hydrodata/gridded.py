@@ -466,6 +466,11 @@ def get_gridded_files(
         options["temporal_resolution"] = options.get("period")
     temporal_resolution = options.get("temporal_resolution")
     temporal_resolution = (
+        "static"
+        if temporal_resolution is None or temporal_resolution in ["", "-", "static"]
+        else temporal_resolution
+    )
+    temporal_resolution = (
         _get_temporal_resolution_from_catalog(options)
         if temporal_resolution is None
         else temporal_resolution
@@ -1259,7 +1264,7 @@ def _apply_mask(data, entry, options):
 
     if options.get("dataset") == "huc_mapping":
         # Do not mask any entry from the huc_mapping dataset that is used for masking
-        return data        
+        return data
     if options.get("variable") == "clm_run":
         # Do not mask any entry with the clm_run variable that contains vegm data
         return data
