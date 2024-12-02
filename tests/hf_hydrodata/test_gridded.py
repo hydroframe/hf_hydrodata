@@ -1189,7 +1189,7 @@ def test_get_variables():
     """Test get_variables."""
 
     variables = hf.get_variables()
-    assert len(variables) == 79
+    assert len(variables) == 80
     assert variables[0] == "air_temp"
     variables = hf.get_variables(dataset="CW3E")
     assert len(variables) == 8
