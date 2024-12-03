@@ -1951,6 +1951,7 @@ def test_temporal_resolution_static():
     with tempfile.TemporaryDirectory() as tempdirname:
         os.chdir(tempdirname)
 
+        # Check with temporal_resolution:static even though data catalog has blank temporal resolution
         options = {
             "dataset": "conus2_domain",
             "variable": "mask",
@@ -1968,7 +1969,7 @@ def test_temporal_resolution_static():
         data = parflow.read_pfb("foo_conus2_domain_mask.pfb")
         assert data.shape == (1, 852, 586)
 
-        # Verify
+        # Test error message if the variable parameter is passed as a string instead of a list.
         with pytest.raises(ValueError, match="must be a list, not a string"):
             variables = "mask"
             hf.get_gridded_files(
