@@ -532,6 +532,8 @@ def get_gridded_files(
         if entry is None:
             raise ValueError("No data catalog entry found for options.")
         variables = [entry.get("variable")]
+    if  isinstance(variables, str):
+        raise ValueError("The variables parameters must be a list, not a string")
 
     # Start threads to download data
     if temporal_resolution in ["daily", "hourly"]:
@@ -546,6 +548,7 @@ def get_gridded_files(
         )
 
     last_file_name = None
+    file_name = None
     dask_items = []
     file_time = start_time
     time_index = 0

@@ -14,7 +14,7 @@ import numpy as np
 import pytest
 import pytz
 import rioxarray
-
+import parflow
 from parflow import read_pfb_sequence
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
@@ -1944,5 +1944,36 @@ def test_get_pfb_vegm_for_zvalue():
     assert data.shape == (23, 2, 2)
 
 
-if __name__ == "__main__":
-    pytest.main([__file__])
+def test_temporal_resolution_static():
+    """Test get_gridded_files with different temporal_resolution and aggregation values"""
+
+    cd = os.getcwd()
+    with tempfile.TemporaryDirectory() as tempdirname:
+        os.chdir(tempdirname)
+
+        options = {
+            "dataset": "conus2_domain",
+            "variable": "mask",
+            "temporal_resolution": "static",
+            "aggregation": "-",
+            "huc_id": "02",
+        }
+        variables = ["mask"]
+
+        hf.get_gridded_files(
+            options,
+            filename_template="foo_{dataset}_{variable}.pfb",
+            variables=variables,
+        )
+        data = parflow.read_pfb("foo_conus2_domain_mask.pfb")
+        assert data.shape == (1, 852, 586)
+
+        # Verify
+        with pytest.raises(ValueError, match="must be a list, not a string"):
+            variables = "mask"
+            hf.get_gridded_files(
+                options,
+                filename_template="foo_{dataset}_{variable}.tiff",
+                variables=variables,
+            )
+    os.chdir(cd)
