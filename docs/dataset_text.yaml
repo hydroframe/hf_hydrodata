@@ -245,3 +245,14 @@ datasets:
       February 2017. Several days are missing from select years due to `MODIS outages <https://modaps.modaps.eosdis.nasa.gov/services/production/outages_terra.html>`_.
 
       The data included in this dataset have been geospatially transformed from the 0.05 by 0.05 degree grid to the 1km by 1km CONUS2 grid.
+
+  "ma_2023":
+    summary: >
+      Water table depth estimates provided by a random forest model trained on historical USGS observations 
+      and `Fan et al. 2013 water table depth dataset <https://hf-hydrodata.readthedocs.io/en/latest/gen_fan_2013.html>`_. 
+      This dataset includes long-term mean water table estimates and uncertainty at 1km resolution for the CONUS1 domain. 
+
+    processing_notes: >
+      Long-term mean water table depth estimates were obtained using the median of tree outputs from the trained random 
+      forest model. The uncertainty was assessed based on the coefficient of variation of the tree outputs from the random 
+      forest model, which was calculated as the standard deviation of the tree outputs divided by their mean.
