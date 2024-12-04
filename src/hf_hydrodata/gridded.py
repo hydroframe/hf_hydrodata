@@ -394,7 +394,7 @@ def get_gridded_files(
     Args:
         options:            A dict containing data filters to be passed to get_gridded_data().
         filename_template:  A template used to create the file name(s) to store the data downloaded.
-        variables:          A list of variable names to download. If provided, this overwrites the variable defined in options dict.
+        variables:          A list of variable names (or a single name as a string) to download. If provided, this overwrites the variable defined in options dict.
         verbose:            If True, prints progress of downloaded data while downloading.
     Raises:
         ValueError:  If an error occurs while downloading and creating files.
