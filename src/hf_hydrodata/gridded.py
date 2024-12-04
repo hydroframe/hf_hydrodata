@@ -16,6 +16,7 @@ import threading
 import dask
 import requests
 import pyproj
+import importlib.metadata
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 import numpy as np
@@ -970,6 +971,8 @@ def _construct_string_from_options(qparam_values):
     ]
     schema = os.getenv("DC_SCHEMA", "public")
     string_parts.append(f"schema={schema}")
+    hf_hydrodata_version = importlib.metadata.version("hf_hydrodata")
+    string_parts.append(f"hf_version={hf_hydrodata_version}")
     result_string = "&".join(string_parts)
     return result_string
 
