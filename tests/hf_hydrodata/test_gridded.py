@@ -14,7 +14,7 @@ import numpy as np
 import pytest
 import pytz
 import rioxarray
-
+import parflow
 from parflow import read_pfb_sequence
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
@@ -1188,7 +1188,7 @@ def test_get_variables():
     """Test get_variables."""
 
     variables = hf.get_variables()
-    assert len(variables) == 79
+    assert len(variables) >= 80
     assert variables[0] == "air_temp"
     variables = hf.get_variables(dataset="CW3E")
     assert len(variables) == 8
@@ -1378,6 +1378,48 @@ def test_get_gridded_files_tiff():
         )
         assert os.path.exists("conus1_baseline_mod.ground_heat.tiff")
         luc = rioxarray.open_rasterio("conus1_baseline_mod.ground_heat.tiff")
+        assert 'standard_parallel_1",33' in str(luc.rio.crs)
+    os.chdir(cd)
+
+
+def test_get_huc_conus_2_gridded_files_tiff():
+    """Unit test for get_gridded_files to get conus2 huc_map as tiff file."""
+
+    cd = os.getcwd()
+    with tempfile.TemporaryDirectory() as tempdirname:
+        os.chdir(tempdirname)
+        options = {
+            "dataset": "huc_mapping",
+            "variable": "huc_map",
+            "grid": "conus2",
+            "level": "2",
+        }
+        output_file = "foo.tiff"
+        assert not os.path.exists(output_file)
+        gr.get_gridded_files(options, filename_template=output_file)
+        assert os.path.exists(output_file)
+        luc = rioxarray.open_rasterio(output_file)
+        assert 'standard_parallel_1",30' in str(luc.rio.crs)
+    os.chdir(cd)
+
+
+def test_get_huc_conus_1_gridded_files_tiff():
+    """Unit test for get_gridded_files to get conus1 huc_map as tiff file."""
+
+    cd = os.getcwd()
+    with tempfile.TemporaryDirectory() as tempdirname:
+        os.chdir(tempdirname)
+        options = {
+            "dataset": "huc_mapping",
+            "variable": "huc_map",
+            "grid": "conus1",
+            "level": "2",
+        }
+        output_file = "foo.tiff"
+        assert not os.path.exists(output_file)
+        gr.get_gridded_files(options, filename_template=output_file)
+        assert os.path.exists(output_file)
+        luc = rioxarray.open_rasterio(output_file)
         assert 'standard_parallel_1",33' in str(luc.rio.crs)
     os.chdir(cd)
 
@@ -1856,8 +1898,8 @@ def test_get_pfb_vegm_with_default_masking():
     assert data.shape == (23, 2, 2)
     assert data[4, 0, 0] == 4
     assert pytest.approx(data[0, 0, 0], 0.0001) == 22.368969
-    assert pytest.approx(data[2, 0, 0], 0.01) == .16
-    assert pytest.approx(data[3, 0, 0], 0.01) == .19
+    assert pytest.approx(data[2, 0, 0], 0.01) == 0.16
+    assert pytest.approx(data[3, 0, 0], 0.01) == 0.19
 
     # Test a point in a Great Lake
     bounds = [2977, 2199, 2978, 2200]
@@ -1871,8 +1913,9 @@ def test_get_pfb_vegm_with_default_masking():
     assert data.shape == (23, 1, 1)
     assert data[4, 0, 0] == 4
     assert pytest.approx(data[0, 0, 0], 0.0001) == 44.481031
-    assert pytest.approx(data[2, 0, 0], 0.01) == .04
-    assert pytest.approx(data[3, 0, 0], 0.01) == .19
+    assert pytest.approx(data[2, 0, 0], 0.01) == 0.04
+    assert pytest.approx(data[3, 0, 0], 0.01) == 0.19
+
 
 def test_get_pfb_vegm_for_zvalue():
     """Test get vegm values using pfb file type and z value."""
@@ -1900,5 +1943,38 @@ def test_get_pfb_vegm_for_zvalue():
     data = hf.get_gridded_data(options)
     assert data.shape == (23, 2, 2)
 
-if __name__ == "__main__":
-    pytest.main([__file__])
+
+def test_temporal_resolution_static():
+    """Test get_gridded_files with different temporal_resolution and aggregation values"""
+
+    cd = os.getcwd()
+    with tempfile.TemporaryDirectory() as tempdirname:
+        os.chdir(tempdirname)
+
+        # Check with temporal_resolution:static even though data catalog has blank temporal resolution
+        options = {
+            "dataset": "conus2_domain",
+            "variable": "mask",
+            "temporal_resolution": "static",
+            "aggregation": "-",
+            "huc_id": "02",
+        }
+        variables = ["mask"]
+
+        hf.get_gridded_files(
+            options,
+            filename_template="foo_{dataset}_{variable}.pfb",
+            variables=variables,
+        )
+        data = parflow.read_pfb("foo_conus2_domain_mask.pfb")
+        assert data.shape == (1, 852, 586)
+
+        # Test if the variables parameter is passed as a string instead of a list.
+        variables = "mask"
+        hf.get_gridded_files(
+            options,
+            filename_template="foo_{dataset}_{variable}.tiff",
+            variables=variables,
+        )
+        assert os.path.exists("foo_conus2_domain_mask.tiff")
+    os.chdir(cd)

@@ -13,6 +13,7 @@ import json
 import shutil
 import tempfile
 import threading
+import importlib.metadata
 import dask
 import requests
 import pyproj
@@ -394,7 +395,7 @@ def get_gridded_files(
     Args:
         options:            A dict containing data filters to be passed to get_gridded_data().
         filename_template:  A template used to create the file name(s) to store the data downloaded.
-        variables:          A list of variable names to download. If provided, this overwrites the variable defined in options dict.
+        variables:          A list of variable names (or a single name as a string) to download. If provided, this overwrites the variable defined in options dict.
         verbose:            If True, prints progress of downloaded data while downloading.
     Raises:
         ValueError:  If an error occurs while downloading and creating files.
@@ -467,6 +468,11 @@ def get_gridded_files(
         options["temporal_resolution"] = options.get("period")
     temporal_resolution = options.get("temporal_resolution")
     temporal_resolution = (
+        "static"
+        if temporal_resolution is None or temporal_resolution in ["", "-", "static"]
+        else temporal_resolution
+    )
+    temporal_resolution = (
         _get_temporal_resolution_from_catalog(options)
         if temporal_resolution is None
         else temporal_resolution
@@ -528,6 +534,8 @@ def get_gridded_files(
         if entry is None:
             raise ValueError("No data catalog entry found for options.")
         variables = [entry.get("variable")]
+    if isinstance(variables, str):
+        variables = [variables]
 
     # Start threads to download data
     if temporal_resolution in ["daily", "hourly"]:
@@ -542,6 +550,7 @@ def get_gridded_files(
         )
 
     last_file_name = None
+    file_name = None
     dask_items = []
     file_time = start_time
     time_index = 0
@@ -963,6 +972,8 @@ def _construct_string_from_options(qparam_values):
     ]
     schema = os.getenv("DC_SCHEMA", "public")
     string_parts.append(f"schema={schema}")
+    hf_hydrodata_version = importlib.metadata.version("hf_hydrodata")
+    string_parts.append(f"hf_version={hf_hydrodata_version}")
     result_string = "&".join(string_parts)
     return result_string
 
@@ -1260,7 +1271,7 @@ def _apply_mask(data, entry, options):
 
     if options.get("dataset") == "huc_mapping":
         # Do not mask any entry from the huc_mapping dataset that is used for masking
-        return data        
+        return data
     if options.get("variable") == "clm_run":
         # Do not mask any entry with the clm_run variable that contains vegm data
         return data
@@ -1536,6 +1547,9 @@ def _convert_json_to_strings(options):
         if key == "time_values":
             if not isinstance(value, str):
                 options[key] = json.dumps(value)
+
+    hf_hydrodata_version = importlib.metadata.version("hf_hydrodata")
+    options["hf_version"] = hf_hydrodata_version
 
     return options
 
