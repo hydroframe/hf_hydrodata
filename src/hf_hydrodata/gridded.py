@@ -13,10 +13,10 @@ import json
 import shutil
 import tempfile
 import threading
+import importlib.metadata
 import dask
 import requests
 import pyproj
-import importlib.metadata
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 import numpy as np
@@ -1546,6 +1546,9 @@ def _convert_json_to_strings(options):
         if key == "time_values":
             if not isinstance(value, str):
                 options[key] = json.dumps(value)
+
+    hf_hydrodata_version = importlib.metadata.version("hf_hydrodata")
+    options["hf_version"] = hf_hydrodata_version
 
     return options
 
