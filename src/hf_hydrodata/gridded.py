@@ -532,8 +532,8 @@ def get_gridded_files(
         if entry is None:
             raise ValueError("No data catalog entry found for options.")
         variables = [entry.get("variable")]
-    if  isinstance(variables, str):
-        raise ValueError("The variables parameters must be a list, not a string")
+    if isinstance(variables, str):
+        variables = [variables]
 
     # Start threads to download data
     if temporal_resolution in ["daily", "hourly"]:

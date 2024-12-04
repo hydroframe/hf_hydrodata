@@ -1970,11 +1970,11 @@ def test_temporal_resolution_static():
         assert data.shape == (1, 852, 586)
 
         # Test error message if the variable parameter is passed as a string instead of a list.
-        with pytest.raises(ValueError, match="must be a list, not a string"):
-            variables = "mask"
-            hf.get_gridded_files(
-                options,
-                filename_template="foo_{dataset}_{variable}.tiff",
-                variables=variables,
-            )
+        variables = "mask"
+        hf.get_gridded_files(
+            options,
+            filename_template="foo_{dataset}_{variable}.tiff",
+            variables=variables,
+        )
+        assert os.path.exists("foo_conus2_domain_mask.tiff")
     os.chdir(cd)
