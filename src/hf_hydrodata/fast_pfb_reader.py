@@ -35,7 +35,7 @@ def read_files(pfb_files: List[str], pfb_constraints: dict=None):
     Read and subset a list of pfb files.
 
     Parameters:
-        pfb_files:      A list of pfb files to be read.
+        pfb_files:      A list of pfb files to be read or a single pfb file name.
         pfb_constaints: A dict with keys: x, y, z with values a dict of start, stop.
 
     If pfb_constraints is None then reads the entire contents of all pfb_files.
@@ -55,6 +55,8 @@ def read_files(pfb_files: List[str], pfb_constraints: dict=None):
 
     if pfb_files is None:
         raise ValueError("No pfb_files.")
+    if isinstance(pfb_files, str):
+        pfb_files = [pfb_files]
     if len(pfb_files) == 0:
         raise ValueError("The pfb_files list is empty.")
 
@@ -101,7 +103,7 @@ def read_files(pfb_files: List[str], pfb_constraints: dict=None):
     result_shape = (len(pfb_files), z_size, y_size, x_size)
 
     if result_shape[0] * result_shape[1] * result_shape[2] * result_shape[3] > 2000000000:
-        raise ValueError("Requested returned numpy array is too big.")
+        raise ValueError("Requested returned numpy array is larger than 2GB.")
 
     # Pre-create the numpy array to be returned
     np_values = np.zeros(result_shape)
@@ -170,7 +172,7 @@ def read_file(
 
         previous_row_subgrid_num = subgrid_num
         for _ in range(0, pqr[0] * pqr[1]):
-            subgrid_position, header_sg_nxyz = _copy_files_from_subgrid(
+            subgrid_position, header_sg_nxyz = _copy_data_from_subgrid(
                 fp,
                 subgrid_num,
                 x,
@@ -196,7 +198,7 @@ def read_file(
                 # We loaded all the data from all the subgrids requested
                 break
 
-def _copy_files_from_subgrid(
+def _copy_data_from_subgrid(
     fp,
     subgrid_num,
     x: int,
@@ -212,21 +214,21 @@ def _copy_files_from_subgrid(
     index,
 ):
     """
-    Read a subgrid and copy data from the setgrid to approprate place in np_values.
+    Read a subgrid and copy data from the subgrid_num to approprate place in np_values.
     
     Returns:
-        A tuple (subgrid_position, header_sg_nxyz)
+        A tuple (subgrid_position, header_sg_nxyz) of the subgrid that was copied.
     
     Where subgrid_position is (x,y,z) position of the subgrid.
     and header_sg_nxyz is (nx, ny, nz) size of the subgrid.
     """
 
-    # Find the offset of the subgrid
+    # Find the byte offset of the subgrid from the start of the file
     offset = get_subgrid_offset(subgrid_num, pfb_shape, sg_nxyz, pqr)
     # Read the subgrid from that offset byte position
     data, subgrid_position, header_sg_nxyz = _read_subgrid(fp, offset, sg_nxyz)
 
-    # Compute X start and end positions
+    # Compute start position of the data to be copied in the subgrid and the np_values array for X dimension
     if subgrid_position[0] < x:
         # this subgrid is first X subgrid in a row and request does not start at beginning of subgrid
         target_x = 0
@@ -236,6 +238,7 @@ def _copy_files_from_subgrid(
         target_x = subgrid_position[0] - x
         subgrid_x = 0
 
+    # Compute end position of the data to be copied in the subgrid and the np_values array for X dimension
     if x + x_size < subgrid_position[0] + header_sg_nxyz[0]:
         # the X request range ends before the end of this subgrid
         end_target_x = x_size
@@ -245,7 +248,7 @@ def _copy_files_from_subgrid(
         end_target_x = subgrid_position[0] + header_sg_nxyz[0] - x
         end_subgrid_x = header_sg_nxyz[0]
 
-    # Compute Y start/end positions
+    # Compute start position of the data to be copied in the subgrid and the np_values array for Y dimension
     if subgrid_position[1] < y:
         target_y = 0
         subgrid_y = y - subgrid_position[1]
@@ -253,6 +256,7 @@ def _copy_files_from_subgrid(
         target_y = subgrid_position[1] - y
         subgrid_y = 0
 
+    # Compute end position of the data to be copied in the subgrid and the np_values array for Y dimension
     if y + y_size < subgrid_position[1] + header_sg_nxyz[1]:
         end_target_y = y_size
         end_subgrid_y = (y + y_size) - subgrid_position[1]
@@ -261,7 +265,7 @@ def _copy_files_from_subgrid(
         end_target_y = subgrid_position[1] + header_sg_nxyz[1] - y
         end_subgrid_y = header_sg_nxyz[1]
 
-    # Compute Z start and end position 
+    # Compute Z dimension start and end position from the subgrid and the np_value target array
     target_z = 0
     end_target_z = target_z + z_size
     subgrid_z = z
@@ -281,12 +285,6 @@ def _copy_files_from_subgrid(
 
     #return the position and header of the subgrid that was copied
     return subgrid_position, header_sg_nxyz
-
-def value_range(low, high, value_list):
-    for value in value_list:
-        if low <= value <= high:
-            return value
-    return 0
 
 def _read_file_header(fp):
     """
@@ -328,7 +326,7 @@ def _read_file_header(fp):
 def find_subgrid(
     x: int, y: int, pfb_shape: List[int], sg_nxyz: List[int], pqr: List[int]
 ) -> int:
-    """Find the subgrid that contains the x,y point."""
+    """Find the subgrid number that contains the x,y point."""
 
     (p, _, _) = pqr
     (sg_nx, sg_ny, _) = sg_nxyz
@@ -350,9 +348,9 @@ def get_subgrid_offset(
     subgrid_num: int, pfb_shape: List[int], sg_nxyz, pqr: List[int]
 ) -> int:
     """
-    Get the file offset after the pfb header into the pfb file of the start of the subgrid_num.
+    Get the byte offset in the file of the subgrid header the subgrid_num.
     This return the same value as the value from the .dist file for a subgrid number.
-    The file offset for subgrid 0 is 64 (after file header).
+    The byte offset for subgrid 0 is 64 (after file header).
     """
 
     (nx, ny, _) = pfb_shape
@@ -409,15 +407,15 @@ def _read_subgrid(fp, subgrid_offset:int, sg_nxyz: List[int]):
     Read the data in the subgrid.
     Parameters:
         fp:             File pointer of the open pfb file.
-        subgrid_offset: Offset in bytes of the beginning of the subgrid in the file.
+        subgrid_offset: Offset in bytes of the beginning of the subgrid header in the file.
         ng_nxyz:        An array (nx, ny, nz) of largest subgrid for the PQR of the file.
 
     Returns:
         (data, subgrid_position, subgrid_sg_nx)
     
-    Where data is the numpy array data of the subgrid
-    and subgrid_position = (x, y, z) cell position of the subgrid.
-    and subgrid_sg_nx is (nx, ny, nz) size of the subgrid.
+    Where data is a numpy array containing data of the subgrid
+    and subgrid_position is the (x, y, z) cell position of the subgrid.
+    and subgrid_sg_nx is the (nx, ny, nz) size of the subgrid that is read (maybe be smaller than ng_nxyz).
     """
 
     (sg_nx, sg_ny, sg_nz) = sg_nxyz
