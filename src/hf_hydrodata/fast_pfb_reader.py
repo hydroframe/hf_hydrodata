@@ -8,10 +8,10 @@
 
     The read_files() function reads files in parallel threads, but is 10x faster than
     calling read_pfb_sequence() in parallel threads because of the start up overhead of calling
-    read_pfb_sequence for the first file in each call.
+    read_pfb_sequence for the first file in each thread call.
      
-    The read_files() function also does not support the additional default parameters of read_pfb_sequence
-    so this is not a drop in replacement for read_pfb_sequence.
+    The read_files() function also does not support the additional default parameters
+    of read_pfb_sequence so this is not a drop in replacement for read_pfb_sequence.
 
 """
 
