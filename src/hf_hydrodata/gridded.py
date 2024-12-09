@@ -1765,6 +1765,13 @@ def _read_and_filter_pfb_files(
     # if the number of paths is more than the limit call read_pfb_sequence in blocks
     # then append together the blocks to return the correct result
     max_block_size = 100
+    # Use a larger block size if the grid_bounds is small
+    if boundary_constraints and boundary_constraints.get("x") and boundary_constraints.get("y"):
+        x_size = boundary_constraints.get("x").get("stop", 1000) - boundary_constraints.get("x").get("start", 0)
+        y_size = boundary_constraints.get("y").get("stop", 1000) - boundary_constraints.get("y").get("start", 0)
+        if x_size * y_size < 8:
+            max_block_size = 400
+    
     final_data = None
     block_start = 0
     while len(paths) > block_start:
