@@ -106,11 +106,17 @@ def read_files(pfb_files: List[str], pfb_constraints: dict = None):
     # result_shape is (n, time, z, y, x) where n is the number of files
     result_shape = (len(pfb_files), z_size, y_size, x_size)
 
+    max_memory_size = 2000000000
     if (
         result_shape[0] * result_shape[1] * result_shape[2] * result_shape[3]
-        > 2000000000
+        > max_memory_size
     ):
         raise ValueError("Requested returned numpy array is larger than 2GB.")
+
+    # Check if we would run out of memory reading subgrids of the files in parallel (depends on PQR)
+    intermediate_size = pfb_shape[0]/pqr[0] * pfb_shape[1]/pqr[1] * pfb_shape[2]/pqr[2] * len(pfb_files)
+    if intermediate_size > max_memory_size:
+        raise ValueError(f"Not enough memory to read {len(pfb_files)} files with PQR {pqr}. Try to read to fewer files (time steps) at a time.")
 
     # Pre-create the numpy array to be returned
     np_values = np.zeros(result_shape)

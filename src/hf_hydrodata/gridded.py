@@ -1772,8 +1772,6 @@ def _read_and_filter_pfb_files(
         y_size = boundary_constraints.get("y").get("stop", 1000) - boundary_constraints.get("y").get("start", 0)
         if x_size * y_size < 8:
             max_block_size = 400
-            logging.info(f"Use large block size {max_block_size}")
-    
     final_data = None
     block_start = 0
     while len(paths) > block_start:
@@ -1786,11 +1784,7 @@ def _read_and_filter_pfb_files(
         if use_read_pfb_seq:
             data = read_pfb_sequence(path_block, boundary_constraints)
         else:
-            t0 = time.time()
             data = hf_hydrodata.fast_pfb_reader.read_files(path_block, boundary_constraints)
-            t1 = time.time()
-            logging.info(f"fast_pfb.read_files {t1-t0} # Files {len(paths)}")
-
         if final_data is None:
             # This is the first block
             final_data = data

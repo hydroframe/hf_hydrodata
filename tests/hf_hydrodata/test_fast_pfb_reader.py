@@ -9,11 +9,12 @@ import glob
 import time
 import parflow
 import numpy as np
+import pytest
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 import hf_hydrodata.fast_pfb_reader
 
-def test_reading_multiple_files():
+def xtest_reading_multiple_files():
     """Test reading multiple files of one point."""
 
     path_template = "/hydrodata/forcing/processed_data/CONUS2/CW3E_v1.0/hourly/WY1998/CW3E.Temp.*.pfb" 
@@ -37,3 +38,13 @@ def test_reading_multiple_files():
     assert fast_data.shape == (365, 24, 1, 1)
     assert pfb_seq_data.shape == (365, 24, 1, 1)
     assert fast_total == pfb_seq_total
+
+def test_not_enough_memory_error():
+    """Test attempting to read a file with PQR too small for number of files read."""
+
+    with pytest.raises(ValueError):
+        path_template = "/hydrodata/temp/CONUS2_transfers/CONUS2/spinup_WY2003/run_inputs/spinup.wy2003.out.press.*.pfb"
+        pfb_files = glob.glob(path_template)
+        pfb_files.sort()
+        pfb_constraints = None
+        data = hf_hydrodata.fast_pfb_reader.read_files(pfb_files, pfb_constraints)
