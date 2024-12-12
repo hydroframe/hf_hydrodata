@@ -116,7 +116,7 @@ def read_files(pfb_files: List[str], pfb_constraints: dict = None):
     # Check if we would run out of memory reading subgrids of the files in parallel (depends on PQR)
     intermediate_size = pfb_shape[0]/pqr[0] * pfb_shape[1]/pqr[1] * pfb_shape[2]/pqr[2] * len(pfb_files)
     if intermediate_size > max_memory_size:
-        raise ValueError(f"Not enough memory to read {len(pfb_files)} files with PQR {pqr}. Try to read to fewer files (time steps) at a time.")
+        raise ValueError(f"Not enough memory to read {len(pfb_files)} files with shape {pfb_shape} and PQR {pqr}. Try to read to fewer files (time steps) at a time.")
 
     # Pre-create the numpy array to be returned
     np_values = np.zeros(result_shape)
