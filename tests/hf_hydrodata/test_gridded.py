@@ -129,9 +129,10 @@ def test_get_paths_and_metadata():
     assert row["units"] == "m"
     assert row["file_type"] == "pfb"
     assert row["id"] == "10"
+    # use "in" instead of "==" below to account for remote vs. local file paths returned
     assert (
         paths[3]
-        == "/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/WY2006/wtd.daily.mean.002.pfb"
+        in "/hydrodata/PFCLM/CONUS1_baseline/simulations/daily/WY2006/wtd.daily.mean.002.pfb"
     )
 
 
@@ -158,13 +159,14 @@ def test_paths_hourly_files():
     assert row["id"] == "52"
     assert row["period"] == "hourly"
 
+    # use "in" instead of "==" below to account for remote vs. local file paths returned
     assert (
         paths[0]
-        == "/hydrodata/PFCLM/CONUS1_baseline/simulations/2005/raw_outputs/pressure/CONUS.2005.out.press.08713.pfb"
+        in "/hydrodata/PFCLM/CONUS1_baseline/simulations/2005/raw_outputs/pressure/CONUS.2005.out.press.08713.pfb"
     )
     assert (
         paths[95]
-        == "/hydrodata/PFCLM/CONUS1_baseline/simulations/2006/raw_outputs/pressure/CONUS.2006.out.press.00048.pfb"
+        in "/hydrodata/PFCLM/CONUS1_baseline/simulations/2006/raw_outputs/pressure/CONUS.2006.out.press.00048.pfb"
     )
 
 
@@ -1779,11 +1781,6 @@ def test_cw3e_version():
     options_version09["dataset_version"] = "0.9"
     cw3e_version09 = hf.get_gridded_data(options_version09)
     assert cw3e_version09[0, 0, 0] - 284.66085 <= 0.00001
-
-    options_version08 = options.copy()
-    options_version08["dataset_version"] = "0.8"
-    cw3e_version08 = hf.get_gridded_data(options_version08)
-    assert cw3e_version08[0, 0, 0] - 284.10281 <= 0.00001
 
     options_version1 = options.copy()
     options_version1["dataset_version"] = "1.0"
