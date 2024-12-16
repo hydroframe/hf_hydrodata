@@ -1,0 +1,46 @@
+---
+name: Run Unit Tests Public
+
+on:
+  # run at 8am every Monday morning
+  schedule:
+    - cron: '0 8 * * 1'
+
+jobs:
+  runscript:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Register hydrodata credentials
+        env:
+          TEST_EMAIL_PUBLIC: ${{ secrets.TEST_EMAIL_PUBLIC }}
+          TEST_PIN_PUBLIC: ${{ secrets.TEST_PIN_PUBLIC }}
+        run: |
+          import os
+          import hf_hydrodata as hf
+
+          test_email_public = os.environ['TEST_EMAIL_PUBLIC']
+          test_pin_public = os.environ['TEST_PIN_PUBLIC']
+
+          hf.register_api_pin(test_email_public, test_pin_public)
+
+      - name: Run unit tests with pytest
+        run: |
+          pytest tests/hf_hydrodata
