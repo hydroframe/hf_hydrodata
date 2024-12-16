@@ -24,6 +24,7 @@ import hf_hydrodata.gridded as gr
 
 hf.data_model_access.DATA_MODEL_CACHE = None
 
+run_remote = not os.path.exists(gr.HYDRODATA)
 
 class MockResponse:
     """Mock the flask.request response."""
@@ -955,6 +956,9 @@ def test_get_gridded_data_daily():
 
 def test_get_numpy_nasa_smap_conus2():
     """Test geting daily values from pfb"""
+    if run_remote:
+        pytest.skip("accessing private data")
+
     grid_bounds = [100, 100, 150, 300]
     options = {
         "dataset": "nasa_smap",
@@ -986,6 +990,9 @@ def test_get_entry_with_multiple_file_types():
 
 def test_get_point_anomalies():
     """Unit test for point observation anomalies."""
+    if run_remote:
+        pytest.skip("accessing private data")
+
     options = {
         "site_type": "streamflow",
         "dataset": "obs_anomalies",
@@ -1007,6 +1014,9 @@ def test_get_point_anomalies():
 
 def test_filter_point_obs_by_time():
     """UNit test for stream flow filters."""
+    if run_remote:
+        pytest.skip("accessing private data")
+
     data = gr.get_gridded_data(
         site_type="streamflow",
         dataset="observations",
@@ -1122,6 +1132,8 @@ def test_get_huc_bbox_conus1():
 
 def test_getndarray_site_id():
     """Test for a bug using get_gridded_data and site_id variable."""
+    if run_remote:
+        pytest.skip("accessing private data")
 
     data = gr.get_gridded_data(
         site_type="streamflow",
@@ -1508,6 +1520,8 @@ def test_huc_border():
 
 def test_get_wtd():
     """Unit test reading the 3 resolution of water table depth files."""
+    if run_remote:
+        pytest.skip("accessing private data")
 
     # Test the 1000 meter resolution version
     x = 1500
@@ -1581,6 +1595,9 @@ def test_get_wtd():
 
 def test_wtd_1000m_north():
     """Unit test edge condition found during integration testing."""
+    if run_remote:
+        pytest.skip("accessing private data")
+
     bounds = [1593, 1724, 3420, 3484]
     options = {
         "dataset": "conus2_current_conditions",
