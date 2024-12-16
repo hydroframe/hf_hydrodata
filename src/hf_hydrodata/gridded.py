@@ -16,7 +16,6 @@ import threading
 import importlib.metadata
 import dask
 import requests
-import logging
 import pyproj
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
@@ -1762,16 +1761,10 @@ def _read_and_filter_pfb_files(
         boundary_constraints, entry, start_time_value, end_time_value
     )
 
-    # The read_pfb_sequence method has a limit to how many paths it can read
-    # if the number of paths is more than the limit call read_pfb_sequence in blocks
-    # then append together the blocks to return the correct result
-    max_block_size = 100
-    # Use a larger block size if the grid_bounds is small
-    if boundary_constraints and boundary_constraints.get("x") and boundary_constraints.get("y"):
-        x_size = boundary_constraints.get("x").get("stop", 1000) - boundary_constraints.get("x").get("start", 0)
-        y_size = boundary_constraints.get("y").get("stop", 1000) - boundary_constraints.get("y").get("start", 0)
-        if x_size * y_size < 8:
-            max_block_size = 400
+    # The read_pfb_sequence method has a limit to how many paths it can read in one call because of memory limits.
+    # However, the fast_pfb_reader how no limit since internally it reads in parallel as many as fit in memory.
+    max_block_size = 100 if use_read_pfb_seq else 1000
+
     final_data = None
     block_start = 0
     while len(paths) > block_start:

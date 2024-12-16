@@ -114,34 +114,54 @@ def read_files(pfb_files: List[str], pfb_constraints: dict = None):
         raise ValueError("Requested returned numpy array is larger than 2GB.")
 
     # Check if we would run out of memory reading subgrids of the files in parallel (depends on PQR)
-    intermediate_size = pfb_shape[0]/pqr[0] * pfb_shape[1]/pqr[1] * pfb_shape[2]/pqr[2] * len(pfb_files)
-    if intermediate_size > max_memory_size:
-        raise ValueError(f"Not enough memory to read {len(pfb_files)} files with shape {pfb_shape} and PQR {pqr}. Try to read to fewer files (time steps) at a time.")
+    # Determine the maximum numober of files that could be read in parallel with shape and pqr of the files.
+    # Each thread will be reading 1 subgrid for each parallel file being executed so running too many files
+    # in parallel might exceed the max memory size even if the final result has enough memory.
+    max_files = int(
+        max_memory_size
+        / (pfb_shape[0] / pqr[0] * pfb_shape[1] / pqr[1] * pfb_shape[2] / pqr[2])
+    )
+
+    if max_files <= 0:
+        raise ValueError(
+            f"The PQR of the pfb files is {pqr} which is too small to read the file of shape{pfb_shape}."
+        )
+
+    # The max files cannot be more than the total number of pfb_files requested
+    max_files = min(len(pfb_files), max_files)
 
     # Pre-create the numpy array to be returned
     np_values = np.zeros(result_shape)
 
-    # Read all the PFB files using parallel threads
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = [
-            executor.submit(
-                read_file,
-                pfb_file,
-                x,
-                y,
-                z,
-                x_size,
-                y_size,
-                z_size,
-                pfb_shape,
-                sg_nxyz,
-                pqr,
-                np_values,
-                index,
-            )
-            for index, pfb_file in enumerate(pfb_files)
-        ]
-        _ = [future.result() for future in concurrent.futures.as_completed(futures)]
+    # Read files in parallel in blocks of max_files
+    index = 0
+    while index < len(pfb_files):
+        # Read a block of files in parallel
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = []
+            while len(futures) < max_files and index < len(pfb_files):
+                pfb_file = pfb_files[index]
+                future = executor.submit(
+                    read_file,
+                    pfb_file,
+                    x,
+                    y,
+                    z,
+                    x_size,
+                    y_size,
+                    z_size,
+                    pfb_shape,
+                    sg_nxyz,
+                    pqr,
+                    np_values,
+                    index,
+                )
+                index = index + 1
+                futures.append(future)
+
+            # Wait for all the threads in the block to finish before starting next block
+            _ = [future.result() for future in concurrent.futures.as_completed(futures)]
+            futures = []
 
     return np_values
 
