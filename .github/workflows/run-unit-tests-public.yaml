@@ -5,6 +5,11 @@ on:
   # run at 8am every Monday morning
   schedule:
     - cron: '0 8 * * 1'
+    
+  # run with each new Pull Request opened to the main branch
+  pull_request:
+    branches:
+      - main
 
 jobs:
   runscript:
