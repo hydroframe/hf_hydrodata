@@ -83,7 +83,7 @@ def test_start_time_in_get_gridded_data():
     gr.HYDRODATA = "/hydrodata"
 
     start_time = datetime.datetime.strptime("2005-09-01", "%Y-%m-%d")
-    end_time = start_time + datetime.timedelta(hours=96)
+    end_time = start_time + datetime.timedelta(hours=48)
     data = gr.get_gridded_data(
         dataset="NLDAS2",
         file_type="pfb",
@@ -91,8 +91,10 @@ def test_start_time_in_get_gridded_data():
         variable="precipitation",
         start_time=start_time,
         end_time=end_time,
+        grid="conus1",
+        grid_bounds=[1000,1000,1005,1005]
     )
-    assert data.shape[0] == 96
+    assert data.shape[0] == 48
 
     start_time = "2005-09-01"
     data = gr.get_gridded_data(
@@ -102,8 +104,10 @@ def test_start_time_in_get_gridded_data():
         variable="precipitation",
         start_time=start_time,
         end_time=end_time,
+        grid="conus1",
+        grid_bounds=[1000,1000,1005,1005]
     )
-    assert data.shape[0] == 96
+    assert data.shape[0] == 48
 
 
 def test_get_paths_and_metadata():
