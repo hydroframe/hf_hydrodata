@@ -89,8 +89,7 @@ def test_register_api(mocker):
     with pytest.raises(ValueError):
         hf.register_api_pin("dummy@email.com", "0000")
 
-    # Then mock out requests call to verify that we can registered pin if PIN was validated
-
+    # Then mock out requests.get call that validates the pin so we can test writing to the register pin file.
     class MockResponse:
         """Mock the flask.request response."""
 
