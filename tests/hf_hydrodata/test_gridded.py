@@ -173,7 +173,7 @@ def test_paths_hourly_files():
         in "/hydrodata/PFCLM/CONUS1_baseline/simulations/2006/raw_outputs/pressure/CONUS.2006.out.press.00048.pfb"
     )
 
-
+@pytest.mark.private_dataset
 def test_files_exist():
     """Test that the data catalog path template points to an actual file in /hydrodata."""
 
@@ -960,6 +960,7 @@ def test_get_gridded_data_daily():
     assert data.shape == (3, 1888, 3342)
 
 
+@pytest.mark.private_dataset
 def test_get_numpy_nasa_smap_conus2():
     """Test geting daily values from pfb"""
     if run_remote:
@@ -994,6 +995,7 @@ def test_get_entry_with_multiple_file_types():
     assert entry["file_type"] == "pfb"
 
 
+@pytest.mark.private_dataset
 def test_get_point_anomalies():
     """Unit test for point observation anomalies."""
     if run_remote:
@@ -1018,6 +1020,7 @@ def test_get_point_anomalies():
     assert data.shape[0] > 8000
 
 
+@pytest.mark.private_dataset
 def test_filter_point_obs_by_time():
     """UNit test for stream flow filters."""
     if run_remote:
@@ -1136,6 +1139,7 @@ def test_get_huc_bbox_conus1():
     assert bbox == [1088, 415, 1132, 453]
 
 
+@pytest.mark.private_dataset
 def test_getndarray_site_id():
     """Test for a bug using get_gridded_data and site_id variable."""
     if run_remote:
@@ -1524,6 +1528,7 @@ def test_huc_border():
     assert math.isnan(data[0, 0, 0])
 
 
+@pytest.mark.private_dataset
 def test_get_wtd():
     """Unit test reading the 3 resolution of water table depth files."""
     if run_remote:
@@ -1599,6 +1604,7 @@ def test_get_wtd():
     assert str(round(data[1, 1], 5)) == "78.74432"
 
 
+@pytest.mark.private_dataset
 def test_wtd_1000m_north():
     """Unit test edge condition found during integration testing."""
     if run_remote:

@@ -40,3 +40,8 @@ coverage = "^7.6.1"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+markers = [
+    "private_dataset: marks tests as using dataset(s) with restricted access levels",
+]

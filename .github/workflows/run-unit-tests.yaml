@@ -5,7 +5,7 @@ on:
   # run at 8am every Monday morning
   schedule:
     - cron: '0 8 * * 1'
-    
+
   # run with each new Pull Request opened to the main branch
   pull_request:
     branches:
@@ -33,7 +33,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Register hydrodata credentials
+      - name: Register hydrodata credentials as a public user
         env:
           TEST_EMAIL_PUBLIC: ${{ secrets.TEST_EMAIL_PUBLIC }}
           TEST_PIN_PUBLIC: ${{ secrets.TEST_PIN_PUBLIC }}
@@ -46,6 +46,24 @@ jobs:
 
           hf.register_api_pin(test_email_public, test_pin_public)
 
-      - name: Run unit tests with pytest
+      - name: Run public-access unit tests with pytest
         run: |
           pytest tests/hf_hydrodata
+
+      - name: Register hydrodata credentials as a user with private dataset access
+        env:
+          TEST_EMAIL_PRIVATE: ${{ secrets.TEST_EMAIL_PRIVATE }}
+          TEST_PIN_PRIVATE: ${{ secrets.TEST_PIN_PRIVATE }}
+        run: |
+          import os
+          import hf_hydrodata as hf
+
+          test_email_private = os.environ['TEST_EMAIL_PRIVATE']
+          test_pin_private = os.environ['TEST_PIN_PRIVATE']
+
+          hf.register_api_pin(test_email_private, test_pin_private)
+
+      # Run only the tests that require private dataset access level
+      - name: Run private-access unit tests with pytest
+        run: |
+          pytest tests/hf_hydrodata/test_gridded.py -m private_dataset
