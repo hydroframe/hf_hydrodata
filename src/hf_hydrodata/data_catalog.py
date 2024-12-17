@@ -7,10 +7,8 @@ Functions to access data_catalog metadata.
 import os
 from typing import List
 import threading
-from hf_hydrodata.data_model_access import (
-    ModelTableRow,
-    load_data_model
-)
+import requests
+from hf_hydrodata.data_model_access import ModelTableRow, load_data_model
 
 HYDRODATA = "/hydrodata"
 JWT_TOKEN = None
@@ -120,6 +118,19 @@ def register_api_pin(email: str, pin: str):
         hf.register_api_pin("dummy@gmail.com", "1234")
     """
 
+    if not email or not pin:
+        raise ValueError("Email and PIN are not specified in call to register_api_pin.")
+
+    url = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
+    response = requests.get(url, timeout=1200)
+    if response.status_code == 400:
+        raise ValueError(
+            f"This PIN is not registered for '{email}' (expired?). Register a pin with https://hydrogen.princeton.edu/pin. Signup with https://hydrogen.princeton.edu/signup."
+        )
+    if not response.status_code == 200:
+        raise ValueError(
+            f"Unable to validate '{email}' and PIN. Check if you can register a pin with https://hydrogen.princeton.edu/pin"
+        )
     pin_dir = os.path.expanduser("~/.hydrodata")
     os.makedirs(pin_dir, mode=0o700, exist_ok=True)
     pin_path = f"{pin_dir}/pin.json"
