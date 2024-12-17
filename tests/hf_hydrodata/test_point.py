@@ -1840,6 +1840,4 @@ def test_depth_level_provided_not_sm():
 
 
 if __name__ == "__main__":
-    # pytest.main()
-    test_fail_no_sites_get_site_variables()
-    test_fail_no_grid_get_site_variables()
+    pytest.main()
