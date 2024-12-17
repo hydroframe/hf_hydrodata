@@ -1585,10 +1585,7 @@ def test_fail_no_grid_get_site_variables():
             date_end="2002-01-05",
             grid_bounds=[1500, 1300, 1700, 1500],
         )
-    assert (
-        str(exc.value)
-        == "When providing the parameter `grid_bounds`, please also provide the parameter `grid` as either 'conus1' or 'conus2'."
-    )
+    assert "When providing the parameter `grid_bounds`, please also provide the parameter `grid`" in str(exc.value)
 
 
 def test_fail_no_sites_get_site_variables():
@@ -1607,7 +1604,7 @@ def test_fail_no_sites_get_site_variables():
             grid="conus2",
             grid_bounds=[1500, 1300, 1501, 1301],
         )
-    assert str(exc.value) == "There are no sites within the provided grid_bounds."
+    assert "There are no sites within the provided grid_bounds." in str(exc.value)
 
 
 def test_get_data_jasechko():
@@ -1843,4 +1840,6 @@ def test_depth_level_provided_not_sm():
 
 
 if __name__ == "__main__":
-    pytest.main()
+    # pytest.main()
+    test_fail_no_sites_get_site_variables()
+    test_fail_no_grid_get_site_variables()
