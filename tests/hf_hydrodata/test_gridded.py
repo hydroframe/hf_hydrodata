@@ -1695,7 +1695,7 @@ def test_gridded_files_default_temporal_resolution(tmp_path):
     os.chdir(tmp_path)
 
     options = {
-        "dataset": "conus1_current_conditions",
+        "dataset": "conus2_current_conditions",
         "variable": "soil_moisture",
         "grid_bounds": [100, 100, 104, 104],
         "start_time": "2024-03-01",
