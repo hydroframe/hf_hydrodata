@@ -6,7 +6,6 @@ Unit test for the gridded module.
 import sys
 import os
 import datetime
-import tempfile
 import math
 import warnings
 import xarray as xr
@@ -173,6 +172,9 @@ def test_paths_hourly_files():
 
 def test_files_exist():
     """Test that the data catalog path template points to an actual file in /hydrodata."""
+
+    if run_remote:
+        pytest.skip("accessing private data")
 
     def _get_start_time(entry):
         """Get a start time used in substituting into the data catalog template appropriate for the dataset."""
@@ -1258,183 +1260,184 @@ def test_temporal_resolution():
     assert entry["period"] == "hourly"
 
 
-def test_get_gridded_files_pfb():
+def test_get_gridded_files_pfb(tmp_path):
     """Unit test for get_gridded_files not passing variables list."""
 
     cd = os.getcwd()
-    with tempfile.TemporaryDirectory() as tempdirname:
-        os.chdir(tempdirname)
-        grid_bounds = [10, 10, 20, 20]
-        options = {
-            "dataset": "NLDAS2",
-            "temporal_resolution": "hourly",
-            "variable": "atmospheric_pressure",
-            "grid_bounds": grid_bounds,
-            "start_time": "2005-10-02",
-            "end_time": "2005-10-3",
-        }
-        assert not os.path.exists("NLDAS2.Press.000001_to_000024.pfb")
-        gr.get_gridded_files(options)
-        assert os.path.exists("NLDAS2.Press.000001_to_000024.pfb")
+    os.chdir(tmp_path)
 
-        with pytest.raises(ValueError):
-            options["dataset"] = "error"
-            gr.get_gridded_files(options)
+    grid_bounds = [10, 10, 20, 20]
+    options = {
+        "dataset": "NLDAS2",
+        "temporal_resolution": "hourly",
+        "variable": "atmospheric_pressure",
+        "grid_bounds": grid_bounds,
+        "start_time": "2005-10-02",
+        "end_time": "2005-10-3",
+    }
+    assert not os.path.exists("NLDAS2.Press.000001_to_000024.pfb")
+    gr.get_gridded_files(options)
+    assert os.path.exists("NLDAS2.Press.000001_to_000024.pfb")
+
+    with pytest.raises(ValueError):
+        options["dataset"] = "error"
+        gr.get_gridded_files(options)
+
     os.chdir(cd)
 
 
-def test_get_gridded_files_variables():
+def test_get_gridded_files_variables(tmp_path):
     """Unit test for get_gridded_files with variables list."""
 
     cd = os.getcwd()
-    with tempfile.TemporaryDirectory() as tempdirname:
-        os.chdir(tempdirname)
-        variables = ["air_temp", "precipitation"]
-        grid_bounds = [10, 10, 20, 20]
-        options = {
-            "dataset": "NLDAS2",
-            "temporal_resolution": "hourly",
-            "grid_bounds": grid_bounds,
-            "start_time": "2005-10-02",
-            "end_time": "2005-10-3",
-        }
-        assert not os.path.exists("NLDAS2.Temp.000001_to_000024.pfb")
-        assert not os.path.exists("NLDAS2.APCP.000001_to_000024.pfb")
-        gr.get_gridded_files(options, variables=variables)
-        assert os.path.exists("NLDAS2.Temp.000001_to_000024.pfb")
-        assert os.path.exists("NLDAS2.APCP.000001_to_000024.pfb")
+    os.chdir(tmp_path)
+
+    variables = ["air_temp", "precipitation"]
+    grid_bounds = [10, 10, 20, 20]
+    options = {
+        "dataset": "NLDAS2",
+        "temporal_resolution": "hourly",
+        "grid_bounds": grid_bounds,
+        "start_time": "2005-10-02",
+        "end_time": "2005-10-3",
+    }
+    assert not os.path.exists("NLDAS2.Temp.000001_to_000024.pfb")
+    assert not os.path.exists("NLDAS2.APCP.000001_to_000024.pfb")
+    gr.get_gridded_files(options, variables=variables)
+    assert os.path.exists("NLDAS2.Temp.000001_to_000024.pfb")
+    assert os.path.exists("NLDAS2.APCP.000001_to_000024.pfb")
 
     os.chdir(cd)
 
 
-def test_get_gridded_files_3d():
+def test_get_gridded_files_3d(tmp_path):
     """Unit test for get_gridded_files with 3d variable."""
 
     cd = os.getcwd()
-    with tempfile.TemporaryDirectory() as tempdirname:
-        os.chdir(tempdirname)
-        grid_bounds = [10, 10, 20, 20]
-        options = {
-            "dataset": "conus1_baseline_mod",
-            "variable": "pressure_head",
-            "temporal_resolution": "hourly",
-            "grid_bounds": grid_bounds,
-            "start_time": "2005-10-01",
-            "end_time": "2005-10-02",
-        }
-        assert not os.path.exists("CONUS.2006.out.press.00025.pfb")
-        assert not os.path.exists("CONUS.2006.out.press.00024.pfb")
-        gr.get_gridded_files(
-            options, filename_template="CONUS.{wy}.out.press.{wy_hour:05d}.pfb"
-        )
-        assert os.path.exists("CONUS.2006.out.press.00001.pfb")
-        assert os.path.exists("CONUS.2006.out.press.00024.pfb")
+    os.chdir(tmp_path)
+
+    grid_bounds = [10, 10, 20, 20]
+    options = {
+        "dataset": "conus1_baseline_mod",
+        "variable": "pressure_head",
+        "temporal_resolution": "hourly",
+        "grid_bounds": grid_bounds,
+        "start_time": "2005-10-01",
+        "end_time": "2005-10-02",
+    }
+    assert not os.path.exists("CONUS.2006.out.press.00025.pfb")
+    assert not os.path.exists("CONUS.2006.out.press.00024.pfb")
+    gr.get_gridded_files(
+        options, filename_template="CONUS.{wy}.out.press.{wy_hour:05d}.pfb"
+    )
+    assert os.path.exists("CONUS.2006.out.press.00001.pfb")
+    assert os.path.exists("CONUS.2006.out.press.00024.pfb")
     os.chdir(cd)
 
 
-def test_get_gridded_files_netcdf():
+def test_get_gridded_files_netcdf(tmp_path):
     """Unit test for get_gridded_files to netcdf file."""
 
     cd = os.getcwd()
-    with tempfile.TemporaryDirectory() as tempdirname:
-        os.chdir(tempdirname)
-        variables = ["ground_heat", "pressure_head"]
-        grid_bounds = [10, 10, 14, 20]
-        options = {
-            "dataset": "conus1_baseline_mod",
-            "temporal_resolution": "hourly",
-            "grid_bounds": grid_bounds,
-            "start_time": "2005-09-29",
-            "end_time": "2005-10-04",
-        }
-        assert not os.path.exists("NLDAS2.2006.nc")
-        gr.get_gridded_files(
-            options, variables=variables, filename_template="NLDAS2.{wy}.nc"
-        )
-        assert os.path.exists("NLDAS2.2006.nc")
-        assert os.path.exists("NLDAS2.2005.nc")
-        ds = xr.open_dataset("NLDAS2.2006.nc")
-        assert len(ds.keys()) == 2
-        ground_heat = ds["eflx_soil_grnd"]
-        assert ground_heat.shape == (8760, 10, 4)
-        pressure_head = ds["Press"]
-        assert pressure_head.shape == (8760, 5, 10, 4)
-        lat_coord = ds["latitude"]
-        assert lat_coord.shape == (10, 4)
+    os.chdir(tmp_path)
 
-        # Check it does nothing if file already exists
-        gr.get_gridded_files(
-            options, variables=variables, filename_template="NLDAS2.{wy}.nc"
-        )
+    variables = ["ground_heat", "pressure_head"]
+    grid_bounds = [10, 10, 14, 20]
+    options = {
+        "dataset": "conus1_baseline_mod",
+        "temporal_resolution": "hourly",
+        "grid_bounds": grid_bounds,
+        "start_time": "2005-09-29",
+        "end_time": "2005-10-04",
+    }
+    assert not os.path.exists("NLDAS2.2006.nc")
+    gr.get_gridded_files(
+        options, variables=variables, filename_template="NLDAS2.{wy}.nc"
+    )
+    assert os.path.exists("NLDAS2.2006.nc")
+    assert os.path.exists("NLDAS2.2005.nc")
+    ds = xr.open_dataset("NLDAS2.2006.nc")
+    assert len(ds.keys()) == 2
+    ground_heat = ds["eflx_soil_grnd"]
+    assert ground_heat.shape == (8760, 10, 4)
+    pressure_head = ds["Press"]
+    assert pressure_head.shape == (8760, 5, 10, 4)
+    lat_coord = ds["latitude"]
+    assert lat_coord.shape == (10, 4)
+
+    # Check it does nothing if file already exists
+    gr.get_gridded_files(
+        options, variables=variables, filename_template="NLDAS2.{wy}.nc"
+    )
 
     os.chdir(cd)
 
 
-def test_get_gridded_files_tiff():
+def test_get_gridded_files_tiff(tmp_path):
     """Unit test for get_gridded_files to tiff file."""
 
     cd = os.getcwd()
-    with tempfile.TemporaryDirectory() as tempdirname:
-        os.chdir(tempdirname)
-        variables = ["ground_heat", "pressure_head"]
-        variables = ["ground_heat"]
-        grid_bounds = [10, 10, 14, 20]
-        options = {
-            "dataset": "conus1_baseline_mod",
-            "temporal_resolution": "hourly",
-            "grid_bounds": grid_bounds,
-            "start_time": "2005-09-29",
-            "end_time": "2005-10-04",
-        }
-        assert not os.path.exists("conus1_baseline_mod.ground_heat.tiff")
-        gr.get_gridded_files(
-            options, variables=variables, filename_template="{dataset}.{variable}.tiff"
-        )
-        assert os.path.exists("conus1_baseline_mod.ground_heat.tiff")
-        luc = rioxarray.open_rasterio("conus1_baseline_mod.ground_heat.tiff")
-        assert 'standard_parallel_1",33' in str(luc.rio.crs)
+    os.chdir(tmp_path)
+
+    variables = ["ground_heat", "pressure_head"]
+    variables = ["ground_heat"]
+    grid_bounds = [10, 10, 14, 20]
+    options = {
+        "dataset": "conus1_baseline_mod",
+        "temporal_resolution": "hourly",
+        "grid_bounds": grid_bounds,
+        "start_time": "2005-09-29",
+        "end_time": "2005-10-04",
+    }
+    assert not os.path.exists("conus1_baseline_mod.ground_heat.tiff")
+    gr.get_gridded_files(
+        options, variables=variables, filename_template="{dataset}.{variable}.tiff"
+    )
+    assert os.path.exists("conus1_baseline_mod.ground_heat.tiff")
+    luc = rioxarray.open_rasterio("conus1_baseline_mod.ground_heat.tiff")
+    assert 'standard_parallel_1",33' in str(luc.rio.crs)
     os.chdir(cd)
 
 
-def test_get_huc_conus_2_gridded_files_tiff():
+def test_get_huc_conus_2_gridded_files_tiff(tmp_path):
     """Unit test for get_gridded_files to get conus2 huc_map as tiff file."""
 
     cd = os.getcwd()
-    with tempfile.TemporaryDirectory() as tempdirname:
-        os.chdir(tempdirname)
-        options = {
-            "dataset": "huc_mapping",
-            "variable": "huc_map",
-            "grid": "conus2",
-            "level": "2",
-        }
-        output_file = "foo.tiff"
-        assert not os.path.exists(output_file)
-        gr.get_gridded_files(options, filename_template=output_file)
-        assert os.path.exists(output_file)
-        luc = rioxarray.open_rasterio(output_file)
-        assert 'standard_parallel_1",30' in str(luc.rio.crs)
+    os.chdir(tmp_path)
+
+    options = {
+        "dataset": "huc_mapping",
+        "variable": "huc_map",
+        "grid": "conus2",
+        "level": "2",
+    }
+    output_file = "foo.tiff"
+    assert not os.path.exists(output_file)
+    gr.get_gridded_files(options, filename_template=output_file)
+    assert os.path.exists(output_file)
+    luc = rioxarray.open_rasterio(output_file)
+    assert 'standard_parallel_1",30' in str(luc.rio.crs)
     os.chdir(cd)
 
 
-def test_get_huc_conus_1_gridded_files_tiff():
+def test_get_huc_conus_1_gridded_files_tiff(tmp_path):
     """Unit test for get_gridded_files to get conus1 huc_map as tiff file."""
 
     cd = os.getcwd()
-    with tempfile.TemporaryDirectory() as tempdirname:
-        os.chdir(tempdirname)
-        options = {
-            "dataset": "huc_mapping",
-            "variable": "huc_map",
-            "grid": "conus1",
-            "level": "2",
-        }
-        output_file = "foo.tiff"
-        assert not os.path.exists(output_file)
-        gr.get_gridded_files(options, filename_template=output_file)
-        assert os.path.exists(output_file)
-        luc = rioxarray.open_rasterio(output_file)
-        assert 'standard_parallel_1",33' in str(luc.rio.crs)
+    os.chdir(tmp_path)
+
+    options = {
+        "dataset": "huc_mapping",
+        "variable": "huc_map",
+        "grid": "conus1",
+        "level": "2",
+    }
+    output_file = "foo.tiff"
+    assert not os.path.exists(output_file)
+    gr.get_gridded_files(options, filename_template=output_file)
+    assert os.path.exists(output_file)
+    luc = rioxarray.open_rasterio(output_file)
+    assert 'standard_parallel_1",33' in str(luc.rio.crs)
     os.chdir(cd)
 
 
@@ -1453,38 +1456,37 @@ def test_entry_without_dataset():
     assert data.shape == (5, 2)
 
 
-def test_multiple_aggregations():
+def test_multiple_aggregations(tmp_path):
     """Test that we can get_gridded_files with multiple aggregations."""
 
     cd = os.getcwd()
-    with tempfile.TemporaryDirectory() as tempdirname:
-        os.chdir(tempdirname)
+    os.chdir(tmp_path)
 
-        variables = ["precipitation", "air_temp", "downward_shortwave"]
-        bounds = [500, 500, 502, 502]
-        start_time = datetime.datetime(1991, 8, 4)
-        end_time = start_time + datetime.timedelta(days=2)
-        options = {
-            "dataset": "CW3E",
-            "grid_bounds": bounds,
-            "temporal_resolution": "daily",
-            "start_time": start_time,
-            "end_time": end_time,
-        }
-        assert not os.path.exists("foo.nc")
-        gr.get_gridded_files(options, variables=variables, filename_template="foo.nc")
-        assert os.path.exists("foo.nc")
-        ds = xr.open_dataset("foo.nc")
-        da = ds["APCP"]
-        assert da.shape == (365, 2, 2)
-        da = ds["DSWR"]
-        assert da.shape == (365, 2, 2)
-        da = ds["Temp_mean"]
-        assert da.shape == (365, 2, 2)
-        da = ds["Temp_min"]
-        assert da.shape == (365, 2, 2)
-        da = ds["Temp_max"]
-        assert da.shape == (365, 2, 2)
+    variables = ["precipitation", "air_temp", "downward_shortwave"]
+    bounds = [500, 500, 502, 502]
+    start_time = datetime.datetime(1991, 8, 4)
+    end_time = start_time + datetime.timedelta(days=2)
+    options = {
+        "dataset": "CW3E",
+        "grid_bounds": bounds,
+        "temporal_resolution": "daily",
+        "start_time": start_time,
+        "end_time": end_time,
+    }
+    assert not os.path.exists("foo.nc")
+    gr.get_gridded_files(options, variables=variables, filename_template="foo.nc")
+    assert os.path.exists("foo.nc")
+    ds = xr.open_dataset("foo.nc")
+    da = ds["APCP"]
+    assert da.shape == (365, 2, 2)
+    da = ds["DSWR"]
+    assert da.shape == (365, 2, 2)
+    da = ds["Temp_mean"]
+    assert da.shape == (365, 2, 2)
+    da = ds["Temp_min"]
+    assert da.shape == (365, 2, 2)
+    da = ds["Temp_max"]
+    assert da.shape == (365, 2, 2)
     os.chdir(cd)
 
 
@@ -1664,41 +1666,40 @@ def test_noaa_temp():
     assert round(data[0, 0, 0], 3) == 265.25
 
 
-def test_topographic_index():
+def test_topographic_index(tmp_path):
     """Unit test topographic_index variable."""
     cd = os.getcwd()
-    with tempfile.TemporaryDirectory() as tempdirname:
-        os.chdir(tempdirname)
+    os.chdir(tmp_path)
 
-        bounds = [1000, 1000, 1005, 1005]
-        options = {
-            "dataset": "conus1_domain",
-            "grid_bounds": bounds,
-            "variable": "topographic_index",
-        }
-        hf.get_gridded_files(options, filename_template="foo.nc")
-        ds = xr.open_dataset("foo.nc")
-        da = ds["topographic_index"]
-        assert da.shape == (5, 5)
+    bounds = [1000, 1000, 1005, 1005]
+    options = {
+        "dataset": "conus1_domain",
+        "grid_bounds": bounds,
+        "variable": "topographic_index",
+    }
+    hf.get_gridded_files(options, filename_template="foo.nc")
+    ds = xr.open_dataset("foo.nc")
+    da = ds["topographic_index"]
+    assert da.shape == (5, 5)
     os.chdir(cd)
 
 
-def test_gridded_files_default_temporal_resolution():
+def test_gridded_files_default_temporal_resolution(tmp_path):
     """Test reading gridded files without specifing temporal resolution."""
 
     cd = os.getcwd()
-    with tempfile.TemporaryDirectory() as tempdirname:
-        os.chdir(tempdirname)
-        options = {
-            "dataset": "conus1_current_conditions",
-            "variable": "soil_moisture",
-            "grid_bounds": [100, 100, 104, 104],
-            "start_time": "2024-03-01",
-            "end_time": "2024-03-03",
-        }
-        variables = ["soil_moisture"]
-        gr.get_gridded_files(options, filename_template="foo.nc", variables=variables)
-        assert os.path.exists("foo.nc")
+    os.chdir(tmp_path)
+
+    options = {
+        "dataset": "conus1_current_conditions",
+        "variable": "soil_moisture",
+        "grid_bounds": [100, 100, 104, 104],
+        "start_time": "2024-03-01",
+        "end_time": "2024-03-03",
+    }
+    variables = ["soil_moisture"]
+    gr.get_gridded_files(options, filename_template="foo.nc", variables=variables)
+    assert os.path.exists("foo.nc")
     os.chdir(cd)
 
     assert gr._get_temporal_resolution_from_catalog(options) == "daily"
@@ -1958,37 +1959,36 @@ def test_get_pfb_vegm_for_zvalue():
     assert data.shape == (23, 2, 2)
 
 
-def test_temporal_resolution_static():
+def test_temporal_resolution_static(tmp_path):
     """Test get_gridded_files with different temporal_resolution and aggregation values"""
 
     cd = os.getcwd()
-    with tempfile.TemporaryDirectory() as tempdirname:
-        os.chdir(tempdirname)
+    os.chdir(tmp_path)
 
-        # Check with temporal_resolution:static even though data catalog has blank temporal resolution
-        options = {
-            "dataset": "conus2_domain",
-            "variable": "mask",
-            "temporal_resolution": "static",
-            "aggregation": "-",
-            "huc_id": "02",
-        }
-        variables = ["mask"]
+    # Check with temporal_resolution:static even though data catalog has blank temporal resolution
+    options = {
+        "dataset": "conus2_domain",
+        "variable": "mask",
+        "temporal_resolution": "static",
+        "aggregation": "-",
+        "huc_id": "02",
+    }
+    variables = ["mask"]
 
-        hf.get_gridded_files(
-            options,
-            filename_template="foo_{dataset}_{variable}.pfb",
-            variables=variables,
-        )
-        data = parflow.read_pfb("foo_conus2_domain_mask.pfb")
-        assert data.shape == (1, 852, 586)
+    hf.get_gridded_files(
+        options,
+        filename_template="foo_{dataset}_{variable}.pfb",
+        variables=variables,
+    )
+    data = parflow.read_pfb("foo_conus2_domain_mask.pfb")
+    assert data.shape == (1, 852, 586)
 
-        # Test if the variables parameter is passed as a string instead of a list.
-        variables = "mask"
-        hf.get_gridded_files(
-            options,
-            filename_template="foo_{dataset}_{variable}.tiff",
-            variables=variables,
-        )
-        assert os.path.exists("foo_conus2_domain_mask.tiff")
+    # Test if the variables parameter is passed as a string instead of a list.
+    variables = "mask"
+    hf.get_gridded_files(
+        options,
+        filename_template="foo_{dataset}_{variable}.tiff",
+        variables=variables,
+    )
+    assert os.path.exists("foo_conus2_domain_mask.tiff")
     os.chdir(cd)
