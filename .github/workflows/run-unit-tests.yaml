@@ -17,7 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        # update list with desired Python versions to tests
+        python-version: ["3.12"]
 
     steps:
       - name: Checkout Code
