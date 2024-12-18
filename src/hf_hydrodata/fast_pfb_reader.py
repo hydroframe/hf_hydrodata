@@ -306,16 +306,17 @@ def _copy_data_from_subgrid(
     end_subgrid_z = subgrid_z + z_size
 
     # Copy the data from the subgrid into the target np_values array
-    np_values[
-        index,
-        target_z:end_target_z,
-        target_y:end_target_y,
-        target_x:end_target_x,
-    ] = data[
-        subgrid_z:end_subgrid_z,
-        subgrid_y:end_subgrid_y,
-        subgrid_x:end_subgrid_x,
-    ]
+    if end_subgrid_x > subgrid_x and end_subgrid_y > subgrid_y:
+        np_values[
+            index,
+            target_z:end_target_z,
+            target_y:end_target_y,
+            target_x:end_target_x,
+        ] = data[
+            subgrid_z:end_subgrid_z,
+            subgrid_y:end_subgrid_y,
+            subgrid_x:end_subgrid_x,
+        ]
 
     # return the position and header of the subgrid that was copied
     return subgrid_position, header_sg_nxyz
@@ -349,7 +350,7 @@ def _read_file_header(fp):
         contents[offset : offset + 9 * INT_BYTES], dtype=INT_DT
     )
     _, _, _, sg_nx, sg_ny, sg_nz, _, _, _ = subgrid_header
-    sg_nxyz = [sg_nx, sg_ny, sg_nz]
+    sg_nxyz = [int(sg_nx), int(sg_ny), int(sg_nz)]
 
     p = math.ceil(pfb_shape[0] / sg_nxyz[0])
     q = math.ceil(pfb_shape[1] / sg_nxyz[1])
@@ -458,10 +459,10 @@ def _read_subgrid(fp, subgrid_offset: int, sg_nxyz: List[int]):
     subgrid_size = sg_nx * sg_ny * sg_nz * FLOAT_BYTES
     contents = fp.read(subgrid_size + 9 * INT_BYTES)
     subgrid_header = np.frombuffer(contents[0 : 9 * INT_BYTES], dtype=INT_DT)
-    subgrid_position = [subgrid_header[0], subgrid_header[1], subgrid_header[2]]
-    header_sg_nx = subgrid_header[3]
-    header_sg_ny = subgrid_header[4]
-    header_sg_nz = subgrid_header[5]
+    subgrid_position = [int(subgrid_header[0]), int(subgrid_header[1]), int(subgrid_header[2])]
+    header_sg_nx = int(subgrid_header[3])
+    header_sg_ny = int(subgrid_header[4])
+    header_sg_nz = int(subgrid_header[5])
     subgrid_sg_nx = [header_sg_nx, header_sg_ny, header_sg_nz]
     header_subgrid_size = header_sg_nx * header_sg_ny * header_sg_nz * FLOAT_BYTES
     offset = 9 * INT_BYTES
