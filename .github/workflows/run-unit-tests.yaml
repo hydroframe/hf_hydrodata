@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # update list with desired Python versions to tests
+        # update list with desired Python versions to test
         python-version: ["3.12"]
 
     steps:
