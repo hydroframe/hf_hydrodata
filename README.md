@@ -92,19 +92,29 @@ the required components. Install the required components with:
 
     pip install -r requirements.txt
 
-Edit the Python components in `src/hf_hydrodata` and the unit tests in `tests/hf_hydrodata` and the data catalog model CSV files in `src/hf_hydrodata/model`.
-Use Excel to edit the CSV files so that files are saved in standard CSV format.
+Edit the Python components in `src/hf_hydrodata` and the unit tests in `tests/hf_hydrodata`.
 
 Generate the documentation with:
 
     cd docs
     make html
 
-This will validate the model CSV files and 
-generate the read-the-docs html into the html folder.
+This will generate the read-the-docs html into the html folder.
 
 ## Testing
-Our tests are located within the `tests/hf_hydrodata` directory of this repository. The full test suite is run automatically via Jenkins with each new Pull Request and subsequent commits. Jenkins executes the tests using `pytest` from the root directory.
+Our tests are located within the `tests/hf_hydrodata` directory of this repository.
+
+To run the tests, you must first [create and register a HydroFrame account](https://hf-hydrodata.readthedocs.io/en/latest/getting_started.html#creating-a-hydroframe-api-account).
+
+Then set up a Python virtual environment and install the necessary components:
+
+    pip install -r requirements.txt
+
+Then run the tests from the root directory with `pytest`. Note that some of our tests deal with datasets that are currently private to our internal research team. To run all of the tests that do not utilize those datasets, you may run `pytest` with the following options.
+
+    pytest tests/hf_hydrodata -m "not private_dataset"
+
+The full test suite is run automatically via GitHub Actions with each new Pull Request and subsequent commits.
 
 ## License
 Copyright © 2024 The Trustees of Princeton University and The Arizona Board of Regents on behalf of The University of Arizona, College of Science Hydrology & Atmospheric Sciences. All rights reserved.

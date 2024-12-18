@@ -49,7 +49,7 @@ jobs:
 
       - name: Run public-access unit tests with pytest
         run: |
-          pytest tests/hf_hydrodata
+          pytest tests/hf_hydrodata -m "not private_dataset"
 
       - name: Register hydrodata credentials as a user with private dataset access
         env:

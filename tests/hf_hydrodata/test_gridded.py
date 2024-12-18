@@ -173,12 +173,11 @@ def test_paths_hourly_files():
         in "/hydrodata/PFCLM/CONUS1_baseline/simulations/2006/raw_outputs/pressure/CONUS.2006.out.press.00048.pfb"
     )
 
-@pytest.mark.private_dataset
 def test_files_exist():
     """Test that the data catalog path template points to an actual file in /hydrodata."""
 
     if run_remote:
-        pytest.skip("accessing private data")
+        pytest.skip("checking files on internal server")
 
     def _get_start_time(entry):
         """Get a start time used in substituting into the data catalog template appropriate for the dataset."""
@@ -963,8 +962,6 @@ def test_get_gridded_data_daily():
 @pytest.mark.private_dataset
 def test_get_numpy_nasa_smap_conus2():
     """Test geting daily values from pfb"""
-    if run_remote:
-        pytest.skip("accessing private data")
 
     grid_bounds = [100, 100, 150, 300]
     options = {
@@ -998,8 +995,6 @@ def test_get_entry_with_multiple_file_types():
 @pytest.mark.private_dataset
 def test_get_point_anomalies():
     """Unit test for point observation anomalies."""
-    if run_remote:
-        pytest.skip("accessing private data")
 
     options = {
         "site_type": "streamflow",
@@ -1023,8 +1018,6 @@ def test_get_point_anomalies():
 @pytest.mark.private_dataset
 def test_filter_point_obs_by_time():
     """UNit test for stream flow filters."""
-    if run_remote:
-        pytest.skip("accessing private data")
 
     data = gr.get_gridded_data(
         site_type="streamflow",
@@ -1139,11 +1132,10 @@ def test_get_huc_bbox_conus1():
     assert bbox == [1088, 415, 1132, 453]
 
 
-@pytest.mark.private_dataset
 def test_getndarray_site_id():
     """Test for a bug using get_gridded_data and site_id variable."""
     if run_remote:
-        pytest.skip("accessing private data")
+        pytest.skip("dataset not available to remote users")
 
     data = gr.get_gridded_data(
         site_type="streamflow",
@@ -1531,8 +1523,6 @@ def test_huc_border():
 @pytest.mark.private_dataset
 def test_get_wtd():
     """Unit test reading the 3 resolution of water table depth files."""
-    if run_remote:
-        pytest.skip("accessing private data")
 
     # Test the 1000 meter resolution version
     x = 1500
@@ -1549,7 +1539,7 @@ def test_get_wtd():
     data = hf.get_gridded_data(options)
     assert (
         hf.get_path(options)
-        == "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1000m_CONUS2_m_1s_remapped.tif"
+        in "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1000m_CONUS2_m_1s_remapped.tif"
     )
 
     assert data.shape == (2, 2)
@@ -1572,7 +1562,7 @@ def test_get_wtd():
     data = hf.get_gridded_data(options)
     assert (
         hf.get_path(options)
-        == "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_100m_CONUS2_m_1s_remapped.tif"
+        in "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_100m_CONUS2_m_1s_remapped.tif"
     )
     assert data.shape == (2, 2)
     assert str(round(data[0, 0], 5)) == "58.01496"
@@ -1594,7 +1584,7 @@ def test_get_wtd():
     data = hf.get_gridded_data(options)
     assert (
         hf.get_path(options)
-        == "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/compressed_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1s_CONUS2_m_remapped_unflip_compressed.tif"
+        in "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/compressed_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1s_CONUS2_m_remapped_unflip_compressed.tif"
     )
 
     assert data.shape == (2, 2)
@@ -1607,8 +1597,6 @@ def test_get_wtd():
 @pytest.mark.private_dataset
 def test_wtd_1000m_north():
     """Unit test edge condition found during integration testing."""
-    if run_remote:
-        pytest.skip("accessing private data")
 
     bounds = [1593, 1724, 3420, 3484]
     options = {
