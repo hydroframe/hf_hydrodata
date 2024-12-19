@@ -38,15 +38,8 @@ jobs:
         env:
           TEST_EMAIL_PUBLIC: ${{ secrets.TEST_EMAIL_PUBLIC }}
           TEST_PIN_PUBLIC: ${{ secrets.TEST_PIN_PUBLIC }}
-        shell: python
         run: |
-          import os
-          import hf_hydrodata as hf
-
-          test_email_public = os.environ['TEST_EMAIL_PUBLIC']
-          test_pin_public = os.environ['TEST_PIN_PUBLIC']
-
-          hf.register_api_pin(test_email_public, test_pin_public)
+          python utils/set_credentials.py --public
 
       - name: Run public-access unit tests with pytest
         run: |
@@ -56,15 +49,8 @@ jobs:
         env:
           TEST_EMAIL_PRIVATE: ${{ secrets.TEST_EMAIL_PRIVATE }}
           TEST_PIN_PRIVATE: ${{ secrets.TEST_PIN_PRIVATE }}
-        shell: python
         run: |
-          import os
-          import hf_hydrodata as hf
-
-          test_email_private = os.environ['TEST_EMAIL_PRIVATE']
-          test_pin_private = os.environ['TEST_PIN_PRIVATE']
-
-          hf.register_api_pin(test_email_private, test_pin_private)
+          python utils/set_credentials.py --private
 
       # Run only the tests that require private dataset access level
       - name: Run private-access unit tests with pytest
