@@ -22,11 +22,11 @@ def main():
        for GitHub Actions testing."""
     args = get_arguments()
     if args.private:
-        test_email = os.environ['TEST_EMAIL_PRIVATE']
-        test_pin = os.environ['TEST_PIN_PRIVATE']
+        test_email = str(os.environ['TEST_EMAIL_PRIVATE'])
+        test_pin = str(os.environ['TEST_PIN_PRIVATE'])
     else:
-        test_email = os.environ['TEST_EMAIL_PUBLIC']
-        test_pin = os.environ['TEST_PIN_PUBLIC']
+        test_email = str(os.environ['TEST_EMAIL_PUBLIC'])
+        test_pin = str(os.environ['TEST_PIN_PUBLIC'])
 
     hf.register_api_pin(test_email, test_pin)
 
