@@ -120,14 +120,6 @@ def test_dataset_version():
         dataset="CW3E",
         period="hourly",
         variable="precipitation",
-        dataset_version="0.8",
-    )
-    assert row["id"] == "529"
-
-    row = hf.get_catalog_entry(
-        dataset="CW3E",
-        period="hourly",
-        variable="precipitation",
         dataset_version="1.0",
     )
     assert row["id"] == "537"

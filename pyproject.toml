@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hf_hydrodata"
-version = "1.3.16"
+version = "1.3.17"
 description = "hydroframe tools and utilities"
 authors = ["William M. Hasling", "Laura Condon", "Reed Maxwell",  "George Artavanis", "Amy M. Johnson", "Amy C. Defnet"]
 license = "MIT"
@@ -40,3 +40,8 @@ coverage = "^7.6.1"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+markers = [
+    "private_dataset: marks tests as using dataset(s) with restricted access levels",
+]
