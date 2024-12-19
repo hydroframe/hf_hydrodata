@@ -74,7 +74,7 @@ def test_get_table_row():
         entry = hf.get_table_row("variable_type", variable_type="atomspheric")
 
 
-def test_register_api():
+def test_register_api(mocker):
     """Test register and get an email pin stored in users home directory."""
 
     # Backup previous existing pin.json file so test is not destructive
@@ -85,7 +85,18 @@ def test_register_api():
     if os.path.exists(pin_file):
         os.rename(pin_file, pin_file_backup)
 
-    # Register a pin and verify it was registered
+    # Verify that register api raises an error if email is not registered
+    with pytest.raises(ValueError):
+        hf.register_api_pin("dummy@email.com", "0000")
+
+    # Then mock out requests.get call that validates the pin so we can test writing to the register pin file.
+    class MockResponse:
+        """Mock the flask.request response."""
+
+        def __init__(self):
+            self.status_code = 200
+
+    mocker.patch("requests.get", return_value=MockResponse())
     hf.register_api_pin("dummy@email.com", "0000")
     email, pin = hf.get_registered_api_pin()
     assert pin == "0000"
