@@ -108,7 +108,11 @@ To run the tests, you must first [create and register a HydroFrame account](http
 
 Then set up a Python virtual environment and install the necessary components:
 
+    # Install package requirements
     pip install -r requirements.txt
+
+    # Install local version of repo for package metadata
+    pip install -e .
 
 Then run the tests from the root directory with `pytest`. Note that some of our tests deal with datasets that are currently private to our internal research team. To run all of the tests that do not utilize those datasets, you may run `pytest` with the following options.
 
