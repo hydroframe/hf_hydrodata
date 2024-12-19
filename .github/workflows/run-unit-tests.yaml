@@ -1,5 +1,5 @@
 ---
-name: Run Unit Tests Public
+name: Run Unit Tests
 
 on:
   # run at 8am every Monday morning
