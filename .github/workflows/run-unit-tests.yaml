@@ -38,6 +38,7 @@ jobs:
         env:
           TEST_EMAIL_PUBLIC: ${{ secrets.TEST_EMAIL_PUBLIC }}
           TEST_PIN_PUBLIC: ${{ secrets.TEST_PIN_PUBLIC }}
+        shell: python
         run: |
           import os
           import hf_hydrodata as hf
@@ -55,6 +56,7 @@ jobs:
         env:
           TEST_EMAIL_PRIVATE: ${{ secrets.TEST_EMAIL_PRIVATE }}
           TEST_PIN_PRIVATE: ${{ secrets.TEST_PIN_PRIVATE }}
+        shell: python
         run: |
           import os
           import hf_hydrodata as hf

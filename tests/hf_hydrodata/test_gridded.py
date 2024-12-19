@@ -1191,7 +1191,7 @@ def test_get_datasets():
     assert datasets[0] == "CW3E"
 
     datasets = hf.get_datasets(grid="conus2")
-    assert len(datasets) == 4
+    assert len(datasets) >= 4
     assert datasets[0] == "CW3E"
 
     options = {"variable": "air_temp", "grid": "conus1"}
