@@ -144,6 +144,10 @@ def test_y_remainder_rows():
 def test_full_3d_conus2():
     """Test reading a full conus2 3D file with all the subgrids and compare to parflow reader."""
 
+    if not os.path.exists("/hydrodata"):
+        # Just skip test if this is run on a machine without /hydrodata access
+        return
+
     path = "/hydrodata/temp/CONUS2_transfers/CONUS2/spinup_WY2003/run_inputs/spinup.wy2003.out.clm_output.04855.C.pfb"
     # Read using fast_pfb_reader
     fast_data = hf_hydrodata.fast_pfb_reader.read_files(path, None)
