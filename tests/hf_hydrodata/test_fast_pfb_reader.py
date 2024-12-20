@@ -45,7 +45,7 @@ def test_reading_multiple_files():
 
 
 def test_not_enough_memory_error():
-    """Test attempting to read a file with PQR too small for number of files read."""
+    """Test attempting to read a file with so many conus2 sized files that will not fit in memory."""
 
     if not os.path.exists("/hydrodata"):
         # Just skip test if this is run on a machine without /hydrodata access
@@ -60,7 +60,13 @@ def test_not_enough_memory_error():
 
 
 def too_slow_test_pqr_too_small():
-    """Test ability to read many files with small subgrid with small pqr"""
+    """
+    Test ability to read many files with small subgrid with small pqr.
+    Since the constraint only reads one point the result is small enough to fit in memory,
+    but the input is 24 conus2 sized files with PQR=1,1,1 that would not fit in memory when loaded in parallel.
+    This should still work because fast pfb reader should limit the number of files read in parallel
+    so the temporary subgrid reads of the parallel files still fit in memory.
+    """
 
     if not os.path.exists("/hydrodata"):
         # Just skip test if this is run on a machine without /hydrodata access
@@ -99,7 +105,12 @@ def too_slow_test_pqr_too_small():
 
 
 def test_y_remainder_rows():
-    """Test reading a y position which is after the remainder sized y rows in pfb file."""
+    """
+    Test reading a y position which is after the remainder sized y rows in pfb file.
+    This is an edge case in reading pfb files with subgrids when the subgrid size of the P,Q,R is not
+    a multiple of the full pfb size. In that case some subgrids are smaller than others
+    to fit the data in memory in approximately the P,Q,R size. This should still work.
+    """
 
     if not os.path.exists("/hydrodata"):
         # Just skip test if this is run on a machine without /hydrodata access
