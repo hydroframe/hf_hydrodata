@@ -84,3 +84,27 @@ def too_slow_test_pqr_too_small():
         )
         print(fast_data.shape)
     os.chdir(cd)
+
+
+def test_y_remainder_rows():
+    """Test reading a y position which is after the remainder sized y rows in pfb file."""
+
+    path = "/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_vgn_n.pfb"
+    pfb_constraints = {
+        "x": {"start": 1075, "stop": 1124},
+        "y": {"start": 719, "stop": 739},
+        "z": {"start": 0, "stop": 0},
+    }
+
+    # Read with fast_pfb_reader
+    fast_data = hf_hydrodata.fast_pfb_reader.read_files(path, pfb_constraints)
+    fast_total = fast_data.sum()
+
+    # Read with parflow read_pfb_sequence
+    pfb_seq_data = parflow.read_pfb_sequence([path], pfb_constraints)
+    pfb_seq_total = pfb_seq_data.sum()
+
+    # Assert same answer
+    assert fast_data.shape == (1, 5, 20, 49)
+    assert fast_data.shape == (1, 5, 20, 49)
+    assert fast_total == pfb_seq_total

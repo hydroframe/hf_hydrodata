@@ -317,7 +317,8 @@ def _copy_data_from_subgrid(
             subgrid_y:end_subgrid_y,
             subgrid_x:end_subgrid_x,
         ]
-
+    else:
+        raise ValueError(f"PFB File read failure of subgrid {subgrid_num}.")
     # return the position and header of the subgrid that was copied
     return subgrid_position, header_sg_nxyz
 
@@ -364,18 +365,33 @@ def find_subgrid(
 ) -> int:
     """Find the subgrid number that contains the x,y point."""
 
-    (p, _, _) = pqr
+    (p, q, _) = pqr
     (sg_nx, sg_ny, _) = sg_nxyz
-    (nx, _, _) = pfb_shape
+    (nx, ny, _) = pfb_shape
 
+    # Get x and y remainder sized subgrids
     remain_x = nx % p
+    remain_y = ny % q
+
+    # Compute result x subgrid number in row
     result_x = math.floor(x / sg_nx)
     remain_parts = result_x - remain_x
     full_parts = result_x - remain_parts
     if result_x > remain_x:
         if x - full_parts * sg_nx - remain_parts * (sg_nx - 1) >= (sg_nx - 1):
             result_x = result_x + 1
-    result_y = math.floor(y / sg_ny)
+
+    # Compute result y subgrid row number
+    if y <= remain_y * sg_ny:
+        # y position is before remainder y rows in file
+        # So y subgrid index is just y / sg_ny since all are full y rows that are sg_ny each
+        result_y = math.floor(y / sg_ny)
+    else:
+        # y position as after remainder y rows in file
+        # so y subgrid index is the full remain_y rows plus the remaining sg_ny-1 size rows
+        result_y = remain_y + math.floor((y - remain_y * sg_ny) / (sg_ny - 1))
+
+    # Subgrid number is result_y subgrid rows plus the result_x subgrid in that last row
     subgrid = math.floor(result_y * p + result_x)
     return subgrid
 
@@ -459,7 +475,11 @@ def _read_subgrid(fp, subgrid_offset: int, sg_nxyz: List[int]):
     subgrid_size = sg_nx * sg_ny * sg_nz * FLOAT_BYTES
     contents = fp.read(subgrid_size + 9 * INT_BYTES)
     subgrid_header = np.frombuffer(contents[0 : 9 * INT_BYTES], dtype=INT_DT)
-    subgrid_position = [int(subgrid_header[0]), int(subgrid_header[1]), int(subgrid_header[2])]
+    subgrid_position = [
+        int(subgrid_header[0]),
+        int(subgrid_header[1]),
+        int(subgrid_header[2]),
+    ]
     header_sg_nx = int(subgrid_header[3])
     header_sg_ny = int(subgrid_header[4])
     header_sg_nz = int(subgrid_header[5])
