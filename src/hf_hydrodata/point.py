@@ -1711,8 +1711,8 @@ def _get_bbox_from_shape(polygon, polygon_crs):
     bbox_df["transform_y"] = bbox_df["transform"].apply(lambda x: x.y)
 
     # Save transformed bounding box as latitude_range, longitude_range
-    latitude_range = (bbox_df["transform_y"].min(), bbox_df["transform_y"].max())
-    longitude_range = (bbox_df["transform_x"].min(), bbox_df["transform_x"].max())
+    latitude_range = (float(bbox_df["transform_y"].min()), float(bbox_df["transform_y"].max()))
+    longitude_range = (float(bbox_df["transform_x"].min()), float(bbox_df["transform_x"].max()))
 
     return (latitude_range, longitude_range)
 
