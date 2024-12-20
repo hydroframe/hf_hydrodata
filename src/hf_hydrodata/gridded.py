@@ -23,6 +23,7 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 from parflow import read_pfb_sequence, write_pfb
+import hf_hydrodata.fast_pfb_reader
 from hf_hydrodata.data_model_access import (
     ModelTableRow,
     _get_api_headers,
@@ -1749,6 +1750,8 @@ def _read_and_filter_pfb_files(
     path_options = dict(options)
     path_options["data_catalog_entry_id"] = entry.get("id")
     paths = get_paths(path_options)
+    # The fast_pfb option in a query is temporary to allow someone to turn off fast_pfb reader if necesseary for now
+    do_not_use_fast_pfb = path_options.get("fast_pfb", None) == "false"
 
     # Make sure all paths exist
     for path in paths:
@@ -1759,10 +1762,10 @@ def _read_and_filter_pfb_files(
         boundary_constraints, entry, start_time_value, end_time_value
     )
 
-    # The read_pfb_sequence method has a limit to how many paths it can read
-    # if the number of paths is more than the limit call read_pfb_sequence in blocks
-    # then append together the blocks to return the correct result
-    max_block_size = 100
+    # The read_pfb_sequence method has a limit to how many paths it can read in one call because of memory limits.
+    # However, the fast_pfb_reader has no limit since internally it reads in parallel as many as fit in memory.
+    max_block_size = 100 if do_not_use_fast_pfb else 1000
+
     final_data = None
     block_start = 0
     while len(paths) > block_start:
@@ -1772,7 +1775,12 @@ def _read_and_filter_pfb_files(
             else len(paths)
         )
         path_block = paths[block_start:block_end]
-        data = read_pfb_sequence(path_block, boundary_constraints)
+        if do_not_use_fast_pfb:
+            data = read_pfb_sequence(path_block, boundary_constraints)
+        else:
+            data = hf_hydrodata.fast_pfb_reader.read_files(
+                path_block, boundary_constraints
+            )
         if final_data is None:
             # This is the first block
             final_data = data
