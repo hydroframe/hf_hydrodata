@@ -2,7 +2,7 @@
 Unit test for the fast_pfb_reader module.
 """
 
-# pylint: disable=E0401,C0413,C0301
+# pylint: disable=E0401,C0413,C0301,W0101
 import sys
 import os
 import glob
@@ -138,4 +138,22 @@ def test_y_remainder_rows():
     # Assert same answer
     assert fast_data.shape == (1, 5, 20, 49)
     assert fast_data.shape == (1, 5, 20, 49)
+    assert fast_total == pfb_seq_total
+
+
+def test_full_3d_conus2():
+    """Test reading a full conus2 3D file with all the subgrids and compare to parflow reader."""
+
+    path = "/hydrodata/temp/CONUS2_transfers/CONUS2/spinup_WY2003/run_inputs/spinup.wy2003.out.clm_output.04855.C.pfb"
+    # Read using fast_pfb_reader
+    fast_data = hf_hydrodata.fast_pfb_reader.read_files(path, None)
+    fast_total = fast_data.sum()
+
+    # Read using parflow read_pfb_sequence
+    pfb_seq_data = parflow.read_pfb_sequence([path], None)
+    pfb_seq_total = pfb_seq_data.sum()
+
+    # Check that both give the same answer
+    assert fast_data.shape == (1, 17, 3256, 4442)
+    assert pfb_seq_data.shape == (1, 17, 3256, 4442)
     assert fast_total == pfb_seq_total
