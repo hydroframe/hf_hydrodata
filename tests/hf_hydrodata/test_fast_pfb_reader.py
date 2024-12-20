@@ -17,6 +17,10 @@ import hf_hydrodata.fast_pfb_reader
 def test_reading_multiple_files():
     """Test reading multiple files of one point."""
 
+    if not os.path.exists("/hydrodata"):
+        # Just skip test if this is run on a machine without /hydrodata access
+        return
+
     path_template = "/hydrodata/forcing/processed_data/CONUS2/CW3E_v1.0/hourly/WY1998/CW3E.Temp.*.pfb"
     pfb_constraints = {
         "x": {"start": 4057, "stop": 4058},
@@ -43,6 +47,10 @@ def test_reading_multiple_files():
 def test_not_enough_memory_error():
     """Test attempting to read a file with PQR too small for number of files read."""
 
+    if not os.path.exists("/hydrodata"):
+        # Just skip test if this is run on a machine without /hydrodata access
+        return
+
     with pytest.raises(ValueError):
         path_template = "/hydrodata/temp/CONUS2_transfers/CONUS2/spinup_WY2003/run_inputs/spinup.wy2003.out.press.*.pfb"
         pfb_files = glob.glob(path_template)
@@ -53,6 +61,10 @@ def test_not_enough_memory_error():
 
 def too_slow_test_pqr_too_small():
     """Test ability to read many files with small subgrid with small pqr"""
+
+    if not os.path.exists("/hydrodata"):
+        # Just skip test if this is run on a machine without /hydrodata access
+        return
 
     # Get file names of 24 files that are conus2 3D
     path_template = "/hydrodata/temp/CONUS2_transfers/CONUS2/spinup_WY2003/run_inputs/spinup.wy2003.out.press.*.pfb"
@@ -88,6 +100,10 @@ def too_slow_test_pqr_too_small():
 
 def test_y_remainder_rows():
     """Test reading a y position which is after the remainder sized y rows in pfb file."""
+
+    if not os.path.exists("/hydrodata"):
+        # Just skip test if this is run on a machine without /hydrodata access
+        return
 
     path = "/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_vgn_n.pfb"
     pfb_constraints = {
