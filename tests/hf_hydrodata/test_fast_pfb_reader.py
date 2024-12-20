@@ -104,7 +104,7 @@ def test_pqr_too_small():
         fast_data = hf_hydrodata.fast_pfb_reader.read_files(
             new_pfb_files, pfb_constraints
         )
-        print(fast_data.shape)
+        assert fast_data.shape == (24, 10, 1, 1)
     os.chdir(cd)
 
 
