@@ -2,7 +2,7 @@
 Unit tests for public_release.py
 """
 
-# pylint: disable=W0212,E0401
+# pylint: disable=W0212,E0401,W0718,C0413
 
 import sys
 import os
@@ -13,6 +13,12 @@ import utils.public_release
 
 def test_public_release():
     """Test the public_release program to copy development to public_test schema."""
+
+    try:
+        utils.model_to_sql.get_db_configuration("development")
+    except Exception:
+        # If this server has no DB configuration do not run this test
+        return
 
     # First delete an entry in data_catalog_entry in the public_test schema
     connection = utils.public_release._get_connection("public_test")
