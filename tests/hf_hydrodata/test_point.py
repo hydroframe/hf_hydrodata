@@ -1755,7 +1755,7 @@ def test_get_metadata_by_huc():
         huc_id=["02040106"],
         grid="conus2",
     )
-    assert len(df) == 14
+    assert len(df) == 16
     # site ID that is in bbox but not in huc
     assert "01470736" not in list(df["site_id"])
 
@@ -1772,7 +1772,7 @@ def test_get_data_by_huc():
         huc_id=["02040106"],
         grid="conus2",
     )
-    assert df.shape[1] == 15
+    assert df.shape[1] == 17
     # site ID that is in bbox but not in huc
     assert "01470736" not in list(df.columns)
 
