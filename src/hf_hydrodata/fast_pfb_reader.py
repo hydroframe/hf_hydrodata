@@ -20,6 +20,7 @@
 import os
 from typing import List
 import math
+import logging
 import numpy as np
 import concurrent.futures
 
@@ -138,7 +139,8 @@ def read_files(pfb_files: List[str], pfb_constraints: dict = None):
     index = 0
     while index < len(pfb_files):
         # Read a block of files in parallel
-        max_threads = os.getenv("FAST_PBB_THREADS", 32)
+        max_threads = os.getenv("FAST_PFB_THREADS", 32)
+        logging.info("FAST_PFB_THREADS %s", block)
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_threads) as executor:
             futures = []
             while len(futures) < max_files and index < len(pfb_files):
