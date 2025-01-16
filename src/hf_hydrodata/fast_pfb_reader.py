@@ -17,6 +17,7 @@
 
 # pylint: disable=C0411,R0914,R0913,C0301
 
+import os
 from typing import List
 import math
 import numpy as np
@@ -137,7 +138,8 @@ def read_files(pfb_files: List[str], pfb_constraints: dict = None):
     index = 0
     while index < len(pfb_files):
         # Read a block of files in parallel
-        with concurrent.futures.ThreadPoolExecutor() as executor:
+        max_threads = os.getenv("FAST_PBB_THREADS", 32)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_threads) as executor:
             futures = []
             while len(futures) < max_files and index < len(pfb_files):
                 pfb_file = pfb_files[index]
