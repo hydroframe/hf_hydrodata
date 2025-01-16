@@ -140,7 +140,7 @@ def read_files(pfb_files: List[str], pfb_constraints: dict = None):
     while index < len(pfb_files):
         # Read a block of files in parallel
         max_threads = os.getenv("FAST_PFB_THREADS", 32)
-        logging.info("FAST_PFB_THREADS %s", block)
+        logging.info("FAST_PFB_THREADS %s", max_threads)
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_threads) as executor:
             futures = []
             while len(futures) < max_files and index < len(pfb_files):
