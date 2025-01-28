@@ -35,7 +35,14 @@ datasets:
     summary: An hourly meteorological forcing product at 1km resolution over the `CONUS2 <https://hydroframe.org/parflow-conus2>`_ domain. Please see the `detailed documentation <https://www.reachhydro.org/home/records/1-km-conus-forcing>`_ as well as the version release notes below for additional details. We recommend using the latest version, 1.0. 
 
     processing_notes: >
-      ....
+      This dataset is available from the Center for Western Weather and Water Extremes (CW3E) in two forms: as a
+      Retrospective product and as a Near Real Time product. The differences between these products is described in 
+      their `detailed documentation <https://www.reachhydro.org/home/records/1-km-conus-forcing>`_. We utilize the 
+      `Retrospective product <https://app.globus.org/file-manager?origin_id=0351632c-c1f7-4885-8125-0a19290791ff&origin_path=%2F>`_ 
+      where possible and then switch to the `Near Real Time product <https://app.globus.org/file-manager?origin_id=1620b36c-6d83-45d1-8673-5143f09ac5d8&origin_path=%2F>`_ 
+      in order to make the most recent months of data available. Specifically, our CW3E dataset is currently using 
+      the Retrospective product for all data through April 30, 2024. From May 1, 2024 through present the dataset 
+      we host is from the Near Real Time product.
 
     version_notes: >
       **Version 1.0**: Second HydroFrame release of the CW3E dataset.
