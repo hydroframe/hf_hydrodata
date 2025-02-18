@@ -1097,7 +1097,12 @@ def test_ambiguous_filter():
 
     with pytest.raises(ValueError) as info:
         hf.get_catalog_entry(options)
-    assert "variable = '" in str(info.value) and "'downward_longwave" in str(info.value)
+    assert "variable = '" in str(info.value)
+
+    # check suggestion of variable filter
+    var_options = ["'air_temp", "'east_windspeed", "'north_windspeed", "'atmospheric_pressure",
+                   "'precipitation", "'downward_longwave", "'downward_shortwave", "'specific_humidity"]
+    assert any(v in str(info.value) for v in var_options)
 
 
 def test_get_huc_from_point():
