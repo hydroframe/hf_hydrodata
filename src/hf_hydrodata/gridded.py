@@ -2356,6 +2356,8 @@ def _substitute_datapath(
     dataset_var = entry.get("dataset_var") if entry.get("dataset_var") else variable
     dataset = entry.get("dataset")
     aggregation = entry.get("aggregation")
+    temporal_resolution = entry.get("temporal_resolution")
+    dataset_version = entry.get("dataset_version")
     file_daynum = (time_value - start_time).days if start_time else 0
     wy = ""
     cy = ""
@@ -2380,6 +2382,7 @@ def _substitute_datapath(
     run_number = options.get("run_number")
     site_id = options.get("site_id")
     level = options.get("level")
+    parflow_runname = ""
     if "{level}" in path and not level:
         raise ValueError("No 'level' specified in filter options.")
     if "{site_id}" in path and not site_id:
@@ -2398,6 +2401,15 @@ def _substitute_datapath(
         wy_start_24hr = (time_value - wy_start).days * 24 + 1
         wy_end_24hr = (time_value - wy_start).days * 24 + 24
         mmddyyyy = datetime.datetime.strftime(time_value, "%m%d%Y")
+
+    # Raw CONUS2.1 simulations data is named with "spinup" in the runname for WY2003.
+    # For other water years, the phrase "conus21" is used in the runname instead of "spinup".
+    if (dataset=="conus2_baseline") and (temporal_resolution=="hourly") and (dataset_version=="2.1"):
+        if wy == "2003":
+            parflow_runname = "spinup"
+        else:
+            parflow_runname = "conus21"
+
     datapath = path.format(
         dataset_var=dataset_var,
         wy=wy,
@@ -2426,7 +2438,9 @@ def _substitute_datapath(
         dataset=dataset,
         variable=variable,
         aggregation=aggregation,
+        parflow_runname=parflow_runname
     )
+
     return datapath
 
 
