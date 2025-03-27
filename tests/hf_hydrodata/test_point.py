@@ -820,6 +820,36 @@ def test_site_networks_filter_list():
     assert len(metadata_df) == 60
 
 
+def test_site_networks_filter_nwm():
+    """Test for using site_networks filter with nwm list"""
+    nwm_sites_metadata = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        state="NJ",
+        latitude_range=(40, 41),
+        longitude_range=(-75, -74),
+        site_networks=["nwm"],
+    )
+    assert len(nwm_sites_metadata) == 60
+
+    all_sites_metadata = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        state="NJ",
+        latitude_range=(40, 41),
+        longitude_range=(-75, -74),
+    )
+    assert len(all_sites_metadata) == 65
+
+
 def test_site_networks_filter_list_wtd():
     """Test for using site_networks filter as a list with water table depth variable"""
     data_df = point.get_point_data(
@@ -1585,7 +1615,10 @@ def test_fail_no_grid_get_site_variables():
             date_end="2002-01-05",
             grid_bounds=[1500, 1300, 1700, 1500],
         )
-    assert "When providing the parameter `grid_bounds`, please also provide the parameter `grid`" in str(exc.value)
+    assert (
+        "When providing the parameter `grid_bounds`, please also provide the parameter `grid`"
+        in str(exc.value)
+    )
 
 
 def test_fail_no_sites_get_site_variables():
