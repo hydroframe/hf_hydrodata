@@ -118,7 +118,7 @@ def get_point_data(*args, **kwargs):
         containing strings for multiple available networks. There are currently supported networks for
         stream gages (dataset=='usgs_nwis', variable='streamflow') and groundwater wells (dataset=='usgs_nwis',
         variable='water_table_depth'). For streamflow, options include: 'gagesii', 'gagesii_reference', 'hcdn2009',
-        and 'camels'. For water table depth, options include: 'climate_response_network'.
+        'camels', and 'nwm'. For water table depth, options include: 'climate_response_network'.
     min_num_obs : int, optional
         Value for the minimum number of observations desired for a site to have. If provided, data will
         be returned only for sites that have at least this number of non-NaN observation records within
@@ -318,7 +318,7 @@ def get_point_metadata(*args, **kwargs):
         containing strings for multiple available networks. There are currently supported networks for
         stream gages (dataset=='usgs_nwis', variable='streamflow') and groundwater wells (dataset=='usgs_nwis',
         variable='water_table_depth'). For streamflow, options include: 'gagesii', 'gagesii_reference', 'hcdn2009',
-        and 'camels'. For water table depth, options include: 'climate_response_network'.
+        'camels', and 'nwm'. For water table depth, options include: 'climate_response_network'.
 
     Returns
     -------
@@ -411,6 +411,7 @@ def get_point_metadata(*args, **kwargs):
     if "stream gauge" in metadata_df["site_type"].unique():
         attributes_df = pd.read_sql_query(
             """SELECT site_id, conus1_i, conus1_j, conus2_i, conus2_j,
+                      conus2_i_nwm, conus2_j_nwm,
                       gages_drainage_sqkm AS gagesii_drainage_area,
                       class AS gagesii_class,
                       site_elevation_meters AS gagesii_site_elevation,
@@ -582,7 +583,7 @@ def get_site_variables(*args, **kwargs):
         containing strings for multiple available networks. There are currently supported networks for
         stream gages (dataset=='usgs_nwis', variable='streamflow') and groundwater wells (dataset=='usgs_nwis',
         variable='water_table_depth'). For streamflow, options include: 'gagesii', 'gagesii_reference', 'hcdn2009',
-        and 'camels'. For water table depth, options include: 'climate_response_network'.
+        'camels', and 'nwm'. For water table depth, options include: 'climate_response_network'.
 
     Returns
     -------
@@ -1461,7 +1462,7 @@ def _get_sites(
         containing strings for multiple available networks. There are currently supported networks for
         stream gages (dataset=='usgs_nwis', variable='streamflow') and groundwater wells (dataset=='usgs_nwis',
         variable='water_table_depth'). For streamflow, options include: 'gagesii', 'gagesii_reference', 'hcdn2009',
-        and 'camels'. For water table depth, options include: 'climate_response_network'.
+        'camels', and 'nwm'. For water table depth, options include: 'climate_response_network'.
 
 
     Returns
@@ -1711,8 +1712,14 @@ def _get_bbox_from_shape(polygon, polygon_crs):
     bbox_df["transform_y"] = bbox_df["transform"].apply(lambda x: x.y)
 
     # Save transformed bounding box as latitude_range, longitude_range
-    latitude_range = (float(bbox_df["transform_y"].min()), float(bbox_df["transform_y"].max()))
-    longitude_range = (float(bbox_df["transform_x"].min()), float(bbox_df["transform_x"].max()))
+    latitude_range = (
+        float(bbox_df["transform_y"].min()),
+        float(bbox_df["transform_y"].max()),
+    )
+    longitude_range = (
+        float(bbox_df["transform_x"].min()),
+        float(bbox_df["transform_x"].max()),
+    )
 
     return (latitude_range, longitude_range)
 
@@ -1797,7 +1804,7 @@ def _get_network_site_list(dataset, variable, site_networks):
     """
     network_options = {
         "usgs_nwis": {
-            "streamflow": ["camels", "gagesii_reference", "gagesii", "hcdn2009"],
+            "streamflow": ["camels", "gagesii_reference", "gagesii", "hcdn2009", "nwm"],
             "water_table_depth": ["climate_response_network"],
         }
     }
@@ -1812,6 +1819,9 @@ def _get_network_site_list(dataset, variable, site_networks):
     for network in site_networks:
         try:
             assert network in network_options[dataset][variable]
+        except:
+            raise ValueError(f"Network option {network} is not recognized.")
+        try:
             df = pd.read_csv(
                 f"{NETWORK_LISTS_PATH}/{dataset}/{variable}/{network}.csv",
                 dtype=str,
@@ -1821,7 +1831,7 @@ def _get_network_site_list(dataset, variable, site_networks):
             site_list += list(df["site_id"])
         except:
             raise ValueError(
-                f"Network option {network} is not recognized. Please make sure the .csv network_lists/{dataset}/{variable}/{network}.csv exists."
+                f"Network list for {network} is not found. Please make sure the .csv network_lists/{dataset}/{variable}/{network}.csv exists."
             )
 
     # Make sure only list of unique site IDs is returned (in case multiple, overlapping networks provided)

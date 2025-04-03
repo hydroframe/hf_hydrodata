@@ -90,13 +90,17 @@ There are several variables that are returned by all ``get_point_metadata()`` fu
     * - doi
       - If applicable, the DOI associated with the site, as provided by the contributing agency.
     * - conus1_i
-      - Integer number of grid cells in the horizonal direction away from the CONUS1 grid origin of (0,0).
+      - Integer number of grid cells in the horizontal direction away from the CONUS1 grid origin of (0,0).
     * - conus1_j
       - Integer number of grid cells in the vertical direction away from the CONUS1 grid origin of (0,0).
     * - conus2_i
-      - Integer number of grid cells in the horizonal direction away from the CONUS2 grid origin of (0,0).
+      - Integer number of grid cells in the horizontal direction away from the CONUS2 grid origin of (0,0).
     * - conus2_j
       - Integer number of grid cells in the vertical direction away from the CONUS2 grid origin of (0,0).
+    * - conus2_i_nwm
+      - Integer number of grid cells in the horizontal direction away from the CONUS2 grid origin of (0,0). Mapping available for only stream gages in the NWM and described in `Zhang et al. 2021 <https://essd.copernicus.org/articles/13/3263/2021/>`_.
+    * - conus2_j_nwm
+      - Integer number of grid cells in the vertical direction away from the CONUS2 grid origin of (0,0). Mapping available for only stream gages in the NWM and described in `Zhang et al. 2021 <https://essd.copernicus.org/articles/13/3263/2021/>`_.
 
 
 Stream Gage Metadata

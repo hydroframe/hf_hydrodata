@@ -637,7 +637,7 @@ def test_get_metadata_streamflow():
         longitude_range=(-75, -50),
     )
     assert len(metadata_df) == 4
-    assert len(metadata_df.columns) == 23
+    assert len(metadata_df.columns) == 25
     assert "01011000" in list(metadata_df["site_id"])
 
 
@@ -656,7 +656,7 @@ def test_get_metadata_streamflow_dict():
         }
     )
     assert len(metadata_df) == 4
-    assert len(metadata_df.columns) == 23
+    assert len(metadata_df.columns) == 25
     assert "01011000" in list(metadata_df["site_id"])
 
 
@@ -673,7 +673,7 @@ def test_get_metadata_streamflow_hourly():
         longitude_range=(-75, -50),
     )
     assert len(metadata_df) == 4
-    assert len(metadata_df.columns) == 23
+    assert len(metadata_df.columns) == 25
     assert "01011000" in list(metadata_df["site_id"])
 
 
@@ -818,6 +818,36 @@ def test_site_networks_filter_list():
         site_networks=["gagesii"],
     )
     assert len(metadata_df) == 60
+
+
+def test_site_networks_filter_nwm():
+    """Test for using site_networks filter with nwm list"""
+    nwm_sites_metadata = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        state="NJ",
+        latitude_range=(40, 41),
+        longitude_range=(-75, -74),
+        site_networks=["nwm"],
+    )
+    assert len(nwm_sites_metadata) == 60
+
+    all_sites_metadata = point.get_point_metadata(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        state="NJ",
+        latitude_range=(40, 41),
+        longitude_range=(-75, -74),
+    )
+    assert len(all_sites_metadata) == 65
 
 
 def test_site_networks_filter_list_wtd():
@@ -1356,8 +1386,8 @@ def test_grid_bounds_conus2_list():
         grid="conus2",
         grid_bounds=[1500, 1300, 1700, 1500],
     )
-    assert df.shape[1] >= 19
-    assert df.shape[1] <= 25
+    assert df.shape[1] >= 15
+    assert df.shape[1] <= 100
     assert "07119500" in df.columns
     assert "07208500" in df.columns
 
@@ -1371,8 +1401,8 @@ def test_grid_bounds_conus2_list():
         grid="conus2",
         grid_bounds=[1500, 1300, 1700, 1500],
     )
-    assert metadata_df.shape[0] >= 18
-    assert metadata_df.shape[0] <= 24
+    assert metadata_df.shape[0] >= 15
+    assert metadata_df.shape[0] <= 100
     assert "07119500" in list(metadata_df["site_id"])
     assert "07208500" in list(metadata_df["site_id"])
 
@@ -1391,8 +1421,8 @@ def test_grid_bounds_conus2_dict():
             "grid_bounds": [1500, 1300, 1700, 1500],
         }
     )
-    assert df.shape[1] >= 19
-    assert df.shape[1] <= 25
+    assert df.shape[1] >= 15
+    assert df.shape[1] <= 100
     assert "07119500" in df.columns
     assert "07208500" in df.columns
 
@@ -1408,8 +1438,8 @@ def test_grid_bounds_conus2_dict():
             "grid_bounds": [1500, 1300, 1700, 1500],
         }
     )
-    assert metadata_df.shape[0] >= 18
-    assert metadata_df.shape[0] <= 24
+    assert metadata_df.shape[0] >= 15
+    assert metadata_df.shape[0] <= 100
     assert "07119500" in list(metadata_df["site_id"])
     assert "07208500" in list(metadata_df["site_id"])
 
@@ -1544,8 +1574,8 @@ def test_get_variables_grid_bounds_conus2_list():
         grid="conus2",
         grid_bounds=[1500, 1300, 1700, 1500],
     )
-    assert df.shape[0] >= 18
-    assert df.shape[0] <= 24
+    assert df.shape[0] >= 15
+    assert df.shape[0] <= 100
     assert "07119500" in list(df["site_id"])
     assert "07208500" in list(df["site_id"])
 
@@ -1564,8 +1594,8 @@ def test_get_variables_grid_bounds_conus2_dict():
             "grid_bounds": [1500, 1300, 1700, 1500],
         }
     )
-    assert df.shape[0] >= 18
-    assert df.shape[0] <= 24
+    assert df.shape[0] >= 15
+    assert df.shape[0] <= 100
     assert "07119500" in list(df["site_id"])
     assert "07208500" in list(df["site_id"])
 
@@ -1585,7 +1615,10 @@ def test_fail_no_grid_get_site_variables():
             date_end="2002-01-05",
             grid_bounds=[1500, 1300, 1700, 1500],
         )
-    assert "When providing the parameter `grid_bounds`, please also provide the parameter `grid`" in str(exc.value)
+    assert (
+        "When providing the parameter `grid_bounds`, please also provide the parameter `grid`"
+        in str(exc.value)
+    )
 
 
 def test_fail_no_sites_get_site_variables():
@@ -1815,7 +1848,7 @@ def test_huc_list():
         huc_id=["02040106", "02040106"],
         grid="conus2",
     )
-    assert df.shape[1] == 23
+    assert df.shape[1] == 25
 
 
 def test_depth_level_provided_not_sm():

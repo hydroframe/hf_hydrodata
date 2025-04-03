@@ -6,8 +6,16 @@ on:
   schedule:
     - cron: '0 8 * * 1'
 
-  # run with each new Pull Request opened to the main branch
-  pull_request:
+  # Run GitHub Actions when the main branch is modified.
+  # This includes after code changes are merged to main from a PR.
+  # Merging to main requires the Verde-based Jenkins jobs to pass.
+
+  # If this remote GitHub Action fails, it means there is a discrepancy with the 
+  # version of hf_hydrodata installed into the hydrogen-service API.
+  # If this fails:
+  #  - Trigger a manual re-build of the hydrogen-service Jenkins job to rebuild the API
+  #  - Manually re-run the failing hf_hydrodata GitHub Actions job
+  push:
     branches:
       - main
 
