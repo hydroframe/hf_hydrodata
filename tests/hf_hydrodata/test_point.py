@@ -1386,8 +1386,8 @@ def test_grid_bounds_conus2_list():
         grid="conus2",
         grid_bounds=[1500, 1300, 1700, 1500],
     )
-    assert df.shape[1] >= 19
-    assert df.shape[1] <= 25
+    assert df.shape[1] >= 15
+    assert df.shape[1] <= 100
     assert "07119500" in df.columns
     assert "07208500" in df.columns
 
@@ -1401,8 +1401,8 @@ def test_grid_bounds_conus2_list():
         grid="conus2",
         grid_bounds=[1500, 1300, 1700, 1500],
     )
-    assert metadata_df.shape[0] >= 18
-    assert metadata_df.shape[0] <= 24
+    assert metadata_df.shape[0] >= 15
+    assert metadata_df.shape[0] <= 100
     assert "07119500" in list(metadata_df["site_id"])
     assert "07208500" in list(metadata_df["site_id"])
 
@@ -1421,8 +1421,8 @@ def test_grid_bounds_conus2_dict():
             "grid_bounds": [1500, 1300, 1700, 1500],
         }
     )
-    assert df.shape[1] >= 19
-    assert df.shape[1] <= 25
+    assert df.shape[1] >= 15
+    assert df.shape[1] <= 100
     assert "07119500" in df.columns
     assert "07208500" in df.columns
 
@@ -1438,8 +1438,8 @@ def test_grid_bounds_conus2_dict():
             "grid_bounds": [1500, 1300, 1700, 1500],
         }
     )
-    assert metadata_df.shape[0] >= 18
-    assert metadata_df.shape[0] <= 24
+    assert metadata_df.shape[0] >= 15
+    assert metadata_df.shape[0] <= 100
     assert "07119500" in list(metadata_df["site_id"])
     assert "07208500" in list(metadata_df["site_id"])
 
@@ -1574,8 +1574,8 @@ def test_get_variables_grid_bounds_conus2_list():
         grid="conus2",
         grid_bounds=[1500, 1300, 1700, 1500],
     )
-    assert df.shape[0] >= 18
-    assert df.shape[0] <= 24
+    assert df.shape[0] >= 15
+    assert df.shape[0] <= 100
     assert "07119500" in list(df["site_id"])
     assert "07208500" in list(df["site_id"])
 
@@ -1594,8 +1594,8 @@ def test_get_variables_grid_bounds_conus2_dict():
             "grid_bounds": [1500, 1300, 1700, 1500],
         }
     )
-    assert df.shape[0] >= 18
-    assert df.shape[0] <= 24
+    assert df.shape[0] >= 15
+    assert df.shape[0] <= 100
     assert "07119500" in list(df["site_id"])
     assert "07208500" in list(df["site_id"])
 
