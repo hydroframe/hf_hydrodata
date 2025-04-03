@@ -637,7 +637,7 @@ def test_get_metadata_streamflow():
         longitude_range=(-75, -50),
     )
     assert len(metadata_df) == 4
-    assert len(metadata_df.columns) == 23
+    assert len(metadata_df.columns) == 25
     assert "01011000" in list(metadata_df["site_id"])
 
 
@@ -656,7 +656,7 @@ def test_get_metadata_streamflow_dict():
         }
     )
     assert len(metadata_df) == 4
-    assert len(metadata_df.columns) == 23
+    assert len(metadata_df.columns) == 25
     assert "01011000" in list(metadata_df["site_id"])
 
 
@@ -673,7 +673,7 @@ def test_get_metadata_streamflow_hourly():
         longitude_range=(-75, -50),
     )
     assert len(metadata_df) == 4
-    assert len(metadata_df.columns) == 23
+    assert len(metadata_df.columns) == 25
     assert "01011000" in list(metadata_df["site_id"])
 
 
@@ -1848,7 +1848,7 @@ def test_huc_list():
         huc_id=["02040106", "02040106"],
         grid="conus2",
     )
-    assert df.shape[1] == 23
+    assert df.shape[1] == 25
 
 
 def test_depth_level_provided_not_sm():
