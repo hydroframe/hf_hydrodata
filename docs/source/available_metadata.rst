@@ -97,11 +97,6 @@ There are several variables that are returned by all ``get_point_metadata()`` fu
       - Integer number of grid cells in the horizontal direction away from the CONUS2 grid origin of (0,0).
     * - conus2_j
       - Integer number of grid cells in the vertical direction away from the CONUS2 grid origin of (0,0).
-    * - conus2_i_nwm
-      - Integer number of grid cells in the horizontal direction away from the CONUS2 grid origin of (0,0). Mapping available for only stream gages in the NWM and described in `Zhang et al. 2021 <https://essd.copernicus.org/articles/13/3263/2021/>`_.
-    * - conus2_j_nwm
-      - Integer number of grid cells in the vertical direction away from the CONUS2 grid origin of (0,0). Mapping available for only stream gages in the NWM and described in `Zhang et al. 2021 <https://essd.copernicus.org/articles/13/3263/2021/>`_.
-
 
 Stream Gage Metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -122,6 +117,11 @@ be produced when ``dataset='usgs_nwis'`` and ``variable='streamflow'``:
       - Site elevation (meters), as per the `GAGES-II metadata <https://www.sciencebase.gov/catalog/item/631405bbd34e36012efa304a>`_.
     * - usgs_drainage_area
       - Drainage area (square miles) for the site, as per the USGS.
+    * - conus2_i_nwm
+      - Integer number of grid cells in the horizontal direction away from the CONUS2 grid origin of (0,0). Mapping available for only stream gages in the NWM and described in `Zhang et al. 2021 <https://essd.copernicus.org/articles/13/3263/2021/>`_.
+    * - conus2_j_nwm
+      - Integer number of grid cells in the vertical direction away from the CONUS2 grid origin of (0,0). Mapping available for only stream gages in the NWM and described in `Zhang et al. 2021 <https://essd.copernicus.org/articles/13/3263/2021/>`_.
+
 
 Groundwater Well Metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
