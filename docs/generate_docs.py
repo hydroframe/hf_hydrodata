@@ -182,7 +182,7 @@ def _generate_dois_citation(dois_entry, stream):
 
     if dois_entry:
         if "http://" in dois_entry or "https://" in dois_entry:
-            stream.write(f"{dois_entry}\n\n")
+            stream.write(f"* {dois_entry}\n\n")
         else:
             stream.write(f"* https://doi.org/{dois_entry}\n\n")
 
