@@ -155,11 +155,9 @@ def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
                 "Please refer to the following citations for more information on this dataset and cite them if you use the data\n\n"
             )
             for entry in paper_dois.split(" "):
-                if entry:
-                    stream.write(f"* https://doi.org/{entry}\n\n")
+                _generate_dois_citation(entry, stream)
             for entry in dataset_dois.split(" "):
-                if entry:
-                    stream.write(f"* {entry}\n\n")
+                _generate_dois_citation(entry, stream)
 
         if dataset_start_date or len(grids) > 0:
             stream.write("**Extent and Resolution**:\n\n")
@@ -172,6 +170,21 @@ def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
             _generate_grid_extent_docs(grids, stream)
 
         _generate_dataset_variable_docs(dataset_row, stream)
+
+
+def _generate_dois_citation(dois_entry, stream):
+    """
+    Generate the read-the-docs for either a paper_dois entry or a dataset_dois entry.
+
+    If the entry does not contain its own http header then add https://doi.org
+    otherwise the entry is the http reference link.
+    """
+
+    if dois_entry:
+        if "http://" in dois_entry or "https://" in dois_entry:
+            stream.write(f"{dois_entry}\n\n")
+        else:
+            stream.write(f"* https://doi.org/{dois_entry}\n\n")
 
 
 def _generate_grid_extent_docs(grids, stream):
