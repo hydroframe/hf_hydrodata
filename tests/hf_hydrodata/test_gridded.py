@@ -25,6 +25,7 @@ hf.data_model_access.DATA_MODEL_CACHE = None
 
 run_remote = not os.path.exists(gr.HYDRODATA)
 
+
 class MockResponse:
     """Mock the flask.request response."""
 
@@ -92,7 +93,7 @@ def test_start_time_in_get_gridded_data():
         start_time=start_time,
         end_time=end_time,
         grid="conus1",
-        grid_bounds=[1000,1000,1005,1005]
+        grid_bounds=[1000, 1000, 1005, 1005],
     )
     assert data.shape[0] == 48
 
@@ -105,7 +106,7 @@ def test_start_time_in_get_gridded_data():
         start_time=start_time,
         end_time=end_time,
         grid="conus1",
-        grid_bounds=[1000,1000,1005,1005]
+        grid_bounds=[1000, 1000, 1005, 1005],
     )
     assert data.shape[0] == 48
 
@@ -172,6 +173,7 @@ def test_paths_hourly_files():
         paths[95]
         in "/hydrodata/PFCLM/CONUS1_baseline/simulations/2006/raw_outputs/pressure/CONUS.2006.out.press.00048.pfb"
     )
+
 
 def test_files_exist():
     """Test that the data catalog path template points to an actual file in /hydrodata."""
@@ -1100,8 +1102,16 @@ def test_ambiguous_filter():
     assert "variable = '" in str(info.value)
 
     # check suggestion of variable filter
-    var_options = ["'air_temp", "'east_windspeed", "'north_windspeed", "'atmospheric_pressure",
-                   "'precipitation", "'downward_longwave", "'downward_shortwave", "'specific_humidity"]
+    var_options = [
+        "'air_temp",
+        "'east_windspeed",
+        "'north_windspeed",
+        "'atmospheric_pressure",
+        "'precipitation",
+        "'downward_longwave",
+        "'downward_shortwave",
+        "'specific_humidity",
+    ]
     assert any(v in str(info.value) for v in var_options)
 
 
@@ -1993,3 +2003,87 @@ def test_temporal_resolution_static(tmp_path):
     )
     assert os.path.exists("foo_conus2_domain_mask.tiff")
     os.chdir(cd)
+
+
+def test_gridded_files_crs_full_conus2(tmp_path):
+    """
+    Test get_gridded_files crs and origin creating full conus2 sized tiff file.
+    The origin of the projection in the generated tiff file must reflect the full conus2 position.
+    """
+
+    cd = os.getcwd()
+    os.chdir(tmp_path)
+
+    dataset = "ma_2023"
+    variable = "water_table_depth"
+    options = {
+        "dataset": dataset,
+        "variable": variable,
+    }
+    hf.get_gridded_files(
+        options,
+        filename_template="foo_{dataset}_{variable}.tiff",
+    )
+    path = f"foo_{dataset}_{variable}.tiff"
+    assert os.path.exists(path)
+    with rioxarray.open_rasterio(path) as fp:
+        crs = fp.rio.crs.to_proj4()
+        assert crs.startswith("+proj=lcc +lat_0=39")
+        assert "+lat_2=45" in crs
+        transform = fp.rio.transform()
+        assert transform.c == -1885055.4995
+        assert transform.f == 1283042.9346
+    os.chdir(cd)
+
+
+def test_gridded_files_crs_subgrid(tmp_path):
+    """
+    Test get_gridded_files crs and origin creating full conus2 sized tiff file.
+    The origin in the tiff file projection must reflect the grid_bounds.
+    """
+
+    cd = os.getcwd()
+    os.chdir(tmp_path)
+
+    dataset = "ma_2023"
+    variable = "water_table_depth"
+    options = {
+        "dataset": dataset,
+        "variable": variable,
+        "grid_bounds": [1000, 1000, 1010, 1010],
+    }
+    hf.get_gridded_files(
+        options,
+        filename_template="foo_{dataset}_{variable}.tiff",
+    )
+    path = f"foo_{dataset}_{variable}.tiff"
+    assert os.path.exists(path)
+    with rioxarray.open_rasterio(path) as fp:
+        crs = fp.rio.crs.to_proj4()
+        assert crs.startswith("+proj=lcc +lat_0=39")
+        assert "+lat_2=45" in crs
+        transform = fp.rio.transform()
+        assert transform.c == -885055.4994999999
+        assert transform.f == 405042.93460000004
+    os.chdir(cd)
+
+
+def test_mask_variables():
+    """Test we can read the 6 mask variables for top,bottom,left,right,front,back"""
+
+    dataset = "conus2_domain"
+    for variable in [
+        "mask_top",
+        "mask_bottom",
+        "mask_left",
+        "mask_right",
+        "mask_front",
+        "mask_back",
+    ]:
+        options = {
+            "dataset": dataset,
+            "variable": variable,
+            "grid_bounds": [1000, 1000, 1010, 1010],
+        }
+        data = hf.get_gridded_data(options)
+        assert data.shape == (10, 10)

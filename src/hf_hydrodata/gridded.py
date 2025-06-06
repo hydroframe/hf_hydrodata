@@ -852,7 +852,8 @@ def _create_gridded_files_geotiff(
     else:
         # If there no grid_bounds then the origin is the same as origin of the grid itself
         left_origin = x_origin
-        top_origin = y_origin
+        top_origin = y_origin + grid_data["shape"][1] * 1000
+
     # Remove false northing and false easting from CRS since this is handled by transform origins
     pos = crs_string.find("+x_0=")
     crs_string = crs_string[0:pos] if pos > 0 else crs_string
