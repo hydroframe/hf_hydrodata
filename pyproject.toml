@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hf_hydrodata"
-version = "1.3.25"
+version = "1.3.26"
 description = "hydroframe tools and utilities"
 authors = ["William M. Hasling", "Laura Condon", "Reed Maxwell",  "George Artavanis", "Amy M. Johnson", "Amy C. Defnet"]
 license = "MIT"

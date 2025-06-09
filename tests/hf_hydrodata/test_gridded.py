@@ -2005,10 +2005,10 @@ def test_temporal_resolution_static(tmp_path):
     os.chdir(cd)
 
 
-def test_gridded_files_crs_full_conus2(tmp_path):
+def test_gridded_files_crs_full_conus1(tmp_path):
     """
-    Test get_gridded_files crs and origin creating full conus2 sized tiff file.
-    The origin of the projection in the generated tiff file must reflect the full conus2 position.
+    Test get_gridded_files crs and origin creating full conus1 sized tiff file.
+    The origin of the projection in the generated tiff file must reflect the full conus1 position.
     """
 
     cd = os.getcwd()
@@ -2019,6 +2019,8 @@ def test_gridded_files_crs_full_conus2(tmp_path):
     options = {
         "dataset": dataset,
         "variable": variable,
+        "start_time": "2023-10-01",
+        "end_time": "2023-10-02",
     }
     hf.get_gridded_files(
         options,
@@ -2038,7 +2040,7 @@ def test_gridded_files_crs_full_conus2(tmp_path):
 
 def test_gridded_files_crs_subgrid(tmp_path):
     """
-    Test get_gridded_files crs and origin creating full conus2 sized tiff file.
+    Test get_gridded_files crs and origin creating a subset conus1 tiff file.
     The origin in the tiff file projection must reflect the grid_bounds.
     """
 
@@ -2050,6 +2052,8 @@ def test_gridded_files_crs_subgrid(tmp_path):
     options = {
         "dataset": dataset,
         "variable": variable,
+        "start_time": "2023-10-01",
+        "end_time": "2023-10-02",
         "grid_bounds": [1000, 1000, 1010, 1010],
     }
     hf.get_gridded_files(
