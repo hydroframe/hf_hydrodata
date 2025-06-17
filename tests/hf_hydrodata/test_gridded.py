@@ -2091,3 +2091,13 @@ def test_mask_variables():
         }
         data = hf.get_gridded_data(options)
         assert data.shape == (10, 10)
+
+def test_latlon_bounds():
+    """
+    Test get_gridded_data with latlon_bounds. 
+    This used to failed when run remote with dictionary changed size.
+    """
+
+    latlon_bounds = [40.7334013940,-105.7923988288, 41.1959974578,-105.2224758822]
+    latitude = hf.get_gridded_data({"variable": "latitude", "grid": "conus2", "latlon_bounds": latlon_bounds})
+    assert latitude.shape == (45, 51)
