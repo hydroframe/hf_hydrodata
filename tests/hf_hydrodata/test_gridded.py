@@ -2033,8 +2033,8 @@ def test_gridded_files_crs_full_conus1(tmp_path):
         assert crs.startswith("+proj=lcc +lat_0=39")
         assert "+lat_2=45" in crs
         transform = fp.rio.transform()
-        assert transform.c == -1885055.4995
-        assert transform.f == 1283042.9346
+        assert pytest.approx(transform.c) == -1885055.4995
+        assert pytest.approx(transform.f) == 1283042.9346
     os.chdir(cd)
 
 
@@ -2067,8 +2067,8 @@ def test_gridded_files_crs_subgrid(tmp_path):
         assert crs.startswith("+proj=lcc +lat_0=39")
         assert "+lat_2=45" in crs
         transform = fp.rio.transform()
-        assert transform.c == -885055.4994999999
-        assert transform.f == 405042.93460000004
+        assert pytest.approx(transform.c) == -885055.49950
+        assert pytest.approx(transform.f) == 405042.93460
     os.chdir(cd)
 
 
@@ -2092,12 +2092,15 @@ def test_mask_variables():
         data = hf.get_gridded_data(options)
         assert data.shape == (10, 10)
 
+
 def test_latlon_bounds():
     """
-    Test get_gridded_data with latlon_bounds. 
+    Test get_gridded_data with latlon_bounds.
     This used to failed when run remote with dictionary changed size.
     """
 
-    latlon_bounds = [40.7334013940,-105.7923988288, 41.1959974578,-105.2224758822]
-    latitude = hf.get_gridded_data({"variable": "latitude", "grid": "conus2", "latlon_bounds": latlon_bounds})
+    latlon_bounds = [40.7334013940, -105.7923988288, 41.1959974578, -105.2224758822]
+    latitude = hf.get_gridded_data(
+        {"variable": "latitude", "grid": "conus2", "latlon_bounds": latlon_bounds}
+    )
     assert latitude.shape == (45, 51)

@@ -1525,8 +1525,10 @@ def _convert_json_to_strings(options):
     options : dictionary
         request options.
     """
-    options_copy = dict(options)
-    for key, value in options_copy.items():
+    options = dict(options)
+    keys = [str(k) for k in options.keys()]
+    for key in keys:
+        value = options[key]
         if key == "grid_bounds":
             if not isinstance(value, str):
                 options[key] = json.dumps(value)
