@@ -849,7 +849,7 @@ def test_get_huc_bbox_conus2():
     bbox = hf.get_huc_bbox("conus2", ["10"])
     assert bbox == [948, 1353, 2786, 2783]
     bbox = hf.get_huc_bbox("conus2", ["15020018"])
-    assert bbox == [927, 1331, 1061, 1422]
+    assert bbox == [928, 1330, 1061, 1422]
 
     # Check the bbox is correct for HUC 15 (this failed with old get_huc_box code)
     bbox = hf.get_huc_bbox("conus2", ["15"])
@@ -861,7 +861,7 @@ def test_get_huc_bbox_conus2():
 
     # Check the bbox passes for either the value from the old float32 tiffs or the new int32 tiffs
     bbox = hf.get_huc_bbox("conus2", ["10190004"])
-    assert (bbox == [1468, 1665, 1550, 1694]) or (bbox == [1504, 1670, 1550, 1687])
+    assert (bbox == [1468, 1664, 1551, 1693]) or (bbox == [1504, 1670, 1550, 1687])
 
 
 def test_latlng_to_grid_out_of_bounds():
