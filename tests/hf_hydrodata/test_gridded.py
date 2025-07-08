@@ -8,6 +8,7 @@ import os
 import datetime
 import math
 import warnings
+import tempfile
 import xarray as xr
 import numpy as np
 import pytest
@@ -2104,3 +2105,62 @@ def test_latlon_bounds():
         {"variable": "latitude", "grid": "conus2", "latlon_bounds": latlon_bounds}
     )
     assert latitude.shape == (45, 51)
+
+
+def test_get_gridded_files_to_netcdf_min():
+    """
+    Test test gridded files CW3E daily into a NetCDF file with aggregation not specified.
+    This previously was a bug that did not deterministically put all the datasets with
+    different aggregation values into the result .nc file.
+    """
+    with tempfile.TemporaryDirectory() as tempdirname:
+        bounds = [1399, 1784, 1447, 1803]
+        variables = ["air_temp"]
+        start_time = datetime.datetime(1990, 8, 4)
+        end_time = start_time + datetime.timedelta(days=1)
+        filters = {
+            "dataset": "CW3E",
+            "grid_bounds": bounds,
+            "temporal_resolution": "daily",
+            "start_time": start_time,
+            "end_time": end_time,
+            "variable": "air_temp",
+        }
+        output_file = f"{tempdirname}/run1.1990-08-04_1990-11-02.nc"
+        hf.get_gridded_files(
+            filters, variables=variables, filename_template=output_file
+        )
+        ds = xr.open_dataset(output_file)
+        da_min = ds["Temp_min"].values
+        # The NetCDF file has time dimension of 365 regardless of the time filter
+        assert da_min.shape == (365, 19, 48)
+        # The day 8/4/1990 is day index 306 in the water year of the requested data
+        assert round(da_min[307, 0, 0], 2) == 282.75
+
+
+def test_huc_box_dataset_version():
+    """Test that we can return a huc bbox using a legacy version of the HUC mappings."""
+
+    # Test that we can get the BBOX using HUC version 2025_06
+    os.environ["HUC_VERSION"] = "2025_06"
+    bbox = hf.get_huc_bbox("conus2", ["15020018"])
+    assert bbox == [927, 1331, 1061, 1422]
+
+    # Test that we can get the BBOX using HUC version 2025_01
+    os.environ["HUC_VERSION"] = "2025_01"
+    bbox = hf.get_huc_bbox("conus2", ["15020018"])
+    assert bbox == [940, 1333, 1060, 1422]
+
+    # Test that we can get the BBOX using HUC version 2024_11
+    os.environ["HUC_VERSION"] = "2024_11"
+    bbox = hf.get_huc_bbox("conus2", ["15020018"])
+    assert bbox == [940, 1333, 1060, 1422]
+
+    with pytest.raises(ValueError):
+        os.environ["HUC_VERSION"] = "2024_xx"
+        bbox = hf.get_huc_bbox("conus2", ["15020018"])
+
+    # Test that we can get the bbox using the latest HUC version
+    os.environ["HUC_VERSION"] = ""
+    bbox = hf.get_huc_bbox("conus2", ["15020018"])
+    assert bbox == [928, 1330, 1061, 1422]

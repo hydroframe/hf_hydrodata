@@ -590,16 +590,16 @@ def get_gridded_files(
                 if file_name.endswith(".nc") and not file_name == last_file_name:
                     if last_file_name:
                         _execute_dask_items(dask_items, state, last_file_name)
-                    state = _FileDownloadState(
-                        options_copy,
-                        filename_template,
-                        temporal_resolution,
-                        start_time,
-                        end_time,
-                        verbose,
-                    )
-                    state.generate_time_coords(file_time)
-                    dask_items = []
+                        state = _FileDownloadState(
+                            options_copy,
+                            filename_template,
+                            temporal_resolution,
+                            start_time,
+                            end_time,
+                            verbose,
+                        )
+                        state.generate_time_coords(file_time)
+                        dask_items = []
                 dask_items.append(
                     dask.delayed(_load_gridded_file_entry)(
                         state, entry, options_copy, file_time
@@ -1296,6 +1296,7 @@ def _apply_mask(data, entry, options):
                 "grid": grid,
                 "grid_bounds": bbox,
                 "level": level,
+                "dataset_version": os.getenv("HUC_VERSION", "")
             }
         )
         # Apply the HUC mask to the data, mask with all huc_ids
@@ -1310,6 +1311,7 @@ def _apply_mask(data, entry, options):
                 "grid": grid,
                 "grid_bounds": grid_bounds,
                 "level": 2,
+                "dataset_version": os.getenv("HUC_VERSION", "")
             }
         )
         data = np.where(mask > 0, data, np.nan)
@@ -2082,6 +2084,7 @@ def __get_geotiff(grid: str, level: int) -> xr.Dataset:
         "variable": "huc_map",
         "grid": grid,
         "level": str(level),
+        "dataset_version": os.getenv("HUC_VERSION", "")
     }
     entry = dc.get_catalog_entry(options)
     if entry is None:
@@ -2698,7 +2701,6 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
         huc_id_list = huc_id.split(",")
         grid_bounds = get_huc_bbox(grid, huc_id_list)
     return grid_bounds
-
 
 class _FileDownloadState:
     """State information about the state of the get_gridded_files() method during thread execution."""
