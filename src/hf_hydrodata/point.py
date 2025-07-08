@@ -130,6 +130,10 @@ def get_point_data(*args, **kwargs):
         DataFrame with columns for each site_id satisfying input filters. Rows represent
         the date range requested from date_start and/or date_end, or the broadest range of
         data available for returned sites if no date range is explicitly requested.
+
+    If the environment variable HUC_VERSION is set this will cause the function to use the HUC boundaries for
+    that dataset_version when HUC is passed as a option.
+    The versions 2025_06, 2025_01, 2024_11 are supported as well as blank to use the latest HUC boundaries.       
     """
     if len(args) > 0 and isinstance(args[0], dict):
         options = args[0]
@@ -2224,6 +2228,7 @@ def _get_huc_query(options, param_list, conn, dataset=None, variable=None):
             "grid": grid,
             "file_type": "tiff",
             "level": level,
+            "dataset_version": os.getenv("HUC_VERSION", "")
         }
     )
     conus_huc_mask = np.isin(conus_hucs, hucs).squeeze()
