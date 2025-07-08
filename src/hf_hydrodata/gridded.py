@@ -1396,7 +1396,10 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
 
     Raises:
         ValueError:     if all the HUC id are not at the same level (same length).
-        ValueError:     if grid is not valid.
+        ValueError:     if grid is not valid or a HUC_VERSION environment variable is not valid.
+
+    If the environment variable HUC_VERSION is set this will cause the function to use the HUC boundaries for
+    that dataset_version. The versions 2025_06, 2025_01, 2024_11 are supported as well as blank to get latest.
 
     Example:
 
