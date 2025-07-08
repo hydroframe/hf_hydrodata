@@ -2134,7 +2134,7 @@ def test_get_gridded_files_to_netcdf_min():
         da_min = ds["Temp_min"].values
         # The NetCDF file has time dimension of 365 regardless of the time filter
         assert da_min.shape == (365, 19, 48)
-        # The day 8/4/1990 is day index 306 in the water year of the requested data
+        # The day 8/4/1990 is day index 307 in the water year of the requested data
         assert round(da_min[307, 0, 0], 2) == 282.75
 
 
