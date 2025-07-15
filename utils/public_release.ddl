@@ -23,7 +23,7 @@ DELETE FROM public.site_type;
 DELETE FROM public.structure_type;
 DELETE FROM public.substitution_keys;
 
-INSERT INTO public.dataset_version SELECT * from development.datset_version;
+INSERT INTO public.dataset_version SELECT * from development.dataset_version;
 INSERT INTO public.unit_type SELECT * from development.unit_type;
 INSERT INTO public.units SELECT * from development.units;
 INSERT INTO public.variable_type SELECT * from development.variable_type;
