@@ -432,7 +432,7 @@ def _get_preferred_catalog_entry(entries: List[dict]) -> dict:
                 "preference_state_key": "aggregation",
                 "preferred_values": ["mean", "sum", "median", "static", "max", "min"],
             },
-            {"preference_state_key": "dataset_version", "preferred_values": None},
+            {"preference_state_key": "dataset_version", "preferred_values": [None, "", "1.0"]},
         ]
 
         # evaluate the ambiguous data catalog entries against a preference state to find preferences

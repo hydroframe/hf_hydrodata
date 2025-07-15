@@ -2164,3 +2164,15 @@ def test_huc_box_dataset_version():
     os.environ["HUC_VERSION"] = ""
     bbox = hf.get_huc_bbox("conus2", ["15020018"])
     assert bbox == [928, 1330, 1061, 1422]
+
+def test_latest_huc_version():
+    """Test that getting huc_mapping without dataset_version returns the default blank dataset version."""
+
+    entry = hf.get_catalog_entry(
+        dataset="huc_mapping",
+        file_type="tiff",
+        variable="huc_map",
+        grid="conus2",
+        level=4,
+    )
+    assert entry["dataset_version"] == ""
