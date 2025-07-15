@@ -2228,7 +2228,7 @@ def _get_huc_query(options, param_list, conn, dataset=None, variable=None):
             "grid": grid,
             "file_type": "tiff",
             "level": level,
-            "dataset_version": os.getenv("HUC_VERSION", "")
+            "dataset_version": os.getenv("HUC_VERSION", None)
         }
     )
     conus_huc_mask = np.isin(conus_hucs, hucs).squeeze()

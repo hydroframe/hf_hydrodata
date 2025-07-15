@@ -1296,7 +1296,7 @@ def _apply_mask(data, entry, options):
                 "grid": grid,
                 "grid_bounds": bbox,
                 "level": level,
-                "dataset_version": os.getenv("HUC_VERSION", ""),
+                "dataset_version": os.getenv("HUC_VERSION", None),
             }
         )
         # Apply the HUC mask to the data, mask with all huc_ids
@@ -1311,7 +1311,7 @@ def _apply_mask(data, entry, options):
                 "grid": grid,
                 "grid_bounds": grid_bounds,
                 "level": 2,
-                "dataset_version": os.getenv("HUC_VERSION", ""),
+                "dataset_version": os.getenv("HUC_VERSION", None),
             }
         )
         data = np.where(mask > 0, data, np.nan)
@@ -2087,7 +2087,7 @@ def __get_geotiff(grid: str, level: int) -> xr.Dataset:
         "variable": "huc_map",
         "grid": grid,
         "level": str(level),
-        "dataset_version": os.getenv("HUC_VERSION", ""),
+        "dataset_version": os.getenv("HUC_VERSION", None),
     }
     entry = dc.get_catalog_entry(options)
     if entry is None:
