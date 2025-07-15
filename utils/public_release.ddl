@@ -7,6 +7,7 @@ SELECT id, dataset_start_date, dataset_end_date INTO public.dataset_dates FROM p
 
 DELETE FROM public.data_catalog_entry;
 DELETE FROM public.dataset;
+DELETE FROM public.dataset_version;
 DELETE FROM public.datasource;
 DELETE FROM public.temporal_resolution;
 DELETE FROM public.dataset_type;
@@ -22,6 +23,7 @@ DELETE FROM public.site_type;
 DELETE FROM public.structure_type;
 DELETE FROM public.substitution_keys;
 
+INSERT INTO public.dataset_version SELECT * from development.datset_version;
 INSERT INTO public.unit_type SELECT * from development.unit_type;
 INSERT INTO public.units SELECT * from development.units;
 INSERT INTO public.variable_type SELECT * from development.variable_type;
