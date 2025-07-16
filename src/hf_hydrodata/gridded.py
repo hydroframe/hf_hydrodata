@@ -570,7 +570,6 @@ def get_gridded_files(
         options["end_time"] = file_time + delta
         for variable in variables:
             options["variable"] = variable
-            options_copy = dict(options)
             aggregation_entries = _get_aggregation_entries(options)
             aggregation_types = [
                 agg_entry.get("aggregation") for agg_entry in aggregation_entries
@@ -580,6 +579,7 @@ def get_gridded_files(
                 entry = dc.get_catalog_entry(options)
                 aggregation_entries = [entry] if entry else []
             for entry in aggregation_entries:
+                options_copy = dict(options)
                 if entry is None:
                     raise ValueError("No data catalog entry found for options.")
                 aggregation = entry.get("aggregation")
@@ -1296,7 +1296,7 @@ def _apply_mask(data, entry, options):
                 "grid": grid,
                 "grid_bounds": bbox,
                 "level": level,
-                "dataset_version": os.getenv("HUC_VERSION", "")
+                "dataset_version": os.getenv("HUC_VERSION", None),
             }
         )
         # Apply the HUC mask to the data, mask with all huc_ids
@@ -1311,7 +1311,7 @@ def _apply_mask(data, entry, options):
                 "grid": grid,
                 "grid_bounds": grid_bounds,
                 "level": 2,
-                "dataset_version": os.getenv("HUC_VERSION", "")
+                "dataset_version": os.getenv("HUC_VERSION", None),
             }
         )
         data = np.where(mask > 0, data, np.nan)
@@ -2087,7 +2087,7 @@ def __get_geotiff(grid: str, level: int) -> xr.Dataset:
         "variable": "huc_map",
         "grid": grid,
         "level": str(level),
-        "dataset_version": os.getenv("HUC_VERSION", "")
+        "dataset_version": os.getenv("HUC_VERSION", None),
     }
     entry = dc.get_catalog_entry(options)
     if entry is None:
@@ -2704,6 +2704,7 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
         huc_id_list = huc_id.split(",")
         grid_bounds = get_huc_bbox(grid, huc_id_list)
     return grid_bounds
+
 
 class _FileDownloadState:
     """State information about the state of the get_gridded_files() method during thread execution."""
