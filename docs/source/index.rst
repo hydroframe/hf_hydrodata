@@ -24,6 +24,13 @@ and :ref:`point_data_index` provide more detail on the datasets and fields that 
 Full example jupyter workbook workflows for working with point observations are in :ref:`point_examples_index` and 
 the :ref:`api` contains the full list of available functions.
 
+Citing hf_hydrodata
+-------------------
+If you use our tools please cite this package in your work. You can cite the package by citing this paper |joss_doi|
+
+In addition please make sure to cite all of the datasets that you subset. 
+Examples for obtaining the DOIs for any dataset you use are provided in the examples. 
+
 .. toctree::
    :maxdepth: 2
    :caption: Table of Contents
@@ -34,3 +41,9 @@ the :ref:`api` contains the full list of available functions.
    point_data/index
    api_reference
    data_policy
+   faq
+
+
+.. |joss_doi| image:: https://joss.theoj.org/papers/10.21105/joss.06623/status.svg
+   :target: https://doi.org/10.21105/joss.06623
+   :alt: DOI
