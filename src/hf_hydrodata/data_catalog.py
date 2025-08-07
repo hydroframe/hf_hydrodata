@@ -9,6 +9,7 @@ from typing import List
 import threading
 import requests
 from hf_hydrodata.data_model_access import ModelTableRow, load_data_model
+from hf_hydrodata.gridded import maintenance_guard
 
 HYDRODATA = "/hydrodata"
 JWT_TOKEN = None
@@ -243,6 +244,7 @@ def get_variables(*args, **kwargs) -> List[str]:
     return result
 
 
+@maintenance_guard
 def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
     """
     Get data catalog entry rows selected by filter options.
@@ -338,6 +340,7 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
     return result
 
 
+@maintenance_guard
 def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
     """
     Get a single data catalog entry row selected by filter options.

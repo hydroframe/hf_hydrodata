@@ -18,8 +18,13 @@ import pyproj
 from shapely import contains_xy
 from shapely.geometry import Point, shape
 from shapely.ops import transform
-from hf_hydrodata.gridded import get_huc_bbox, get_gridded_data
+from hf_hydrodata.gridded import (
+    get_huc_bbox,
+    get_gridded_data,
+    maintenance_guard,
+)
 from hf_hydrodata.data_catalog import get_catalog_entry
+
 
 HYDRODATA = "/hydrodata"
 DB_PATH = f"{HYDRODATA}/national_obs/point_obs.sqlite"
@@ -60,6 +65,7 @@ SITE_ATTRIBUTE_TABLES = [
 DEPTH_LEVELS = [2, 4, 8, 20, 40]
 
 
+@maintenance_guard
 def get_point_data(*args, **kwargs):
     """
     Collect point observations data into a Pandas DataFrame.
@@ -133,7 +139,7 @@ def get_point_data(*args, **kwargs):
 
     If the environment variable HUC_VERSION is set this will cause the function to use the HUC boundaries for
     that dataset_version when HUC is passed as a option.
-    The versions 2025_06, 2025_01, 2024_11 are supported as well as blank to use the latest HUC boundaries.       
+    The versions 2025_06, 2025_01, 2024_11 are supported as well as blank to use the latest HUC boundaries.
     """
     if len(args) > 0 and isinstance(args[0], dict):
         options = args[0]
@@ -268,6 +274,7 @@ def get_point_data(*args, **kwargs):
     return data_df.reset_index().drop("index", axis=1)
 
 
+@maintenance_guard
 def get_point_metadata(*args, **kwargs):
     """
     Return DataFrame with site metadata for the filtered sites.
@@ -535,6 +542,7 @@ def get_point_metadata(*args, **kwargs):
     return metadata_df
 
 
+@maintenance_guard
 def get_site_variables(*args, **kwargs):
     """
     Return DataFrame with available sites, variables, and the period of record.
@@ -2228,7 +2236,7 @@ def _get_huc_query(options, param_list, conn, dataset=None, variable=None):
             "grid": grid,
             "file_type": "tiff",
             "level": level,
-            "dataset_version": os.getenv("HUC_VERSION", None)
+            "dataset_version": os.getenv("HUC_VERSION", None),
         }
     )
     conus_huc_mask = np.isin(conus_hucs, hucs).squeeze()

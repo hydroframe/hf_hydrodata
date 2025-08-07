@@ -2,7 +2,7 @@
 Functions to access gridded data from the data catalog index of the GPFS files.
 """
 
-# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702,R0903,R0902,C0415,R0917
+# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702,R0903,R0902,C0415,R0917,W0718
 import os
 import datetime
 import warnings
@@ -53,6 +53,23 @@ C_PFB_MAP = {
 HYDRODATA = "/hydrodata"
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
 THREAD_LOCK = threading.Lock()
+
+
+def maintenance_guard(func):
+    """Decorator to raise special MaintenanceError during maintenance window."""
+
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            if _is_maintenance_window():
+                raise MaintenanceError(
+                    "The system is under scheduled monthly maintenance. Please try again after 2pm EST."
+                ) from e
+            else:
+                raise
+
+    return wrapper
 
 
 def get_file_paths(entry, *args, **kwargs) -> List[str]:
@@ -366,6 +383,7 @@ def get_numpy(*args, **kwargs):
     )
 
 
+@maintenance_guard
 def get_gridded_files(
     options: dict,
     filename_template: str = None,
@@ -1030,6 +1048,7 @@ def _write_file_from_api(filepath, options):
         output_file.write(file_obj.read())
 
 
+@maintenance_guard
 def get_raw_file(filepath, *args, **kwargs):
     """Get the hydroframe file that is selected by the options to the given filepath.
 
@@ -1120,6 +1139,7 @@ def get_date_range(*args, **kwargs) -> Tuple[datetime.datetime, datetime.datetim
     return result
 
 
+@maintenance_guard
 def get_gridded_data(*args, **kwargs) -> np.ndarray:
     """
     Get a numpy ndarray from files in /hydroframe. with the applied data filters.
@@ -1383,6 +1403,7 @@ def get_huc_from_xy(grid: str, level: int, x: int, y: int) -> str:
     return huc_id
 
 
+@maintenance_guard
 def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
     """
     Get the grid bounding box containing all the HUC ids.
@@ -2758,3 +2779,21 @@ class _FileDownloadState:
             for _ in range(0, 1):
                 self.time_coords.append(t)
                 t = t + relativedelta(months=1)
+
+
+class MaintenanceError(Exception):
+    """Raised when the system is under scheduled maintenance."""
+
+
+def _is_maintenance_window(now=None):
+    """
+    Returns True if the current time is between 6am and 2pm on the second Tuesday of the month.
+    The second Tuesday is any Tuesday with a day between 8 and 14 (inclusive).
+    """
+    if now is None:
+        now = datetime.datetime.now()
+    # Check if day is between 8 and 14 and weekday is Tuesday (0=Monday, 1=Tuesday)
+    if 8 <= now.day <= 14 and now.weekday() == 1:
+        if 6 <= now.hour < 14:
+            return True
+    return False
