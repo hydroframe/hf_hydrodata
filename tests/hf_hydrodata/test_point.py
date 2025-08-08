@@ -11,6 +11,7 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 
 from hf_hydrodata import point
+from hf_hydrodata.data_catalog import MaintenanceError
 
 REMOTE_TEST_DATA_DIR = "/hydrodata/national_obs/tools/test_data"
 LOCAL_TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
@@ -1870,6 +1871,48 @@ def test_depth_level_provided_not_sm():
         str(exc.value)
         == "Parameter depth_level is only supported when variable=='soil_moisture'."
     )
+
+
+def test_maintenance_error_point_fail(monkeypatch):
+    """
+    Test MaintenanceError is raised when get_point_data raises an Error
+    during the maintenance window.
+    """
+    # Artifically set the maintenance window to always be True
+    monkeypatch.setattr(
+        "hf_hydrodata.data_catalog._is_maintenance_window", lambda: True
+    )
+
+    with pytest.raises(MaintenanceError):
+        point.get_point_data(
+            dataset="dummy",
+            variable="dummy",
+            temporal_resolution="daily",
+            aggregation="dummy",
+        )
+
+
+def test_maintenance_error_point_pass(monkeypatch):
+    """
+    Test MaintenanceError is not raised when get_point_data does
+    not raise an Error, even if it's during the maintenance window.
+    """
+    # Artifically set the maintenance window to always be True
+    monkeypatch.setattr(
+        "hf_hydrodata.data_catalog._is_maintenance_window", lambda: True
+    )
+
+    df = point.get_point_data(
+        dataset="usgs_nwis",
+        variable="streamflow",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        latitude_range=(47, 50),
+        longitude_range=(-75, -50),
+    )
+    assert len(df) == 5
 
 
 if __name__ == "__main__":

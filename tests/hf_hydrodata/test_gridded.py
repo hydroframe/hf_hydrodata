@@ -2166,6 +2166,7 @@ def test_huc_box_dataset_version():
     bbox = hf.get_huc_bbox("conus2", ["15020018"])
     assert bbox == [928, 1330, 1061, 1422]
 
+
 def test_latest_huc_version():
     """Test that getting huc_mapping without dataset_version returns the default blank dataset version."""
 
@@ -2177,3 +2178,46 @@ def test_latest_huc_version():
         level=4,
     )
     assert entry["dataset_version"] == "2025_07"
+
+
+def test_maintenance_error_fail(monkeypatch):
+    """
+    Test MaintenanceError is raised when get_gridded_data raises an Error
+    during the maintenance window.
+    """
+    # Artifically set the maintenance window to always be True
+    monkeypatch.setattr(
+        "hf_hydrodata.data_catalog._is_maintenance_window", lambda: True
+    )
+
+    with pytest.raises(hf.data_catalog.MaintenanceError):
+        gr.get_gridded_data(
+            dataset="dummy", variable="dummy", temporal_resolution="daily"
+        )
+
+
+def test_maintenance_error_pass(monkeypatch):
+    """
+    Test MaintenanceError is not raised when get_gridded_data does
+    not raise an Error, even if it's during the maintenance window.
+    """
+    # Artifically set the maintenance window to always be True
+    monkeypatch.setattr(
+        "hf_hydrodata.data_catalog._is_maintenance_window", lambda: True
+    )
+
+    gr.HYDRODATA = "/hydrodata"
+
+    start_time = datetime.datetime.strptime("2005-09-01", "%Y-%m-%d")
+    end_time = start_time + datetime.timedelta(hours=48)
+    data = gr.get_gridded_data(
+        dataset="NLDAS2",
+        file_type="pfb",
+        period="hourly",
+        variable="precipitation",
+        start_time=start_time,
+        end_time=end_time,
+        grid="conus1",
+        grid_bounds=[1000, 1000, 1005, 1005],
+    )
+    assert data.shape[0] == 48
