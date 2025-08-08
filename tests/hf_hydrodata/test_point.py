@@ -11,7 +11,7 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 
 from hf_hydrodata import point
-from hf_hydrodata.gridded import MaintenanceError
+from hf_hydrodata.data_catalog import MaintenanceError
 
 REMOTE_TEST_DATA_DIR = "/hydrodata/national_obs/tools/test_data"
 LOCAL_TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
@@ -1879,7 +1879,9 @@ def test_maintenance_error_point_fail(monkeypatch):
     during the maintenance window.
     """
     # Artifically set the maintenance window to always be True
-    monkeypatch.setattr("hf_hydrodata.gridded._is_maintenance_window", lambda: True)
+    monkeypatch.setattr(
+        "hf_hydrodata.data_catalog._is_maintenance_window", lambda: True
+    )
 
     with pytest.raises(MaintenanceError):
         point.get_point_data(
@@ -1896,7 +1898,9 @@ def test_maintenance_error_point_pass(monkeypatch):
     not raise an Error, even if it's during the maintenance window.
     """
     # Artifically set the maintenance window to always be True
-    monkeypatch.setattr("hf_hydrodata.gridded._is_maintenance_window", lambda: True)
+    monkeypatch.setattr(
+        "hf_hydrodata.data_catalog._is_maintenance_window", lambda: True
+    )
 
     df = point.get_point_data(
         dataset="usgs_nwis",

@@ -2186,9 +2186,11 @@ def test_maintenance_error_fail(monkeypatch):
     during the maintenance window.
     """
     # Artifically set the maintenance window to always be True
-    monkeypatch.setattr("hf_hydrodata.gridded._is_maintenance_window", lambda: True)
+    monkeypatch.setattr(
+        "hf_hydrodata.data_catalog._is_maintenance_window", lambda: True
+    )
 
-    with pytest.raises(gr.MaintenanceError):
+    with pytest.raises(hf.data_catalog.MaintenanceError):
         gr.get_gridded_data(
             dataset="dummy", variable="dummy", temporal_resolution="daily"
         )
@@ -2200,7 +2202,9 @@ def test_maintenance_error_pass(monkeypatch):
     not raise an Error, even if it's during the maintenance window.
     """
     # Artifically set the maintenance window to always be True
-    monkeypatch.setattr("hf_hydrodata.gridded._is_maintenance_window", lambda: True)
+    monkeypatch.setattr(
+        "hf_hydrodata.data_catalog._is_maintenance_window", lambda: True
+    )
 
     gr.HYDRODATA = "/hydrodata"
 

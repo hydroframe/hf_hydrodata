@@ -21,9 +21,8 @@ from shapely.ops import transform
 from hf_hydrodata.gridded import (
     get_huc_bbox,
     get_gridded_data,
-    maintenance_guard,
 )
-from hf_hydrodata.data_catalog import get_catalog_entry
+from hf_hydrodata.data_catalog import get_catalog_entry, maintenance_guard
 
 
 HYDRODATA = "/hydrodata"

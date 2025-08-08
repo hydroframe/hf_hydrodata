@@ -30,6 +30,7 @@ from hf_hydrodata.data_model_access import (
     load_data_model,
 )
 from hf_hydrodata.grid import to_ij
+from hf_hydrodata.data_catalog import maintenance_guard
 import hf_hydrodata.data_catalog as dc
 
 C_PFB_MAP = {
@@ -53,23 +54,6 @@ C_PFB_MAP = {
 HYDRODATA = "/hydrodata"
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
 THREAD_LOCK = threading.Lock()
-
-
-def maintenance_guard(func):
-    """Decorator to raise special MaintenanceError during maintenance window."""
-
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception as e:
-            if _is_maintenance_window():
-                raise MaintenanceError(
-                    "The system is under scheduled monthly maintenance. Please try again after 2pm EST."
-                ) from e
-            else:
-                raise
-
-    return wrapper
 
 
 def get_file_paths(entry, *args, **kwargs) -> List[str]:
@@ -2779,21 +2763,3 @@ class _FileDownloadState:
             for _ in range(0, 1):
                 self.time_coords.append(t)
                 t = t + relativedelta(months=1)
-
-
-class MaintenanceError(Exception):
-    """Raised when the system is under scheduled maintenance."""
-
-
-def _is_maintenance_window(now=None):
-    """
-    Returns True if the current time is between 6am and 2pm on the second Tuesday of the month.
-    The second Tuesday is any Tuesday with a day between 8 and 14 (inclusive).
-    """
-    if now is None:
-        now = datetime.datetime.now()
-    # Check if day is between 8 and 14 and weekday is Tuesday (0=Monday, 1=Tuesday)
-    if 8 <= now.day <= 14 and now.weekday() == 1:
-        if 6 <= now.hour < 14:
-            return True
-    return False
