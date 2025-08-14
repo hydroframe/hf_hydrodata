@@ -11,7 +11,7 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 
 from hf_hydrodata import point
-from hf_hydrodata.data_catalog import MaintenanceError
+from hf_hydrodata.data_catalog import _MaintenanceError
 
 REMOTE_TEST_DATA_DIR = "/hydrodata/national_obs/tools/test_data"
 LOCAL_TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
@@ -1883,7 +1883,7 @@ def test_maintenance_error_point_fail(monkeypatch):
         "hf_hydrodata.data_catalog._is_maintenance_window", lambda: True
     )
 
-    with pytest.raises(MaintenanceError):
+    with pytest.raises(_MaintenanceError):
         point.get_point_data(
             dataset="dummy",
             variable="dummy",

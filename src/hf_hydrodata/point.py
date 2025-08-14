@@ -22,7 +22,7 @@ from hf_hydrodata.gridded import (
     get_huc_bbox,
     get_gridded_data,
 )
-from hf_hydrodata.data_catalog import get_catalog_entry, maintenance_guard
+from hf_hydrodata.data_catalog import get_catalog_entry, _maintenance_guard
 
 
 HYDRODATA = "/hydrodata"
@@ -64,7 +64,7 @@ SITE_ATTRIBUTE_TABLES = [
 DEPTH_LEVELS = [2, 4, 8, 20, 40]
 
 
-@maintenance_guard
+@_maintenance_guard
 def get_point_data(*args, **kwargs):
     """
     Collect point observations data into a Pandas DataFrame.
@@ -273,7 +273,7 @@ def get_point_data(*args, **kwargs):
     return data_df.reset_index().drop("index", axis=1)
 
 
-@maintenance_guard
+@_maintenance_guard
 def get_point_metadata(*args, **kwargs):
     """
     Return DataFrame with site metadata for the filtered sites.
@@ -541,7 +541,7 @@ def get_point_metadata(*args, **kwargs):
     return metadata_df
 
 
-@maintenance_guard
+@_maintenance_guard
 def get_site_variables(*args, **kwargs):
     """
     Return DataFrame with available sites, variables, and the period of record.

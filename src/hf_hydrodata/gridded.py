@@ -30,7 +30,7 @@ from hf_hydrodata.data_model_access import (
     load_data_model,
 )
 from hf_hydrodata.grid import to_ij
-from hf_hydrodata.data_catalog import maintenance_guard
+from hf_hydrodata.data_catalog import _maintenance_guard
 import hf_hydrodata.data_catalog as dc
 
 C_PFB_MAP = {
@@ -367,7 +367,7 @@ def get_numpy(*args, **kwargs):
     )
 
 
-@maintenance_guard
+@_maintenance_guard
 def get_gridded_files(
     options: dict,
     filename_template: str = None,
@@ -1032,7 +1032,7 @@ def _write_file_from_api(filepath, options):
         output_file.write(file_obj.read())
 
 
-@maintenance_guard
+@_maintenance_guard
 def get_raw_file(filepath, *args, **kwargs):
     """Get the hydroframe file that is selected by the options to the given filepath.
 
@@ -1123,7 +1123,7 @@ def get_date_range(*args, **kwargs) -> Tuple[datetime.datetime, datetime.datetim
     return result
 
 
-@maintenance_guard
+@_maintenance_guard
 def get_gridded_data(*args, **kwargs) -> np.ndarray:
     """
     Get a numpy ndarray from files in /hydroframe. with the applied data filters.
@@ -1387,7 +1387,7 @@ def get_huc_from_xy(grid: str, level: int, x: int, y: int) -> str:
     return huc_id
 
 
-@maintenance_guard
+@_maintenance_guard
 def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
     """
     Get the grid bounding box containing all the HUC ids.
