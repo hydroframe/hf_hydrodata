@@ -2190,7 +2190,7 @@ def test_maintenance_error_fail(monkeypatch):
         "hf_hydrodata.data_catalog._is_maintenance_window", lambda: True
     )
 
-    with pytest.raises(hf.data_catalog.MaintenanceError):
+    with pytest.raises(hf.data_catalog._MaintenanceError):
         gr.get_gridded_data(
             dataset="dummy", variable="dummy", temporal_resolution="daily"
         )

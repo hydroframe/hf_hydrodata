@@ -9,6 +9,7 @@ import datetime
 from typing import List
 import threading
 import requests
+import functools
 from hf_hydrodata.data_model_access import ModelTableRow, load_data_model
 
 HYDRODATA = "/hydrodata"
@@ -19,15 +20,16 @@ THREAD_LOCK = threading.Lock()
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
 
 
-def maintenance_guard(func):
+def _maintenance_guard(func):
     """Decorator to raise special MaintenanceError during maintenance window."""
 
+    @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except Exception as e:
             if _is_maintenance_window():
-                raise MaintenanceError(
+                raise _MaintenanceError(
                     "The system is under scheduled monthly maintenance. Please try again after 2pm EST."
                 ) from e
             else:
@@ -115,6 +117,7 @@ def get_citations(*args, **kwargs) -> str:
     return result
 
 
+@_maintenance_guard
 def register_api_pin(email: str, pin: str):
     """
     Register the email and pin that was created with the website in the users home directory.
@@ -261,7 +264,7 @@ def get_variables(*args, **kwargs) -> List[str]:
     return result
 
 
-@maintenance_guard
+@_maintenance_guard
 def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
     """
     Get data catalog entry rows selected by filter options.
@@ -357,7 +360,7 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
     return result
 
 
-@maintenance_guard
+@_maintenance_guard
 def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
     """
     Get a single data catalog entry row selected by filter options.
@@ -740,7 +743,7 @@ def _get_point_citations(dataset):
     return c
 
 
-class MaintenanceError(Exception):
+class _MaintenanceError(Exception):
     """Raised when the system is under scheduled maintenance."""
 
 
