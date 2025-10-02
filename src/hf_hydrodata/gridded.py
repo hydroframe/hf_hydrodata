@@ -945,7 +945,7 @@ def _execute_dask_items(dask_items, state, file_name: str):
             file_name_dir = os.path.dirname(file_name)
             if file_name_dir and not os.path.exists(file_name_dir):
                 os.makedirs(file_name_dir, exist_ok=True)
-            ds.to_netcdf(file_name, encoding=enc)
+            ds.to_netcdf(file_name, encoding=enc, engine="netcdf4")
 
 
 def _consolate_dask_items(items):
