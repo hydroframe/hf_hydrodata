@@ -619,6 +619,50 @@ def get_gridded_files(
             duration = round(duration / 60)
             print(f"Created all files in {duration} minutes.")
 
+def read_fast_pfb(pfb_files: List[str], pfb_constraints: dict = None):
+    """
+    Fast pfb reader function.
+
+    Read a list of PFB files and subset all the files with the optional constraints.
+    This runs much faster than parflow.read_pfb() since it loads multiple files in parallel
+    and uses fewer io operations by reading fewer subgrid headers. It is especially faster
+    for reading many files with small subgrid constraints.
+
+    Parameters:
+        pfb_files:      A list of pfb files to be read or a single pfb file name.
+        pfb_constaints: A constraint that filters the read of the pfb files by the x, y, z dimensions of the files.
+
+    If pfb_constraints is None then reads the entire contents of all pfb_files.
+    If the z part of the constraint is missing or the start and stop are both 0 then returns all pfb file z values.
+
+    The pfb_constraints may be a dict with keys: x, y, z with values a dict of start, stop.
+
+    The pfb_constraints may be a list of 4 ints of x, y bounds as [minx, miny, maxx, maxy].
+
+    The pfb_constraints may be a list of 2 lists of bounds as : [[minx, miny], [maxx, maxy]].
+
+    Returns:
+        A numpy array of dimemensions (n, z, y, x) where n is number of files.
+    Throws:
+        ValueError:  If the pfb_files parameters is missing or empty, or the the returned numpy array is too big.
+
+    The returned numpy array is too big if it contains more then 347115648 cells (24 days of conus2 3D array).
+
+    For example,
+
+    .. code-block:: python
+
+        constraint = {"x":{"start": 10, "stop": 50}, "y": {"start": 20, "stop", 50}, "z": {"start": 0, "stop": 0}}
+        data = read_files(["a.pfb", "b.pfb"], constraint)
+
+        constraint = [10, 20, 50, 50]
+        data = read_files(["a.pfb", "b.pfb"], constraint)
+
+    If the pfb files have dimensions (25, 3247, 4222) then the return numpy array is (2, 25, 30, 40).
+
+    """
+    
+    return hf_hydrodata.fast_pfb_reader.read_files(pfb_files, pfb_constraints)
 
 def _get_temporal_resolution_from_catalog(options):
     """Get the temporal resolution from the data catalog when it is not passed as input option."""
