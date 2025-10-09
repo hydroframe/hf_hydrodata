@@ -1142,9 +1142,14 @@ def test_get_huc_bbox_conus1():
     bbox = hf.get_huc_bbox("conus1", ["1019000404"])
     assert bbox == [1076, 720, 1124, 739]
 
+    bbox = hf.get_huc_bbox("conus1", "1019000404")
+    assert bbox == [1076, 720, 1124, 739]
+
     bbox = hf.get_huc_bbox("conus1", ["1102001002", "1102001003"])
     assert bbox == [1088, 415, 1132, 453]
 
+    bbox = hf.get_huc_bbox("conus1", "1102001002,  1102001003")
+    assert bbox == [1088, 415, 1132, 453]
 
 def test_getndarray_site_id():
     """Test for a bug using get_gridded_data and site_id variable."""

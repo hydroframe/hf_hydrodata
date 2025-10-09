@@ -12,6 +12,7 @@ import pytest
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 import hf_hydrodata.fast_pfb_reader
+import hf_hydrodata as hf
 
 
 def test_reading_multiple_files():
@@ -161,3 +162,16 @@ def test_full_3d_conus2():
     assert fast_data.shape == (1, 17, 3256, 4442)
     assert pfb_seq_data.shape == (1, 17, 3256, 4442)
     assert fast_total == pfb_seq_total
+
+def test_public_function():
+    """Test the externally visible fast_pfb_read_function."""
+
+    if not os.path.exists("/hydrodata"):
+        # Just skip test if this is run on a machine without /hydrodata access
+        return
+
+    path = "/hydrodata/forcing/processed_data/CONUS2/CW3E_v1.0/hourly/WY1998/CW3E.Temp.000001_to_000024.pfb"
+    constraints = {"x":{"start": 10, "stop": 15}, "y": {"start": 20, "stop": 30}}
+    data = hf.fast_read_pfb(path, constraints)
+
+    

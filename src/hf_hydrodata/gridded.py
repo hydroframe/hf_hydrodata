@@ -1395,7 +1395,7 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
     Args:
         grid:           A grid id from the data catalog (e.g. conus1 or conus2)
 
-        huc_id_list:    A list of HUC id strings of HUCs in the grid.
+        huc_id_list:    A list of HUC id strings of HUCs in the grid (or comma seperated list of HUC id).
     Returns:
         A bounding box in grid coordinates as a list of int (i_min, j_min, i_max, j_max)
 
@@ -1417,7 +1417,9 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
     """
     # Make sure all HUC ids in the list are the same length
     level = None
+    huc_id_list = huc_id_list.split(",") if isinstance(huc_id_list, str) else huc_id_list
     for huc_id in huc_id_list:
+        huc_id = huc_id.strip()
         if level is None:
             level = len(huc_id)
         elif len(huc_id) != level:

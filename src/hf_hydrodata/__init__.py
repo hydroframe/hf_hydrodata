@@ -45,3 +45,5 @@ from hf_hydrodata.data_model_access import (
     DataModel,
     load_data_model,
 )
+
+from hf_hydrodata.fast_pfb_reader import fast_read_pfb
