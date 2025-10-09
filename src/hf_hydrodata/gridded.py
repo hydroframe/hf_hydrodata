@@ -619,6 +619,7 @@ def get_gridded_files(
             duration = round(duration / 60)
             print(f"Created all files in {duration} minutes.")
 
+
 def read_fast_pfb(pfb_files: List[str], pfb_constraints: dict = None):
     """
     Fast pfb reader function.
@@ -667,17 +668,28 @@ def read_fast_pfb(pfb_files: List[str], pfb_constraints: dict = None):
     elif isinstance(pfb_constraints, list):
         if len(pfb_constraints) == 4:
             (minx, miny, maxx, maxy) = pfb_constraints
-            constraints = {"x":{"start": minx, "stop": maxx}, "y": {"start": miny, "stop":maxy}, "z": {"start": 0, "stop": 0}}
+            constraints = {
+                "x": {"start": minx, "stop": maxx},
+                "y": {"start": miny, "stop": maxy},
+                "z": {"start": 0, "stop": 0},
+            }
         elif len(pfb_constraints) == 2:
             (low, high) = pfb_constraints
             (minx, miny) = low
             (maxx, maxy) = high
-            constraints = {"x":{"start": minx, "stop": maxx}, "y": {"start": miny, "stop":maxy}, "z": {"start": 0, "stop": 0}}
+            constraints = {
+                "x": {"start": minx, "stop": maxx},
+                "y": {"start": miny, "stop": maxy},
+                "z": {"start": 0, "stop": 0},
+            }
         else:
-            raise ValueError("A pfb constraints array must be [minx,miny,maxx,maxy] or [[minx,miny], [maxx,maxy]]")
+            raise ValueError(
+                "A pfb constraints array must be [minx,miny,maxx,maxy] or [[minx,miny], [maxx,maxy]]"
+            )
     else:
         raise ValueError("A pfb constraint must be either a dict or an list")
     return hf_hydrodata.fast_pfb_reader.read_files(pfb_files, constraints)
+
 
 def _get_temporal_resolution_from_catalog(options):
     """Get the temporal resolution from the data catalog when it is not passed as input option."""
@@ -1349,7 +1361,7 @@ def _apply_mask(data, entry, options):
     huc_id = options.get("huc_id")
     if huc_id:
         # Only mask using HUC masks if the query gives us list of huc_id
-        huc_ids = huc_id.split(",")
+        huc_ids = huc_id.split(",") if isinstance(huc_id, str) else huc_id
         bbox = get_huc_bbox(grid, huc_ids)
         level = len(huc_ids[0])
         mask = get_gridded_data(
@@ -1476,7 +1488,9 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
     """
     # Make sure all HUC ids in the list are the same length
     level = None
-    huc_id_list = huc_id_list.split(",") if isinstance(huc_id_list, str) else huc_id_list
+    huc_id_list = (
+        huc_id_list.split(",") if isinstance(huc_id_list, str) else huc_id_list
+    )
     for huc_id in huc_id_list:
         huc_id = huc_id.strip()
         if level is None:
@@ -2767,7 +2781,7 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
     if grid_bounds and huc_id:
         raise ValueError("Cannot specify both grid_bounds, latlon_bounds and huc_id")
     if huc_id:
-        huc_id_list = huc_id.split(",")
+        huc_id_list = huc_id.split(",") if isinstance(huc_id, str) else huc_id
         grid_bounds = get_huc_bbox(grid, huc_id_list)
     return grid_bounds
 
