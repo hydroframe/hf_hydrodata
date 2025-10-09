@@ -30,6 +30,7 @@ from hf_hydrodata.gridded import (
     get_huc_bbox,
     get_path,
     get_paths,
+    read_fast_pfb,
 )
 
 from hf_hydrodata.point import (

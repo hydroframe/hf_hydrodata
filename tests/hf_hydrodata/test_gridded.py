@@ -2237,6 +2237,17 @@ def test_read_fast_pfb():
     path = "/hydrodata/forcing/processed_data/CONUS2/CW3E_v1.0/hourly/WY1998/CW3E.Temp.000001_to_000024.pfb"
     constraints = {"x":{"start": 10, "stop": 15}, "y": {"start": 20, "stop": 30}}
     data = hf.read_fast_pfb(path, constraints)
+    assert data.shape == (1, 24, 10, 5)
+
 
     constraints = [10, 20, 15, 30]
     data = hf.read_fast_pfb(path, constraints)
+    assert data.shape == (1, 24, 10, 5)
+
+    constraints = [[10, 20], [15, 30]]
+    data = hf.read_fast_pfb(path, constraints)
+    assert data.shape == (1, 24, 10, 5)
+
+    with pytest.raises(ValueError):
+        constraints = [10, 20, 15]
+        data = hf.read_fast_pfb(path, constraints)

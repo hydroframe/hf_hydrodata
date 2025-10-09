@@ -661,8 +661,23 @@ def read_fast_pfb(pfb_files: List[str], pfb_constraints: dict = None):
     If the pfb files have dimensions (25, 3247, 4222) then the return numpy array is (2, 25, 30, 40).
 
     """
-    
-    return hf_hydrodata.fast_pfb_reader.read_files(pfb_files, pfb_constraints)
+    constraints = None
+    if isinstance(pfb_constraints, dict):
+        constraints = pfb_constraints
+    elif isinstance(pfb_constraints, list):
+        if len(pfb_constraints) == 4:
+            (minx, miny, maxx, maxy) = pfb_constraints
+            constraints = {"x":{"start": minx, "stop": maxx}, "y": {"start": miny, "stop":maxy}, "z": {"start": 0, "stop": 0}}
+        elif len(pfb_constraints) == 2:
+            (low, high) = pfb_constraints
+            (minx, miny) = low
+            (maxx, maxy) = high
+            constraints = {"x":{"start": minx, "stop": maxx}, "y": {"start": miny, "stop":maxy}, "z": {"start": 0, "stop": 0}}
+        else:
+            raise ValueError("A pfb constraints array must be [minx,miny,maxx,maxy] or [[minx,miny], [maxx,maxy]]")
+    else:
+        raise ValueError("A pfb constraint must be either a dict or an list")
+    return hf_hydrodata.fast_pfb_reader.read_files(pfb_files, constraints)
 
 def _get_temporal_resolution_from_catalog(options):
     """Get the temporal resolution from the data catalog when it is not passed as input option."""
