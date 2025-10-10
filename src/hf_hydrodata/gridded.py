@@ -647,7 +647,8 @@ def read_fast_pfb(pfb_files: List[str], pfb_constraints: dict = None):
     Throws:
         ValueError:  If the pfb_files parameters is missing or empty, or the the returned numpy array is too big.
 
-    The returned numpy array is too big if it contains more then 347115648 cells (24 days of conus2 3D array).
+    The returned numpy array is too big if it contains more then 347115648 cells. This limit is 24 days of conus2 3D array.
+    However, it is not a problem to return multiple years in hours for a small subgrid in one call.
 
     For example,
 
