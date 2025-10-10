@@ -654,6 +654,9 @@ def read_fast_pfb(pfb_files: List[str], pfb_constraints: dict = None):
 
     .. code-block:: python
 
+        constraint = [10, 20, 50, 50]
+        data = read_files("a.pfb", constraint)
+
         constraint = {"x":{"start": 10, "stop": 50}, "y": {"start": 20, "stop", 50}, "z": {"start": 0, "stop": 0}}
         data = read_files(["a.pfb", "b.pfb"], constraint)
 
