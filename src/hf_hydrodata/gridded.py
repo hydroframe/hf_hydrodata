@@ -114,8 +114,8 @@ def get_file_paths(entry, *args, **kwargs) -> List[str]:
         raise ValueError("No data catalog entry provided")
 
     # Get option parameters
-    start_time_value = _parse_time(options.get("start_time"))
-    end_time_value = _parse_time(options.get("end_time"))
+    start_time_value = _parse_time(_get_date_start(options))
+    end_time_value = _parse_time(_get_date_end(options))
 
     # Populate result path names with path names for each time value in time period
     if period in ["daily"] and start_time_value:
@@ -249,8 +249,8 @@ def get_paths(*args, **kwargs) -> List[str]:
 
     if path:
         # Get option parameters
-        start_time_value = _parse_time(options.get("start_time"))
-        end_time_value = _parse_time(options.get("end_time"))
+        start_time_value = _parse_time(_get_date_start(options))
+        end_time_value = _parse_time(_get_date_end(options))
 
         # Populate result path names with path names for each time value in time period
         if period in ["daily"] and start_time_value:
@@ -513,8 +513,8 @@ def get_gridded_files(
         )
     if not options.get("dataset"):
         raise ValueError("The dataset is not specified")
-    start_time_option = options.get("start_time")
-    end_time_option = options.get("end_time")
+    start_time_option = _get_date_start(options)
+    end_time_option = _get_date_end(options)
     start_time = _parse_time(start_time_option)
     end_time = _parse_time(end_time_option)
     if not start_time:
@@ -657,6 +657,9 @@ def read_fast_pfb(pfb_files: List[str], pfb_constraints: dict = None):
         data = read_files(["a.pfb", "b.pfb"], constraint)
 
         constraint = [10, 20, 50, 50]
+        data = read_files(["a.pfb", "b.pfb"], constraint)
+
+        constraint = [[10, 20], [50, 50]]
         data = read_files(["a.pfb", "b.pfb"], constraint)
 
     If the pfb files have dimensions (25, 3247, 4222) then the return numpy array is (2, 25, 30, 40).
@@ -1543,7 +1546,7 @@ def _verify_time_in_range(entry: dict, options: dict):
     Raises:
         ValueError:  If the start time of the options request is not within the dataset allowed time range.
     """
-    start_time = options.get("start_time")
+    start_time = _get_date_start(options)
     temporal_resolution = entry.get("temporal_resolution")
     dataset_start_date = entry.get("dataset_start_date")
     dataset_end_date = entry.get("dataset_end_date")
@@ -1831,8 +1834,8 @@ def _read_and_filter_pfb_files(
     only populated the time values after filtering the data.
     """
 
-    start_time_value = _parse_time(options.get("start_time"))
-    end_time_value = _parse_time(options.get("end_time"))
+    start_time_value = _parse_time(_get_date_start(options))
+    end_time_value = _parse_time(_get_date_end(options))
 
     # Get paths by data_catalog_entry_id to eliminate unnecessary SQL DB reads
     path_options = dict(options)
@@ -1917,8 +1920,8 @@ def _read_and_filter_c_pfb_files(
     only populated the time values after filtering the data.
     """
 
-    start_time_value = _parse_time(options.get("start_time"))
-    end_time_value = _parse_time(options.get("end_time"))
+    start_time_value = _parse_time(_get_date_start(options))
+    end_time_value = _parse_time(_get_date_end(options))
     paths = get_paths(options)
     boundary_constraints = _get_pfb_boundary_constraints(entry.get("grid"), options)
     if boundary_constraints is None:
@@ -1963,7 +1966,7 @@ def _read_and_filter_pfmetadata_files(
     only populated the time values after filtering the data.
     """
 
-    start_time_value = _parse_time(options.get("start_time"))
+    start_time_value = _parse_time(_get_date_start(options))
     paths = get_paths(options)
 
     dataset_var = entry.get("dataset_var")
@@ -2604,8 +2607,8 @@ def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -
     da_indexers = {}
     grid = entry.get("grid")
     grid_bounds = _get_grid_bounds(grid, options)
-    start_time_value = _parse_time(options.get("start_time"))
-    end_time_value = _parse_time(options.get("end_time"))
+    start_time_value = _parse_time(_get_date_start(options))
+    end_time_value = _parse_time(_get_date_end(options))
     grid = entry.get("grid")
     period = (
         entry.get("temporal_resolution")
@@ -2784,6 +2787,38 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
         huc_id_list = huc_id.split(",") if isinstance(huc_id, str) else huc_id
         grid_bounds = get_huc_bbox(grid, huc_id_list)
     return grid_bounds
+
+def _get_date_start(options):
+    """
+    Get the data_start option from the options dict.
+    This gets either start_time or date_start to be backward compatible with old names.
+
+    Parameters:
+        options:    A dict containing parameters to get_gridded_data.
+
+    Returns:
+        The value of the options as either a string or a datetime object from the dict.
+    """
+    result = options.get("date_start", None)
+    result = options.get("start_date", None) if result is None else result
+    result = options.get("start_time", None) if result is None else result
+    return result;
+
+def _get_date_end(options):
+    """
+    Get the data_end option from the options dict.
+    This gets either end_time or date_end to be backward compatible with old names.
+
+    Parameters:
+        options:    A dict containing parameters to get_gridded_data.
+
+    Returns:
+        The value of the options as either a string or a datetime object from the dict.
+    """
+    result = options.get("date_end", None)
+    result = options.get("end_date", None) if result is None else result
+    result = options.get("end_time", None) if result is None else result
+    return result;
 
 
 class _FileDownloadState:

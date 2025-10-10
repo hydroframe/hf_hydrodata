@@ -2251,3 +2251,19 @@ def test_read_fast_pfb():
     with pytest.raises(ValueError):
         constraints = [10, 20, 15]
         data = hf.read_fast_pfb(path, constraints)
+
+def test_date_start():
+    """Test that the option date_start and date_end are also supported."""
+
+    options = {
+        "dataset": "CW3E",
+        "variable": "air_temp",
+        "temporal_resolution": "hourly",
+        "date_start": "2006-10-01",
+        "date_end": "2006-10-02",
+        "grid_bounds": [1000, 1000, 1001, 1001],
+    }
+
+    data = hf.get_gridded_data(options)
+    assert data.shape == (24, 1, 1)
+
