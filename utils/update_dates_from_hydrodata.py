@@ -253,7 +253,7 @@ def _update_cw3e_dates(connection):
                     # Look at all the file names in the folder to find latest date
                     data_files = sorted(glob(f"{wy_path}/CW3E.{dataset_var}.*"))
                     latest_file = data_files[-1]
-                    day_of_wy = latest_file.split(".")[-2]
+                    day_of_wy = str(int(latest_file.split(".")[-2]))
 
                     # Read in file for converting date to water year timestep
                     if calendar.isleap(wy):
