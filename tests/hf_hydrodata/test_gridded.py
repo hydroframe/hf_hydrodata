@@ -1142,9 +1142,14 @@ def test_get_huc_bbox_conus1():
     bbox = hf.get_huc_bbox("conus1", ["1019000404"])
     assert bbox == [1076, 720, 1124, 739]
 
+    bbox = hf.get_huc_bbox("conus1", "1019000404")
+    assert bbox == [1076, 720, 1124, 739]
+
     bbox = hf.get_huc_bbox("conus1", ["1102001002", "1102001003"])
     assert bbox == [1088, 415, 1132, 453]
 
+    bbox = hf.get_huc_bbox("conus1", "1102001002,  1102001003")
+    assert bbox == [1088, 415, 1132, 453]
 
 def test_getndarray_site_id():
     """Test for a bug using get_gridded_data and site_id variable."""
@@ -2221,3 +2226,44 @@ def test_maintenance_error_pass(monkeypatch):
         grid_bounds=[1000, 1000, 1005, 1005],
     )
     assert data.shape[0] == 48
+
+def test_read_fast_pfb():
+    """Test the externally visible read_fast_pfb function."""
+
+    if not os.path.exists("/hydrodata"):
+        # Just skip test if this is run on a machine without /hydrodata access
+        return
+
+    path = "/hydrodata/forcing/processed_data/CONUS2/CW3E_v1.0/hourly/WY1998/CW3E.Temp.000001_to_000024.pfb"
+    constraints = {"x":{"start": 10, "stop": 15}, "y": {"start": 20, "stop": 30}}
+    data = hf.read_fast_pfb(path, constraints)
+    assert data.shape == (1, 24, 10, 5)
+
+
+    constraints = [10, 20, 15, 30]
+    data = hf.read_fast_pfb(path, constraints)
+    assert data.shape == (1, 24, 10, 5)
+
+    constraints = [[10, 20], [15, 30]]
+    data = hf.read_fast_pfb(path, constraints)
+    assert data.shape == (1, 24, 10, 5)
+
+    with pytest.raises(ValueError):
+        constraints = [10, 20, 15]
+        data = hf.read_fast_pfb(path, constraints)
+
+def test_date_start():
+    """Test that the option date_start and date_end are also supported."""
+
+    options = {
+        "dataset": "CW3E",
+        "variable": "air_temp",
+        "temporal_resolution": "hourly",
+        "date_start": "2006-10-01",
+        "date_end": "2006-10-02",
+        "grid_bounds": [1000, 1000, 1001, 1001],
+    }
+
+    data = hf.get_gridded_data(options)
+    assert data.shape == (24, 1, 1)
+

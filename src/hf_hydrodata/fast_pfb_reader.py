@@ -29,7 +29,6 @@ INT_BYTES = 4
 FILE_HEADER_BYTES = 64
 SUBGRID_HEADER_BYTES = 36
 
-
 def read_files(pfb_files: List[str], pfb_constraints: dict = None):
     """
     Read and subset a list of pfb files.
@@ -49,7 +48,11 @@ def read_files(pfb_files: List[str], pfb_constraints: dict = None):
     The returned numpy array is too big if it contains more then 347115648 cells (24 days of conus2 3D array).
 
     For example,
+
+    .. code-block:: python
+
         data = read_files(["a.pfb", "b.pfb"] {"x":{"start": 10, "stop": 50}, "y": {"start": 20, "stop", "50"}, "z": {"start": 0, "stop": 0}})
+
     If the pfb files have dimensions (25, 3247, 4222) the return numpy array is (2, 25, 30, 40).
     """
 

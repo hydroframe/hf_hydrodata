@@ -114,8 +114,8 @@ def get_file_paths(entry, *args, **kwargs) -> List[str]:
         raise ValueError("No data catalog entry provided")
 
     # Get option parameters
-    start_time_value = _parse_time(options.get("start_time"))
-    end_time_value = _parse_time(options.get("end_time"))
+    start_time_value = _parse_time(_get_date_start(options))
+    end_time_value = _parse_time(_get_date_end(options))
 
     # Populate result path names with path names for each time value in time period
     if period in ["daily"] and start_time_value:
@@ -249,8 +249,8 @@ def get_paths(*args, **kwargs) -> List[str]:
 
     if path:
         # Get option parameters
-        start_time_value = _parse_time(options.get("start_time"))
-        end_time_value = _parse_time(options.get("end_time"))
+        start_time_value = _parse_time(_get_date_start(options))
+        end_time_value = _parse_time(_get_date_end(options))
 
         # Populate result path names with path names for each time value in time period
         if period in ["daily"] and start_time_value:
@@ -513,8 +513,8 @@ def get_gridded_files(
         )
     if not options.get("dataset"):
         raise ValueError("The dataset is not specified")
-    start_time_option = options.get("start_time")
-    end_time_option = options.get("end_time")
+    start_time_option = _get_date_start(options)
+    end_time_option = _get_date_end(options)
     start_time = _parse_time(start_time_option)
     end_time = _parse_time(end_time_option)
     if not start_time:
@@ -618,6 +618,84 @@ def get_gridded_files(
         else:
             duration = round(duration / 60)
             print(f"Created all files in {duration} minutes.")
+
+
+def read_fast_pfb(pfb_files: List[str], pfb_constraints: dict = None):
+    """
+    Fast pfb reader function.
+
+    Read a list of PFB files and subset all the files with the optional constraints.
+    This runs much faster than parflow.read_pfb() since it loads multiple files in parallel
+    and uses fewer io operations by reading fewer subgrid headers. It is especially faster
+    for reading many files with small subgrid constraints.
+
+    Parameters:
+        pfb_files:      A list of pfb files to be read or a single pfb file name.
+        pfb_constaints: A constraint that filters the read of the pfb files by the x, y, z dimensions of the files.
+
+    If pfb_constraints is None then reads the entire contents of all pfb_files.
+    If the z part of the constraint is missing or the start and stop are both 0 then returns all pfb file z values.
+
+    The pfb_constraints may be a dict with keys: x, y, z with values a dict of start, stop.
+
+    The pfb_constraints may be a list of 4 ints of x, y bounds as [minx, miny, maxx, maxy].
+
+    The pfb_constraints may be a list of 2 lists of bounds as : [[minx, miny], [maxx, maxy]].
+
+    Returns:
+        A numpy array of dimemensions (n, z, y, x) where n is number of files.
+    Throws:
+        ValueError:  If the pfb_files parameters is missing or empty, or the the returned numpy array is too big.
+
+    The returned numpy array is too big if it contains more then 347115648 cells. This limit is 24 days of conus2 3D array.
+    However, it is not a problem to return multiple years in hours for a small subgrid in one call.
+
+    For example,
+
+    .. code-block:: python
+
+        constraint = [10, 20, 50, 50]
+        data = read_fast_pfb("a.pfb", constraint)
+
+        constraint = {"x":{"start": 10, "stop": 50}, "y": {"start": 20, "stop", 50}, "z": {"start": 0, "stop": 0}}
+        data = read_fast_pfb(["a.pfb", "b.pfb"], constraint)
+
+        constraint = [10, 20, 50, 50]
+        data = read_fast_pfb(["a.pfb", "b.pfb"], constraint)
+
+        constraint = [[10, 20], [50, 50]]
+        data = read_fast_pfb(["a.pfb", "b.pfb"], constraint)
+
+    If the pfb files have dimensions (25, 3247, 4222) then the return numpy array is (2, 25, 30, 40).
+
+    """
+    constraints = None
+    if isinstance(pfb_constraints, dict):
+        constraints = pfb_constraints
+    elif isinstance(pfb_constraints, list):
+        if len(pfb_constraints) == 4:
+            (minx, miny, maxx, maxy) = pfb_constraints
+            constraints = {
+                "x": {"start": minx, "stop": maxx},
+                "y": {"start": miny, "stop": maxy},
+                "z": {"start": 0, "stop": 0},
+            }
+        elif len(pfb_constraints) == 2:
+            (low, high) = pfb_constraints
+            (minx, miny) = low
+            (maxx, maxy) = high
+            constraints = {
+                "x": {"start": minx, "stop": maxx},
+                "y": {"start": miny, "stop": maxy},
+                "z": {"start": 0, "stop": 0},
+            }
+        else:
+            raise ValueError(
+                "A pfb constraints array must be [minx,miny,maxx,maxy] or [[minx,miny], [maxx,maxy]]"
+            )
+    else:
+        raise ValueError("A pfb constraint must be either a dict or an list")
+    return hf_hydrodata.fast_pfb_reader.read_files(pfb_files, constraints)
 
 
 def _get_temporal_resolution_from_catalog(options):
@@ -1290,7 +1368,7 @@ def _apply_mask(data, entry, options):
     huc_id = options.get("huc_id")
     if huc_id:
         # Only mask using HUC masks if the query gives us list of huc_id
-        huc_ids = huc_id.split(",")
+        huc_ids = huc_id.split(",") if isinstance(huc_id, str) else huc_id
         bbox = get_huc_bbox(grid, huc_ids)
         level = len(huc_ids[0])
         mask = get_gridded_data(
@@ -1395,7 +1473,7 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
     Args:
         grid:           A grid id from the data catalog (e.g. conus1 or conus2)
 
-        huc_id_list:    A list of HUC id strings of HUCs in the grid.
+        huc_id_list:    A list of HUC id strings of HUCs in the grid (or comma seperated list of HUC id).
     Returns:
         A bounding box in grid coordinates as a list of int (i_min, j_min, i_max, j_max)
 
@@ -1417,7 +1495,11 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
     """
     # Make sure all HUC ids in the list are the same length
     level = None
+    huc_id_list = (
+        huc_id_list.split(",") if isinstance(huc_id_list, str) else huc_id_list
+    )
     for huc_id in huc_id_list:
+        huc_id = huc_id.strip()
         if level is None:
             level = len(huc_id)
         elif len(huc_id) != level:
@@ -1468,7 +1550,7 @@ def _verify_time_in_range(entry: dict, options: dict):
     Raises:
         ValueError:  If the start time of the options request is not within the dataset allowed time range.
     """
-    start_time = options.get("start_time")
+    start_time = _get_date_start(options)
     temporal_resolution = entry.get("temporal_resolution")
     dataset_start_date = entry.get("dataset_start_date")
     dataset_end_date = entry.get("dataset_end_date")
@@ -1756,8 +1838,8 @@ def _read_and_filter_pfb_files(
     only populated the time values after filtering the data.
     """
 
-    start_time_value = _parse_time(options.get("start_time"))
-    end_time_value = _parse_time(options.get("end_time"))
+    start_time_value = _parse_time(_get_date_start(options))
+    end_time_value = _parse_time(_get_date_end(options))
 
     # Get paths by data_catalog_entry_id to eliminate unnecessary SQL DB reads
     path_options = dict(options)
@@ -1842,8 +1924,8 @@ def _read_and_filter_c_pfb_files(
     only populated the time values after filtering the data.
     """
 
-    start_time_value = _parse_time(options.get("start_time"))
-    end_time_value = _parse_time(options.get("end_time"))
+    start_time_value = _parse_time(_get_date_start(options))
+    end_time_value = _parse_time(_get_date_end(options))
     paths = get_paths(options)
     boundary_constraints = _get_pfb_boundary_constraints(entry.get("grid"), options)
     if boundary_constraints is None:
@@ -1888,7 +1970,7 @@ def _read_and_filter_pfmetadata_files(
     only populated the time values after filtering the data.
     """
 
-    start_time_value = _parse_time(options.get("start_time"))
+    start_time_value = _parse_time(_get_date_start(options))
     paths = get_paths(options)
 
     dataset_var = entry.get("dataset_var")
@@ -2529,8 +2611,8 @@ def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -
     da_indexers = {}
     grid = entry.get("grid")
     grid_bounds = _get_grid_bounds(grid, options)
-    start_time_value = _parse_time(options.get("start_time"))
-    end_time_value = _parse_time(options.get("end_time"))
+    start_time_value = _parse_time(_get_date_start(options))
+    end_time_value = _parse_time(_get_date_end(options))
     grid = entry.get("grid")
     period = (
         entry.get("temporal_resolution")
@@ -2706,9 +2788,41 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
     if grid_bounds and huc_id:
         raise ValueError("Cannot specify both grid_bounds, latlon_bounds and huc_id")
     if huc_id:
-        huc_id_list = huc_id.split(",")
+        huc_id_list = huc_id.split(",") if isinstance(huc_id, str) else huc_id
         grid_bounds = get_huc_bbox(grid, huc_id_list)
     return grid_bounds
+
+def _get_date_start(options):
+    """
+    Get the data_start option from the options dict.
+    This gets either start_time or date_start to be backward compatible with old names.
+
+    Parameters:
+        options:    A dict containing parameters to get_gridded_data.
+
+    Returns:
+        The value of the options as either a string or a datetime object from the dict.
+    """
+    result = options.get("date_start", None)
+    result = options.get("start_date", None) if result is None else result
+    result = options.get("start_time", None) if result is None else result
+    return result;
+
+def _get_date_end(options):
+    """
+    Get the data_end option from the options dict.
+    This gets either end_time or date_end to be backward compatible with old names.
+
+    Parameters:
+        options:    A dict containing parameters to get_gridded_data.
+
+    Returns:
+        The value of the options as either a string or a datetime object from the dict.
+    """
+    result = options.get("date_end", None)
+    result = options.get("end_date", None) if result is None else result
+    result = options.get("end_time", None) if result is None else result
+    return result;
 
 
 class _FileDownloadState:

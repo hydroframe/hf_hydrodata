@@ -230,3 +230,18 @@ def test_get_citations_fail():
     with pytest.raises(Exception) as exc:
         hf.get_citations("usgs")
     assert str(exc.value) == "No such dataset 'usgs'"
+
+
+def test_conus2_domain_meters():
+    """Test that the conus2_domain ss_pressure_head entry has the units 'm'."""
+
+    entry = hf.get_catalog_entry(dataset="conus2_domain", variable="ss_pressure_head")
+    assert entry.get("units") == "m"
+
+
+def test_current_conditions_aggregation():
+    """Test that the current_conditions entries all have aggregation - and not static"""
+
+    for dataset in ["conus1_current_conditions", "conus2_current_conditions"]:
+        entry = hf.get_catalog_entry(dataset=dataset, variable="lat_lon")
+        assert entry.get("aggregation") == "-"
