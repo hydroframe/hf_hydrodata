@@ -238,7 +238,7 @@ def test_conus2_domain_meters():
     entry = hf.get_catalog_entry(dataset="conus2_domain", variable="ss_pressure_head")
     assert entry.get("units") == "m"
 
-
+@pytest.mark.private_dataset
 def test_current_conditions_aggregation():
     """Test that the current_conditions entries all have aggregation - and not static"""
 
