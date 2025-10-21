@@ -242,47 +242,47 @@ def _update_cw3e_dates(connection):
                         dataset_var = dataset_var.split("_")[0]
                     path = "/".join(path.split("/")[:-1])
 
-                while True:
-                    # Find the latest files in the water year folder
-                    wy_path = path.replace("{wy}", f"{wy}")
+                    while True:
+                        # Find the latest files in the water year folder
+                        wy_path = path.replace("{wy}", f"{wy}")
 
-                    if not os.path.exists(wy_path):
-                        # If no water year folder exists then we already found the latest date
-                        break
+                        if not os.path.exists(wy_path):
+                            # If no water year folder exists then we already found the latest date
+                            break
 
-                    # Look at all the file names in the folder to find latest date
-                    data_files = sorted(glob(f"{wy_path}/CW3E.{dataset_var}.*"))
-                    latest_file = data_files[-1]
-                    day_of_wy = str(int(latest_file.split(".")[-2]))
+                        # Look at all the file names in the folder to find latest date
+                        data_files = sorted(glob(f"{wy_path}/CW3E.{dataset_var}.*"))
+                        latest_file = data_files[-1]
+                        day_of_wy = str(int(latest_file.split(".")[-2]))
 
-                    # Read in file for converting date to water year timestep
-                    if calendar.isleap(wy):
-                        date_xwalk = pd.read_csv(
-                            "/hydrodata/forcing/raw_data/CW3E/reference/to_water_year_leap_year.csv",
-                            dtype=str,
-                        )
-                    else:
-                        date_xwalk = pd.read_csv(
-                            "/hydrodata/forcing/raw_data/CW3E/reference/to_water_year.csv",
-                            dtype=str,
-                        )
-                    xwalk_row = date_xwalk.loc[
-                        date_xwalk["day_of_water_year"] == day_of_wy
-                    ]
-                    latest_date = xwalk_row["date"].iloc[0]
+                        # Read in file for converting date to water year timestep
+                        if calendar.isleap(wy):
+                            date_xwalk = pd.read_csv(
+                                "/hydrodata/forcing/raw_data/CW3E/reference/to_water_year_leap_year.csv",
+                                dtype=str,
+                            )
+                        else:
+                            date_xwalk = pd.read_csv(
+                                "/hydrodata/forcing/raw_data/CW3E/reference/to_water_year.csv",
+                                dtype=str,
+                            )
+                        xwalk_row = date_xwalk.loc[
+                            date_xwalk["day_of_water_year"] == day_of_wy
+                        ]
+                        latest_date = xwalk_row["date"].iloc[0]
 
-                    latest_day = int(latest_date[2:])
-                    latest_month = int(latest_date[:2])
+                        latest_day = int(latest_date[2:])
+                        latest_month = int(latest_date[:2])
 
-                    if xwalk_row["water_year"].iloc[0] == "same":
-                        latest_year = wy
-                    else:
-                        latest_year = wy - 1
+                        if xwalk_row["water_year"].iloc[0] == "same":
+                            latest_year = wy
+                        else:
+                            latest_year = wy - 1
 
-                    dt = datetime.datetime(latest_year, latest_month, latest_day)
-                    end_date = max(end_date, dt)
+                        dt = datetime.datetime(latest_year, latest_month, latest_day)
+                        end_date = max(end_date, dt)
 
-                    wy = wy + 1
+                        wy = wy + 1
 
                 # Update values in data catalog entry table
                 end_date_str = end_date.strftime("%Y-%m-%d")
