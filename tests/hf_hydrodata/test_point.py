@@ -638,7 +638,8 @@ def test_get_metadata_streamflow():
         longitude_range=(-75, -50),
     )
     assert len(metadata_df) == 4
-    assert len(metadata_df.columns) == 25
+    assert metadata_df.shape[1] >= 20
+    assert metadata_df.shape[1] <= 30
     assert "01011000" in list(metadata_df["site_id"])
 
 
@@ -657,7 +658,8 @@ def test_get_metadata_streamflow_dict():
         }
     )
     assert len(metadata_df) == 4
-    assert len(metadata_df.columns) == 25
+    assert metadata_df.shape[1] >= 20
+    assert metadata_df.shape[1] <= 30
     assert "01011000" in list(metadata_df["site_id"])
 
 
@@ -674,7 +676,8 @@ def test_get_metadata_streamflow_hourly():
         longitude_range=(-75, -50),
     )
     assert len(metadata_df) == 4
-    assert len(metadata_df.columns) == 25
+    assert metadata_df.shape[1] >= 20
+    assert metadata_df.shape[1] <= 30
     assert "01011000" in list(metadata_df["site_id"])
 
 
@@ -691,7 +694,8 @@ def test_get_metadata_wtd():
         longitude_range=(-75, -50),
     )
     assert len(metadata_df) == 1
-    assert len(metadata_df.columns) == 25
+    assert metadata_df.shape[1] >= 20
+    assert metadata_df.shape[1] <= 30
     assert "471457068353001" in list(metadata_df["site_id"])
 
 

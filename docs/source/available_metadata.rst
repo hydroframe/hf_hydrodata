@@ -117,6 +117,8 @@ be produced when ``dataset='usgs_nwis'`` and ``variable='streamflow'``:
       - Site elevation (meters), as per the `GAGES-II metadata <https://www.sciencebase.gov/catalog/item/631405bbd34e36012efa304a>`_.
     * - usgs_drainage_area
       - Drainage area (square miles) for the site, as per the USGS.
+    * - usgs_reliability_cd
+      - Reliability code for the site, as provided by the USGS.
     * - conus2_i_nwm
       - Integer number of grid cells in the horizontal direction away from the CONUS2 grid origin of (0,0). Mapping available for only stream gages in the NWM and described in `Zhang et al. 2021 <https://essd.copernicus.org/articles/13/3263/2021/>`_.
     * - conus2_j_nwm
@@ -146,6 +148,8 @@ be produced when ``dataset='usgs_nwis'`` and ``variable='water_table_depth'``:
       - Hole depth (feet), as provided by the USGS.
     * - usgs_hole_depth_src_cd
       - Source of hole depth data, as provided by the USGS.
+    * - usgs_reliability_cd
+      - Reliability code for the site, as provided by the USGS.
 
 SNOTEL and SCAN Station Metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -425,7 +425,8 @@ def get_point_metadata(*args, **kwargs):
                       gages_drainage_sqkm AS gagesii_drainage_area,
                       class AS gagesii_class,
                       site_elevation_meters AS gagesii_site_elevation,
-                      drain_area_va AS usgs_drainage_area
+                      drain_area_va AS usgs_drainage_area,
+                      reliability_cd AS usgs_reliability_cd
                FROM streamgauge_attributes WHERE site_id IN (%s)"""
             % ",".join("?" * len(site_ids)),
             conn,
@@ -443,7 +444,8 @@ def get_point_metadata(*args, **kwargs):
                       aqfr_type_cd AS usgs_aqfr_type_cd,
                       well_depth_va AS usgs_well_depth,
                       hole_depth_va AS usgs_hole_depth,
-                      depth_src_cd AS usgs_hole_depth_src_cd
+                      depth_src_cd AS usgs_hole_depth_src_cd,
+                      reliability_cd AS usgs_reliability_cd
                FROM well_attributes WHERE site_id IN (%s)"""
             % ",".join("?" * len(site_ids)),
             conn,
