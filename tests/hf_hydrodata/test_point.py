@@ -640,6 +640,7 @@ def test_get_metadata_streamflow():
     assert len(metadata_df) == 4
     assert metadata_df.shape[1] >= 20
     assert metadata_df.shape[1] <= 30
+    assert "usgs_reliability_cd" in list(metadata_df.columns)
     assert "01011000" in list(metadata_df["site_id"])
 
 
@@ -660,6 +661,7 @@ def test_get_metadata_streamflow_dict():
     assert len(metadata_df) == 4
     assert metadata_df.shape[1] >= 20
     assert metadata_df.shape[1] <= 30
+    assert "usgs_reliability_cd" in list(metadata_df.columns)
     assert "01011000" in list(metadata_df["site_id"])
 
 
@@ -678,6 +680,7 @@ def test_get_metadata_streamflow_hourly():
     assert len(metadata_df) == 4
     assert metadata_df.shape[1] >= 20
     assert metadata_df.shape[1] <= 30
+    assert "usgs_reliability_cd" in list(metadata_df.columns)
     assert "01011000" in list(metadata_df["site_id"])
 
 
@@ -696,6 +699,7 @@ def test_get_metadata_wtd():
     assert len(metadata_df) == 1
     assert metadata_df.shape[1] >= 20
     assert metadata_df.shape[1] <= 30
+    assert "usgs_reliability_cd" in list(metadata_df.columns)
     assert "471457068353001" in list(metadata_df["site_id"])
 
 
