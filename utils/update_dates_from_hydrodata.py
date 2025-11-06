@@ -27,6 +27,7 @@ def main():
     _update_soil_moisture_dates(connection)
     _update_anomoly_dates(connection)
     _update_cw3e_dates(connection)
+    _update_conus21_baseline_dates(connection)
 
 
 def _update_soil_moisture_dates(connection):
@@ -242,47 +243,47 @@ def _update_cw3e_dates(connection):
                         dataset_var = dataset_var.split("_")[0]
                     path = "/".join(path.split("/")[:-1])
 
-                while True:
-                    # Find the latest files in the water year folder
-                    wy_path = path.replace("{wy}", f"{wy}")
+                    while True:
+                        # Find the latest files in the water year folder
+                        wy_path = path.replace("{wy}", f"{wy}")
 
-                    if not os.path.exists(wy_path):
-                        # If no water year folder exists then we already found the latest date
-                        break
+                        if not os.path.exists(wy_path):
+                            # If no water year folder exists then we already found the latest date
+                            break
 
-                    # Look at all the file names in the folder to find latest date
-                    data_files = sorted(glob(f"{wy_path}/CW3E.{dataset_var}.*"))
-                    latest_file = data_files[-1]
-                    day_of_wy = str(int(latest_file.split(".")[-2]))
+                        # Look at all the file names in the folder to find latest date
+                        data_files = sorted(glob(f"{wy_path}/CW3E.{dataset_var}.*"))
+                        latest_file = data_files[-1]
+                        day_of_wy = str(int(latest_file.split(".")[-2]))
 
-                    # Read in file for converting date to water year timestep
-                    if calendar.isleap(wy):
-                        date_xwalk = pd.read_csv(
-                            "/hydrodata/forcing/raw_data/CW3E/reference/to_water_year_leap_year.csv",
-                            dtype=str,
-                        )
-                    else:
-                        date_xwalk = pd.read_csv(
-                            "/hydrodata/forcing/raw_data/CW3E/reference/to_water_year.csv",
-                            dtype=str,
-                        )
-                    xwalk_row = date_xwalk.loc[
-                        date_xwalk["day_of_water_year"] == day_of_wy
-                    ]
-                    latest_date = xwalk_row["date"].iloc[0]
+                        # Read in file for converting date to water year timestep
+                        if calendar.isleap(wy):
+                            date_xwalk = pd.read_csv(
+                                "/hydrodata/forcing/raw_data/CW3E/reference/to_water_year_leap_year.csv",
+                                dtype=str,
+                            )
+                        else:
+                            date_xwalk = pd.read_csv(
+                                "/hydrodata/forcing/raw_data/CW3E/reference/to_water_year.csv",
+                                dtype=str,
+                            )
+                        xwalk_row = date_xwalk.loc[
+                            date_xwalk["day_of_water_year"] == day_of_wy
+                        ]
+                        latest_date = xwalk_row["date"].iloc[0]
 
-                    latest_day = int(latest_date[2:])
-                    latest_month = int(latest_date[:2])
+                        latest_day = int(latest_date[2:])
+                        latest_month = int(latest_date[:2])
 
-                    if xwalk_row["water_year"].iloc[0] == "same":
-                        latest_year = wy
-                    else:
-                        latest_year = wy - 1
+                        if xwalk_row["water_year"].iloc[0] == "same":
+                            latest_year = wy
+                        else:
+                            latest_year = wy - 1
 
-                    dt = datetime.datetime(latest_year, latest_month, latest_day)
-                    end_date = max(end_date, dt)
+                        dt = datetime.datetime(latest_year, latest_month, latest_day)
+                        end_date = max(end_date, dt)
 
-                    wy = wy + 1
+                        wy = wy + 1
 
                 # Update values in data catalog entry table
                 end_date_str = end_date.strftime("%Y-%m-%d")
@@ -310,6 +311,130 @@ def _update_cw3e_dates(connection):
         f"Updated {SCHEMA}.dataset id '{dataset_id}' dataset_end_date='{dataset_end_date_str}'"
     )
 
+def _update_conus21_baseline_dates(connection):
+    """
+    Update the entry_end_date column in the data_catalog_entry table 
+    for dataset conus2_baseline, dataset_version 2.1.
+    Update the dataset_end_date in the dataset table. If different
+    variables have different end dates, choose the earliest one.
+    """
+
+    dataset = "conus2_baseline"
+    variables = {
+        "pressure_head": ["hourly"],
+        "saturation": ["hourly"],
+        "streamflow": ["daily"],
+        "soil_moisture": ["daily"],
+        "subsurface_storage": ["daily"],
+        "surface_water_storage": ["daily"],
+        "water_table_depth": ["daily"],
+        "evapotranspiration": ["hourly", "daily"],
+        "ground_evap": ["hourly", "daily"],
+        "ground_evap_heat": ["hourly"],
+        "ground_heat": ["hourly"],
+        "ground_temp": ["hourly", "daily"],
+        "infiltration": ["hourly"],
+        "irrigation": ["hourly"],
+        "latent_heat": ["hourly", "daily"],
+        "outward_longwave_radiation": ["hourly"],
+        "sensible_heat": ["hourly", "daily"],
+        "soil_temp": ["hourly", "daily"],
+        "swe": ["hourly", "daily"],
+        "transpiration": ["hourly", "daily"],
+        "transpiration_leaves": ["hourly"],
+    }
+
+    all_dates = {}
+
+    for variable, periods in variables.items():
+        for period in periods:
+            entry = hf.get_catalog_entry(
+                dataset=dataset, variable=variable, period=period, dataset_version="2.1"
+            )
+
+            data_entry_id = entry["id"]
+            dataset_var = entry["dataset_var"]
+            path = entry["path"]
+            dir_path = "/".join(path.split("/")[:-1])
+
+            # Start from 1/1/2025 to prevent the need to search through all 40+ water year directories
+            # Based on when this script was developed, we know the end date will be at least 1/1/2025.
+            # This start date may be adjusted to a later date if the script becomes slow from searching too
+            # many water year directories
+            start_date = datetime.datetime.strptime("2024-01-01", "%Y-%m-%d")
+            end_date = start_date
+            wy = 2024
+
+            if period == "hourly":
+                if variable not in ["pressure_head", "saturation"]:
+                    dataset_var = "clm_output"
+
+                while True:
+                    # Find the latest files in the water year folder
+                    wy_path = dir_path.replace("{wy}", f"{wy}")
+
+                    if not os.path.exists(wy_path):
+                        # If no water year folder exists then we already found the latest date
+                        break
+
+                    # Look at all the file names in the folder to find latest date
+                    data_files = sorted(glob(f"{wy_path}/conus21.wy{wy}.out.{dataset_var}.*"))
+                    latest_file = data_files[-1]
+                    file_name = latest_file.split('/')[-1]
+                    pattern = re.compile(r'\.(\d{5})\.?(?:C\.)?pfb(?:\.dist)?$')
+                    latest_timestep = int(pattern.search(file_name).group(1))
+
+                    dt = datetime.datetime(wy-1, 10, 1) + datetime.timedelta(hours=latest_timestep-1)
+                    end_date = max(end_date, dt)
+
+                    wy = wy + 1
+
+            elif period == "daily":
+                while True:
+                    # Find the latest files in the water year folder
+                    wy_path = dir_path.replace("{wy}", f"{wy}")
+
+                    if not os.path.exists(wy_path):
+                        # If no water year folder exists then we already found the latest date
+                        break
+
+                    # Look at all the file names in the folder to find latest date
+                    data_files = sorted(glob(f"{wy_path}/{dataset_var}.{wy}.daily.*.pfb"))
+                    latest_file = data_files[-1]
+                    file_name = latest_file.split('/')[-1]
+                    pattern = re.compile(r'daily\.(\d{3})\.pfb$')
+                    latest_timestep = int(pattern.search(file_name).group(1))
+
+                    dt = datetime.datetime(wy-1, 10, 1) + datetime.timedelta(days=latest_timestep-1)
+                    end_date = max(end_date, dt)
+
+                    wy = wy + 1
+
+            # Update values in data catalog entry table
+            end_date_str = end_date.strftime("%Y-%m-%d")
+
+            sql = f"UPDATE {SCHEMA}.data_catalog_entry SET entry_end_date='{end_date_str}' where id = '{data_entry_id}'"
+            public_release._execute_sql(connection, sql)
+            print(
+                f"Updated {SCHEMA}.data_catalog_entry id '{data_entry_id}' entry_end_date='{end_date_str}'"
+            )
+
+            # Update the date of the variable in the all_dates dict
+            if not all_dates.get(variable):
+                all_dates[variable] = end_date
+            else:
+                all_dates[variable] = min(all_dates[variable], end_date)
+
+    # Update value in dataset table
+    dataset_end_date = min(all_dates.values())
+    dataset_end_date_str = dataset_end_date.strftime("%Y-%m-%d")
+
+    dataset_id = "conus2_baseline"
+    sql = f"UPDATE {SCHEMA}.dataset SET dataset_end_date='{dataset_end_date_str}' where id='{dataset_id}'"
+    public_release._execute_sql(connection, sql)
+    print(
+        f"Updated {SCHEMA}.dataset id '{dataset_id}' dataset_end_date='{dataset_end_date_str}'"
+    )
 
 if __name__ == "__main__":
     main()
