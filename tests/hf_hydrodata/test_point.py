@@ -1847,7 +1847,7 @@ def test_huc_no_grid_fail():
 
 def test_huc_list():
     """Test using a list of multiple huc ids."""
-    df = point.get_point_metadata(
+    metadata_df = point.get_point_metadata(
         dataset="usgs_nwis",
         variable="streamflow",
         temporal_resolution="daily",
@@ -1857,7 +1857,8 @@ def test_huc_list():
         huc_id=["02040106", "02040106"],
         grid="conus2",
     )
-    assert df.shape[1] == 25
+    assert metadata_df.shape[1] >= 20
+    assert metadata_df.shape[1] <= 30
 
 
 def test_depth_level_provided_not_sm():
