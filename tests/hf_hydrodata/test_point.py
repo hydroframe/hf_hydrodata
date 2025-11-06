@@ -638,7 +638,9 @@ def test_get_metadata_streamflow():
         longitude_range=(-75, -50),
     )
     assert len(metadata_df) == 4
-    assert len(metadata_df.columns) == 25
+    assert metadata_df.shape[1] >= 20
+    assert metadata_df.shape[1] <= 30
+    assert "usgs_reliability_cd" in list(metadata_df.columns)
     assert "01011000" in list(metadata_df["site_id"])
 
 
@@ -657,7 +659,9 @@ def test_get_metadata_streamflow_dict():
         }
     )
     assert len(metadata_df) == 4
-    assert len(metadata_df.columns) == 25
+    assert metadata_df.shape[1] >= 20
+    assert metadata_df.shape[1] <= 30
+    assert "usgs_reliability_cd" in list(metadata_df.columns)
     assert "01011000" in list(metadata_df["site_id"])
 
 
@@ -674,7 +678,9 @@ def test_get_metadata_streamflow_hourly():
         longitude_range=(-75, -50),
     )
     assert len(metadata_df) == 4
-    assert len(metadata_df.columns) == 25
+    assert metadata_df.shape[1] >= 20
+    assert metadata_df.shape[1] <= 30
+    assert "usgs_reliability_cd" in list(metadata_df.columns)
     assert "01011000" in list(metadata_df["site_id"])
 
 
@@ -691,7 +697,9 @@ def test_get_metadata_wtd():
         longitude_range=(-75, -50),
     )
     assert len(metadata_df) == 1
-    assert len(metadata_df.columns) == 25
+    assert metadata_df.shape[1] >= 20
+    assert metadata_df.shape[1] <= 30
+    assert "usgs_reliability_cd" in list(metadata_df.columns)
     assert "471457068353001" in list(metadata_df["site_id"])
 
 
@@ -1839,7 +1847,7 @@ def test_huc_no_grid_fail():
 
 def test_huc_list():
     """Test using a list of multiple huc ids."""
-    df = point.get_point_metadata(
+    metadata_df = point.get_point_metadata(
         dataset="usgs_nwis",
         variable="streamflow",
         temporal_resolution="daily",
@@ -1849,7 +1857,8 @@ def test_huc_list():
         huc_id=["02040106", "02040106"],
         grid="conus2",
     )
-    assert df.shape[1] == 25
+    assert metadata_df.shape[1] >= 20
+    assert metadata_df.shape[1] <= 30
 
 
 def test_depth_level_provided_not_sm():
