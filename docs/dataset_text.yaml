@@ -281,10 +281,10 @@ datasets:
 
   "poggio_2021":
     summary: >
-      Mean SoilGrids 2.0 sand and clay contents at 250m resolution. This 30m resolution dataset served 
-      as input for estimating both static and transient water table depths across the contiguous United 
+      Mean SoilGrids 2.0 sand and clay contents at 250m resolution. The reprojected 1-arcsec resolution version of this
+      dataset served as input for estimating both static and transient water table depths across the contiguous United 
       States (CONUS) at a 1-arcsec resolution.
 
     processing_notes: >
-      Averaging the 250m resolution sand and clay contents from SoilGrids 2.0 over six layers ranging 
-      from 0 to 200 cm.
+      This dataset is derived from averaging the 250m resolution sand and clay contents from SoilGrids 2.0 over six layers ranging 
+      from 0 to 200 cm. It is then reprojected to the CONUS2 1-arcsec grid.
