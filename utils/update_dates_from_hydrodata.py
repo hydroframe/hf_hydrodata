@@ -311,9 +311,10 @@ def _update_cw3e_dates(connection):
         f"Updated {SCHEMA}.dataset id '{dataset_id}' dataset_end_date='{dataset_end_date_str}'"
     )
 
+
 def _update_conus21_baseline_dates(connection):
     """
-    Update the entry_end_date column in the data_catalog_entry table 
+    Update the entry_end_date column in the data_catalog_entry table
     for dataset conus2_baseline, dataset_version 2.1.
     Update the dataset_end_date in the dataset table. If different
     variables have different end dates, choose the earliest one.
@@ -378,13 +379,21 @@ def _update_conus21_baseline_dates(connection):
                         break
 
                     # Look at all the file names in the folder to find latest date
-                    data_files = sorted(glob(f"{wy_path}/conus21.wy{wy}.out.{dataset_var}.*"))
-                    latest_file = data_files[-1]
-                    file_name = latest_file.split('/')[-1]
-                    pattern = re.compile(r'\.(\d{5})\.?(?:C\.)?pfb(?:\.dist)?$')
-                    latest_timestep = int(pattern.search(file_name).group(1))
+                    data_files = sorted(
+                        glob(f"{wy_path}/conus21.wy{wy}.out.{dataset_var}.*")
+                    )
+                    pattern = re.compile(r"\.(\d{5})\.?(?:C\.)?pfb(?:\.dist)?$")
+                    latest_timestep = max(
+                        [
+                            int(m.group(1))
+                            for f in data_files
+                            if (m := pattern.search(f))
+                        ]
+                    )
 
-                    dt = datetime.datetime(wy-1, 10, 1) + datetime.timedelta(hours=latest_timestep-1)
+                    dt = datetime.datetime(wy - 1, 10, 1) + datetime.timedelta(
+                        hours=latest_timestep - 1
+                    )
                     end_date = max(end_date, dt)
 
                     wy = wy + 1
@@ -399,13 +408,21 @@ def _update_conus21_baseline_dates(connection):
                         break
 
                     # Look at all the file names in the folder to find latest date
-                    data_files = sorted(glob(f"{wy_path}/{dataset_var}.{wy}.daily.*.pfb"))
-                    latest_file = data_files[-1]
-                    file_name = latest_file.split('/')[-1]
-                    pattern = re.compile(r'daily\.(\d{3})\.pfb$')
-                    latest_timestep = int(pattern.search(file_name).group(1))
+                    data_files = sorted(
+                        glob(f"{wy_path}/{dataset_var}.{wy}.daily.*.pfb")
+                    )
+                    pattern = re.compile(r"daily\.(\d{3})\.pfb$")
+                    latest_timestep = max(
+                        [
+                            int(m.group(1))
+                            for f in data_files
+                            if (m := pattern.search(f))
+                        ]
+                    )
 
-                    dt = datetime.datetime(wy-1, 10, 1) + datetime.timedelta(days=latest_timestep-1)
+                    dt = datetime.datetime(wy - 1, 10, 1) + datetime.timedelta(
+                        days=latest_timestep - 1
+                    )
                     end_date = max(end_date, dt)
 
                     wy = wy + 1
@@ -435,6 +452,7 @@ def _update_conus21_baseline_dates(connection):
     print(
         f"Updated {SCHEMA}.dataset id '{dataset_id}' dataset_end_date='{dataset_end_date_str}'"
     )
+
 
 if __name__ == "__main__":
     main()
