@@ -501,7 +501,7 @@ def get_gridded_files(
                 "{dataset}.{dataset_var}.monthly.{aggregation}.WY{wy}.pfb"
             )
         elif temporal_resolution == "static":
-            filename_template = "{dataset}:{variable}.pfb"
+            filename_template = "{dataset}.{variable}.pfb"
 
     if (
         not filename_template.endswith(".pfb")
@@ -2792,6 +2792,7 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
         grid_bounds = get_huc_bbox(grid, huc_id_list)
     return grid_bounds
 
+
 def _get_date_start(options):
     """
     Get the data_start option from the options dict.
@@ -2806,7 +2807,8 @@ def _get_date_start(options):
     result = options.get("date_start", None)
     result = options.get("start_date", None) if result is None else result
     result = options.get("start_time", None) if result is None else result
-    return result;
+    return result
+
 
 def _get_date_end(options):
     """
@@ -2822,7 +2824,7 @@ def _get_date_end(options):
     result = options.get("date_end", None)
     result = options.get("end_date", None) if result is None else result
     result = options.get("end_time", None) if result is None else result
-    return result;
+    return result
 
 
 class _FileDownloadState:
