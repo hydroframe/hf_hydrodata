@@ -114,11 +114,21 @@ You can get the date range available for a data set using the ``get_date_range``
 
       (start_date, end_date) = hf.get_date_range(options)
 
-
-
-
-
-
-
 .. toctree::
    :maxdepth: 1
+
+.. _gridded_examples_index:
+
+How To
+----------------------------
+The following notebooks provide examples for using the various methods in the ``hf_hydrodata.gridded`` module. 
+Each of these notebooks contains a "Launch Binder" button that can be used to run in an interactive session via Binder. 
+Alternately, you may navigate to a specific notebook
+in the `GitHub repository <https://github.com/hydroframe/hf_hydrodata/tree/main/docs/source/gridded_data/examples>`_ and 
+press the download button to download the notebook and run it locally.
+
+.. toctree::
+   :maxdepth: 2
+   :titlesonly:
+
+   examples/example_ma_2025.ipynb
