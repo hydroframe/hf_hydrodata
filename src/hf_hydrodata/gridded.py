@@ -1507,6 +1507,15 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
     )
     for huc_id in huc_id_list:
         huc_id = huc_id.strip()
+        if grid == "conus2" and not len(huc_id) in [2, 4, 6, 8]:
+            raise ValueError(
+                f"HUC '{huc_id}'. Only huc_ids of length 2,4,6,8 are supported."
+            )
+        if grid == "conus1" and not len(huc_id) in [2, 4, 6, 8, 10]:
+            raise ValueError(
+                f"HUC '{huc_id}'. Only huc_ids of length 2,4,6,8,10 are supported."
+            )
+
         if level is None:
             level = len(huc_id)
         elif len(huc_id) != level:

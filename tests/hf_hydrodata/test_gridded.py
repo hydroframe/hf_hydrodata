@@ -2296,6 +2296,10 @@ def test_select_by_huc_conus2_wtd():
     assert gr.get_huc_bbox("conus2", "15020018") == [928, 1330, 1061, 1422]
     assert gr.get_huc_bbox("conus2_wtd", "15020018") == [1568, 1386, 1701, 1478]
 
+    with pytest.raises(ValueError) as exc:
+        gr.get_huc_bbox("conus2", "1019000404")
+    assert "Only huc_ids of length" in str(exc.value)
+
 
 def test_get_gridded_data_wtd_huc_id():
     """Test that we can filter by huc_id for 30m wtd datasets."""
