@@ -2301,6 +2301,7 @@ def test_select_by_huc_conus2_wtd():
     assert "Only huc_ids of length" in str(exc.value)
 
 
+@pytest.mark.private_dataset
 def test_get_gridded_data_wtd_huc_id():
     """Test that we can filter by huc_id for 30m wtd datasets."""
 
@@ -2351,6 +2352,7 @@ def test_get_gridded_data_wtd_huc_id():
     assert data.shape == (19, 48)
 
 
+@pytest.mark.private_dataset
 def test_get_gridded_files_huc_wtd_grid():
     """Test get_gridded_files works with huc_id filter for grid not conus1 or conus2."""
 
