@@ -29,7 +29,7 @@ from hf_hydrodata.data_model_access import (
     _get_api_headers,
     load_data_model,
 )
-from hf_hydrodata.grid import to_ij
+from hf_hydrodata.grid import to_ij, to_latlon
 from hf_hydrodata.data_catalog import _maintenance_guard
 import hf_hydrodata.data_catalog as dc
 
@@ -239,7 +239,7 @@ def get_paths(*args, **kwargs) -> List[str]:
 
     entry = dc.get_catalog_entry(*args, **kwargs)
     if entry is None:
-        raise ValueError("No data catalog entry found.")
+        raise ValueError(f"No data catalog entry found for {options}")
     path = entry.get("path")
     period = (
         entry.get("temporal_resolution")
@@ -534,7 +534,7 @@ def get_gridded_files(
     if not variables:
         entry = dc.get_catalog_entry(options)
         if entry is None:
-            raise ValueError("No data catalog entry found for options.")
+            raise ValueError(f"No data catalog entry found for options {options}")
         variables = [entry.get("variable")]
     if isinstance(variables, str):
         variables = [variables]
@@ -583,7 +583,9 @@ def get_gridded_files(
             for entry in aggregation_entries:
                 options_copy = dict(options)
                 if entry is None:
-                    raise ValueError("No data catalog entry found for options.")
+                    raise ValueError(
+                        f"No data catalog entry found for options {options}"
+                    )
                 aggregation = entry.get("aggregation")
                 options_copy["aggregation"] = aggregation
                 file_name = _substitute_datapath(
@@ -1493,6 +1495,11 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
         bbox = hf.get_huc_bbox("conus1", ["181001"])
         assert bbox == (1, 167, 180, 378)
     """
+    # If the grid is not conus1 or conus2 then get it with _get_grid_bounds that maps lat/lon
+    if not grid in ["conus1", "conus2"]:
+        result = _get_grid_bounds(grid, {"huc_id": huc_id_list})
+        return result
+
     # Make sure all HUC ids in the list are the same length
     level = None
     huc_id_list = (
@@ -1500,6 +1507,15 @@ def get_huc_bbox(grid: str, huc_id_list: List[str]) -> List[int]:
     )
     for huc_id in huc_id_list:
         huc_id = huc_id.strip()
+        if grid == "conus2" and not len(huc_id) in [2, 4, 6, 8]:
+            raise ValueError(
+                f"HUC '{huc_id}'. Only huc_ids of length 2,4,6,8 are supported."
+            )
+        if grid == "conus1" and not len(huc_id) in [2, 4, 6, 8, 10]:
+            raise ValueError(
+                f"HUC '{huc_id}'. Only huc_ids of length 2,4,6,8,10 are supported."
+            )
+
         if level is None:
             level = len(huc_id)
         elif len(huc_id) != level:
@@ -2178,7 +2194,7 @@ def __get_geotiff(grid: str, level: int) -> xr.Dataset:
     }
     entry = dc.get_catalog_entry(options)
     if entry is None:
-        raise ValueError("No data catalog entry found for filter options.")
+        raise ValueError(f"No data catalog entry found for filter options {options}")
     variable = entry.get("dataset_var")
     with tempfile.TemporaryDirectory() as tempdirname:
         file_path = f"{tempdirname}/huc.tiff"
@@ -2787,9 +2803,48 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
     huc_id = options.get("huc_id")
     if grid_bounds and huc_id:
         raise ValueError("Cannot specify both grid_bounds, latlon_bounds and huc_id")
-    if huc_id:
+    if huc_id and grid in ["conus1", "conus2"]:
+        # HUC boundaries for conus1 and conus2 are supported by tiff files in /hydrodata
         huc_id_list = huc_id.split(",") if isinstance(huc_id, str) else huc_id
+        if grid == "conus2" and not len(huc_id_list[0]) in [2, 4, 6, 8]:
+            raise ValueError(
+                f"HUC '{huc_id_list[0]}'. Only huc_ids of length 2,4,6,8 are supported."
+            )
+        if grid == "conus1" and not len(huc_id_list[0]) in [2, 4, 6, 8, 10]:
+            raise ValueError(
+                f"HUC '{huc_id_list[0]}'. Only huc_ids of length 2,4,6,8,10 are supported."
+            )
         grid_bounds = get_huc_bbox(grid, huc_id_list)
+    elif huc_id:
+        # Other grids are not directly supported by tiff files so we need to convert from conus2
+        # First get the grid bounds of the huc using conus2
+        huc_id_list = huc_id.split(",") if isinstance(huc_id, str) else huc_id
+        if not len(huc_id_list[0]) in [2, 4, 6, 8]:
+            raise ValueError(
+                f"HUC '{huc_id_list[0]}'. Only huc_ids of length 2,4,6,8 are supported."
+            )
+        conus2_grid_bounds = get_huc_bbox("conus2", huc_id_list)
+        # Then convert the conus2 grid bounds to lat/lon
+        conus2_botleft_latlon = to_latlon(
+            "conus2", conus2_grid_bounds[0], conus2_grid_bounds[1]
+        )
+        conus2_topright_latlon = to_latlon(
+            "conus2", conus2_grid_bounds[2], conus2_grid_bounds[3]
+        )
+        # Then convert the lat/lon bounds to the target grid bounds
+        grid_botleft_bounds = to_ij(
+            grid, conus2_botleft_latlon[0], conus2_botleft_latlon[1]
+        )
+        grid_topright_bounds = to_ij(
+            grid, conus2_topright_latlon[0], conus2_topright_latlon[1]
+        )
+        grid_bounds = [
+            grid_botleft_bounds[0],
+            grid_botleft_bounds[1],
+            grid_topright_bounds[0],
+            grid_topright_bounds[1],
+        ]
+
     return grid_bounds
 
 
