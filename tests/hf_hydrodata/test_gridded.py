@@ -1151,6 +1151,7 @@ def test_get_huc_bbox_conus1():
     bbox = hf.get_huc_bbox("conus1", "1102001002,  1102001003")
     assert bbox == [1088, 415, 1132, 453]
 
+
 def test_getndarray_site_id():
     """Test for a bug using get_gridded_data and site_id variable."""
     if run_remote:
@@ -2227,6 +2228,7 @@ def test_maintenance_error_pass(monkeypatch):
     )
     assert data.shape[0] == 48
 
+
 def test_read_fast_pfb():
     """Test the externally visible read_fast_pfb function."""
 
@@ -2235,10 +2237,9 @@ def test_read_fast_pfb():
         return
 
     path = "/hydrodata/forcing/processed_data/CONUS2/CW3E_v1.0/hourly/WY1998/CW3E.Temp.000001_to_000024.pfb"
-    constraints = {"x":{"start": 10, "stop": 15}, "y": {"start": 20, "stop": 30}}
+    constraints = {"x": {"start": 10, "stop": 15}, "y": {"start": 20, "stop": 30}}
     data = hf.read_fast_pfb(path, constraints)
     assert data.shape == (1, 24, 10, 5)
-
 
     constraints = [10, 20, 15, 30]
     data = hf.read_fast_pfb(path, constraints)
@@ -2251,6 +2252,7 @@ def test_read_fast_pfb():
     with pytest.raises(ValueError):
         constraints = [10, 20, 15]
         data = hf.read_fast_pfb(path, constraints)
+
 
 def test_date_start():
     """Test that the option date_start and date_end are also supported."""
@@ -2267,3 +2269,102 @@ def test_date_start():
     data = hf.get_gridded_data(options)
     assert data.shape == (24, 1, 1)
 
+
+def test_select_by_huc_conus2_wtd():
+    """Test that we can filter by HUC in get_gridded_data for grids not in conus1 or conus2."""
+
+    assert gr._get_grid_bounds("conus1", {"huc_id": "1019000404"}) == [
+        1076,
+        720,
+        1124,
+        739,
+    ]
+    assert gr._get_grid_bounds("conus2", {"huc_id": "15020018"}) == [
+        928,
+        1330,
+        1061,
+        1422,
+    ]
+    assert gr._get_grid_bounds("conus2_wtd", {"huc_id": "15020018"}) == [
+        1568,
+        1386,
+        1701,
+        1478,
+    ]
+
+    assert gr.get_huc_bbox("conus1", "1019000404") == [1076, 720, 1124, 739]
+    assert gr.get_huc_bbox("conus2", "15020018") == [928, 1330, 1061, 1422]
+    assert gr.get_huc_bbox("conus2_wtd", "15020018") == [1568, 1386, 1701, 1478]
+
+    with pytest.raises(ValueError) as exc:
+        gr.get_huc_bbox("conus2", "1019000404")
+    assert "Only huc_ids of length" in str(exc.value)
+
+
+@pytest.mark.private_dataset
+def test_get_gridded_data_wtd_huc_id():
+    """Test that we can filter by huc_id for 30m wtd datasets."""
+
+    options = {
+        "dataset": "ma_2025",
+        "huc_id": "15020018",
+        "variable": "water_table_depth",
+        "grid": "conus2_wtd",
+    }
+    data = gr.get_gridded_data(options)
+    assert data.shape == (92, 133)
+
+    with pytest.raises(ValueError) as exc:
+        options = {
+            "dataset": "ma_2025",
+            "huc_id": "15020018",
+            "variable": "water_table_depth",
+        }
+        data = gr.get_gridded_data(options)
+    assert "Ambiguous" in str(exc.value)
+
+    options = {
+        "dataset": "ma_2025",
+        "huc_id": "15020018",
+        "variable": "water_table_depth",
+        "grid": "conus2_wtd.100",
+    }
+    data = gr.get_gridded_data(options)
+    assert data.shape == (920, 1330)
+
+    # This test works, but it is very slow
+    options = {
+        "dataset": "ma_2025",
+        "huc_id": "15020018",
+        "variable": "water_table_depth",
+        "grid": "conus2_wtd.30",
+    }
+    # data = gr.get_gridded_data(options)
+    # assert data.shape == (3811, 5509)
+
+    options = {
+        "dataset": "ma_2023",
+        "huc_id": "1019000404",
+        "variable": "water_table_depth",
+        "grid": "conus1",
+    }
+    data = gr.get_gridded_data(options)
+    assert data.shape == (19, 48)
+
+
+@pytest.mark.private_dataset
+def test_get_gridded_files_huc_wtd_grid():
+    """Test get_gridded_files works with huc_id filter for grid not conus1 or conus2."""
+
+    options = {
+        "dataset": "ma_2025",
+        "huc_id": "15020018",
+        "variable": "water_table_depth",
+        "grid": "conus2_wtd",
+    }
+    gr.get_gridded_files(options)
+    file_name = "ma_2025.water_table_depth.pfb"
+    if os.path.exists(file_name):
+        os.remove(file_name)
+    else:
+        assert False, f"File '{file_name}' not generated."
