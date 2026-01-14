@@ -2480,6 +2480,7 @@ def _substitute_datapath(
     wy_hour = 0
     wy_start_24hr = 0
     month_num = 0
+    wy_month = 0
     wy_end_24hr = 0
     hour_start = file_daynum * 24 + 1
     hour_end = hour_start + 24 - 1
@@ -2506,6 +2507,7 @@ def _substitute_datapath(
         mdy = time_value.strftime("%m%d%Y")
         ymd = time_value.strftime("%Y%m%d")
         month_num = time_value.month
+        wy_month = _get_water_year_month(time_value)
         wy_hour = int((time_value - wy_start).total_seconds() / 3600) + 1
         wy_start_24hr = (time_value - wy_start).days * 24 + 1
         wy_end_24hr = (time_value - wy_start).days * 24 + 24
@@ -2524,6 +2526,7 @@ def _substitute_datapath(
         wy_plus1=wy_plus1,
         wy_minus1=wy_minus1,
         month=month_num,
+        wy_month=wy_month,
         mmddyyyy=mmddyyyy,
         site_id=site_id,
         scenario_id=scenario_id,
@@ -2561,6 +2564,20 @@ def _get_water_year(dt: datetime.datetime):
         wy_start = datetime.datetime.strptime(f"{dt.year-1}-10-01", "%Y-%m-%d")
     return (wy, wy_start)
 
+def _get_water_year_month(dt: datetime.datetime):
+    """
+    Get the water year month (ie. October is month 1 of the water year).
+
+    Args:
+        dt:     a date
+    Returns:
+        An integer of the water year month (1-12)
+    """
+    if dt.month >= 10:
+        wy_month = dt.month - 9
+    else:
+        wy_month = dt.month + 3
+    return wy_month
 
 def _parse_time(value: str) -> datetime.datetime:
     """Parse a value as a date time.
