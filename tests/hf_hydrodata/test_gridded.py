@@ -2368,3 +2368,14 @@ def test_get_gridded_files_huc_wtd_grid():
         os.remove(file_name)
     else:
         assert False, f"File '{file_name}' not generated."
+
+@pytest.mark.parametrize("calendar_month, wy_month", [
+    (10, 1), (11, 2), (12, 3),
+    (1, 4), (2, 5), (3, 6),
+    (4, 7), (5, 8), (6, 9),
+    (7, 10), (8, 11), (9, 12),
+])
+def test_get_water_year_month(calendar_month, wy_month):
+    """Test _get_water_year_month function."""
+    dt = datetime.datetime(2020, calendar_month, 1)
+    assert gr._get_water_year_month(dt) == wy_month
