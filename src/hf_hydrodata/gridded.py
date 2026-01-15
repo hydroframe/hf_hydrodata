@@ -2360,11 +2360,11 @@ def _add_pfb_time_constraint(
         if entry.get("temporal_resolution")
         else entry.get("period")
     )
-    has_z = entry.get("has_z") is not None and entry.get("has_z").lower() == "true"
-    uses_z_as_time = period in ["hourly", "monthly", "weekly"]
+    is_3d = entry.get("has_z") is not None and entry.get("has_z").lower() == "true"
+    uses_z_as_time = period in ["hourly", "monthly", "weekly"] and not is_3d
     if (
         uses_z_as_time
-        and not has_z
+        and not is_3d
         and start_time_value is not None
         and period in ["daily", "hourly", "monthly", "weekly"]
     ):
