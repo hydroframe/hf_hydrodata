@@ -9,10 +9,10 @@ import datetime
 import math
 import warnings
 import tempfile
+from zoneinfo import ZoneInfo
 import xarray as xr
 import numpy as np
 import pytest
-import pytz
 import rioxarray
 import parflow
 from parflow import read_pfb_sequence
@@ -1056,8 +1056,8 @@ def test_timezone():
     start_date = datetime.datetime.strptime(start, "%Y-%m-%d")
     if time_zone != "UTC":
         start_date = (
-            start_date.replace(tzinfo=pytz.timezone(time_zone))
-            .astimezone(pytz.UTC)
+            start_date.replace(tzinfo=ZoneInfo(time_zone))
+            .astimezone(ZoneInfo("UTC"))
             .replace(tzinfo=None)
         )
     end_date = start_date + datetime.timedelta(hours=7)
