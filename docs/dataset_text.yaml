@@ -6,12 +6,41 @@
 datasets:
   "conus1_domain":
     summary: >
-      The ParFlow CONUS1 model is the first generation national ParFlow model. You can learn more about the domain and the model on the `HydroFrame Website <https://hydroframe.org/parflow-conus1/>`_. The `conus1_domain` dataset contains all of the input fields for the model as well as additional pre and post processing files that can be useful for data analysis. If you are interested in building a ParFlow model off of this national template the `Subset Tools python package` can help you do that. Refer to the documentation `here <https://hydroframesubsettools.readthedocs.io/en/latest/>`_
+      The ParFlow CONUS1 model is the first generation national ParFlow model. You can learn more about the domain and the model 
+      on the `HydroFrame Website <https://hydroframe.org/parflow-conus1/>`_.  
+
+
+      For datasets that are 3 dimensional, the ParFlow CONUS1 model consists of 5 layers with a total depth of about 102 m. 
+      The layers have variable thicknesses of 100, 1, 0.6, 0.3, and 0.1 m from bottom to top. Note that 
+      indexing layers is also done from bottom to top, so the layer associated with Python index 0 is the bottom (deepest) 
+      layer and the layer associated with Python index 4 is the top layer closest to the surface.  
+
+
+      This dataset contains all of the input 
+      fields for the model as well as additional pre and post processing files that can be useful for data analysis. If you are 
+      interested in building a ParFlow model off of this national template the 
+      `SubsetTools Python package <https://hydroframesubsettools.readthedocs.io/en/latest/>`_ can help you do that. 
 
 
   "conus2_domain":
     summary: >
-      The ParFlow CONUS2 model is the second generation national ParFlow model. The CONUS2 domain covers the entire contiguous US and areas draining to it. The domain extent and projection are based off of the National Water Model Grid. Manual corrections were made along the coastline to get rid of cells that were water and to prune any orphan cells (i.e. cells attached to the domain only by a corner).  You can learn more about the domain and the model on the `HydroFrame Website <https://hydroframe.org/parflow-conus2/>`_. The `conus2_domain` dataset contains all of the input fields for the model as well as additional pre and post processing files that can be useful for data analysis. If you are interested in building a ParFlow model off of this national template the `SubsetTools Python package <https://github.com/hydroframe/subsettools/tree/main>`_ can help you do that. Refer to the documentation `here <https://hydroframesubsettools.readthedocs.io/en/latest/>`_.
+      The ParFlow CONUS2 model is the second generation national ParFlow model. The CONUS2 domain covers the entire contiguous 
+      US and areas draining to it. The domain extent and projection are based off of the National Water Model Grid. Manual 
+      corrections were made along the coastline to get rid of cells that were water and to prune any orphan cells (i.e. cells 
+      attached to the domain only by a corner).  You can learn more about the domain and the model on the 
+      `HydroFrame Website <https://hydroframe.org/parflow-conus2/>`_.   
+
+
+      For datasets that are 3 dimensional, the ParFlow CONUS2 model consists of 10 layers with a total depth of about 392 m. 
+      The layers have variable thicknesses of 200, 100, 50, 25, 10, 5, 1, 0.6, 0.3, and 0.1 m from bottom to top. Note that 
+      indexing layers is also done from bottom to top, so the layer associated with Python index 0 is the bottom (deepest) 
+      layer and the layer associated with Python index 9 is the top layer closest to the surface.  
+      
+      
+      This dataset contains all of the input 
+      fields for the model as well as additional pre and post processing files that can be useful for data analysis. If you are 
+      interested in building a ParFlow model off of this national template the 
+      `SubsetTools Python package <https://hydroframesubsettools.readthedocs.io/en/latest/>`_ can help you do that.
 
   "conus1_baseline_85":
     summary: >
