@@ -2369,13 +2369,78 @@ def test_get_gridded_files_huc_wtd_grid():
     else:
         assert False, f"File '{file_name}' not generated."
 
-@pytest.mark.parametrize("calendar_month, wy_month", [
-    (10, 1), (11, 2), (12, 3),
-    (1, 4), (2, 5), (3, 6),
-    (4, 7), (5, 8), (6, 9),
-    (7, 10), (8, 11), (9, 12),
-])
+
+@pytest.mark.parametrize(
+    "calendar_month, wy_month",
+    [
+        (10, 1),
+        (11, 2),
+        (12, 3),
+        (1, 4),
+        (2, 5),
+        (3, 6),
+        (4, 7),
+        (5, 8),
+        (6, 9),
+        (7, 10),
+        (8, 11),
+        (9, 12),
+    ],
+)
 def test_get_water_year_month(calendar_month, wy_month):
     """Test _get_water_year_month function."""
     dt = datetime.datetime(2020, calendar_month, 1)
     assert gr._get_water_year_month(dt) == wy_month
+
+
+def test_get_lat_lon_coords_from_grid():
+    """Test get_lat_lon_coords_from_grid function."""
+    bounds = [1000, 500, 1005, 505]
+    latitudes, longitudes = gr._get_lat_lon_coords_from_grid("conus2", bounds)
+    assert latitudes.shape == (5, 5)
+    assert longitudes.shape == (5, 5)
+
+    # check endpoints to make sure lat/lon are being calculated correctly based on grid bounds
+    test_first_lat, test_first_lon = hf.to_latlon("conus2", 1000, 500)
+    assert round(latitudes[0, 0], 5) == round(test_first_lat, 5)
+    assert round(longitudes[0, 0], 5) == round(test_first_lon, 5)
+
+    test_last_lat, test_last_lon = hf.to_latlon("conus2", 1004, 504)
+    assert round(latitudes[4, 4], 5) == round(test_last_lat, 5)
+    assert round(longitudes[4, 4], 5) == round(test_last_lon, 5)
+
+    # check middle point to make sure the looping was done in the correct order
+    # latitudes and longitudes from get_lat_lon_coords_from_grid are ordered [y, x]
+    # this test indexes the y direction by 1 and leaves the x direction at 0
+    test_mid_lat, test_mid_lon = hf.to_latlon("conus2", 1000, 501)
+    assert round(latitudes[1, 0], 5) == round(test_mid_lat, 5)
+    assert round(longitudes[1, 0], 5) == round(test_mid_lon, 5)
+
+
+def test_ma_2025_get_gridded_files_netcdf(tmp_path):
+    """
+    Unit test for get_gridded_files to netcdf file on a grid that is
+    not conus1 or conus2 (uses alternate algorithm to calculate lat/lon coords).
+    """
+
+    cd = os.getcwd()
+    os.chdir(tmp_path)
+
+    variables = ["water_table_depth"]
+    grid_bounds = [1000, 500, 1005, 505]
+    options = {
+        "dataset": "ma_2025",
+        "grid_bounds": grid_bounds,
+        "grid": "conus2_wtd.30",
+    }
+    assert not os.path.exists("ma_2025.nc")
+    gr.get_gridded_files(options, variables=variables, filename_template="ma_2025.nc")
+    assert os.path.exists("ma_2025.nc")
+    ds = xr.open_dataset("ma_2025.nc")
+    assert len(ds.keys()) == 1
+    wtd = ds["band_data"]
+    assert wtd.shape == (5, 5)
+    lat_coord = ds["latitude"]
+    assert lat_coord.shape == (5, 5)
+
+    os.chdir(cd)

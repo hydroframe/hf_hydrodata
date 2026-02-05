@@ -593,7 +593,7 @@ def get_gridded_files(
                 )
                 if file_name.endswith(".nc") and not file_name == last_file_name:
                     if last_file_name:
-                        _execute_dask_items(dask_items, state, last_file_name)
+                        _execute_dask_items(dask_items, state, last_file_name, verbose)
                         state = _FileDownloadState(
                             options_copy,
                             filename_template,
@@ -612,7 +612,7 @@ def get_gridded_files(
             last_file_name = file_name
         file_time = file_time + delta
         time_index = time_index + 1
-    _execute_dask_items(dask_items, state, last_file_name)
+    _execute_dask_items(dask_items, state, last_file_name, verbose)
     if verbose:
         duration = round(time.time() - verbose_start_time, 1)
         if duration < 60 * 5:
@@ -968,7 +968,7 @@ def _create_gridded_files_geotiff(
         dst.write_band(1, data)
 
 
-def _execute_dask_items(dask_items, state, file_name: str):
+def _execute_dask_items(dask_items, state, file_name: str, verbose=False):
     """Start the threads to execute all the dask items"""
 
     if len(dask_items) > 0:
@@ -984,22 +984,32 @@ def _execute_dask_items(dask_items, state, file_name: str):
             data_vars_definition = {}
             grid = state.entry.get("grid")
             grid_bounds = _get_grid_bounds(grid, state.options)
-            latitude_coord = get_gridded_data(
-                {
-                    "grid": grid,
-                    "variable": "latitude",
-                    "file_type": "pfb",
-                    "grid_bounds": grid_bounds,
-                }
-            )
-            longitude_coord = get_gridded_data(
-                {
-                    "grid": grid,
-                    "variable": "longitude",
-                    "file_type": "pfb",
-                    "grid_bounds": grid_bounds,
-                }
-            )
+
+            if grid in ["conus1", "conus2"]:
+                latitude_coord = get_gridded_data(
+                    {
+                        "grid": grid,
+                        "variable": "latitude",
+                        "file_type": "pfb",
+                        "grid_bounds": grid_bounds,
+                    }
+                )
+                longitude_coord = get_gridded_data(
+                    {
+                        "grid": grid,
+                        "variable": "longitude",
+                        "file_type": "pfb",
+                        "grid_bounds": grid_bounds,
+                    }
+                )
+            else:
+                if verbose:
+                    print(
+                        "Finished downloading data, calculating lat/lon coordinates for file."
+                    )
+                latitude_coord, longitude_coord = _get_lat_lon_coords_from_grid(
+                    grid, grid_bounds
+                )
             coords_definition = {
                 "latitude": (["y", "x"], latitude_coord),
                 "longitude": (["y", "x"], longitude_coord),
@@ -1026,6 +1036,26 @@ def _execute_dask_items(dask_items, state, file_name: str):
             if file_name_dir and not os.path.exists(file_name_dir):
                 os.makedirs(file_name_dir, exist_ok=True)
             ds.to_netcdf(file_name, encoding=enc, engine="netcdf4")
+
+
+def _get_lat_lon_coords_from_grid(grid, grid_bounds):
+    """
+    Calculate the lat/lon coordinates for a grid when they are not available from
+    the data catalog.
+    """
+    xs = range(grid_bounds[0], grid_bounds[2])
+    ys = range(grid_bounds[1], grid_bounds[3])
+
+    latitude_array = np.empty((len(ys), len(xs)))
+    longitude_array = np.empty((len(ys), len(xs)))
+
+    for j, y in enumerate(ys):  # outer loop = y
+        for i, x in enumerate(xs):  # inner loop = x
+            lat, lon = to_latlon(grid, x, y)
+            latitude_array[j, i] = lat
+            longitude_array[j, i] = lon
+
+    return latitude_array, longitude_array
 
 
 def _consolate_dask_items(items):
@@ -2564,6 +2594,7 @@ def _get_water_year(dt: datetime.datetime):
         wy_start = datetime.datetime.strptime(f"{dt.year-1}-10-01", "%Y-%m-%d")
     return (wy, wy_start)
 
+
 def _get_water_year_month(dt: datetime.datetime):
     """
     Get the water year month (ie. October is month 1 of the water year).
@@ -2578,6 +2609,7 @@ def _get_water_year_month(dt: datetime.datetime):
     else:
         wy_month = dt.month + 3
     return wy_month
+
 
 def _parse_time(value: str) -> datetime.datetime:
     """Parse a value as a date time.
