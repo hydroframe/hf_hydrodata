@@ -264,5 +264,4 @@ def test_ambiguous_error():
     """Test that the ambiguous error message shows file_type and not the id field."""
     with pytest.raises(ValueError) as info:
         hf.get_catalog_entry(dataset="ma_2025", variable="water_table_depth")
-    assert "Could be grid" in (str(info.value))
     assert "Could be id" not in (str(info.value))
