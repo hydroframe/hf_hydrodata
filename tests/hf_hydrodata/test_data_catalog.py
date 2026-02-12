@@ -238,6 +238,7 @@ def test_conus2_domain_meters():
     entry = hf.get_catalog_entry(dataset="conus2_domain", variable="ss_pressure_head")
     assert entry.get("units") == "m"
 
+
 @pytest.mark.private_dataset
 def test_current_conditions_aggregation():
     """Test that the current_conditions entries all have aggregation - and not static"""
@@ -245,3 +246,23 @@ def test_current_conditions_aggregation():
     for dataset in ["conus1_current_conditions", "conus2_current_conditions"]:
         entry = hf.get_catalog_entry(dataset=dataset, variable="lat_lon")
         assert entry.get("aggregation") == "-"
+
+
+def test_tiff_preferred_over_cog_file_type():
+    """
+    Test that you do not get an ambiguous error for multiple entries for different file_types.
+    It should prefer tiff files over cog files without giving an error.
+    """
+
+    entry = hf.get_catalog_entry(
+        dataset="ma_2025", variable="water_table_depth", grid="conus2_wtd.30"
+    )
+    assert entry is not None
+
+
+def test_ambiguous_error():
+    """Test the the ambiguous error message shows file_type and not id field."""
+    with pytest.raises(ValueError) as info:
+        hf.get_catalog_entry(dataset="ma_2025", variable="water_table_depth")
+    assert "Could be grid" in (str(info.value))
+    assert "Could be id" not in (str(info.value))
