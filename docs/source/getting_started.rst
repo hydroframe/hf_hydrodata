@@ -28,7 +28,7 @@ to use. You can run the following code one time to register your PIN::
 
     hf.register_api_pin("<your_email>", "<your_pin>")
 
-Your PIN will expire after 2 days of non-use. If your PIN expires, you must return to
+Your PIN will expire after 7 days of non-use. If your PIN expires, you must return to
 the `HydroFrame PIN Page <https://hydrogen.princeton.edu/pin>`_ and create a new PIN. 
 You only need to re-register this PIN with the ``register_api_pin`` method if the 
 new 4-digit PIN is different from your previous 4-digit PIN (the PIN is allowed

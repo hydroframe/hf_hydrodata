@@ -2,14 +2,14 @@
 Functions to access data_catalog metadata.
 """
 
-# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702,W0212
+# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702,W0212,W0718
 
 import os
 import datetime
 from typing import List
 import threading
-import requests
 import functools
+import requests
 from hf_hydrodata.data_model_access import ModelTableRow, load_data_model
 
 HYDRODATA = "/hydrodata"
@@ -32,8 +32,7 @@ def _maintenance_guard(func):
                 raise _MaintenanceError(
                     "The system is under scheduled monthly maintenance. Please try again after 2pm EST."
                 ) from e
-            else:
-                raise
+            raise
 
     return wrapper
 
@@ -449,7 +448,7 @@ def _get_preferred_catalog_entry(entries: List[dict]) -> dict:
         preference_states = [
             {
                 "preference_state_key": "file_type",
-                "preferred_values": ["pfb", "tif", "netcdf"],
+                "preferred_values": ["pfb", "tiff", "tif", "netcdf"],
             },
             {
                 "preference_state_key": "aggregation",
@@ -552,6 +551,7 @@ def _ambiguous_error_message(entry_1: dict, entry_2: dict) -> str:
         "temporal_resolution",
         "aggregation",
         "grid",
+        "file_type",
         "variable",
         "site_type",
     ]
