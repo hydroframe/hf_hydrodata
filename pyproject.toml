@@ -1,17 +1,24 @@
-[tool.poetry]
+[project]
 name = "hf_hydrodata"
 version = "1.3.53"
 description = "hydroframe tools and utilities"
-authors = ["William M. Hasling", "Laura Condon", "Reed Maxwell",  "George Artavanis", "Amy M. Johnson", "Amy C. Defnet"]
+authors = [
+    { name = "William M. Hasling" },
+    { name = "Laura Condon" },
+    { name = "Reed Maxwell" },
+    { name = "George Artavanis" },
+    { name = "Amy M. Johnson" },
+    { name = "Amy C. Defnet" },
+]
 license = "MIT"
 readme = "README.md"
 
-[package]
-include = ["src/hf_hydrodata/model/*.csv"]
-
+[project.urls]
+Homepage = "https://hydroframe.org/hydrodata"
+Repository = "https://github.com/hydroframe/hf_hydrodata"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 numpy = ">=1.23.5"
 xarray = ">=0.21.0"
 netcdf4 = "==1.7.3"
@@ -27,7 +34,7 @@ shapely = ">=2.0.2"
 typing_extensions = ">=4.14.0"
 # Optional for now rasterio = ">=1.3.9"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 sphinx = ">=6.1.3"
 sphinx-rtd-theme = ">=1.2.0"
 sphinxcontrib-napoleon = ">=0.7"
@@ -36,7 +43,6 @@ pylint = ">=2.13.7"
 black = ">=23.3.0"
 twine = ">=4.0.2"
 coverage = "^7.6.1"
-
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
