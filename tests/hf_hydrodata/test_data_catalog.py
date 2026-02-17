@@ -12,6 +12,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../s
 import hf_hydrodata as hf
 import hf_hydrodata.gridded as gr
 
+run_remote = not os.path.exists(gr.HYDRODATA)
+
 
 def test_get_citations():
     """Test get_citation"""
@@ -262,6 +264,9 @@ def test_tiff_preferred_over_cog_file_type():
 
 def test_ambiguous_error():
     """Test that the ambiguous error message shows file_type and not the id field."""
+    if run_remote:
+        pytest.skip("dataset filtering ambiguous for local users only")
+
     with pytest.raises(ValueError) as info:
         hf.get_catalog_entry(dataset="ma_2025", variable="water_table_depth")
     assert "Could be id" not in (str(info.value))
