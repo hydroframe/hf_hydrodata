@@ -260,6 +260,7 @@ def test_tiff_preferred_over_cog_file_type():
     assert entry is not None
 
 
+@pytest.mark.private_dataset
 def test_ambiguous_error():
     """Test that the ambiguous error message shows file_type and not the id field."""
     with pytest.raises(ValueError) as info:
