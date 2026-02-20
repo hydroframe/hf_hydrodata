@@ -1786,6 +1786,9 @@ def test_flow_direction():
 
 def test_smap_current_conditions():
     """Test a bug that happened when trying to read too many pfb files in a single call to get_gridded_data"""
+    if run_remote:
+        pytest.skip("requesting more than 2GB data limit")
+
     x = 2387
     y = 1673
     st_dt = "2023-08-01"
