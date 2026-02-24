@@ -1,4 +1,4 @@
-[project]
+[tool.poetry]
 name = "hf_hydrodata"
 version = "1.3.54"
 requires-python = ">=3.10,<4.0"
@@ -14,7 +14,7 @@ authors = [
 license = "MIT"
 readme = "README.md"
 
-[project.urls]
+[tool.poetry.urls]
 Homepage = "https://hydroframe.org/hydrodata"
 Repository = "https://github.com/hydroframe/hf_hydrodata"
 
