@@ -2444,3 +2444,18 @@ def test_ma_2025_get_gridded_files_netcdf(tmp_path):
     assert lat_coord.shape == (5, 5)
 
     os.chdir(cd)
+
+
+def test_read_pftxt():
+    """Test reading pftxt files."""
+
+    grid_bounds = [950, 500, 1000, 550]
+    data = gr.get_gridded_data(
+        dataset="conus1_domain",
+        variable="elevation",
+        grid_bounds=grid_bounds,
+    )
+
+    assert data.shape == (50, 50)
+    assert round(data[0, 0], 5) == 2757.0
+    assert round(data[49, 49], 5) == 2401.0
