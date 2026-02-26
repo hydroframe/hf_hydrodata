@@ -1786,18 +1786,15 @@ def test_flow_direction():
 
 def test_smap_current_conditions():
     """Test a bug that happened when trying to read too many pfb files in a single call to get_gridded_data"""
-    if run_remote:
-        pytest.skip("requesting more than 2GB data limit")
-
     x = 2387
     y = 1673
+    grid_point = [x, y]
     st_dt = "2023-08-01"
     options = {
         "data_catalog_entry_id": "213",
         "start_time": st_dt,
         "end_time": "2024-02-01",
-        "x": x,
-        "y": y,
+        "grid_point": grid_point,
     }
     data = hf.get_gridded_data(options)
     # This used to fail before fixing a bug to call read_pfb_sequence with a limited block size
