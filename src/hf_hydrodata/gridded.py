@@ -1361,6 +1361,8 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
             data = _read_and_filter_netcdf_files(entry, options, time_values)
         elif file_type == "tiff":
             data = _read_and_filter_tiff_files(entry, options)
+        elif file_type == "pftxt":
+            data = _read_and_filter_pftxt_files(options)
         else:
             raise ValueError(f"File type '{file_type}' is not supported yet.")
         if structure_type == "gridded":
@@ -2161,6 +2163,35 @@ def _read_and_filter_tiff_files(
         # Select the data and do not flip the result
         data_da = data_da.isel(da_indexers)
         data = data_da.to_numpy()
+    return data
+
+
+def _read_and_filter_pftxt_files(
+    options: dict,
+) -> np.ndarray:
+    """
+    Read the pftxt files in the file paths of the entry filter and filter the data.
+
+    Args:
+        options: The options passed to get_ndarray as a dict.
+    Returns:
+        An numpy ndarray of the filtered contents of the pftxt files.
+    """
+    paths = get_paths(options)
+    file_path = paths[0]
+
+    # Read the first row (shape)
+    shape = tuple(np.loadtxt(file_path, max_rows=1, dtype=int))
+    data = np.loadtxt(file_path, skiprows=1).reshape((shape[1], shape[0]))
+
+    if data.size != np.prod(shape):
+        raise ValueError("Data size does not match declared shape")
+
+    grid_bounds = options.get("grid_bounds")
+    if grid_bounds is not None:
+        imin, jmin, imax, jmax = grid_bounds
+        data = data[jmin:jmax, imin:imax]
+
     return data
 
 
