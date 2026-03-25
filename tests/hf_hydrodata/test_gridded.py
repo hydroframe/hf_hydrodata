@@ -2504,3 +2504,21 @@ def test_read_pftxt():
     assert data.shape == (50, 50)
     assert round(data[0, 0], 5) == 2757.0
     assert round(data[49, 49], 5) == 2401.0
+
+
+def test_slope_x():
+    """
+    Test grid_point for the slope_x variable.
+    The slope_x variable is special because the y dimension is an exact multiple of the PQR "R".
+    This was a bug that was fixed.
+    """
+    conus_i = 972
+    conus_j = 639
+    slope_x = hf.get_gridded_data(
+        {
+            "dataset": "conus1_domain",
+            "variable": "slope_x",
+            "grid_point": [conus_i, conus_j],
+        }
+    )
+    assert slope_x.shape == (1, 1)
