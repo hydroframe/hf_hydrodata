@@ -2859,7 +2859,11 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
 
     grid_bounds = options.get("grid_bounds")
     grid_point = options.get("grid_point")
-    latlon_point = options.get("latlon_point")
+    latlon_point = (
+        options.get("latlon_point")
+        if options.get("latlon_point")
+        else options.get("latlng_point")
+    )
     latlon_bounds = (
         options.get("latlng_bounds")
         if options.get("latlng_bounds")
@@ -2868,6 +2872,13 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
     if grid_point and grid_bounds:
         raise ValueError("Cannot specify both grid_bounds and grid_point")
     if latlon_point:
+        if len(latlon_point) != 2:
+            raise ValueError(f"The bounds {latlon_point} must be [lat,lon]")
+        if latlon_point[0] < 0 or latlon_point[1] > 0:
+            raise ValueError(
+                f"The bounds {latlon_point} must be lat,lon and not lon,lat"
+            )
+
         grid_point = to_ij(grid, *latlon_point)
     if grid_point:
         grid_bounds = [
@@ -2879,7 +2890,8 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
     if grid_bounds and latlon_bounds:
         raise ValueError("Cannot specify both grid_bounds and latlon_bounds")
     if latlon_bounds:
-        grid_bounds = to_ij(grid, *latlon_bounds)
+        # Convert to grid_bounds using same algorithm as subset tools
+        grid_bounds = _convert_latlon_to_grid(grid, latlon_bounds)
     huc_id = options.get("huc_id")
     if grid_bounds and huc_id:
         raise ValueError("Cannot specify both grid_bounds, latlon_bounds and huc_id")
@@ -2912,19 +2924,48 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
             "conus2", conus2_grid_bounds[2], conus2_grid_bounds[3]
         )
         # Then convert the lat/lon bounds to the target grid bounds
-        grid_botleft_bounds = to_ij(
-            grid, conus2_botleft_latlon[0], conus2_botleft_latlon[1]
-        )
-        grid_topright_bounds = to_ij(
-            grid, conus2_topright_latlon[0], conus2_topright_latlon[1]
-        )
-        grid_bounds = [
-            grid_botleft_bounds[0],
-            grid_botleft_bounds[1],
-            grid_topright_bounds[0],
-            grid_topright_bounds[1],
+        latlon_bounds = [
+            conus2_botleft_latlon[0],
+            conus2_botleft_latlon[1],
+            conus2_topright_latlon[0],
+            conus2_topright_latlon[1],
         ]
+        grid_bounds = _convert_latlon_to_grid(grid, latlon_bounds)
 
+    return grid_bounds
+
+
+def _convert_latlon_to_grid(grid: str, latlon_bounds):
+    """
+    Convert latlon_bounds array to a grid_bounds using subsettools algorithm.
+    Parameters:
+        grid:   Data catalog grid name.
+        latlon_bounds:  Array of 4 lat lon points [lat0,lon0,lat1,lon1]
+    Returns:
+        Grid bounds as array of [x0,y0,x1,y1]
+    """
+    # Convert to grid_bounds using same algorithm as subset tools
+    if len(latlon_bounds) != 4:
+        raise ValueError(f"The bounds {latlon_bounds} must be [lat0,lon0,lat1,lat1]")
+    if (
+        latlon_bounds[0] < 0
+        or latlon_bounds[1] > 0
+        or latlon_bounds[2] < 0
+        or latlon_bounds[3] > 0
+    ):
+        raise ValueError(f"The bounds {latlon_bounds} must be lat,lon and not lon,lat")
+    ij_points = to_ij(grid, *latlon_bounds)
+    if len(ij_points) != 4:
+        raise ValueError(f"Unable to convert {latlon_bounds} to grid_bounds")
+    imin, imax = [
+        min(ij_points[0], ij_points[2]),
+        max(ij_points[0], ij_points[2]) + 1,
+    ]
+    jmin, jmax = [
+        min(ij_points[1], ij_points[3]),
+        max(ij_points[1], ij_points[3]) + 1,
+    ]
+    grid_bounds = [imin, jmin, imax, jmax]
     return grid_bounds
 
 
