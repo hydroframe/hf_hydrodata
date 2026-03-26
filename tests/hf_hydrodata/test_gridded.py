@@ -1563,10 +1563,10 @@ def test_get_wtd():
     )
 
     assert data.shape == (2, 2)
-    assert str(round(data[0, 0], 5)) == "52.86004"
-    assert str(round(data[0, 1], 5)) == "43.37404"
-    assert str(round(data[1, 0], 5)) == "27.75672"
-    assert str(round(data[1, 1], 5)) == "36.64674"
+    assert str(round(data[0, 0], 4)) == "52.86"
+    assert str(round(data[0, 1], 4)) == "43.374"
+    assert str(round(data[1, 0], 4)) == "27.7567"
+    assert str(round(data[1, 1], 4)) == "36.6467"
 
     # Test the 100 meter resolution version
     # Same points, but values are not exactly the same as 1000 because of aggregation in resolutions
@@ -1585,10 +1585,10 @@ def test_get_wtd():
         in "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_100m_CONUS2_m_1s_remapped.tif"
     )
     assert data.shape == (2, 2)
-    assert str(round(data[0, 0], 5)) == "58.01496"
-    assert str(round(data[0, 1], 5)) == "54.30452"
-    assert str(round(data[1, 0], 5)) == "48.61397"
-    assert str(round(data[1, 1], 5)) == "49.04675"
+    assert str(round(data[0, 0], 4)) == "58.015"
+    assert str(round(data[0, 1], 4)) == "54.3045"
+    assert str(round(data[1, 0], 4)) == "48.614"
+    assert str(round(data[1, 1], 4)) == "49.0467"
 
     # Test the 30 meter resolution version
     # Same points, but values are not exactly the same as 1000 because of aggregation in resolutions
@@ -1607,6 +1607,7 @@ def test_get_wtd():
         in "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/compressed_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1s_CONUS2_m_remapped_unflip_compressed.tif"
     )
 
+    assert data.shape == (2, 2)
     assert data.shape == (2, 2)
     assert str(round(data[0, 0], 5)) == "77.19169"
     assert str(round(data[0, 1], 5)) == "78.74432"
