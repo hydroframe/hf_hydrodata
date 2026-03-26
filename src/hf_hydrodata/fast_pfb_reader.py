@@ -29,6 +29,7 @@ INT_BYTES = 4
 FILE_HEADER_BYTES = 64
 SUBGRID_HEADER_BYTES = 36
 
+
 def read_files(pfb_files: List[str], pfb_constraints: dict = None):
     """
     Read and subset a list of pfb files.
@@ -392,7 +393,9 @@ def find_subgrid(
     else:
         # y position as after remainder y rows in file
         # so y subgrid index is the full remain_y rows plus the remaining sg_ny-1 size rows
-        result_y = remain_y + math.floor((y - remain_y * sg_ny) / (sg_ny - 1))
+        # The remaining_rows_height is for the case when y size is an exact multiple of PQR
+        remaining_rows_height = sg_ny - 1 if remain_y > 0 else sg_ny
+        result_y = remain_y + math.floor((y - remain_y * sg_ny) / remaining_rows_height)
 
     # Subgrid number is result_y subgrid rows plus the result_x subgrid in that last row
     subgrid = math.floor(result_y * p + result_x)

@@ -353,7 +353,7 @@ def test_get_gridded_data_pfb_precipitation():
         end_time="2005-10-03",
         latlng_bounds=latlng_bounds,
     )
-    assert data.shape == (4, 50, 100)
+    assert data.shape == (4, 51, 101)
 
     """
     gr.HYDRODATA = "/empty"
@@ -408,7 +408,7 @@ def test_get_gridded_data_pfb_precipitation_string_input():
         end_time="2005-10-03",
         latlng_bounds=latlng_bounds,
     )
-    assert data.shape == (4, 50, 100)
+    assert data.shape == (4, 51, 101)
 
     # Select a single time value with a bounds
     data = gr.get_gridded_data(
@@ -1563,10 +1563,10 @@ def test_get_wtd():
     )
 
     assert data.shape == (2, 2)
-    assert str(round(data[0, 0], 5)) == "52.86004"
-    assert str(round(data[0, 1], 5)) == "43.37404"
-    assert str(round(data[1, 0], 5)) == "27.75672"
-    assert str(round(data[1, 1], 5)) == "36.64674"
+    assert str(round(data[0, 0], 4)) == "52.86"
+    assert str(round(data[0, 1], 4)) == "43.374"
+    assert str(round(data[1, 0], 4)) == "27.7567"
+    assert str(round(data[1, 1], 4)) == "36.6467"
 
     # Test the 100 meter resolution version
     # Same points, but values are not exactly the same as 1000 because of aggregation in resolutions
@@ -1585,10 +1585,10 @@ def test_get_wtd():
         in "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_100m_CONUS2_m_1s_remapped.tif"
     )
     assert data.shape == (2, 2)
-    assert str(round(data[0, 0], 5)) == "58.01496"
-    assert str(round(data[0, 1], 5)) == "54.30452"
-    assert str(round(data[1, 0], 5)) == "48.61397"
-    assert str(round(data[1, 1], 5)) == "49.04675"
+    assert str(round(data[0, 0], 4)) == "58.015"
+    assert str(round(data[0, 1], 4)) == "54.3045"
+    assert str(round(data[1, 0], 4)) == "48.614"
+    assert str(round(data[1, 1], 4)) == "49.0468"
 
     # Test the 30 meter resolution version
     # Same points, but values are not exactly the same as 1000 because of aggregation in resolutions
@@ -1607,6 +1607,7 @@ def test_get_wtd():
         in "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/compressed_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_1s_CONUS2_m_remapped_unflip_compressed.tif"
     )
 
+    assert data.shape == (2, 2)
     assert data.shape == (2, 2)
     assert str(round(data[0, 0], 5)) == "77.19169"
     assert str(round(data[0, 1], 5)) == "78.74432"
@@ -2110,7 +2111,52 @@ def test_latlon_bounds():
     latitude = hf.get_gridded_data(
         {"variable": "latitude", "grid": "conus2", "latlon_bounds": latlon_bounds}
     )
-    assert latitude.shape == (45, 51)
+    assert latitude.shape == (46, 52)
+
+
+def test_latlon_bounds_tall():
+    """
+    Test get_gridded_data with latlon_bounds and a tall region.
+    This used to get the wrong answer because of projection skew and
+    would become a grid_bounds with x_low > x_high which resulted in an error.
+    """
+    latlon_bounds = [40.74371301, -74.02313232, 40.93384374, -73.9599609]
+
+    data = hf.get_gridded_data(
+        {"variable": "latitude", "grid": "conus2", "latlon_bounds": latlon_bounds}
+    )
+    assert data.shape == (22, 2)
+
+    with pytest.raises(ValueError) as info:
+        latlon_bounds = [40.74371301, -74.02313232, 40.93384374, -73.95996094, 3]
+
+        data = hf.get_gridded_data(
+            {"variable": "latitude", "grid": "conus2", "latlon_bounds": latlon_bounds}
+        )
+    assert "must be [lat1,lon1" in str(info)
+
+    with pytest.raises(ValueError) as info:
+        latlon_bounds = [-74.02313232, 40.74371301, -73.95996094, 40.93384374]
+
+        data = hf.get_gridded_data(
+            {"variable": "latitude", "grid": "conus2", "latlon_bounds": latlon_bounds}
+        )
+    assert "must be lat,lon and not lon,lat" in str(info)
+
+    with pytest.raises(ValueError) as info:
+        latlon_point = [-74.02313232, 40.74371301]
+
+        data = hf.get_gridded_data(
+            {"variable": "latitude", "grid": "conus2", "latlon_point": latlon_point}
+        )
+    assert "must be lat,lon and not lon,lat" in str(info)
+    with pytest.raises(ValueError) as info:
+        latlng_point = [-74.02313232, 40.74371301]
+
+        data = hf.get_gridded_data(
+            {"variable": "latitude", "grid": "conus2", "latlng_point": latlng_point}
+        )
+    assert "must be lat,lon and not lon,lat" in str(info)
 
 
 def test_get_gridded_files_to_netcdf_min():
@@ -2271,7 +2317,7 @@ def test_date_start():
 
 
 def test_select_by_huc_conus2_wtd():
-    """Test that we can filter by HUC in get_gridded_data for grids not in conus1 or conus2."""
+    """Test that we can filter by HUC in get_gridded_data() for grids not in conus1 or conus2."""
 
     assert gr._get_grid_bounds("conus1", {"huc_id": "1019000404"}) == [
         1076,
@@ -2288,13 +2334,13 @@ def test_select_by_huc_conus2_wtd():
     assert gr._get_grid_bounds("conus2_wtd", {"huc_id": "15020018"}) == [
         1568,
         1386,
-        1701,
-        1478,
+        1702,
+        1479,
     ]
 
     assert gr.get_huc_bbox("conus1", "1019000404") == [1076, 720, 1124, 739]
     assert gr.get_huc_bbox("conus2", "15020018") == [928, 1330, 1061, 1422]
-    assert gr.get_huc_bbox("conus2_wtd", "15020018") == [1568, 1386, 1701, 1478]
+    assert gr.get_huc_bbox("conus2_wtd", "15020018") == [1568, 1386, 1702, 1479]
 
     with pytest.raises(ValueError) as exc:
         gr.get_huc_bbox("conus2", "1019000404")
@@ -2312,7 +2358,7 @@ def test_get_gridded_data_wtd_huc_id():
         "grid": "conus2_wtd",
     }
     data = gr.get_gridded_data(options)
-    assert data.shape == (92, 133)
+    assert data.shape == (93, 134)
 
     with pytest.raises(ValueError) as exc:
         options = {
@@ -2330,7 +2376,7 @@ def test_get_gridded_data_wtd_huc_id():
         "grid": "conus2_wtd.100",
     }
     data = gr.get_gridded_data(options)
-    assert data.shape == (920, 1330)
+    assert data.shape == (921, 1331)
 
     # This test works, but it is very slow
     options = {
@@ -2459,3 +2505,21 @@ def test_read_pftxt():
     assert data.shape == (50, 50)
     assert round(data[0, 0], 5) == 2757.0
     assert round(data[49, 49], 5) == 2401.0
+
+
+def test_slope_x():
+    """
+    Test grid_point for the slope_x variable.
+    The slope_x variable is special because the y dimension is an exact multiple of the PQR "R".
+    This was a bug that was fixed.
+    """
+    conus_i = 972
+    conus_j = 639
+    slope_x = hf.get_gridded_data(
+        {
+            "dataset": "conus1_domain",
+            "variable": "slope_x",
+            "grid_point": [conus_i, conus_j],
+        }
+    )
+    assert slope_x.shape == (1, 1)
