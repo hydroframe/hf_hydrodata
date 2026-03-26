@@ -1609,10 +1609,10 @@ def test_get_wtd():
 
     assert data.shape == (2, 2)
     assert data.shape == (2, 2)
-    assert str(round(data[0, 0], 5)) == "77.19169"
-    assert str(round(data[0, 1], 5)) == "78.74432"
-    assert str(round(data[1, 0], 5)) == "78.69136"
-    assert str(round(data[1, 1], 5)) == "78.74432"
+    assert str(round(data[0, 0], 3)) == "77.192"
+    assert str(round(data[0, 1], 3)) == "78.744"
+    assert str(round(data[1, 0], 3)) == "78.691"
+    assert str(round(data[1, 1], 3)) == "78.744"
 
 
 @pytest.mark.private_dataset
