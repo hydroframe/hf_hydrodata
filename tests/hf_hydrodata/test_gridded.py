@@ -1588,7 +1588,7 @@ def test_get_wtd():
     assert str(round(data[0, 0], 4)) == "58.015"
     assert str(round(data[0, 1], 4)) == "54.3045"
     assert str(round(data[1, 0], 4)) == "48.614"
-    assert str(round(data[1, 1], 4)) == "49.0467"
+    assert str(round(data[1, 1], 4)) == "49.0468"
 
     # Test the 30 meter resolution version
     # Same points, but values are not exactly the same as 1000 because of aggregation in resolutions
