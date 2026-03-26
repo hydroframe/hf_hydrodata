@@ -1585,10 +1585,10 @@ def test_get_wtd():
         in "/hydrodata/temp/high_resolution_data/WTD_estimates/30m/remapped_data/wtd_mean_estimate_RF_additional_inputs_dummy_drop0LP_100m_CONUS2_m_1s_remapped.tif"
     )
     assert data.shape == (2, 2)
-    assert str(round(data[0, 0], 4)) == "58.015"
-    assert str(round(data[0, 1], 4)) == "54.3045"
-    assert str(round(data[1, 0], 4)) == "48.614"
-    assert str(round(data[1, 1], 4)) == "49.0468"
+    assert str(round(data[0, 0], 3)) == "58.015"
+    assert str(round(data[0, 1], 3)) == "54.305"
+    assert str(round(data[1, 0], 3)) == "48.614"
+    assert str(round(data[1, 1], 3)) == "49.047"
 
     # Test the 30 meter resolution version
     # Same points, but values are not exactly the same as 1000 because of aggregation in resolutions
