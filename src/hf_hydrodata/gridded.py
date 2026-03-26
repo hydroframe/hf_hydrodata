@@ -2940,13 +2940,13 @@ def _convert_latlon_to_grid(grid: str, latlon_bounds):
     Convert latlon_bounds array to a grid_bounds using subsettools algorithm.
     Parameters:
         grid:   Data catalog grid name.
-        latlon_bounds:  Array of 4 lat lon points [lat0,lon0,lat1,lon1]
+        latlon_bounds:  Array of 4 lat lon points [lat1,lon1,lat2,lon2]
     Returns:
         Grid bounds as array of [x0,y0,x1,y1]
     """
     # Convert to grid_bounds using same algorithm as subset tools
     if len(latlon_bounds) != 4:
-        raise ValueError(f"The bounds {latlon_bounds} must be [lat0,lon0,lat1,lat1]")
+        raise ValueError(f"The bounds {latlon_bounds} must be [lat1,lon1,lat2,lat2]")
     if (
         latlon_bounds[0] < 0
         or latlon_bounds[1] > 0

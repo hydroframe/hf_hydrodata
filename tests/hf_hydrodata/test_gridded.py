@@ -2132,7 +2132,7 @@ def test_latlon_bounds_tall():
         data = hf.get_gridded_data(
             {"variable": "latitude", "grid": "conus2", "latlon_bounds": latlon_bounds}
         )
-    assert "must be [lat0,lon0" in str(info)
+    assert "must be [lat1,lon2" in str(info)
 
     with pytest.raises(ValueError) as info:
         latlon_bounds = [-74.02313232, 40.74371301, -73.95996094, 40.93384374]
