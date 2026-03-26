@@ -2317,7 +2317,7 @@ def test_date_start():
 
 
 def test_select_by_huc_conus2_wtd():
-    """Test that we can filter by HUC in get_gridded_data for grids not in conus1 or conus2."""
+    """Test that we can filter by HUC in get_gridded_data() for grids not in conus1 or conus2."""
 
     assert gr._get_grid_bounds("conus1", {"huc_id": "1019000404"}) == [
         1076,
