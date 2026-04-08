@@ -1709,7 +1709,6 @@ def _get_gridded_data_from_api(options):
     -------
     numpy array of the requested data or None if running locally.
     """
-
     run_remote = not os.path.exists(HYDRODATA)
 
     if run_remote:
@@ -1726,39 +1725,67 @@ def _get_gridded_data_from_api(options):
         try:
             headers = _get_api_headers()
             response = requests.get(gridded_data_url, headers=headers, timeout=4000)
-            if response.status_code in [500, 502]:
-                # Retry because of timeout error
-                warnings.warn("API timeout, performing retry.")
-                response = requests.get(gridded_data_url, headers=headers, timeout=4000)
-            if response.status_code == 400:
-                content = response.content.decode()
-                response_json = json.loads(content)
-                message = response_json.get("message")
-                raise ValueError(message)
-            if response.status_code in [500, 502]:
-                raise ValueError(
-                    "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
-                )
-            if response.status_code != 200:
-                raise ValueError(
-                    f"The  {gridded_data_url} returned error code {response.status_code}."
-                )
+            response_headers = response.headers
+            download_start = response_headers.get("download-start")
+            for retry_count in range(0, 80):
+                # Retry up to 80 times if the response is a 202 (retry) response
+                if response.status_code == 202:
+                    # Retry
+                    retry_location = response_headers.get("Location")
+                    retry_url = f"{HYDRODATA_URL}/api{retry_location}?download_start={download_start}"
+                    response = requests.get(retry_url, headers=headers, timeout=10)
+                    sleep_duration = (
+                        1 if retry_count < 10 else 2 if retry_count < 30 else 4
+                    )
+                    time.sleep(sleep_duration)
+                elif response.status_code == 400:
+                    content = response.content.decode()
+                    response_json = json.loads(content)
+                    message = response_json.get("message")
+                    raise ValueError(message)
+                elif response.status_code in [500, 502]:
+                    message = f"System error {response.status_code} from server. Try again later."
+                    _send_download_complete_reply(
+                        response, headers, download_start, message=message
+                    )
+                    raise ValueError(message)
+                elif response.status_code != 200:
+                    message = f"The  {gridded_data_url} returned error code {response.status_code}."
+                    _send_download_complete_reply(
+                        response, headers, download_start, message=message
+                    )
+                    raise ValueError(message)
 
         except requests.exceptions.ChunkedEncodingError as ce:
-            raise ValueError(
-                "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
-            ) from ce
+            message = "Chunked encoding error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+            _send_download_complete_reply(
+                response, headers, download_start, message=message
+            )
+            raise ValueError(message) from ce
         except requests.exceptions.Timeout as te:
-            raise ValueError(
-                "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
-            ) from te
-
+            message = "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+            _send_download_complete_reply(
+                response, headers, download_start, message=message
+            )
+            raise ValueError(message) from te
         content = response.content
         if content is None or len(content) == 0:
-            raise ValueError(
-                "Timeout response from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+            message = "Empty content from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+            _send_download_complete_reply(
+                response, headers, download_start, message=message
             )
+            raise ValueError(message)
+
+        # Get an updated download_start if provided in the response headers of a retry response from message queue
+        updated_download_start = response.headers.get("download-start")
+        download_start = (
+            updated_download_start if updated_download_start else download_start
+        )
+
         file_obj = io.BytesIO(content)
+        _send_download_complete_reply(
+            response, headers, download_start, file_size=len(content)
+        )
         with THREAD_LOCK:
             # The open_dataset call itself is not thread safe (it is safe after it is opened)
             netcdf_dataset = xr.open_dataset(file_obj)
@@ -1770,6 +1797,40 @@ def _get_gridded_data_from_api(options):
         return data
 
     return None
+
+
+def _send_download_complete_reply(
+    response, request_headers, download_start, message=None, file_size=0
+):
+    """
+    Send back to the API a download complete reply.
+    Parameters:
+        response:           The response returned from a download API call.
+        request_headers:    The request headers with the JWT token to make the new request.
+    """
+    headers = response.headers
+    transfer_filename = headers.get("transfer-filename")
+    job_queue_duration = headers.get("queue-job-duration")
+    message = message.replace(",", " ") if message else ""
+    query_parameters = {
+        "transfer_filename": transfer_filename,
+        "download_start": download_start,
+        "error_message": message,
+        "job_queue_duration": job_queue_duration,
+        "file_size": str(file_size) if file_size else "",
+    }
+    query_parameters_string = "&".join(
+        [
+            key + "=" + query_parameters[key]
+            for key in query_parameters
+            if query_parameters.get(key)
+        ]
+    )
+    url = f"{HYDRODATA_URL}/api/gridded-data?{query_parameters_string}"
+    try:
+        requests.delete(url, headers=request_headers, timeout=60)
+    except:
+        pass
 
 
 def _adjust_dimensions(data: np.ndarray, entry: ModelTableRow) -> np.ndarray:

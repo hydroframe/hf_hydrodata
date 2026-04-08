@@ -27,6 +27,13 @@ def _maintenance_guard(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
+        except ValueError as ve:
+            if _is_maintenance_window():
+                raise _MaintenanceError(
+                    "The system is under scheduled monthly maintenance. Please try again after 2pm EST."
+                ) from ve
+            # Raising from None limits the stack trace the client sees
+            raise ValueError(str(ve)) from None
         except Exception as e:
             if _is_maintenance_window():
                 raise _MaintenanceError(
