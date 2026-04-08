@@ -1319,18 +1319,6 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
     if options.get("period") and not options.get("temporal_resolution"):
         options["temporal_resolution"] = options["period"]
 
-    # Add warning for transition to CW3E dataset version 1.0 when dataset_version not explicit from user
-    if options.get("dataset") == "CW3E" and "dataset_version" not in options:
-        warnings.warn(
-            "As of 2024-10-09, version 1.0 of the CW3E dataset has been released. "
-            "Due to known improvements in the results, this dataset version is now "
-            "the default version returned from `hf.get_gridded_data` when `dataset_version` "
-            "is not explicitly specified. If you would like to use the previous version "
-            "of the CW3E dataset, please specify `dataset_version = '0.9'` as an additional "
-            "option in your request. Please see the documentation for additional details on "
-            "what is different in version 1.0: https://hf-hydrodata.readthedocs.io/en/latest/gen_CW3E.html.",
-            stacklevel=3,
-        )
     data = _get_gridded_data_from_api(options)
 
     # An optional empty array passed as an option to be populated with the time dimension for graphing.
