@@ -1739,18 +1739,19 @@ def _get_gridded_data_from_api(options):
                     )
                     time.sleep(sleep_duration)
                 elif response.status_code == 400:
+                    # Do not send download complete reply for 400 errors since they are already logged.
                     content = response.content.decode()
                     response_json = json.loads(content)
                     message = response_json.get("message")
                     raise ValueError(message)
                 elif response.status_code in [500, 502]:
-                    message = f"System error {response.status_code} from server. Try again later."
+                    message = f"System error {response.status_code}. Possibly too many download requests in progress. Try again later."
                     _send_download_complete_reply(
                         response, headers, download_start, message=message
                     )
                     raise ValueError(message)
                 elif response.status_code != 200:
-                    message = f"The  {gridded_data_url} returned error code {response.status_code}."
+                    message = f"The {gridded_data_url} returned error code {response.status_code}."
                     _send_download_complete_reply(
                         response, headers, download_start, message=message
                     )
