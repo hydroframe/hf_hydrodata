@@ -284,8 +284,8 @@ def get_catalog_entries(*args, **kwargs) -> List[ModelTableRow]:
         temporal_resolution:         The temporal_resolution (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
-        start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
-        end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
+        date_start:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data. (start_time is also accepted for backward compatibility)
+        date_end:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data. (end_time is also accepted for backward compatibility)
         grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.
         latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
         grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
@@ -380,8 +380,8 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
         temporal_resolution:         The temporal_resolution (e.g. hourly, daily, weekly, monthly) of a dataset variable.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
-        start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
-        end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
+        date_start:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data. (start_time is also accepted for backward compatibility)
+        date_end:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data. (end_time is also accepted for backward compatibility)
         grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.
         latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
         grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
@@ -426,7 +426,7 @@ def get_catalog_entry(*args, **kwargs) -> ModelTableRow:
 
         options = {
             "dataset": "NLDAS2", "temporal_resolution": "daily",
-            "variable": "precipitation", "start_time": "2005-7-1"
+            "variable": "precipitation", "date_start": "2005-7-1"
         }
         entry = hf.get_catalog_entry(options)
     """

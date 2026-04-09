@@ -61,7 +61,7 @@ and many other fields. A full description of the metadata returned can be found 
     import hf_hydrodata as hf
 
     # Define filters and return as NumPy array
-    filters = {"dataset":"NLDAS2", "variable":"precipitation", "temporal_resolution":"daily", "start_time": "2005-03-01"}
+    filters = {"dataset":"NLDAS2", "variable":"precipitation", "temporal_resolution":"daily", "date_start": "2005-03-01"}
     data = hf.get_gridded_data(filters)
     print(data.shape)
 
