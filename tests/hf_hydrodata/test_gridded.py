@@ -2492,3 +2492,21 @@ def test_slope_x():
         }
     )
     assert slope_x.shape == (1, 1)
+
+
+def test_monthly_across_wy():
+    """
+    Test query for monthly data across multiple water years.
+    """
+    options = {
+        "dataset": "CW3E",
+        "variable": "air_temp",
+        "date_start": "2022-01-01",
+        "date_end": "2022-12-31",
+        "temporal_resolution": "monthly",
+        "aggregation": "mean",
+        "grid_bounds": [1000, 1000, 1001, 1001],
+    }
+    data = hf.get_gridded_data(options)
+    assert data.shape == (11, 1, 1)
+    assert data[0, 0, 0] == pytest.approx(280.64917718)

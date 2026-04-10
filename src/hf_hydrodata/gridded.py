@@ -1955,13 +1955,13 @@ def _read_and_filter_pfb_files(
         if not os.path.exists(path):
             raise ValueError(f"File {path} does not exist.")
     boundary_constraints = _get_pfb_boundary_constraints(entry.get("grid"), options)
-    boundary_constraints = _add_pfb_time_constraint(
+    boundary_constraints, constraint_delta = _add_pfb_time_constraint(
         boundary_constraints, entry, start_time_value, end_time_value
     )
 
     # The read_pfb_sequence method has a limit to how many paths it can read in one call because of memory limits.
     # However, the fast_pfb_reader has no limit since internally it reads in parallel as many as fit in memory.
-    max_block_size = 100 if do_not_use_fast_pfb else 1000
+    max_block_size = 1 if constraint_delta else 100 if do_not_use_fast_pfb else 1000
 
     final_data = None
     block_start = 0
@@ -1981,17 +1981,41 @@ def _read_and_filter_pfb_files(
         if final_data is None:
             # This is the first block
             final_data = data
+            if constraint_delta:
+                # remove the file dimension to allow appending. There is only 1 file per block.
+                final_data = _remove_file_dimension(final_data)
         else:
             # Append the next block to the final result
+            if constraint_delta:
+                # remove the file dimension to allow appending. There is only 1 file per block.
+                data = _remove_file_dimension(data)
             final_data = np.append(final_data, data, axis=0)
+
         # Increment the block start to read the next block
         block_start = block_end
+        if constraint_delta:
+            # increment the start_time_value for next block if we have a constraint delta
+            start_time_value = start_time_value + constraint_delta
+            boundary_constraints, constraint_delta = _add_pfb_time_constraint(
+                boundary_constraints, entry, start_time_value, end_time_value
+            )
 
     # Remove an unused z dimension that is returned by read_pfb for 2D pfb files
     final_data = _remove_unused_z_dimension(final_data, entry)
     _collect_pfb_date_dimensions(time_values, final_data, start_time_value)
 
     return final_data
+
+
+def _remove_file_dimension(data: np.ndarray) -> np.ndarray:
+    """Remove the file dimension from the data ndarray."""
+    if len(data.shape) == 5:
+        data = data[0, :, :, :, :]
+    elif len(data.shape) == 4:
+        data = data[0, :, :, :]
+    elif len(data.shape) == 3:
+        data = data[0, :, :]
+    return data
 
 
 def _remove_unused_z_dimension(data: np.ndarray, entry: dict) -> np.ndarray:
@@ -2040,7 +2064,7 @@ def _read_and_filter_c_pfb_files(
             "y": {"start": 0, "stop": int(shape[1])},
             "z": {"start": 0, "stop": 0},
         }
-    boundary_constraints = _add_pfb_time_constraint(
+    boundary_constraints, _ = _add_pfb_time_constraint(
         boundary_constraints, entry, start_time_value, end_time_value
     )
     dataset_var = entry.get("dataset_var")
@@ -2458,7 +2482,7 @@ def _add_pfb_time_constraint(
     entry: ModelTableRow,
     start_time_value: datetime.datetime,
     end_time_value: datetime.datetime,
-) -> dict:
+) -> tuple[dict, relativedelta]:
     """
     Add a PFB constraint to the z dimension when the PFB z dimension is being used as a time dimension.
 
@@ -2468,8 +2492,13 @@ def _add_pfb_time_constraint(
         start_time_value        Start time of the filter
         end_time_value:         End time of the filter
     Returns:
-        The updated boundary_constraints
+        A tuple(updated boundary_constraints, relativedelta)
+
+    The relativedelta is returned if a time constraint will be different for each file.
+    If the relative delta is returned the caller should only read one file at a time
+    and add the relative delta to the start_time_value and call for the next file.
     """
+    constraint_delta = None
     period = (
         entry.get("temporal_resolution")
         if entry.get("temporal_resolution")
@@ -2522,7 +2551,10 @@ def _add_pfb_time_constraint(
                 )
             else:
                 month_end = month_start + 1
+            month_start = min(max(month_start, 0), 12)
+            month_end = min(max(month_end, 0), 12)
             boundary_constraints["z"] = {"start": month_start, "stop": month_end}
+            constraint_delta = relativedelta(months=month_end - month_start)
         elif period == "weekly":
             # We are going to assume the file contains all months in a water year
             (_, wy_start) = _get_water_year(start_time_value)
@@ -2553,7 +2585,7 @@ def _add_pfb_time_constraint(
             else:
                 end_hour = start_hour + 1
             boundary_constraints["z"] = {"start": start_hour, "stop": end_hour}
-    return boundary_constraints
+    return boundary_constraints, constraint_delta
 
 
 def _substitute_datapath(
