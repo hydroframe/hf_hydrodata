@@ -11,7 +11,7 @@ identified by the filter attributes passed to the function.
 
       options = {
             "dataset": "NLDAS2", "variable": "precipitation", "temporal_resolution": "hourly",
-            "start_time": "2005-10-1", "end_time": "2005-10-2", "grid_bounds": [100, 100, 200, 200]
+            "date_start": "2005-10-1", "date_end": "2005-10-2", "grid_bounds": [100, 100, 200, 200]
       }
       data = hf.get_gridded_data(options)
 
@@ -28,7 +28,7 @@ It can save files as PFB, NetCDF, or GeoTiff based on the extension in the speci
       variables = ["air_temp", "precipitation"]
       options = {
             "dataset": "CW3E", "temporal_resolution": "hourly",
-            "start_time": "2005-10-1", "end_time": "2005-10-4", "grid_bounds": [100, 100, 200, 200]
+            "date_start": "2005-10-1", "date_end": "2005-10-4", "grid_bounds": [100, 100, 200, 200]
       }
       hf.get_gridded_files(options, variables=variables)
 
@@ -48,7 +48,7 @@ By default this creates PFB files. This creates daily files with the hourly data
       huc_id = "1019000404"
       options = {
             "dataset": "CW3E", "temporal_resolution": "hourly",
-            "start_time": "2005-09-20", "end_time": "2005-10-4", "huc_id": huc_id
+            "date_start": "2005-09-20", "date_end": "2005-10-4", "huc_id": huc_id
       }
       hf.get_gridded_files(options, variables=variables, filename_template="{dataset}_{wy}.nc")
 
@@ -65,7 +65,7 @@ It used the huc_id option to specify the grid_bounds using the bounding box of a
       variables = ["air_temp", "precipitation"]
       options = {
             "dataset": "CW3E", "temporal_resolution": "hourly",
-            "start_time": "2005-09-20"
+            "date_start": "2005-09-20"
       }
       hf.get_gridded_files(options, variables=variables, filename_template="{dataset}_{variable}.tiff")
 
@@ -98,7 +98,7 @@ the same filter attributes passed to get_gridded_data.
 
     import hf_hydrodata as hf
     options = {"dataset": "NLDAS2", "temporal_resolution": "daily", "variable": "precipitation",
-            "start_time":"2005-09-30", "end_time":"2005-10-03",
+            "date_start":"2005-09-30", "date_end":"2005-10-03",
             "grid_bounds":[200, 200, 300, 250]
     }
     range = hf.get_date_range(options)
@@ -115,7 +115,7 @@ the same filter attributes passed to get_gridded_data.
 
     options = {
         "dataset": "NLDAS2", "temporal_resolution": "daily",
-        "variable": "precipitation", "start_time": "2005-7-1"
+        "variable": "precipitation", "date_start": "2005-7-1"
     }
     entry = hf.get_catalog_entry(options)
 

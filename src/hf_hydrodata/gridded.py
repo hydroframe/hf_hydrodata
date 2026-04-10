@@ -2,10 +2,9 @@
 Functions to access gridded data from the data catalog index of the GPFS files.
 """
 
-# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702,R0903,R0902,C0415,R0917,W0718
+# pylint: disable=W0603,C0103,E0401,W0702,C0209,C0301,R0914,R0912,W1514,E0633,R0915,R0913,C0302,W0632,R1732,R1702,R0903,R0902,C0415,R0917,W0718,C0206
 import os
 import datetime
-import warnings
 import time
 import io
 from typing import List, Tuple
@@ -192,31 +191,32 @@ def _construct_string_from_qparams(entry, options):
 
 def get_paths(*args, **kwargs) -> List[str]:
     """
-    Get the file paths within data catalog for the filter options.
+    Get the file paths within the data catalog for the specified filter options.
 
-    The parameters to the function can be specified either by passing a dict with the parameter values
-    or by passing named parameters to the function.
+    Parameters can be specified either by passing a dict with parameter values or by passing named parameters to the function.
 
     Args:
-        dataset:        A dataset name (see Gridded Data documentation).
-        variable:       A variable from a dataset.
-        temporal_resolution: Time resolution of a the dataset variable. Must be hourly, daily, weekly, monthly.
-        grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
-        aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
-        start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
-        end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
-        grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.
-        latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
-        grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
-        latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
-        huc_id:         A comma seperated list of HUC id that specifies the grid_bounds using the HUC bounding box.
-        z:              A value of the z dimension to be used as a filter for this dismension when loading data.
-        level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
-        site_id:        Used when reading data associated with an observation site.
+        dataset (str): A dataset name (see Gridded Data documentation).
+        variable (str): A variable from a dataset.
+        temporal_resolution (str): Time resolution of the dataset variable. Must be hourly, daily, weekly, or monthly.
+        grid (str): A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
+        aggregation (str): One of mean, max, or min. Normally only needed for temperature variables.
+        date_start (str or datetime): A time as either a datetime object or a string in YYYY-MM-DD format. Start of the date range for data. (start_time is also accepted for backward compatibility).
+        date_end (str or datetime): A time as either a datetime object or a string in YYYY-MM-DD format. End of the date range for data. (end_time is also accepted for backward compatibility).
+        grid_bounds (list): An array of points [left, bottom, right, top] in xy grid coordinates.
+        latlng_bounds (list): An array of points [lat_min, lon_min, lat_max, lon_max] in lat/lng coordinates.
+        grid_point (list): An array of points [x, y] in grid coordinates.
+        latlng_point (list): An array of points [lat, lon] in lat/lng coordinates.
+        huc_id (str or list): A comma-separated list of HUC ids that specifies the grid_bounds using the HUC bounding box.
+        z (int): A value of the z dimension to be used as a filter for this dimension when loading data.
+        level (int): A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
+        site_id (str): Used when reading data associated with an observation site.
+
     Returns:
-        An list of absolute path names to the file location on the GPFS file system.
+        list: Absolute path names to the file locations on the GPFS file system.
+
     Raises:
-        ValueError:     If no data data catalog entry is found for the filter options provided.
+        ValueError: If no data catalog entry is found for the provided filter options.
 
     Example:
 
@@ -226,7 +226,7 @@ def get_paths(*args, **kwargs) -> List[str]:
 
         options = {
             "dataset": "NLDAS2", "temporal_resolution": "daily", "variable": "precipitation",
-             "start_time":"2005-09-30", "end_time": "2005-10-3"
+             "date_start":"2005-09-30", "date_end": "2005-10-3"
         }
         paths = hf.get_paths(options)
         assert len(paths) == 5    # 5 days
@@ -297,31 +297,32 @@ def get_paths(*args, **kwargs) -> List[str]:
 
 def get_path(*args, **kwargs) -> str:
     """
-    Get the file path within data catalog for the filter options.
+    Get the file path within the data catalog for the specified filter options.
 
-    The parameters to the function can be specified either by passing a dict with the parameter values
-    or by passing named parameters to the function.
+    Parameters can be specified either by passing a dict with parameter values or by passing named parameters to the function.
 
     Args:
-        dataset:        A dataset name (see Gridded Data documentation).
-        variable:       A variable from a dataset.
-        temporal_resolution: Time resolution of a the dataset variable. Must be hourly, daily, weekly, monthly.
-        grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
-        aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
-        start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
-        end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
-        grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.
-        latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
-        grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
-        latlng_point:   An array (or string representing an array) of points [lat, lon] in lat/lng coordinates of a point in the grid.
-        huc_id:         A comma seperated list of HUC id that specifies the grid_bounds using the HUC bounding box.
-        z:              A value of the z dimension to be used as a filter for this dismension when loading data.
-        level:          A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
-        site_id:        Used when reading data associated with an observation site.
+        dataset (str): A dataset name (see Gridded Data documentation).
+        variable (str): A variable from a dataset.
+        temporal_resolution (str): Time resolution of the dataset variable. Must be hourly, daily, weekly, or monthly.
+        grid (str): A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
+        aggregation (str): One of mean, max, or min. Normally only needed for temperature variables.
+        date_start (str or datetime): A time as either a datetime object or a string in YYYY-MM-DD format. Start of the date range for data. (start_time is also accepted for backward compatibility).
+        date_end (str or datetime): A time as either a datetime object or a string in YYYY-MM-DD format. End of the date range for data. (end_time is also accepted for backward compatibility).
+        grid_bounds (list): An array of points [left, bottom, right, top] in xy grid coordinates.
+        latlng_bounds (list): An array of points [lat_min, lon_min, lat_max, lon_max] in lat/lng coordinates.
+        grid_point (list): An array of points [x, y] in grid coordinates.
+        latlng_point (list): An array of points [lat, lon] in lat/lng coordinates.
+        huc_id (str or list): A comma-separated list of HUC ids that specifies the grid_bounds using the HUC bounding box.
+        z (int): A value of the z dimension to be used as a filter for this dimension when loading data.
+        level (int): A HUC level integer when reading HUC boundary files. Must be 2, 4, 6, 8, or 10.
+        site_id (str): Used when reading data associated with an observation site.
+
     Returns:
-        An absolute path name to the file location on the GPFS file system.
+        str: Absolute path name to the file location on the GPFS file system.
+
     Raises:
-        ValueError      If no data data catalog entry is found for the filter options provided.
+        ValueError: If no data catalog entry is found for the provided filter options.
 
     Example:
 
@@ -331,7 +332,7 @@ def get_path(*args, **kwargs) -> str:
 
         options = {
             "dataset": "NLDAS2", "temporal_resolution": "daily", "variable": "precipitation",
-            "start_time":"2005-09-30"
+            "date_start":"2005-09-30"
         }
         path = hf.get_path(options)
     """
@@ -375,15 +376,17 @@ def get_gridded_files(
     verbose=False,
 ):
     """
-    Get data from the hydrodata catalog and save into multiple files in the current directory.
+    Download data from the hydrodata catalog and save into multiple files in the current directory.
     This allows you to perform large downloads using multiple threads into multiple files with one function call.
 
-    Files are saved to the current directory. A seperate file is created for each day of data downloaded for daily or hourly temporal_resolution.
-    A seperate file is created for each water year of a monthly file. For static temporal_resolution one file per variable is created.
+    This allows you to perform large downloads using multiple threads into multiple output files with one function call.
+    Files are saved to the current directory. A separate file is created for each day of data downloaded for daily or hourly
+    temporal_resolution. A separate file is created for each water year of a monthly file. For static temporal_resolution
+    one file per variable is created.
 
-    The extension of the filename_template determines the file format. Only extensions .pfb, .tiff, or .nc are supported at this time.
-    For tiff files only the first time period of the selected data is saved in the file since a tiff is 2D.
-    For .nc files the files are always created one file per water year so the filename_template should contain {wy} in the name.
+    The extension of the filename_template determines the file format. Only .pfb, .tiff, and .nc extensions are supported.
+    For TIFF files, only the first time period of the selected data is saved since a TIFF is 2D.
+    For .nc files, one file is created per water year, so the filename_template should contain {wy}.
 
     The default filename_template saves data as pfb files:
         * hourly:   {dataset}.{dataset_var}.{hour_start:06d}_to_{hour_end:06d}.pfb
@@ -391,29 +394,31 @@ def get_gridded_files(
         * monthly:  {dataset}.{dataset_var}.monthly.{aggregation}.WY{wy}.pfb
         * static:   {dataset}.{variable}.pfb
 
-    If you explicitly specify a filename_template that will be used instead.
-    If filename_template contains a directory path then that directory will be created if it does not exist.
+    If you explicitly specify a filename_template, it will be used instead.
+    If filename_template contains a directory path, that directory will be created if it does not exist.
 
     Args:
-        options:            A dict containing data filters to be passed to get_gridded_data().
-        filename_template:  A template used to create the file name(s) to store the data downloaded.
-        variables:          A list of variable names (or a single name as a string) to download. If provided, this overwrites the variable defined in options dict.
-        verbose:            If True, prints progress of downloaded data while downloading.
-    Raises:
-        ValueError:  If an error occurs while downloading and creating files.
+        options (dict): A dict containing data filters to be passed to get_gridded_data().
+        filename_template (str, optional): A template to create file name(s) for downloaded data.
+        variables (str or list, optional): Variable name(s) to download. If provided, overwrites the variable in options dict.
+        verbose (bool): If True, prints progress of downloaded data. Default is False.
 
-    The following parameters are substituted into the filename_template.
-        * dataset:      The dataset name from the options.
-        * variable:     The variable being downloaded from options or the variables list.
-        * dataset_var:  The data catalog entry dataset_var of the entry determined by options.
-        * hour_start:   The starting hour of the data in the saved file. Starting with 0.
-        * hour_end:     The ending hour of the data in the saved file.
-        * daynum:       The day number of the data in the saved file. Starting with 0.
-        * wy:           The water year of the data in the saved file.
-        * wy_daynum:    The day number of the water year of the data in the saved file.
-        * wy_start_24hr:The 24 hour start hour of the water year of the data in the saved file.
-        * mdy:          The date as month day year of data in the saved file.
-        * ymd:          The date as year month day of data in the saved file.
+    Raises:
+        ValueError: If an error occurs while downloading and creating files.
+
+    Substitutable parameters in filename_template:
+
+    - ``dataset``: The dataset name from the options.
+    - ``variable``: The variable being downloaded from options or the variables list.
+    - ``dataset_var``: The data catalog entry dataset_var.
+    - ``hour_start``: The starting hour of the data in the saved file (starting at 0).
+    - ``hour_end``: The ending hour of the data in the saved file.
+    - ``daynum``: The day number of the data in the saved file (starting at 0).
+    - ``wy``: The water year of the data in the saved file.
+    - ``wy_daynum``: The day number of the water year.
+    - ``wy_start_24hr``: The 24-hour start hour of the water year.
+    - ``mdy``: The date as month-day-year of data in the saved file.
+    - ``ymd``: The date as year-month-day of data in the saved file.
 
     Example:
 
@@ -423,7 +428,7 @@ def get_gridded_files(
 
         options = {
             "dataset": "NLDAS2", "temporal_resolution": "hourly", "variable": "precipitation",
-            "start_time":"2005-10-01", "end_time":"2005-10-04",
+            "date_start":"2005-10-01", "date_end":"2005-10-04",
             "grid_bounds":[200, 200, 300, 250]
         }
 
@@ -468,6 +473,7 @@ def get_gridded_files(
     verbose_start_time = time.time()
     if options.get("period") and not options.get("temporal_resolution"):
         options["temporal_resolution"] = options.get("period")
+    _check_for_unknown_options(options)
     temporal_resolution = options.get("temporal_resolution")
     temporal_resolution = (
         "static"
@@ -624,33 +630,17 @@ def get_gridded_files(
 
 def read_fast_pfb(pfb_files: List[str], pfb_constraints: dict = None):
     """
-    Fast pfb reader function.
+    Fast PFB file reader supporting parallel reads and optional spatial constraints.
 
     Read a list of PFB files and subset all the files with the optional constraints.
     This runs much faster than parflow.read_pfb() since it loads multiple files in parallel
-    and uses fewer io operations by reading fewer subgrid headers. It is especially faster
+    and uses fewer IO operations by reading fewer subgrid headers. It is especially faster
     for reading many files with small subgrid constraints.
 
-    Parameters:
-        pfb_files:      A list of pfb files to be read or a single pfb file name.
-        pfb_constaints: A constraint that filters the read of the pfb files by the x, y, z dimensions of the files.
-
-    If pfb_constraints is None then reads the entire contents of all pfb_files.
-    If the z part of the constraint is missing or the start and stop are both 0 then returns all pfb file z values.
-
-    The pfb_constraints may be a dict with keys: x, y, z with values a dict of start, stop.
-
-    The pfb_constraints may be a list of 4 ints of x, y bounds as [minx, miny, maxx, maxy].
-
-    The pfb_constraints may be a list of 2 lists of bounds as : [[minx, miny], [maxx, maxy]].
-
-    Returns:
-        A numpy array of dimemensions (n, z, y, x) where n is number of files.
-    Throws:
-        ValueError:  If the pfb_files parameters is missing or empty, or the the returned numpy array is too big.
-
-    The returned numpy array is too big if it contains more then 347115648 cells. This limit is 24 days of conus2 3D array.
-    However, it is not a problem to return multiple years in hours for a small subgrid in one call.
+    Args:
+        pfb_files (list or str): A list of PFB files to read or a single PFB file name.
+        pfb_constraints (dict or list, optional): A constraint that filters the read of the PFB files
+            by the x, y, z dimensions. Default is None (reads entire contents of all files).
 
     For example,
 
@@ -1105,38 +1095,53 @@ def _write_file_from_api(filepath, options):
 
     q_params = _construct_string_from_options(options)
     datafile_url = f"{HYDRODATA_URL}/api/data-file?{q_params}"
+    download_start = ""
 
     try:
         headers = _get_api_headers()
         response = requests.get(datafile_url, headers=headers, timeout=4000)
+        download_start = response.headers.get("download-start")
         if response.status_code != 200:
             if response.status_code == 400:
                 content = response.content.decode()
                 response_json = json.loads(content)
                 message = response_json.get("message")
+                _send_download_complete_reply(
+                    response, headers, download_start, message=message
+                )
                 raise ValueError(message)
             if response.status_code == 502:
-                raise ValueError(
-                    "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+                message = "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+                _send_download_complete_reply(
+                    response, headers, download_start, message=message
                 )
-            raise ValueError(
-                f"The {datafile_url} returned error code {response.status_code}."
+                raise ValueError(message) from None
+            message = f"The {datafile_url} returned error code {response.status_code}."
+            _send_download_complete_reply(
+                response, headers, download_start, message=message
             )
+            raise ValueError(message) from None
 
-    except requests.exceptions.Timeout as te:
-        raise ValueError(
-            "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
-        ) from te
-    except requests.exceptions.ChunkedEncodingError as ce:
-        raise ValueError(
-            f"The {datafile_url} has timed out. Try again later or try to reduce the size of data in the API request using time or space filters."
-        ) from ce
+    except requests.exceptions.Timeout:
+        message = "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+        _send_download_complete_reply(
+            response, headers, download_start, message=message
+        )
+        raise ValueError(message) from None
+    except requests.exceptions.ChunkedEncodingError:
+        message = f"The {datafile_url} has timed out. Try again later or try to reduce the size of data in the API request using time or space filters."
+        raise ValueError(message) from None
 
     content = response.content
     if content is None or len(content) == 0:
-        raise ValueError(
-            "Timeout response from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+        message = "Timeout response from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+        _send_download_complete_reply(
+            response, headers, download_start, message=message
         )
+        raise ValueError(message) from None
+
+    # The response was successful
+    _send_download_complete_reply(response, headers, download_start)
     file_obj = io.BytesIO(content)
     with open(filepath, "wb") as output_file:
         output_file.write(file_obj.read())
@@ -1202,7 +1207,7 @@ def get_date_range(*args, **kwargs) -> Tuple[datetime.datetime, datetime.datetim
         import hf_hydrodata as hf
 
         options = {"dataset": "NLDAS2", "temporal_resolution": "daily", "variable": "precipitation",
-                   "start_time":"2005-09-30", "end_time":"2005-10-03",
+                   "date_start":"2005-09-30", "date_end":"2005-10-03",
                    "grid_bounds":[200, 200, 300, 250]
         }
         range = hf.get_date_range(options)
@@ -1247,8 +1252,8 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
         temporal_resolution: Time resolution of a the dataset variable. Must be hourly, daily, weekly, monthly.
         grid:           A grid supported by a dataset (e.g. conus1 or conus2). Normally this is determined by the dataset.
         aggregation:    One of mean, max, min. Normally, only needed for temperature variables.
-        start_time:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data.
-        end_time:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data.
+        date_start:     A time as either a datetime object or a string in the form YYYY-MM-DD. Start of the date range for data (start_time is also accepted for backward compatibility).
+        date_end:       A time as either a datetime object or a string in the form YYYY-MM-DD. End of the date range for data (end_time is also accepted for backward compatibility).
         grid_bounds:    An array (or string representing an array) of points [left, bottom, right, top] in xy grid corridates in the grid of the data.
         latlng_bounds:  An array (or string representing an array) of points [left, bottom, right, top] in lat/lng coordinates mapped with the grid of the data.
         grid_point:     An array (or string representing an array) of points [x, y] in grid corridates of a point in the grid.
@@ -1298,7 +1303,7 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
 
         options = {
             "dataset": "NLDAS2", "temporal_resolution": "daily", "variable": "precipitation",
-            "start_time":"2005-09-30", "end_time":"2005-10-03",
+            "date_start":"2005-09-30", "date_end":"2005-10-03",
             "grid_bounds":[200, 200, 300, 250]
         }
         # The result has 3 days in the time dimension
@@ -1319,18 +1324,7 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
     if options.get("period") and not options.get("temporal_resolution"):
         options["temporal_resolution"] = options["period"]
 
-    # Add warning for transition to CW3E dataset version 1.0 when dataset_version not explicit from user
-    if options.get("dataset") == "CW3E" and "dataset_version" not in options:
-        warnings.warn(
-            "As of 2024-10-09, version 1.0 of the CW3E dataset has been released. "
-            "Due to known improvements in the results, this dataset version is now "
-            "the default version returned from `hf.get_gridded_data` when `dataset_version` "
-            "is not explicitly specified. If you would like to use the previous version "
-            "of the CW3E dataset, please specify `dataset_version = '0.9'` as an additional "
-            "option in your request. Please see the documentation for additional details on "
-            "what is different in version 1.0: https://hf-hydrodata.readthedocs.io/en/latest/gen_CW3E.html.",
-            stacklevel=3,
-        )
+    _check_for_unknown_options(options)
     data = _get_gridded_data_from_api(options)
 
     # An optional empty array passed as an option to be populated with the time dimension for graphing.
@@ -1374,6 +1368,67 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
                 data = _apply_mask(data, entry, options)
 
     return data
+
+
+def _check_for_unknown_options(options:dict):
+    """
+    Check for unknown option keys in the options.
+    Parameters:
+        options:    dict of option values
+    Raises:
+        ValueError is one of the keys in options is unknown for get_gridded_data function.
+    """
+    legal_options = [
+        "dataset",
+        "variable",
+        "temporal_resolution",
+        "period",
+        "aggregation",
+        "date_start",
+        "date_end",
+        "start_time",
+        "end_time",
+        "huc_id",
+        "grid_bounds",
+        "latlon_bounds",
+        "latlng_bounds",
+        "grid_point",
+        "grid",
+        "level",
+        "latlon_point",
+        "latlng_point",
+        "mask",
+        "file_type",
+        "x",
+        "y",
+        "z",
+        "nomask",
+        "site_type",
+        "site_id",
+        "dataset_version",
+        "format",
+        "hf_version",
+        "subsettools",
+        "flow_direction",
+        "schema",
+        "data_catalog_entry_id",
+        "id",
+        "scenario_id",
+        "run_number",
+        "return_coordinates",
+        "time_values",
+        "scenario_from_date",
+        "scenario_to_date",
+        "domain_path",
+        "threads"
+    ]
+    unknown_keys = []
+    for key in options:
+        if not key in legal_options:
+            unknown_keys.append(key)
+    if len(unknown_keys) > 0:
+        unknown_key_list = ", ".join(unknown_keys)
+        raise ValueError(f"Unknown option: {unknown_key_list}")
 
 
 def _apply_mask(data, entry, options):
@@ -1709,7 +1764,6 @@ def _get_gridded_data_from_api(options):
     -------
     numpy array of the requested data or None if running locally.
     """
-
     run_remote = not os.path.exists(HYDRODATA)
 
     if run_remote:
@@ -1722,43 +1776,71 @@ def _get_gridded_data_from_api(options):
         ]
         q_params = "&".join(options_list)
 
+        download_start = ""
         gridded_data_url = f"{HYDRODATA_URL}/api/gridded-data?{q_params}"
         try:
             headers = _get_api_headers()
             response = requests.get(gridded_data_url, headers=headers, timeout=4000)
-            if response.status_code in [500, 502]:
-                # Retry because of timeout error
-                warnings.warn("API timeout, performing retry.")
-                response = requests.get(gridded_data_url, headers=headers, timeout=4000)
-            if response.status_code == 400:
-                content = response.content.decode()
-                response_json = json.loads(content)
-                message = response_json.get("message")
-                raise ValueError(message)
-            if response.status_code in [500, 502]:
-                raise ValueError(
-                    "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
-                )
-            if response.status_code != 200:
-                raise ValueError(
-                    f"The  {gridded_data_url} returned error code {response.status_code}."
-                )
+            response_headers = response.headers
+            download_start = response_headers.get("download-start")
+            for retry_count in range(0, 80):
+                # Retry up to 80 times if the response is a 202 (retry) response
+                if response.status_code == 202:
+                    # Retry
+                    retry_location = response_headers.get("Location")
+                    retry_url = f"{HYDRODATA_URL}/api{retry_location}?download_start={download_start}"
+                    response = requests.get(retry_url, headers=headers, timeout=10)
+                    sleep_duration = (
+                        1 if retry_count < 10 else 2 if retry_count < 30 else 4
+                    )
+                    time.sleep(sleep_duration)
+                elif response.status_code == 400:
+                    # Do not send download complete reply for 400 errors since they are already logged.
+                    content = response.content.decode()
+                    response_json = json.loads(content)
+                    message = response_json.get("message")
+                    raise ValueError(message)
+                elif response.status_code in [500, 502]:
+                    message = f"System error {response.status_code}. Possibly too many download requests in progress. Try again later."
+                    _send_download_complete_reply(
+                        response, headers, download_start, message=message
+                    )
+                    raise ValueError(message)
+                elif response.status_code != 200:
+                    message = f"The {gridded_data_url} returned error code {response.status_code}."
+                    _send_download_complete_reply(
+                        response, headers, download_start, message=message
+                    )
+                    raise ValueError(message)
 
         except requests.exceptions.ChunkedEncodingError as ce:
-            raise ValueError(
-                "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
-            ) from ce
+            message = "Chunked encoding error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+            _send_download_complete_reply(
+                response, headers, download_start, message=message
+            )
+            raise ValueError(message) from ce
         except requests.exceptions.Timeout as te:
-            raise ValueError(
-                "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
-            ) from te
-
+            message = "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+            _send_download_complete_reply(
+                response, headers, download_start, message=message
+            )
+            raise ValueError(message) from te
         content = response.content
         if content is None or len(content) == 0:
-            raise ValueError(
-                "Timeout response from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+            message = "Empty content from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+            _send_download_complete_reply(
+                response, headers, download_start, message=message
             )
+            raise ValueError(message)
+
+        # Get an updated download_start if provided in the response headers of a retry response from message queue
+        updated_download_start = response.headers.get("download-start")
+        download_start = (
+            updated_download_start if updated_download_start else download_start
+        )
+
         file_obj = io.BytesIO(content)
+        _send_download_complete_reply(response, headers, download_start)
         with THREAD_LOCK:
             # The open_dataset call itself is not thread safe (it is safe after it is opened)
             netcdf_dataset = xr.open_dataset(file_obj)
@@ -1770,6 +1852,41 @@ def _get_gridded_data_from_api(options):
         return data
 
     return None
+
+
+def _send_download_complete_reply(
+    response, request_headers, download_start, message=None
+):
+    """
+    Send back to the API a download complete reply.
+    Parameters:
+        response:           The response returned from a download API call.
+        request_headers:    The request headers with the JWT token to make the new request.
+        download_start:     The timestamp when the download started to compute duration for the log.
+        message:            The error message of the request or None.
+    """
+    headers = response.headers
+    transfer_filename = headers.get("transfer-filename")
+    job_queue_duration = headers.get("queue-job-duration")
+    message = message.replace(",", " ") if message else ""
+    query_parameters = {
+        "transfer_filename": transfer_filename,
+        "download_start": download_start,
+        "error_message": message,
+        "job_queue_duration": job_queue_duration,
+    }
+    query_parameters_string = "&".join(
+        [
+            key + "=" + query_parameters[key]
+            for key in query_parameters
+            if query_parameters.get(key)
+        ]
+    )
+    url = f"{HYDRODATA_URL}/api/gridded-data?{query_parameters_string}"
+    try:
+        requests.delete(url, headers=request_headers, timeout=60)
+    except:
+        pass
 
 
 def _adjust_dimensions(data: np.ndarray, entry: ModelTableRow) -> np.ndarray:
@@ -1901,13 +2018,13 @@ def _read_and_filter_pfb_files(
         if not os.path.exists(path):
             raise ValueError(f"File {path} does not exist.")
     boundary_constraints = _get_pfb_boundary_constraints(entry.get("grid"), options)
-    boundary_constraints = _add_pfb_time_constraint(
+    boundary_constraints, constraint_delta = _add_pfb_time_constraint(
         boundary_constraints, entry, start_time_value, end_time_value
     )
 
     # The read_pfb_sequence method has a limit to how many paths it can read in one call because of memory limits.
     # However, the fast_pfb_reader has no limit since internally it reads in parallel as many as fit in memory.
-    max_block_size = 100 if do_not_use_fast_pfb else 1000
+    max_block_size = 1 if constraint_delta else 100 if do_not_use_fast_pfb else 1000
 
     final_data = None
     block_start = 0
@@ -1927,17 +2044,41 @@ def _read_and_filter_pfb_files(
         if final_data is None:
             # This is the first block
             final_data = data
+            if constraint_delta:
+                # remove the file dimension to allow appending. There is only 1 file per block.
+                final_data = _remove_file_dimension(final_data)
         else:
             # Append the next block to the final result
+            if constraint_delta:
+                # remove the file dimension to allow appending. There is only 1 file per block.
+                data = _remove_file_dimension(data)
             final_data = np.append(final_data, data, axis=0)
+
         # Increment the block start to read the next block
         block_start = block_end
+        if constraint_delta:
+            # increment the start_time_value for next block if we have a constraint delta
+            start_time_value = start_time_value + constraint_delta
+            boundary_constraints, constraint_delta = _add_pfb_time_constraint(
+                boundary_constraints, entry, start_time_value, end_time_value
+            )
 
     # Remove an unused z dimension that is returned by read_pfb for 2D pfb files
     final_data = _remove_unused_z_dimension(final_data, entry)
     _collect_pfb_date_dimensions(time_values, final_data, start_time_value)
 
     return final_data
+
+
+def _remove_file_dimension(data: np.ndarray) -> np.ndarray:
+    """Remove the file dimension from the data ndarray."""
+    if len(data.shape) == 5:
+        data = data[0, :, :, :, :]
+    elif len(data.shape) == 4:
+        data = data[0, :, :, :]
+    elif len(data.shape) == 3:
+        data = data[0, :, :]
+    return data
 
 
 def _remove_unused_z_dimension(data: np.ndarray, entry: dict) -> np.ndarray:
@@ -1986,7 +2127,7 @@ def _read_and_filter_c_pfb_files(
             "y": {"start": 0, "stop": int(shape[1])},
             "z": {"start": 0, "stop": 0},
         }
-    boundary_constraints = _add_pfb_time_constraint(
+    boundary_constraints, _ = _add_pfb_time_constraint(
         boundary_constraints, entry, start_time_value, end_time_value
     )
     dataset_var = entry.get("dataset_var")
@@ -2404,7 +2545,7 @@ def _add_pfb_time_constraint(
     entry: ModelTableRow,
     start_time_value: datetime.datetime,
     end_time_value: datetime.datetime,
-) -> dict:
+) -> tuple[dict, relativedelta]:
     """
     Add a PFB constraint to the z dimension when the PFB z dimension is being used as a time dimension.
 
@@ -2414,8 +2555,13 @@ def _add_pfb_time_constraint(
         start_time_value        Start time of the filter
         end_time_value:         End time of the filter
     Returns:
-        The updated boundary_constraints
+        A tuple(updated boundary_constraints, relativedelta)
+
+    The relativedelta is returned if a time constraint will be different for each file.
+    If the relative delta is returned the caller should only read one file at a time
+    and add the relative delta to the start_time_value and call for the next file.
     """
+    constraint_delta = None
     period = (
         entry.get("temporal_resolution")
         if entry.get("temporal_resolution")
@@ -2468,7 +2614,10 @@ def _add_pfb_time_constraint(
                 )
             else:
                 month_end = month_start + 1
+            month_start = min(max(month_start, 0), 12)
+            month_end = min(max(month_end, 0), 12)
             boundary_constraints["z"] = {"start": month_start, "stop": month_end}
+            constraint_delta = relativedelta(months=month_end - month_start)
         elif period == "weekly":
             # We are going to assume the file contains all months in a water year
             (_, wy_start) = _get_water_year(start_time_value)
@@ -2499,7 +2648,7 @@ def _add_pfb_time_constraint(
             else:
                 end_hour = start_hour + 1
             boundary_constraints["z"] = {"start": start_hour, "stop": end_hour}
-    return boundary_constraints
+    return boundary_constraints, constraint_delta
 
 
 def _substitute_datapath(
@@ -2517,7 +2666,7 @@ def _substitute_datapath(
         entry:          A ModelTableRow of the data_catalog_entry the defines the paths
         options:        A dict with the request options.
         time_value:     A time value of the request.
-        start_time:     The start time of the request.
+        date_start:     The start time of the request.
     Returns:
         The value of datapath after substituting in values.
     The time_value is converted into the various possible substitution values that may be used in a data path.

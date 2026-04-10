@@ -61,7 +61,7 @@ they want using the ``dataset_version`` filter parameter. An example of how diff
       options = {
             "dataset": "CW3E", "variable": "precipitation",
             "temporal_resolution": "hourly",
-            "start_time": "2001-10-01", "end_time": "2001-10-02",
+            "date_start": "2001-10-01", "date_end": "2001-10-02",
             "grid_bounds": [3660, 1657, 3732, 1837],
             "grid": "conus2",
             "dataset_version": "0.9"
@@ -72,7 +72,7 @@ they want using the ``dataset_version`` filter parameter. An example of how diff
       options = {
             "dataset": "CW3E", "variable": "precipitation",
             "temporal_resolution": "hourly",
-            "start_time": "2001-10-01", "end_time": "2001-10-02",
+            "date_start": "2001-10-01", "date_end": "2001-10-02",
             "grid_bounds": [3660, 1657, 3732, 1837],
             "grid": "conus2",
             "dataset_version": "1.0"
@@ -84,7 +84,7 @@ they want using the ``dataset_version`` filter parameter. An example of how diff
       options = {
             "dataset": "CW3E", "variable": "precipitation",
             "temporal_resolution": "hourly",
-            "start_time": "2001-10-01", "end_time": "2001-10-02",
+            "date_start": "2001-10-01", "date_end": "2001-10-02",
             "grid_bounds": [3660, 1657, 3732, 1837],
             "grid": "conus2"
       }
@@ -101,7 +101,7 @@ You can get metadata about the files in hydrodata using the ``get_catalog_entry`
 
       options = {
          "dataset": "NLDAS2", "variable": "precipitation", "period": "hourly",
-         "start_time": "2005-10-1", "end_time": "2005-11-1"
+         "date_start": "2005-10-1", "date_end": "2005-11-1"
       }
       metadata = hf.get_catalog_entry(options)
       print(metadata["units"], metadata["paper_dois"], metadata["grid"], metadata["description"])

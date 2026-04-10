@@ -154,10 +154,12 @@ def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
             stream.write(
                 "Please refer to the following citations for more information on this dataset and cite them if you use the data\n\n"
             )
-            for entry in paper_dois.split(" "):
-                _generate_dois_citation(entry, stream)
-            for entry in dataset_dois.split(" "):
-                _generate_dois_citation(entry, stream)
+            if paper_dois:
+                for entry in paper_dois.split(" "):
+                    _generate_dois_citation(entry, stream)
+            if dataset_dois:
+                for entry in dataset_dois.split(" "):
+                    _generate_dois_citation(entry, stream)
 
         if dataset_start_date or len(grids) > 0:
             stream.write("**Extent and Resolution**:\n\n")

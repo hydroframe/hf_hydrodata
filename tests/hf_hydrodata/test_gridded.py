@@ -1828,37 +1828,6 @@ def test_cw3e_version():
     np.testing.assert_array_equal(cw3e_default, cw3e_version1)
 
 
-def test_cw3e_default_warning():
-    """Test user receives warning if receiving CW3E v1.0 dataset."""
-    options = {
-        "dataset": "CW3E",
-        "variable": "air_temp",
-        "temporal_resolution": "hourly",
-        "start_time": "2002-10-01",
-        "end_time": "2002-10-02",
-        "grid": "conus2",
-        "grid_bounds": [500, 2500, 501, 2501],
-    }
-
-    with warnings.catch_warnings(record=True) as w:
-        # Cause all warnings to always be triggered.
-        warnings.simplefilter("always")
-
-        # Trigger a warning.
-        hf.get_gridded_data(options)
-
-        # Verify content of warning is as expected (warning message is detailed,
-        # checking a few key points)
-        assert len(w) == 1
-        assert issubclass(w[0].category, UserWarning)
-        assert "2024-10-09" in str(w[0].message)
-        assert "default version" in str(w[0].message)
-        assert (
-            "If you would like to use the previous version of the CW3E dataset, please specify `dataset_version = '0.9'`"
-            in str(w[0].message)
-        )
-
-
 def test_cw3e_no_warning():
     """Test user receives no warning if explicitly requesting CW3E v1.0 dataset."""
     options = {
@@ -2523,3 +2492,21 @@ def test_slope_x():
         }
     )
     assert slope_x.shape == (1, 1)
+
+
+def test_monthly_across_wy():
+    """
+    Test query for monthly data across multiple water years.
+    """
+    options = {
+        "dataset": "CW3E",
+        "variable": "air_temp",
+        "date_start": "2022-01-01",
+        "date_end": "2022-12-31",
+        "temporal_resolution": "monthly",
+        "aggregation": "mean",
+        "grid_bounds": [1000, 1000, 1001, 1001],
+    }
+    data = hf.get_gridded_data(options)
+    assert data.shape == (11, 1, 1)
+    assert data[0, 0, 0] == pytest.approx(280.64917718)

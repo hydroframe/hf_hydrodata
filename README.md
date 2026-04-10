@@ -42,7 +42,7 @@ You can get gridded data using the `get_gridded_data()` function.
 
     options = {
       "dataset": "NLDAS2", "variable": "precipitation", "period": "hourly",
-      "start_time": "2005-10-1", "end_time": "2005-10-2", "grid_bounds": [100, 100, 200, 200]
+      "date_start": "2005-10-1", "date_end": "2005-10-2", "grid_bounds": [100, 100, 200, 200]
     }
     data = hf.get_gridded_data(options)
 
