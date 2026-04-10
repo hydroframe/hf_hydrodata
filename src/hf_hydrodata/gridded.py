@@ -473,6 +473,7 @@ def get_gridded_files(
     verbose_start_time = time.time()
     if options.get("period") and not options.get("temporal_resolution"):
         options["temporal_resolution"] = options.get("period")
+    _check_for_unknown_options(options)
     temporal_resolution = options.get("temporal_resolution")
     temporal_resolution = (
         "static"
@@ -1323,6 +1324,7 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
     if options.get("period") and not options.get("temporal_resolution"):
         options["temporal_resolution"] = options["period"]
 
+    _check_for_unknown_options(options)
     data = _get_gridded_data_from_api(options)
 
     # An optional empty array passed as an option to be populated with the time dimension for graphing.
@@ -1366,6 +1368,56 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
                 data = _apply_mask(data, entry, options)
 
     return data
+
+
+def _check_for_unknown_options(options:dict):
+    """
+    Check for unknown option keys in the options.
+    Parameters:
+        options:    dict of option values
+    Raises:
+        ValueError is one of the keys in options is unknown for get_gridded_data function.
+    """
+    legal_options = [
+        "dataset",
+        "variable",
+        "temporal_resolution",
+        "period",
+        "aggregation",
+        "date_start",
+        "date_end",
+        "start_time",
+        "end_time",
+        "huc_id",
+        "grid_bounds",
+        "latlon_bounds",
+        "latlng_bounds",
+        "grid_point",
+        "grid",
+        "level",
+        "latlon_point",
+        "latlng_point",
+        "mask",
+        "file_type",
+        "x",
+        "y",
+        "z",
+        "nomask",
+        "site_type",
+        "site_id",
+        "dataset_version",
+        "hf_version",
+        "schema",
+        "data_catalog_entry_id",
+        "id",
+    ]
+    unknown_keys = []
+    for key in options:
+        if not key in legal_options:
+            unknown_keys.append(key)
+    if len(unknown_keys) > 0:
+        unknown_key_list = ", ".join(unknown_keys)
+        raise ValueError(f"Unknown option: {unknown_key_list}")
 
 
 def _apply_mask(data, entry, options):
