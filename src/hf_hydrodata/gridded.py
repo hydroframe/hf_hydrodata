@@ -1406,10 +1406,21 @@ def _check_for_unknown_options(options:dict):
         "site_type",
         "site_id",
         "dataset_version",
+        "format",
         "hf_version",
+        "subsettools",
+        "flow_direction",
         "schema",
         "data_catalog_entry_id",
         "id",
+        "scenario_id",
+        "run_number",
+        "return_coordinates",
+        "time_values",
+        "scenario_from_date",
+        "scenario_to_date",
+        "domain_path",
+        "threads"
     ]
     unknown_keys = []
     for key in options:
