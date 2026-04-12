@@ -1,12 +1,13 @@
 """Module to retrieve point observations."""
 
-# pylint: disable=C0301,W0707,W0719,C0121,C0302,C0209,C0325,W0702
+# pylint: disable=C0301,W0707,W0719,C0121,C0302,C0209,C0325,W0702,R0912,R0914
 import datetime
 from typing import Tuple
 import io
 import ast
 import os
 import json
+import time
 import sqlite3
 import warnings
 import pandas as pd
@@ -165,6 +166,8 @@ def get_point_data(*args, **kwargs):
 
     run_remote = not os.path.exists(HYDRODATA)
 
+    polygon = None
+    polygon_crs = None
     if run_remote:
         # Cannot pass local shapefile to API; pass bounding box instead
         if "polygon" in options and options["polygon"] is not None:
@@ -359,7 +362,9 @@ def get_point_metadata(*args, **kwargs):
             )
 
     run_remote = not os.path.exists(HYDRODATA)
-
+    polygon = None
+    polygon_crs = None
+    
     if run_remote:
         # Cannot pass local shapefile to API; pass bounding box instead
         if "polygon" in options and options["polygon"] is not None:
@@ -945,12 +950,46 @@ def _get_siteid_data_from_api(options):
     try:
         headers = _validate_user()
         response = requests.get(point_data_url, headers=headers, timeout=180)
+        response_headers = response.headers
+        download_start = response_headers.get("download-start")
+        for retry_count in range(0, 60):
+            # Retry up to 80 times if the response is a 202 (retry) response
+            if response.status_code == 202:
+                # Retry
+                retry_location = response_headers.get("Location")
+                retry_url = f"{HYDRODATA_URL}/api{retry_location}?download_start={download_start}"
+                response = requests.get(retry_url, headers=headers, timeout=10)
+                sleep_duration = 1 if retry_count < 10 else 2 if retry_count < 30 else 4
+                time.sleep(sleep_duration)
+        
+        if response.status_code == 400:
+            # Do not send response for 400 errors because it was already logged
+            message = f"{response.content}."
+            raise ValueError(message)
         if response.status_code != 200:
-            raise ValueError(f"{response.content}.")
+            # send a response for any other non-200 error to log the error
+            message = f"{response.content}."
+            _send_download_complete_reply(
+                response, headers, "site-variables-dataframe", download_start, message=message
+            )
+            raise ValueError(message)
 
-    except requests.exceptions.Timeout as e:
-        raise ValueError(f"The point_data_url {point_data_url} has timed out.") from e
+    except requests.exceptions.Timeout as te:
+        message = f"The remote get_site_variables has timed out."
+        _send_download_complete_reply(
+            response, headers, "site-variables-dataframe", download_start, message=message
+        )
+        raise ValueError(message)
+    except Exception as e:
+        message = f"The remote get_site_variables has has failed with: {str(e)}"
+        _send_download_complete_reply(
+            response, headers, "site-variables-dataframe", download_start, message=message
+        )
+        raise ValueError(message)
 
+    _send_download_complete_reply(
+        response, headers, "site-variables-dataframe", download_start, message=message
+    )
     data_df = pd.read_pickle(io.BytesIO(response.content))
     return data_df
 
@@ -964,29 +1003,49 @@ def _get_data_from_api(data_type, options):
 
     try:
         headers = _validate_user()
-        response = requests.get(point_data_url, headers=headers, timeout=180)
-        if response.status_code != 200:
-            if response.status_code == 400:
-                content = response.content.decode()
-                response_json = json.loads(content)
-                message = response_json.get("message")
-                raise ValueError(message)
-            if response.status_code == 502:
-                raise ValueError(
-                    "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
-                )
-            raise ValueError(
-                f"The  {point_data_url} returned error code {response.status_code}."
-            )
-    except requests.exceptions.ChunkedEncodingError as ce:
-        raise ValueError(
-            "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
-        ) from ce
-    except requests.exceptions.Timeout as te:
-        raise ValueError(
-            "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
-        ) from te
 
+        response = requests.get(point_data_url, headers=headers, timeout=180)
+        response_headers = response.headers
+        download_start = response_headers.get("download-start")
+        for retry_count in range(0, 60):
+            # Retry up to 80 times if the response is a 202 (retry) response
+            if response.status_code == 202:
+                # Retry
+                retry_location = response_headers.get("Location")
+                retry_url = f"{HYDRODATA_URL}/api{retry_location}?download_start={download_start}"
+                response = requests.get(retry_url, headers=headers, timeout=10)
+                sleep_duration = 1 if retry_count < 10 else 2 if retry_count < 30 else 4
+                time.sleep(sleep_duration)
+            elif response.status_code != 200:
+                if response.status_code == 400:
+                    content = response.content.decode()
+                    response_json = json.loads(content)
+                    message = response_json.get("message")
+                    raise ValueError(message)
+                if response.status_code == 502:
+                    raise ValueError(
+                        "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+                    )
+                raise ValueError(
+                    f"The  {point_data_url} returned error code {response.status_code}."
+                )
+    except requests.exceptions.ChunkedEncodingError as ce:
+        message = "Chunking error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+        _send_download_complete_reply(
+            response, headers, "point-data-dataframe", download_start, message=message
+        )
+        raise ValueError(message)
+    except requests.exceptions.Timeout as te:
+        message = "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+        _send_download_complete_reply(
+            response, headers, "point-data-dataframe", download_start, message=message
+        )
+
+        raise ValueError(message)
+
+    _send_download_complete_reply(
+        response, headers, "point-data-dataframe", download_start
+    )
     data_df = pd.read_pickle(io.BytesIO(response.content))
     return data_df
 
@@ -2299,3 +2358,38 @@ def _get_huc_query(options, param_list, conn, dataset=None, variable=None):
         raise Exception("There are no sites within the provided huc_id.")
 
     return huc_query, param_list
+
+
+def _send_download_complete_reply(
+    response, request_headers, route_name, download_start, message=None
+):
+    """
+    Send back to the API a download complete reply.
+    Parameters:
+        response:           The response returned from a download API call.
+        request_headers:    The request headers with the JWT token to make the new request.
+        download_start:     The timestamp when the download started to compute duration for the log.
+        message:            The error message of the request or None.
+    """
+    headers = response.headers
+    transfer_filename = headers.get("transfer-filename")
+    job_queue_duration = headers.get("queue-job-duration")
+    message = message.replace(",", " ") if message else ""
+    query_parameters = {
+        "transfer_filename": transfer_filename,
+        "download_start": download_start,
+        "error_message": message,
+        "job_queue_duration": job_queue_duration,
+    }
+    query_parameters_string = "&".join(
+        [
+            key + "=" + query_parameters[key]
+            for key in query_parameters
+            if query_parameters.get(key)
+        ]
+    )
+    url = f"{HYDRODATA_URL}/api/{route_name}?{query_parameters_string}"
+    try:
+        requests.delete(url, headers=request_headers, timeout=60)
+    except:
+        pass

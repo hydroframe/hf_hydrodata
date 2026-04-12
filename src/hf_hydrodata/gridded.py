@@ -3008,6 +3008,8 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
 
     grid_bounds = options.get("grid_bounds")
     grid_point = options.get("grid_point")
+    latitude_range = options.get("latitude_range")
+    longitude_range = options.get("longitude_range")
     latlon_point = (
         options.get("latlon_point")
         if options.get("latlon_point")
@@ -3018,6 +3020,19 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
         if options.get("latlng_bounds")
         else options.get("latlon_bounds")
     )
+    if isinstance(grid_bounds, str):
+       grid_bounds = json.loads(grid_bounds)
+    if isinstance(grid_point, str):
+       grid_point = json.loads(grid_point)
+    if isinstance(latlon_bounds, str):
+       latlon_bounds = json.loads(latlon_bounds)
+    if isinstance(latlon_point, str):
+       latlon_point = json.loads(latlon_point)
+    if isinstance(latitude_range, str):
+       latitude_range = json.loads(latitude_range)
+    if isinstance(longitude_range, str):
+       longitude_range = json.loads(longitude_range)
+
     if grid_point and grid_bounds:
         raise ValueError("Cannot specify both grid_bounds and grid_point")
     if latlon_point:
@@ -3038,9 +3053,15 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
         ]
     if grid_bounds and latlon_bounds:
         raise ValueError("Cannot specify both grid_bounds and latlon_bounds")
+    if latlon_bounds and (latitude_range or longitude_range):
+        raise ValueError("Cannot specify both latlon_bounds and latitude_range and longitude_range")
     if latlon_bounds:
         # Convert to grid_bounds using same algorithm as subset tools
         grid_bounds = _convert_latlon_to_grid(grid, latlon_bounds)
+    if latitude_range and longitude_range:
+        if len(latitude_range) != 2 or len(longitude_range) != 2:
+            raise ValueError("The latitude_range and longitude_range must be length 2 each.")
+        grid_bounds = _convert_latlon_to_grid(grid, [latitude_range[0], longitude_range[0], latitude_range[1], longitude_range[1]])
     huc_id = options.get("huc_id")
     if grid_bounds and huc_id:
         raise ValueError("Cannot specify both grid_bounds, latlon_bounds and huc_id")
