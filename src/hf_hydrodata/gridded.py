@@ -7,6 +7,7 @@ import os
 import datetime
 import time
 import io
+import ast
 from typing import List, Tuple
 import json
 import shutil
@@ -3029,10 +3030,9 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
     if isinstance(latlon_point, str):
        latlon_point = json.loads(latlon_point)
     if isinstance(latitude_range, str):
-       latitude_range = json.loads(latitude_range)
+       latitude_range = ast.literal_eval(latitude_range)
     if isinstance(longitude_range, str):
-       longitude_range = json.loads(longitude_range)
-
+       longitude_range = ast.literal_eval(longitude_range)
     if grid_point and grid_bounds:
         raise ValueError("Cannot specify both grid_bounds and grid_point")
     if latlon_point:
