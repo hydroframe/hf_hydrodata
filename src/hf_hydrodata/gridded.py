@@ -3069,6 +3069,8 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
             raise ValueError("The latitude_range and longitude_range must be length 2 each.")
         grid_bounds = _convert_latlon_to_grid(grid, [latitude_range[0], longitude_range[0], latitude_range[1], longitude_range[1]])
     huc_id = options.get("huc_id")
+    if huc_id and isinstance(huc_id, str) and huc_id.startswith("["):
+        huc_id = json.loads(huc_id)
     if grid_bounds and huc_id:
         raise ValueError("Cannot specify both grid_bounds, latlon_bounds and huc_id")
     if huc_id and grid in ["conus1", "conus2"]:
