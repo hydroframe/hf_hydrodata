@@ -7,6 +7,7 @@ import io
 import ast
 import os
 import json
+import importlib.metadata
 import time
 import sqlite3
 import warnings
@@ -51,6 +52,7 @@ SUPPORTED_FILTERS = [
     "grid",
     "grid_bounds",
     "huc_id",
+    "hf_version"
 ]
 
 # List of SQL tables in the database corresponding to site-type-specific attributes
@@ -945,7 +947,9 @@ def _get_siteid_data_from_api(options):
 
     q_params = _construct_siteids_string_from_qparams(options)
 
-    point_data_url = f"{HYDRODATA_URL}/api/site-variables-dataframe?{q_params}"
+    hf_hydrodata_version = importlib.metadata.version("hf_hydrodata")
+
+    point_data_url = f"{HYDRODATA_URL}/api/site-variables-dataframe?{q_params}&hf_version={hf_hydrodata_version}"
 
     try:
         headers = _validate_user()
@@ -998,8 +1002,9 @@ def _get_data_from_api(data_type, options):
     options = _convert_params_to_string_dict(options)
 
     q_params = _construct_string_from_qparams(data_type, options)
+    hf_hydrodata_version = importlib.metadata.version("hf_hydrodata")
 
-    point_data_url = f"{HYDRODATA_URL}/api/point-data-dataframe?{q_params}"
+    point_data_url = f"{HYDRODATA_URL}/api/point-data-dataframe?{q_params}&hf_version={hf_hydrodata_version}"
 
     try:
         headers = _validate_user()
