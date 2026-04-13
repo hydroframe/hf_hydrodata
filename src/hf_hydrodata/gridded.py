@@ -3030,9 +3030,15 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
     if isinstance(latlon_point, str):
        latlon_point = json.loads(latlon_point)
     if isinstance(latitude_range, str):
-       latitude_range = ast.literal_eval(latitude_range)
+        if latitude_range.strip().startswith("("):
+            latitude_range = ast.literal_eval(latitude_range)
+        else:
+            latitude_range = json.loads(latitude_range)
     if isinstance(longitude_range, str):
-       longitude_range = ast.literal_eval(longitude_range)
+        if longitude_range.strip().startswith("("):
+            longitude_range = ast.literal_eval(longitude_range)
+        else:
+            longitude_range = json.loads(longitude_range)
     if grid_point and grid_bounds:
         raise ValueError("Cannot specify both grid_bounds and grid_point")
     if latlon_point:
