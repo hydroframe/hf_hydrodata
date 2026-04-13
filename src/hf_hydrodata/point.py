@@ -991,8 +991,12 @@ def _get_siteid_data_from_api(options):
         )
         raise ValueError(message)
 
+    updated_download_start = response.headers.get("download-start")
+    download_start = (
+        updated_download_start if updated_download_start else download_start
+    )
     _send_download_complete_reply(
-        response, headers, "site-variables-dataframe", download_start, message=message
+        response, headers, "site-variables-dataframe", download_start
     )
     data_df = pd.read_pickle(io.BytesIO(response.content))
     return data_df
@@ -1048,6 +1052,10 @@ def _get_data_from_api(data_type, options):
 
         raise ValueError(message)
 
+    updated_download_start = response.headers.get("download-start")
+    download_start = (
+        updated_download_start if updated_download_start else download_start
+    )
     _send_download_complete_reply(
         response, headers, "point-data-dataframe", download_start
     )
