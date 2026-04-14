@@ -2387,6 +2387,7 @@ def _send_download_complete_reply(
     headers = response.headers
     transfer_filename = headers.get("transfer-filename")
     job_queue_duration = headers.get("queue-job-duration")
+    job_query_parameters = headers.get("query_parameters")
     message = message.replace(",", " ") if message else ""
     query_parameters = {
         "transfer_filename": transfer_filename,
@@ -2402,6 +2403,8 @@ def _send_download_complete_reply(
         ]
     )
     url = f"{HYDRODATA_URL}/api/{route_name}?{query_parameters_string}"
+    request_headers = request_headers.copy()
+    request_headers["query_parameters"] = job_query_parameters
     try:
         requests.delete(url, headers=request_headers, timeout=60)
     except:
