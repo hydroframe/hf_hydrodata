@@ -2394,6 +2394,7 @@ def _send_download_complete_reply(
         "download_start": download_start,
         "error_message": message,
         "job_queue_duration": job_queue_duration,
+        "job_query_parameters": job_query_parameters
     }
     query_parameters_string = "&".join(
         [
@@ -2403,8 +2404,6 @@ def _send_download_complete_reply(
         ]
     )
     url = f"{HYDRODATA_URL}/api/{route_name}?{query_parameters_string}"
-    request_headers = request_headers.copy()
-    request_headers["query_parameters"] = job_query_parameters
     try:
         requests.delete(url, headers=request_headers, timeout=60)
     except:
