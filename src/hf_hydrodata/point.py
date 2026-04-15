@@ -968,7 +968,9 @@ def _get_siteid_data_from_api(options):
         
         if response.status_code == 400:
             # Do not send response for 400 errors because it was already logged
-            message = f"{response.content}."
+            content = response.content.decode()
+            response_json = json.loads(content)
+            message = response_json.get("message")
             raise ValueError(message)
         if response.status_code != 200:
             # send a response for any other non-200 error to log the error

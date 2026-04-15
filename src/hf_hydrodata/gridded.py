@@ -1112,12 +1112,12 @@ def _write_file_from_api(filepath, options):
                 )
                 raise ValueError(message)
             if response.status_code == 502:
-                message = "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+                message = "Server '%s' is not responding. Try again later."
                 _send_download_complete_reply(
                     response, headers, download_start, message=message
                 )
                 raise ValueError(message) from None
-            message = f"The {datafile_url} returned error code {response.status_code}."
+            message = f"The {HYDRODATA_URL} returned error code {response.status_code}."
             _send_download_complete_reply(
                 response, headers, download_start, message=message
             )
@@ -1130,18 +1130,22 @@ def _write_file_from_api(filepath, options):
         )
         raise ValueError(message) from None
     except requests.exceptions.ChunkedEncodingError:
-        message = f"The {datafile_url} has timed out. Try again later or try to reduce the size of data in the API request using time or space filters."
+        message = f"The {datafile_url} has timed out. Try again later or change your query."
         raise ValueError(message) from None
 
     content = response.content
     if content is None or len(content) == 0:
-        message = "Timeout response from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+        message = "No content returned from server. Try again later or change your query."
         _send_download_complete_reply(
             response, headers, download_start, message=message
         )
         raise ValueError(message) from None
 
     # The response was successful
+    updated_download_start = response.headers.get("download-start")
+    download_start = (
+        updated_download_start if updated_download_start else download_start
+    )
     _send_download_complete_reply(response, headers, download_start)
     file_obj = io.BytesIO(content)
     with open(filepath, "wb") as output_file:
@@ -1869,12 +1873,14 @@ def _send_download_complete_reply(
     headers = response.headers
     transfer_filename = headers.get("transfer-filename")
     job_queue_duration = headers.get("queue-job-duration")
+    job_query_parameters = headers.get("query_parameters")
     message = message.replace(",", " ") if message else ""
     query_parameters = {
         "transfer_filename": transfer_filename,
         "download_start": download_start,
         "error_message": message,
         "job_queue_duration": job_queue_duration,
+        "job_query_parameters": job_query_parameters
     }
     query_parameters_string = "&".join(
         [
