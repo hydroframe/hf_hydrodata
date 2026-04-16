@@ -366,7 +366,7 @@ def get_point_metadata(*args, **kwargs):
     run_remote = not os.path.exists(HYDRODATA)
     polygon = None
     polygon_crs = None
-    
+
     if run_remote:
         # Cannot pass local shapefile to API; pass bounding box instead
         if "polygon" in options and options["polygon"] is not None:
@@ -950,7 +950,9 @@ def _get_siteid_data_from_api(options):
     hf_hydrodata_version = importlib.metadata.version("hf_hydrodata")
 
     point_data_url = f"{HYDRODATA_URL}/api/site-variables-dataframe?{q_params}&hf_version={hf_hydrodata_version}"
-
+    headers = None
+    response = None
+    download_start = None
     try:
         headers = _validate_user()
         response = requests.get(point_data_url, headers=headers, timeout=180)
@@ -965,7 +967,7 @@ def _get_siteid_data_from_api(options):
                 response = requests.get(retry_url, headers=headers, timeout=10)
                 sleep_duration = 1 if retry_count < 10 else 2 if retry_count < 30 else 4
                 time.sleep(sleep_duration)
-        
+
         if response.status_code == 400:
             # Do not send response for 400 errors because it was already logged
             content = response.content.decode()
@@ -987,7 +989,10 @@ def _get_siteid_data_from_api(options):
         )
         raise ValueError(message)
     except Exception as e:
-        message = f"The remote get_site_variables has has failed with: {str(e)}"
+        message = f"The remote get_site_variables has failed with: {str(e)}"
+        _send_download_complete_reply(
+            response, headers, "site-variables-dataframe", download_start, message=message
+        )
         raise ValueError(message)
 
     updated_download_start = response.headers.get("download-start")
@@ -1009,9 +1014,11 @@ def _get_data_from_api(data_type, options):
 
     point_data_url = f"{HYDRODATA_URL}/api/point-data-dataframe?{q_params}&hf_version={hf_hydrodata_version}"
 
+    response = None
+    headers = None
+    download_start = None
     try:
         headers = _validate_user()
-
         response = requests.get(point_data_url, headers=headers, timeout=180)
         response_headers = response.headers
         download_start = response_headers.get("download-start")
@@ -1052,7 +1059,12 @@ def _get_data_from_api(data_type, options):
         _send_download_complete_reply(
             response, headers, "point-data-dataframe", download_start, message=message
         )
-
+        raise ValueError(message)
+    except Exception as e:
+        message = str(e)
+        _send_download_complete_reply(
+            response, headers, "point-data-dataframe", download_start, message=message
+        )
         raise ValueError(message)
 
     updated_download_start = response.headers.get("download-start")
@@ -2386,30 +2398,36 @@ def _send_download_complete_reply(
     Parameters:
         response:           The response returned from a download API call.
         request_headers:    The request headers with the JWT token to make the new request.
+        route_name:         The /api/route to use to send back the reply
         download_start:     The timestamp when the download started to compute duration for the log.
         message:            The error message of the request or None.
     """
-    headers = response.headers
-    transfer_filename = headers.get("transfer-filename")
-    job_queue_duration = headers.get("queue-job-duration")
-    job_query_parameters = headers.get("query_parameters")
-    message = message.replace(",", " ") if message else ""
-    query_parameters = {
-        "transfer_filename": transfer_filename,
-        "download_start": download_start,
-        "error_message": message,
-        "job_queue_duration": job_queue_duration,
-        "job_query_parameters": job_query_parameters
-    }
-    query_parameters_string = "&".join(
-        [
-            key + "=" + query_parameters[key]
-            for key in query_parameters
-            if query_parameters.get(key)
-        ]
-    )
-    url = f"{HYDRODATA_URL}/api/{route_name}?{query_parameters_string}"
-    try:
-        requests.delete(url, headers=request_headers, timeout=60)
-    except:
-        pass
+    if response and request_headers:
+        headers = response.headers
+        transfer_filename = headers.get("transfer-filename")
+        job_queue_duration = headers.get("queue-job-duration")
+        job_query_parameters = headers.get("query_parameters")
+        message = message.replace(",", " ") if message else ""
+        query_parameters = {
+            "transfer_filename": transfer_filename,
+            "download_start": download_start,
+            "error_message": message,
+            "job_queue_duration": job_queue_duration,
+            "job_query_parameters": job_query_parameters
+        }
+    else:
+        query_parameters = {"error_message": message}
+
+    if request_headers:
+        query_parameters_string = "&".join(
+            [
+                key + "=" + query_parameters[key]
+                for key in query_parameters
+                if query_parameters.get(key)
+            ]
+        )
+        url = f"{HYDRODATA_URL}/api/{route_name}?{query_parameters_string}"
+        try:
+            requests.delete(url, headers=request_headers, timeout=60)
+        except:
+            pass

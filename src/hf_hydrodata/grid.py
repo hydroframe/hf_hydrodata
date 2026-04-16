@@ -93,24 +93,24 @@ def from_latlon(grid: str, *args) -> List[float]:
         raise ValueError(f"No such grid {grid} available.")
     grid_resolution = float(grid_row["resolution_meters"])
     shape = grid_row["shape"]
+    if shape and len(shape) == 3:
+        # Check if x,y points are within the grid bounds
+        bounds_x = float(shape[2])
+        bounds_y = float(shape[1])
+    elif shape and len(shape) == 2:
+        # Check if x,y points are within the grid bounds
+        bounds_x = float(shape[1])
+        bounds_y = float(shape[0])
+    else:
+        raise ValueError(f"Unable to convert lat/lon to grid '{grid}' because grid bounds not available.")
     for index in range(0, len(args), 2):
         lat = args[index]
         lon = args[index + 1]
         (x, y) = to_meters(grid, lat, lon)
         x = x / grid_resolution
         y = y / grid_resolution
-        if shape and len(shape) == 3:
-            # Check if x,y points are within the grid bounds
-            bounds_x = float(shape[2])
-            bounds_y = float(shape[1])
-            x = min(max(x, 0.0), bounds_x)
-            y = min(max(y, 0.0), bounds_y)
-        elif shape and len(shape) == 2:
-            # Check if x,y points are within the grid bounds
-            bounds_x = float(shape[1])
-            bounds_y = float(shape[0])
-            x = min(max(x, 0.0), bounds_x)
-            y = min(max(y, 0.0), bounds_y)
+        x = min(max(x, 0.0), bounds_x)
+        y = min(max(y, 0.0), bounds_y)
         result.append(x)
         result.append(y)
     return result

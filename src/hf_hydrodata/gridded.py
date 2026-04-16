@@ -1082,12 +1082,12 @@ def _construct_string_from_options(qparam_values):
     return result_string
 
 
-def _write_file_from_api(filepath, options):
+def _write_file_from_api(filepath:str, options:dict):
     """Get the hydroframe file that is selected by the options to the given filepath.
 
     Args:
-        filepath:          Either a ModelTableRow or the ID number of a data_catalog_entry. If None use the entry found by the filters.
-        options:           Optional positional parameter that must be a dict with data filter options.
+        filepath:          File path to write the file from the API call.
+        options:           Data catalog filter parameters to identify the file to download.
     Returns:
         None
     Raises:
@@ -1097,7 +1097,8 @@ def _write_file_from_api(filepath, options):
     q_params = _construct_string_from_options(options)
     datafile_url = f"{HYDRODATA_URL}/api/data-file?{q_params}"
     download_start = ""
-
+    headers = None
+    response = None
     try:
         headers = _get_api_headers()
         response = requests.get(datafile_url, headers=headers, timeout=4000)
@@ -1124,13 +1125,22 @@ def _write_file_from_api(filepath, options):
             raise ValueError(message) from None
 
     except requests.exceptions.Timeout:
-        message = "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+        message = "Timeout error from server. Try again later or modify the query."
         _send_download_complete_reply(
             response, headers, download_start, message=message
         )
         raise ValueError(message) from None
     except requests.exceptions.ChunkedEncodingError:
         message = f"The {datafile_url} has timed out. Try again later or change your query."
+        _send_download_complete_reply(
+            response, headers, download_start, message=message
+        )
+        raise ValueError(message) from None
+    except Exception as e:
+        message = str(e)
+        _send_download_complete_reply(
+            response, headers, download_start, message=message
+        )
         raise ValueError(message) from None
 
     content = response.content
@@ -1781,6 +1791,8 @@ def _get_gridded_data_from_api(options):
         q_params = "&".join(options_list)
 
         download_start = ""
+        headers = None
+        response = None
         gridded_data_url = f"{HYDRODATA_URL}/api/gridded-data?{q_params}"
         try:
             headers = _get_api_headers()
@@ -1804,6 +1816,12 @@ def _get_gridded_data_from_api(options):
                     response_json = json.loads(content)
                     message = response_json.get("message")
                     raise ValueError(message)
+                elif response.status_code == 502:
+                    message = f"Server '{HYDRODATA_URL}' unavailable. Try again later."
+                    _send_download_complete_reply(
+                        response, headers, download_start, message=message
+                    )
+                    raise ValueError(message)
                 elif response.status_code != 200:
                     message = f"System error {response.status_code}. Try again later."
                     _send_download_complete_reply(
@@ -1825,6 +1843,9 @@ def _get_gridded_data_from_api(options):
             raise ValueError(message) from te
         except Exception as e:
             message = str(e)
+            _send_download_complete_reply(
+                response, headers, download_start, message=message
+            )
             raise ValueError(message) from e
 
 
@@ -1868,18 +1889,21 @@ def _send_download_complete_reply(
         download_start:     The timestamp when the download started to compute duration for the log.
         message:            The error message of the request or None.
     """
-    headers = response.headers
-    transfer_filename = headers.get("transfer-filename")
-    job_queue_duration = headers.get("queue-job-duration")
-    job_query_parameters = headers.get("query_parameters")
-    message = message.replace(",", " ") if message else ""
-    query_parameters = {
-        "transfer_filename": transfer_filename,
-        "download_start": download_start,
-        "error_message": message,
-        "job_queue_duration": job_queue_duration,
-        "job_query_parameters": job_query_parameters
-    }
+    if response and request_headers:
+        headers = response.headers
+        transfer_filename = headers.get("transfer-filename")
+        job_queue_duration = headers.get("queue-job-duration")
+        job_query_parameters = headers.get("query_parameters")
+        message = message.replace(",", " ") if message else ""
+        query_parameters = {
+            "transfer_filename": transfer_filename,
+            "download_start": download_start,
+            "error_message": message,
+            "job_queue_duration": job_queue_duration,
+            "job_query_parameters": job_query_parameters
+        }
+    else:
+        query_parameters = {"error_message": message}
     query_parameters_string = "&".join(
         [
             key + "=" + query_parameters[key]
@@ -1887,11 +1911,12 @@ def _send_download_complete_reply(
             if query_parameters.get(key)
         ]
     )
-    url = f"{HYDRODATA_URL}/api/gridded-data?{query_parameters_string}"
-    try:
-        requests.delete(url, headers=request_headers, timeout=60)
-    except:
-        pass
+    if request_headers:
+        url = f"{HYDRODATA_URL}/api/gridded-data?{query_parameters_string}"
+        try:
+            requests.delete(url, headers=request_headers, timeout=60)
+        except:
+            pass
 
 
 def _adjust_dimensions(data: np.ndarray, entry: ModelTableRow) -> np.ndarray:
