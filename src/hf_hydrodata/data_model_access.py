@@ -21,6 +21,7 @@ Functions to load the csv files of the data catalog model into a DataModel objec
 import os
 import json
 import datetime
+import time
 from typing import Tuple
 import threading
 import platform
@@ -33,6 +34,8 @@ READ_DC_CALLBACK = None
 HYDRODATA = "/hydrodata"
 JWT_TOKEN = None
 USER_ROLES = None
+JWT_TOKEN_CACHE_TIME = 4 * 60   # seconds to cache the JWT_TOKEN
+JWT_TOKEN_TIMESTAMP = None      # timestamp of collected JWT_TOKEN
 
 
 class ModelTableRow:
@@ -204,11 +207,11 @@ def _get_api_headers(required=True) -> dict:
         ValueError if no API key is registered or unable to create a JWT token.
     """
 
+    global JWT_TOKEN_TIMESTAMP
     global JWT_TOKEN
     global USER_ROLES
-    if not JWT_TOKEN:
+    if not JWT_TOKEN or JWT_TOKEN_TIMESTAMP is None or time.time() - JWT_TOKEN_TIMESTAMP > JWT_TOKEN_CACHE_TIME:
         # Only do this if we do not already have a JWT_TOKEN cached in the global variable
-
         if "verde-" in platform.node() and not os.getenv("https_proxy"):
             # This is to configure a proxy for a princeton environment if not already specified
             os.environ["https_proxy"] = "http://verde:8080"
@@ -216,7 +219,10 @@ def _get_api_headers(required=True) -> dict:
         if not required and not email:
             return {}
         url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
-        response = requests.get(url_security, timeout=1200)
+        try:
+            response = requests.get(url_security, timeout=1200)
+        except:
+            raise ValueError(f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server.")
         if not response.status_code == 200:
             if not required:
                 # The PIN is not required so it is ok that the API request returned an error.
@@ -235,6 +241,7 @@ def _get_api_headers(required=True) -> dict:
                     "PIN has expired. Re-register a pin with https://hydrogen.princeton.edu/pin . Signup with https://hydrogen.princeton.edu/signup. Register the pin with python by executing 'hf_hydrodata.register_api_pin()'."
                 )
         JWT_TOKEN = jwt_json["jwt_token"]
+        JWT_TOKEN_TIMESTAMP = time.time()
         USER_ROLES = jwt_json.get("user_roles")
 
     headers = {}

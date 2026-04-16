@@ -988,9 +988,6 @@ def _get_siteid_data_from_api(options):
         raise ValueError(message)
     except Exception as e:
         message = f"The remote get_site_variables has has failed with: {str(e)}"
-        _send_download_complete_reply(
-            response, headers, "site-variables-dataframe", download_start, message=message
-        )
         raise ValueError(message)
 
     updated_download_start = response.headers.get("download-start")
@@ -1034,12 +1031,16 @@ def _get_data_from_api(data_type, options):
                     message = response_json.get("message")
                     raise ValueError(message)
                 if response.status_code == 502:
-                    raise ValueError(
-                        "Server not available error. Try again later."
+                    message = "Server not available error. Try again later."
+                    _send_download_complete_reply(
+                        response, headers, "point-data-dataframe", download_start, message=message
                     )
-                raise ValueError(
-                    f"The  {point_data_url} returned error code {response.status_code}."
+                    raise ValueError(message)
+                message = f"Server error {response.status_code}. Try again later."
+                _send_download_complete_reply(
+                    response, headers, "point-data-dataframe", download_start, message=message
                 )
+                raise ValueError(message)
     except requests.exceptions.ChunkedEncodingError as ce:
         message = "Chunking error from server. Try again later or modify query."
         _send_download_complete_reply(

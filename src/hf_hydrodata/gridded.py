@@ -1770,7 +1770,6 @@ def _get_gridded_data_from_api(options):
     numpy array of the requested data or None if running locally.
     """
     run_remote = not os.path.exists(HYDRODATA)
-
     if run_remote:
         if options.get("period") and not options.get("temporal_resolution"):
             options["period"] = options["temporal_resolution"]
@@ -1805,14 +1804,8 @@ def _get_gridded_data_from_api(options):
                     response_json = json.loads(content)
                     message = response_json.get("message")
                     raise ValueError(message)
-                elif response.status_code in [500, 502]:
-                    message = f"System error {response.status_code}. Try again later."
-                    _send_download_complete_reply(
-                        response, headers, download_start, message=message
-                    )
-                    raise ValueError(message)
                 elif response.status_code != 200:
-                    message = f"The {gridded_data_url} returned error code {response.status_code}."
+                    message = f"System error {response.status_code}. Try again later."
                     _send_download_complete_reply(
                         response, headers, download_start, message=message
                     )
@@ -1830,6 +1823,11 @@ def _get_gridded_data_from_api(options):
                 response, headers, download_start, message=message
             )
             raise ValueError(message) from te
+        except Exception as e:
+            message = str(e)
+            raise ValueError(message) from e
+
+
         content = response.content
         if content is None or len(content) == 0:
             message = "Empty content from server. Try again later or modify query."
