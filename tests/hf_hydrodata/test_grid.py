@@ -12,6 +12,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../s
 
 import hf_hydrodata.grid
 
+
 def test_grid_to_latlng():
     """Test grid_to_latlng."""
 
@@ -64,6 +65,7 @@ def test_latlng_to_grid():
     assert x2 == 487
     assert y2 == 329
 
+
 def test_meters_to_ij():
     """Unit test the meters_to_ij() and to_meters() functions."""
 
@@ -80,22 +82,31 @@ def test_meters_to_ij():
     assert round(x) == 10
     assert round(y) == 10
 
+
 def test_latlng_to_grid_out_of_bounds():
     """Unit tests for when latlng is out of bounds of conus1."""
 
-    with pytest.raises(ValueError):
-        (_, y) = hf_hydrodata.grid.from_latlon("conus1", 90, -180)
-
+    (x, y) = hf_hydrodata.grid.from_latlon("conus1", 50, -61)
+    assert x == pytest.approx(3342)
+    assert y == pytest.approx(1888)
+    (x, y) = hf_hydrodata.grid.from_latlon("conus1", 20, -132)
+    assert x == pytest.approx(0.0)
+    assert y == pytest.approx(0.0)
     (lat, lon) = hf_hydrodata.grid.to_latlon("conus1", 0, 0)
-    (_, _) = hf_hydrodata.grid.to_ij("conus1", lat, lon)
-    with pytest.raises(ValueError):
-        (_, _) = hf_hydrodata.grid.to_ij("conus1", lat, lon+0.025)
+    (x, y) = hf_hydrodata.grid.to_ij("conus1", lat, lon)
+    assert x == 0
+    assert y == 0
+    (x, y) = hf_hydrodata.grid.to_ij("conus1", lat - 2, lon - 2)
+    assert x == 0
+    assert y == 0
+
 
 def test_illegal_grid():
     """Unit test for unknown grid."""
 
     with pytest.raises(ValueError):
         hf_hydrodata.grid.to_ij("conusxxx", 0, 0)
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

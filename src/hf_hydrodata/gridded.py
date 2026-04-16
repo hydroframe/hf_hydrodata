@@ -7,6 +7,7 @@ import os
 import datetime
 import time
 import io
+import ast
 from typing import List, Tuple
 import json
 import shutil
@@ -1081,12 +1082,12 @@ def _construct_string_from_options(qparam_values):
     return result_string
 
 
-def _write_file_from_api(filepath, options):
+def _write_file_from_api(filepath:str, options:dict):
     """Get the hydroframe file that is selected by the options to the given filepath.
 
     Args:
-        filepath:          Either a ModelTableRow or the ID number of a data_catalog_entry. If None use the entry found by the filters.
-        options:           Optional positional parameter that must be a dict with data filter options.
+        filepath:          File path to write the file from the API call.
+        options:           Data catalog filter parameters to identify the file to download.
     Returns:
         None
     Raises:
@@ -1096,7 +1097,8 @@ def _write_file_from_api(filepath, options):
     q_params = _construct_string_from_options(options)
     datafile_url = f"{HYDRODATA_URL}/api/data-file?{q_params}"
     download_start = ""
-
+    headers = None
+    response = None
     try:
         headers = _get_api_headers()
         response = requests.get(datafile_url, headers=headers, timeout=4000)
@@ -1111,36 +1113,49 @@ def _write_file_from_api(filepath, options):
                 )
                 raise ValueError(message)
             if response.status_code == 502:
-                message = "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+                message = "Server '%s' is not responding. Try again later."
                 _send_download_complete_reply(
                     response, headers, download_start, message=message
                 )
                 raise ValueError(message) from None
-            message = f"The {datafile_url} returned error code {response.status_code}."
+            message = f"The {HYDRODATA_URL} returned error code {response.status_code}."
             _send_download_complete_reply(
                 response, headers, download_start, message=message
             )
             raise ValueError(message) from None
 
     except requests.exceptions.Timeout:
-        message = "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+        message = "Timeout error from server. Try again later or modify the query."
         _send_download_complete_reply(
             response, headers, download_start, message=message
         )
         raise ValueError(message) from None
     except requests.exceptions.ChunkedEncodingError:
-        message = f"The {datafile_url} has timed out. Try again later or try to reduce the size of data in the API request using time or space filters."
+        message = f"The {datafile_url} has timed out. Try again later or change your query."
+        _send_download_complete_reply(
+            response, headers, download_start, message=message
+        )
+        raise ValueError(message) from None
+    except Exception as e:
+        message = str(e)
+        _send_download_complete_reply(
+            response, headers, download_start, message=message
+        )
         raise ValueError(message) from None
 
     content = response.content
     if content is None or len(content) == 0:
-        message = "Timeout response from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+        message = "No content returned from server. Try again later or change your query."
         _send_download_complete_reply(
             response, headers, download_start, message=message
         )
         raise ValueError(message) from None
 
     # The response was successful
+    updated_download_start = response.headers.get("download-start")
+    download_start = (
+        updated_download_start if updated_download_start else download_start
+    )
     _send_download_complete_reply(response, headers, download_start)
     file_obj = io.BytesIO(content)
     with open(filepath, "wb") as output_file:
@@ -1765,7 +1780,6 @@ def _get_gridded_data_from_api(options):
     numpy array of the requested data or None if running locally.
     """
     run_remote = not os.path.exists(HYDRODATA)
-
     if run_remote:
         if options.get("period") and not options.get("temporal_resolution"):
             options["period"] = options["temporal_resolution"]
@@ -1777,6 +1791,8 @@ def _get_gridded_data_from_api(options):
         q_params = "&".join(options_list)
 
         download_start = ""
+        headers = None
+        response = None
         gridded_data_url = f"{HYDRODATA_URL}/api/gridded-data?{q_params}"
         try:
             headers = _get_api_headers()
@@ -1800,34 +1816,42 @@ def _get_gridded_data_from_api(options):
                     response_json = json.loads(content)
                     message = response_json.get("message")
                     raise ValueError(message)
-                elif response.status_code in [500, 502]:
-                    message = f"System error {response.status_code}. Possibly too many download requests in progress. Try again later."
+                elif response.status_code == 502:
+                    message = f"Server '{HYDRODATA_URL}' unavailable. Try again later."
                     _send_download_complete_reply(
                         response, headers, download_start, message=message
                     )
                     raise ValueError(message)
                 elif response.status_code != 200:
-                    message = f"The {gridded_data_url} returned error code {response.status_code}."
+                    message = f"System error {response.status_code}. Try again later."
                     _send_download_complete_reply(
                         response, headers, download_start, message=message
                     )
                     raise ValueError(message)
 
         except requests.exceptions.ChunkedEncodingError as ce:
-            message = "Chunked encoding error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+            message = "Chunked encoding error from server. Try again later or modify query."
             _send_download_complete_reply(
                 response, headers, download_start, message=message
             )
             raise ValueError(message) from ce
         except requests.exceptions.Timeout as te:
-            message = "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+            message = "Timeout error from server. Try again later or modify query."
             _send_download_complete_reply(
                 response, headers, download_start, message=message
             )
             raise ValueError(message) from te
+        except Exception as e:
+            message = str(e)
+            _send_download_complete_reply(
+                response, headers, download_start, message=message
+            )
+            raise ValueError(message) from e
+
+
         content = response.content
         if content is None or len(content) == 0:
-            message = "Empty content from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+            message = "Empty content from server. Try again later or modify query."
             _send_download_complete_reply(
                 response, headers, download_start, message=message
             )
@@ -1865,16 +1889,21 @@ def _send_download_complete_reply(
         download_start:     The timestamp when the download started to compute duration for the log.
         message:            The error message of the request or None.
     """
-    headers = response.headers
-    transfer_filename = headers.get("transfer-filename")
-    job_queue_duration = headers.get("queue-job-duration")
-    message = message.replace(",", " ") if message else ""
-    query_parameters = {
-        "transfer_filename": transfer_filename,
-        "download_start": download_start,
-        "error_message": message,
-        "job_queue_duration": job_queue_duration,
-    }
+    if response and request_headers:
+        headers = response.headers
+        transfer_filename = headers.get("transfer-filename")
+        job_queue_duration = headers.get("queue-job-duration")
+        job_query_parameters = headers.get("query_parameters")
+        message = message.replace(",", " ") if message else ""
+        query_parameters = {
+            "transfer_filename": transfer_filename,
+            "download_start": download_start,
+            "error_message": message,
+            "job_queue_duration": job_queue_duration,
+            "job_query_parameters": job_query_parameters
+        }
+    else:
+        query_parameters = {"error_message": message}
     query_parameters_string = "&".join(
         [
             key + "=" + query_parameters[key]
@@ -1882,11 +1911,12 @@ def _send_download_complete_reply(
             if query_parameters.get(key)
         ]
     )
-    url = f"{HYDRODATA_URL}/api/gridded-data?{query_parameters_string}"
-    try:
-        requests.delete(url, headers=request_headers, timeout=60)
-    except:
-        pass
+    if request_headers:
+        url = f"{HYDRODATA_URL}/api/gridded-data?{query_parameters_string}"
+        try:
+            requests.delete(url, headers=request_headers, timeout=60)
+        except:
+            pass
 
 
 def _adjust_dimensions(data: np.ndarray, entry: ModelTableRow) -> np.ndarray:
@@ -3008,6 +3038,8 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
 
     grid_bounds = options.get("grid_bounds")
     grid_point = options.get("grid_point")
+    latitude_range = options.get("latitude_range")
+    longitude_range = options.get("longitude_range")
     latlon_point = (
         options.get("latlon_point")
         if options.get("latlon_point")
@@ -3018,6 +3050,24 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
         if options.get("latlng_bounds")
         else options.get("latlon_bounds")
     )
+    if isinstance(grid_bounds, str):
+       grid_bounds = json.loads(grid_bounds)
+    if isinstance(grid_point, str):
+       grid_point = json.loads(grid_point)
+    if isinstance(latlon_bounds, str):
+       latlon_bounds = json.loads(latlon_bounds)
+    if isinstance(latlon_point, str):
+       latlon_point = json.loads(latlon_point)
+    if isinstance(latitude_range, str):
+        if latitude_range.strip().startswith("("):
+            latitude_range = ast.literal_eval(latitude_range)
+        else:
+            latitude_range = json.loads(latitude_range)
+    if isinstance(longitude_range, str):
+        if longitude_range.strip().startswith("("):
+            longitude_range = ast.literal_eval(longitude_range)
+        else:
+            longitude_range = json.loads(longitude_range)
     if grid_point and grid_bounds:
         raise ValueError("Cannot specify both grid_bounds and grid_point")
     if latlon_point:
@@ -3038,10 +3088,18 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
         ]
     if grid_bounds and latlon_bounds:
         raise ValueError("Cannot specify both grid_bounds and latlon_bounds")
+    if latlon_bounds and (latitude_range or longitude_range):
+        raise ValueError("Cannot specify both latlon_bounds and latitude_range and longitude_range")
     if latlon_bounds:
         # Convert to grid_bounds using same algorithm as subset tools
         grid_bounds = _convert_latlon_to_grid(grid, latlon_bounds)
+    if latitude_range and longitude_range:
+        if len(latitude_range) != 2 or len(longitude_range) != 2:
+            raise ValueError("The latitude_range and longitude_range must be length 2 each.")
+        grid_bounds = _convert_latlon_to_grid(grid, [latitude_range[0], longitude_range[0], latitude_range[1], longitude_range[1]])
     huc_id = options.get("huc_id")
+    if huc_id and isinstance(huc_id, str) and huc_id.startswith("["):
+        huc_id = json.loads(huc_id)
     if grid_bounds and huc_id:
         raise ValueError("Cannot specify both grid_bounds, latlon_bounds and huc_id")
     if huc_id and grid in ["conus1", "conus2"]:
