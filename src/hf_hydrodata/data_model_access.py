@@ -221,9 +221,7 @@ def _get_api_headers(required=True) -> dict:
             if not required:
                 # The PIN is not required so it is ok that the API request returned an error.
                 return {}
-            raise ValueError(
-                f"No registered PIN for '{email}' (expired?). Re-register a pin with https://hydrogen.princeton.edu/pin . Signup with https://hydrogen.princeton.edu/signup. Register the pin with python by executing 'hf_hydrodata.register_api_pin()'."
-            )
+            raise ValueError(f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server.")
         json_string = response.content.decode("utf-8")
         jwt_json = json.loads(json_string)
         expires_string = jwt_json.get("expires")

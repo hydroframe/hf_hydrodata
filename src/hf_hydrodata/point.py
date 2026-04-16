@@ -1035,19 +1035,19 @@ def _get_data_from_api(data_type, options):
                     raise ValueError(message)
                 if response.status_code == 502:
                     raise ValueError(
-                        "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+                        "Server not available error. Try again later."
                     )
                 raise ValueError(
                     f"The  {point_data_url} returned error code {response.status_code}."
                 )
     except requests.exceptions.ChunkedEncodingError as ce:
-        message = "Chunking error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+        message = "Chunking error from server. Try again later or modify query."
         _send_download_complete_reply(
             response, headers, "point-data-dataframe", download_start, message=message
         )
         raise ValueError(message)
     except requests.exceptions.Timeout as te:
-        message = "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+        message = "Timeout error from server. Try again later or modify query."
         _send_download_complete_reply(
             response, headers, "point-data-dataframe", download_start, message=message
         )
@@ -1233,30 +1233,32 @@ def _construct_string_from_qparams(data_type, options):
 
 
 def _validate_user():
-    email, pin = _get_registered_api_pin()
-    url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
-    response = requests.get(url_security, headers=None, timeout=15)
-    if not response.status_code == 200:
-        raise ValueError(
-            f"PIN has expired. Re-register a pin for '{email}' with https://hydrogen.princeton.edu/pin ."
-        )
-    json_string = response.content.decode("utf-8")
-    jwt_json = json.loads(json_string)
-    expires_string = jwt_json.get("expires")
-    if expires_string:
-        expires = datetime.datetime.strptime(
-            expires_string, "%Y/%m/%d %H:%M:%S GMT-0000"
-        )
-        now = datetime.datetime.now()
-        if now > expires:
+    try:
+        email, pin = _get_registered_api_pin()
+        url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
+        response = requests.get(url_security, headers=None, timeout=15)
+        if not response.status_code == 200:
             raise ValueError(
-                "PIN has expired. Please re-register it from https://hydrogen.princeton.edu/pin"
+                f"PIN has expired. Re-register a pin for '{email}' with https://hydrogen.princeton.edu/pin ."
             )
-    jwt_token = jwt_json["jwt_token"]
-    headers = {}
-    headers["Authorization"] = f"Bearer {jwt_token}"
-    return headers
-
+        json_string = response.content.decode("utf-8")
+        jwt_json = json.loads(json_string)
+        expires_string = jwt_json.get("expires")
+        if expires_string:
+            expires = datetime.datetime.strptime(
+                expires_string, "%Y/%m/%d %H:%M:%S GMT-0000"
+            )
+            now = datetime.datetime.now()
+            if now > expires:
+                raise ValueError(
+                    "PIN has expired. Please re-register it from https://hydrogen.princeton.edu/pin"
+                )
+        jwt_token = jwt_json["jwt_token"]
+        headers = {}
+        headers["Authorization"] = f"Bearer {jwt_token}"
+        return headers
+    except:
+        raise ValueError(f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server.")
 
 def _get_variables(conn):
     """

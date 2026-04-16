@@ -1806,7 +1806,7 @@ def _get_gridded_data_from_api(options):
                     message = response_json.get("message")
                     raise ValueError(message)
                 elif response.status_code in [500, 502]:
-                    message = f"System error {response.status_code}. Possibly too many download requests in progress. Try again later."
+                    message = f"System error {response.status_code}. Try again later."
                     _send_download_complete_reply(
                         response, headers, download_start, message=message
                     )
@@ -1819,20 +1819,20 @@ def _get_gridded_data_from_api(options):
                     raise ValueError(message)
 
         except requests.exceptions.ChunkedEncodingError as ce:
-            message = "Chunked encoding error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+            message = "Chunked encoding error from server. Try again later or modify query."
             _send_download_complete_reply(
                 response, headers, download_start, message=message
             )
             raise ValueError(message) from ce
         except requests.exceptions.Timeout as te:
-            message = "Timeout error from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+            message = "Timeout error from server. Try again later or modify query."
             _send_download_complete_reply(
                 response, headers, download_start, message=message
             )
             raise ValueError(message) from te
         content = response.content
         if content is None or len(content) == 0:
-            message = "Empty content from server. Try again later or try to reduce the size of data in the API request using time or space filters."
+            message = "Empty content from server. Try again later or modify query."
             _send_download_complete_reply(
                 response, headers, download_start, message=message
             )
