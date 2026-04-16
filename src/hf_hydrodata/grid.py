@@ -99,14 +99,18 @@ def from_latlon(grid: str, *args) -> List[float]:
         (x, y) = to_meters(grid, lat, lon)
         x = x / grid_resolution
         y = y / grid_resolution
-        if shape and len(shape) >= 2:
+        if shape and len(shape) == 3:
             # Check if x,y points are within the grid bounds
             bounds_x = float(shape[2])
             bounds_y = float(shape[1])
-            if not (0 <= round(x) <= bounds_x and 0 <= round(y) <= bounds_y):
-                raise ValueError(
-                    f"The lat/lon point maps to {int(x)},{int(y)} which is outside of grid bounds {bounds_x}, {bounds_y}"
-                )
+            x = min(max(x, 0.0), bounds_x)
+            y = min(max(y, 0.0), bounds_y)
+        elif shape and len(shape) == 2:
+            # Check if x,y points are within the grid bounds
+            bounds_x = float(shape[1])
+            bounds_y = float(shape[0])
+            x = min(max(x, 0.0), bounds_x)
+            y = min(max(y, 0.0), bounds_y)
         result.append(x)
         result.append(y)
     return result
