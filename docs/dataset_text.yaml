@@ -147,14 +147,14 @@ datasets:
     summary: >
       Streamflow and groundwater data from the USGS National Water Information System (NWIS) database.
       
-        - Daily streamflow and water table depth data are obtained from the `Daily Values Service <https://waterservices.usgs.gov/docs/dv-service/daily-values-service-details/>`_.  
+        - Daily streamflow and water table depth data are in the site's local time zone and obtained from the `"/daily" endpoint <https://api.waterdata.usgs.gov/ogcapi/v0/openapi#/daily>`_ of the updated USGS OGC API.  
 
-        - Hourly streamflow and water table depth data are aggregated to the hourly level from the `Instantaneous Values Service <https://waterservices.usgs.gov/docs/instantaneous-values/instantaneous-values-details/>`_, which are frequently collected at 15-minute increments.   
+        - Hourly streamflow and water table depth data are in UTC and aggregated to the hourly level from the `"/continuous" endpoint <https://api.waterdata.usgs.gov/ogcapi/v0/openapi#/continuous>`_ of the updated USGS OGC API. The raw observations are typically collected at 15-minute increments.   
 
-        - The water table depth data accessed with `temporal_resolution='instantaneous'` comes from the USGS `Groundwater Levels Service <https://waterservices.usgs.gov/docs/groundwater-levels/groundwater-levels-details/>`_. Note that these data usually do not have regular temporal coverage and many of the sites with data available through this method only have a single point-in-time observation available.  
+        - The water table depth data accessed with `temporal_resolution='instantaneous'` comes from the USGS `Groundwater Levels Service <https://waterservices.usgs.gov/docs/groundwater-levels/groundwater-levels-details/>`_. Our team is currently working on updating this dataset to query from the updated USGS OGC endpoint. Note that these data usually do not have regular temporal coverage and many of the sites with data available through this method only have a single point-in-time observation available.
 
     processing_notes: >
-      We query data from the USGS weekly, early on Sunday mornings. Each weekly job collects all observations since the date through which we have existing data stored. For sites that are currently in operation, this translates to collecting data for only the previous week (7 days for daily data, 168 hours for hourly data). 
+      We query data from the USGS weekly, early on Sunday mornings. Each weekly job collects all observations that have been modified since the date of our previous data pull. For sites that are currently in operation, this translates to collecting data that was modified during only the previous week. 
       
       Because of the sparsity of the `temporal_resolution='instantaneous'` groundwater measurements, those are not included in this weekly schedule. We plan to query that source for new observations roughly every few months.
 
