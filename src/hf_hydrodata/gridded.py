@@ -1197,13 +1197,14 @@ def _write_file_from_api(filepath: str, options: dict):
             n = 0
             for chunk in response.iter_content(chunk_size=chunksize):
                 n = n + 1
-                percent = round(100 * (offset + n * chunksize) / file_size, 2)
-                remaining = file_size - offset - n * chunksize
-                print(
-                    f"Progress {percent}% Remaining {remaining} bytes ...",
-                    end="\r",
-                    flush=True,
-                )
+                if file_size and offset is not None:
+                    percent = round(100 * (offset + n * chunksize) / file_size, 2)
+                    remaining = file_size - offset - n * chunksize
+                    print(
+                        f"Progress {percent}% Remaining {remaining} bytes ...",
+                        end="\r",
+                        flush=True,
+                    )
                 if chunk:
                     with open(filepath, "ab") as f:
                         f.write(chunk)
