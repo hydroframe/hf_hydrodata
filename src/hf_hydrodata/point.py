@@ -1250,10 +1250,10 @@ def _validate_user():
         email, pin = _get_registered_api_pin()
         url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
         response = requests.get(url_security, headers=None, timeout=15)
+        if response.status_code == 502:
+            raise ValueError("Server is unavailable. Try again later.")
         if not response.status_code == 200:
-            raise ValueError(
-                f"PIN has expired. Re-register a pin for '{email}' with https://hydrogen.princeton.edu/pin ."
-            )
+            raise ValueError(f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server.")
         json_string = response.content.decode("utf-8")
         jwt_json = json.loads(json_string)
         expires_string = jwt_json.get("expires")
@@ -1270,6 +1270,8 @@ def _validate_user():
         headers = {}
         headers["Authorization"] = f"Bearer {jwt_token}"
         return headers
+    except ValueError as ve:
+        raise ve
     except:
         raise ValueError(f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server.")
 
