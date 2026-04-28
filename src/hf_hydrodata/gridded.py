@@ -1196,15 +1196,15 @@ def _write_file_from_api(filepath: str, options: dict):
         with response:
             n = 0
             for chunk in response.iter_content(chunk_size=chunksize):
-                n = n + 1
                 if file_size and offset is not None:
                     percent = round(100 * (offset + n * chunksize) / file_size, 2)
-                    remaining = file_size - offset - n * chunksize
+                    remaining = file_size - offset - n * chunksize - len(chunk)
                     print(
-                        f"Progress {percent}% Remaining {remaining} bytes ...",
+                        f"Progress {percent}% Remaining {remaining} bytes ...                          ",
                         end="\r",
                         flush=True,
                     )
+                n = n + 1
                 if chunk:
                     with open(filepath, "ab") as f:
                         f.write(chunk)
@@ -1222,7 +1222,6 @@ def _write_file_from_api(filepath: str, options: dict):
         else:
             # Read the last chunk so exit chunking loop
             break
-    print(f"finished downloading '{filepath}'")
 
 
 @_maintenance_guard
@@ -1261,7 +1260,12 @@ def get_raw_file(filepath, *args, **kwargs):
         _write_file_from_api(filepath, options)
 
     else:
-        hydro_filepath = get_path(options)
+        hydro_filepaths = get_paths(options)
+        if len(hydro_filepaths) == 0:
+            raise ValueError("No file found for query.")
+        if len(hydro_filepaths) > 1:
+            raise ValueError("Only one file can get downloaded using get_raw_file(). Change query to identify a single file.")
+        hydro_filepath = hydro_filepaths[0]
         shutil.copy(hydro_filepath, filepath)
 
 
