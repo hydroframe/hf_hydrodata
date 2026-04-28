@@ -17,6 +17,7 @@
 
 # pylint: disable=C0411,R0914,R0913,C0301
 
+import os
 from typing import List
 import math
 import numpy as np
@@ -63,6 +64,11 @@ def read_files(pfb_files: List[str], pfb_constraints: dict = None):
         pfb_files = [pfb_files]
     if len(pfb_files) == 0:
         raise ValueError("The pfb_files list is empty.")
+    for path in pfb_files:
+        if not os.path.exists(path):
+            raise ValueError(f"The file '{path}' does not exist.")
+        if os.path.getsize(path) == 0:
+            raise ValueError(f"The file '{path}' is empty.")
 
     # Read the pfb file header of the first file to get the shape, topology and subgrid size
     with open(pfb_files[0], "rb") as fp:

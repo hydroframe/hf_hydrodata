@@ -686,7 +686,7 @@ def read_fast_pfb(pfb_files: List[str], pfb_constraints: dict = None):
             raise ValueError(
                 "A pfb constraints array must be [minx,miny,maxx,maxy] or [[minx,miny], [maxx,maxy]]"
             )
-    else:
+    elif constraints is not None:
         raise ValueError("A pfb constraint must be either a dict or an list")
     return hf_hydrodata.fast_pfb_reader.read_files(pfb_files, constraints)
 
@@ -2129,6 +2129,10 @@ def _read_and_filter_pfb_files(
     # The read_pfb_sequence method has a limit to how many paths it can read in one call because of memory limits.
     # However, the fast_pfb_reader has no limit since internally it reads in parallel as many as fit in memory.
     max_block_size = 1 if constraint_delta else 100 if do_not_use_fast_pfb else 1000
+
+    # This is a hack until these files are changed from PQR=1,1,1
+    if len(paths) > 0 and "/hydrodata/temp" in paths[0]:
+        max_block_size = 1
 
     final_data = None
     block_start = 0
