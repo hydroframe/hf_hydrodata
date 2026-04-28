@@ -34,8 +34,8 @@ READ_DC_CALLBACK = None
 HYDRODATA = "/hydrodata"
 JWT_TOKEN = None
 USER_ROLES = None
-JWT_TOKEN_CACHE_TIME = 4 * 60   # seconds to cache the JWT_TOKEN
-JWT_TOKEN_TIMESTAMP = None      # timestamp of collected JWT_TOKEN
+JWT_TOKEN_CACHE_TIME = 4 * 60  # seconds to cache the JWT_TOKEN
+JWT_TOKEN_TIMESTAMP = None  # timestamp of collected JWT_TOKEN
 
 
 class ModelTableRow:
@@ -99,7 +99,9 @@ class ModelTable:
         """
 
         # Pass any options as parameters
-        parameter_options = {key:options.get(key) for key in options if options.get(key) is not None}
+        parameter_options = {
+            key: options.get(key) for key in options if options.get(key) is not None
+        }
         parameter_options["table"] = self.table_name
         data_catalog_secret = _get_data_catalog_secret()
         if data_catalog_secret:
@@ -210,7 +212,11 @@ def _get_api_headers(required=True) -> dict:
     global JWT_TOKEN_TIMESTAMP
     global JWT_TOKEN
     global USER_ROLES
-    if not JWT_TOKEN or JWT_TOKEN_TIMESTAMP is None or time.time() - JWT_TOKEN_TIMESTAMP > JWT_TOKEN_CACHE_TIME:
+    if (
+        not JWT_TOKEN
+        or JWT_TOKEN_TIMESTAMP is None
+        or time.time() - JWT_TOKEN_TIMESTAMP > JWT_TOKEN_CACHE_TIME
+    ):
         # Only do this if we do not already have a JWT_TOKEN cached in the global variable
         if "verde-" in platform.node() and not os.getenv("https_proxy"):
             # This is to configure a proxy for a princeton environment if not already specified
@@ -220,14 +226,18 @@ def _get_api_headers(required=True) -> dict:
             return {}
         url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
         try:
-            response = requests.get(url_security, timeout=1200)
+            response = requests.get(url_security, timeout=(10, 100))
         except:
-            raise ValueError(f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server.")
+            raise ValueError(
+                f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server."
+            )
         if not response.status_code == 200:
             if not required:
                 # The PIN is not required so it is ok that the API request returned an error.
                 return {}
-            raise ValueError(f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server.")
+            raise ValueError(
+                f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server."
+            )
         json_string = response.content.decode("utf-8")
         jwt_json = json.loads(json_string)
         expires_string = jwt_json.get("expires")
@@ -275,8 +285,7 @@ def get_registered_api_pin(required=True) -> Tuple[str, str]:
             raise ValueError(
                 "No email/pin was registered'. Signup for an account with https://hydrogen.princeton.edu/signup. Create a pin with https://hydrogen.princeton.edu/pin. Register your pin with the python call 'hf_hydrodata.register_api_pin()'."
             )
-        else:
-            return (None, None)
+        return (None, None)
     try:
         with open(pin_path, "r") as stream:
             contents = stream.read()

@@ -1196,7 +1196,8 @@ def _write_file_from_api(filepath: str, options: dict):
         with response:
             n = 0
             for chunk in response.iter_content(chunk_size=chunksize):
-                if file_size and offset is not None:
+                if file_size and offset is not None and file_size >= 1000000000:
+                    # Print out progress if downloading a very large file
                     percent = round(100 * (offset + n * chunksize) / file_size, 2)
                     remaining = file_size - offset - n * chunksize - len(chunk)
                     print(
@@ -1264,7 +1265,9 @@ def get_raw_file(filepath, *args, **kwargs):
         if len(hydro_filepaths) == 0:
             raise ValueError("No file found for query.")
         if len(hydro_filepaths) > 1:
-            raise ValueError("Only one file can get downloaded using get_raw_file(). Change query to identify a single file.")
+            raise ValueError(
+                "Only one file can get downloaded using get_raw_file(). Change query to identify a single file."
+            )
         hydro_filepath = hydro_filepaths[0]
         shutil.copy(hydro_filepath, filepath)
 
@@ -1864,7 +1867,7 @@ def _get_gridded_data_from_api(options):
         gridded_data_url = f"{HYDRODATA_URL}/api/gridded-data?{q_params}"
         try:
             headers = _get_api_headers()
-            response = requests.get(gridded_data_url, headers=headers, timeout=4000)
+            response = requests.get(gridded_data_url, headers=headers, timeout=(10, 60))
             response_headers = response.headers
             download_start = response_headers.get("download-start")
             for retry_count in range(0, 80):
@@ -1873,7 +1876,9 @@ def _get_gridded_data_from_api(options):
                     # Retry
                     retry_location = response_headers.get("Location")
                     retry_url = f"{HYDRODATA_URL}/api{retry_location}?download_start={download_start}"
-                    response = requests.get(retry_url, headers=headers, timeout=10)
+                    response = requests.get(
+                        retry_url, headers=headers, timeout=(10, 60)
+                    )
                     sleep_duration = (
                         1 if retry_count < 10 else 2 if retry_count < 30 else 4
                     )
