@@ -502,3 +502,17 @@ def _read_subgrid(fp, subgrid_offset: int, sg_nxyz: List[int]):
         contents[offset : offset + header_subgrid_size], dtype=FLOAT_DT
     ).reshape((header_sg_nz, header_sg_ny, header_sg_nx))
     return (data, subgrid_position, subgrid_sg_nx)
+
+def get_pqr(path:str):
+    """
+    Get the PQR of a pfb file path.
+    Parameters:
+        path:   Path name to a pfb file.
+    Returns:
+        A tuple (p,q,r) of the pfb file.
+    """
+    if not os.path.exists(path):
+        raise ValueError(f"The file '{path}' does not exist.")
+    with open(path, "rb") as fp:
+        (pfb_shape, sg_nxyz, pqr) = _read_file_header(fp)
+    return pqr
