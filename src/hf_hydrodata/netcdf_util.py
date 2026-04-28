@@ -6,14 +6,18 @@ NetCDF utility function to save a numpy array as a NetCDF file with projection a
 
 import datetime
 import numpy as np
-import hf_hydrodata as hf
 import netCDF4
 import pyproj
 import dateutil
+import hf_hydrodata as hf
 
 
 def generate_netcdf_file(
-    data: np.ndarray, entry: dict, query_parameters: dict, filename: str
+    data: np.ndarray,
+    entry: dict,
+    query_parameters: dict,
+    filename: str,
+    netcdf_format: str = "NETCDF3_CLASSIC",
 ):
     """Generate a NetCDF file from numpy data array."""
     grid = entry.get("grid")
@@ -52,7 +56,7 @@ def generate_netcdf_file(
 
     # Use CLASSIC because this allows client to load streamed data from memory
     # The newer NETCDF4 relies on file positiong that requires to save into a file
-    nc = netCDF4.Dataset(filename, "w", format="NETCDF3_CLASSIC")
+    nc = netCDF4.Dataset(filename, "w", format=netcdf_format)
 
     if not include_xy_coords:
         # This is one 1D so do not add x,y coords with CRS
