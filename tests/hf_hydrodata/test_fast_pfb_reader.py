@@ -178,10 +178,11 @@ def test_empty_file():
             hf_hydrodata.fast_pfb_reader.read_files("foo")
         assert "does not exist" in str(info.value)
 
+
+@pytest.mark.private_dataset
 def test_get_pqr():
     """Test that we can get the PQR from a pfb file."""
 
     path = "/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_vgn_n.pfb"
     pqr = hf_hydrodata.fast_pfb_reader.get_pqr(path)
     assert pqr == (48, 48, 1)
-
