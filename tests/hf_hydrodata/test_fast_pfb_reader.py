@@ -2,11 +2,12 @@
 Unit test for the fast_pfb_reader module.
 """
 
-# pylint: disable=E0401,C0413,C0301,W0101
+# pylint: disable=E0401,C0413,C0301,W0101,W1514
 import sys
 import os
 import glob
 import tempfile
+import numpy as np
 import parflow
 import pytest
 
@@ -161,3 +162,30 @@ def test_full_3d_conus2():
     assert fast_data.shape == (1, 17, 3256, 4442)
     assert pfb_seq_data.shape == (1, 17, 3256, 4442)
     assert fast_total == pfb_seq_total
+
+
+def test_empty_file():
+    """Test that detects an empty file error."""
+
+    with tempfile.TemporaryDirectory() as tempdirname:
+        path = f"{tempdirname}/foo.pfb"
+        with open(path, "w+"):
+            pass
+        with pytest.raises(ValueError) as info:
+            hf_hydrodata.fast_pfb_reader.read_files(path)
+        assert "is empty" in str(info.value)
+
+        with pytest.raises(ValueError) as info:
+            hf_hydrodata.fast_pfb_reader.read_files("foo")
+        assert "does not exist" in str(info.value)
+
+
+def test_get_pqr():
+    """Test that we can get the PQR from a pfb file."""
+
+    with tempfile.TemporaryDirectory() as tempdirname:
+        path = f"{tempdirname}/foo.pfb"
+        data = np.zeros((1, 2, 2))
+        parflow.write_pfb(path, data)
+        pqr = hf_hydrodata.fast_pfb_reader.get_pqr(path)
+        assert pqr == (1, 1, 1)

@@ -686,7 +686,7 @@ def read_fast_pfb(pfb_files: List[str], pfb_constraints: dict = None):
             raise ValueError(
                 "A pfb constraints array must be [minx,miny,maxx,maxy] or [[minx,miny], [maxx,maxy]]"
             )
-    else:
+    elif constraints is not None:
         raise ValueError("A pfb constraint must be either a dict or an list")
     return hf_hydrodata.fast_pfb_reader.read_files(pfb_files, constraints)
 
@@ -1082,7 +1082,7 @@ def _construct_string_from_options(qparam_values):
     return result_string
 
 
-def _write_file_from_api(filepath:str, options:dict):
+def _write_file_from_api(filepath: str, options: dict):
     """Get the hydroframe file that is selected by the options to the given filepath.
 
     Args:
@@ -1095,71 +1095,134 @@ def _write_file_from_api(filepath:str, options:dict):
     """
 
     q_params = _construct_string_from_options(options)
-    datafile_url = f"{HYDRODATA_URL}/api/data-file?{q_params}"
+    offset = 0
     download_start = ""
     headers = None
     response = None
-    try:
-        headers = _get_api_headers()
-        response = requests.get(datafile_url, headers=headers, timeout=4000)
-        download_start = response.headers.get("download-start")
-        if response.status_code != 200:
-            if response.status_code == 400:
-                content = response.content.decode()
-                response_json = json.loads(content)
-                message = response_json.get("message")
-                _send_download_complete_reply(
-                    response, headers, download_start, message=message
+
+    # if the file exists assume it is partially complete
+    if os.path.exists(filepath):
+        offset = os.path.getsize(filepath)
+
+    # Read the full file in batches.
+    # The server will return Batch-Range header with the start-end/size of the batch
+    # Send the offset of the requested batch with the offset query parameters
+    headers = _get_api_headers()
+    for _ in range(0, 4000):
+        datafile_url = f"{HYDRODATA_URL}/api/data-file?{q_params}&offset={offset}"
+        try:
+            # Loop through request retry responses if message queue detects low server disk space
+            for retry_count in range(0, 70):
+                response = requests.get(
+                    datafile_url, headers=headers, stream=True, timeout=(10, 60)
                 )
-                raise ValueError(message)
-            if response.status_code == 502:
-                message = "Server '%s' is not responding. Try again later."
+                if retry_count == 0:
+                    download_start = response.headers.get("download-start")
+                if response.status_code == 202:
+                    # increase sleep times if delay is longer
+                    # The 75 second time is if we are waiting for the 8 minute disk space cleanup
+                    sleep_time = (
+                        1 if retry_count <= 12 else 2 if retry_count <= 25 else 75
+                    )
+                    time.sleep(sleep_time)
+                    location = response.headers.get("Location")
+                    datafile_url = f"{HYDRODATA_URL}/api/{location}"
+                else:
+                    break
+
+            if response.status_code != 200:
+                if response.status_code == 400:
+                    content = response.content.decode()
+                    response_json = json.loads(content)
+                    message = response_json.get("message")
+                    _send_download_complete_reply(
+                        response, headers, download_start, message=message
+                    )
+                    raise ValueError(message)
+                if response.status_code == 502:
+                    message = "Server '%s' is not responding. Try again later."
+                    _send_download_complete_reply(
+                        response, headers, download_start, message=message
+                    )
+                    raise ValueError(message) from None
+                message = (
+                    f"The {HYDRODATA_URL} returned error code {response.status_code}."
+                )
                 _send_download_complete_reply(
                     response, headers, download_start, message=message
                 )
                 raise ValueError(message) from None
-            message = f"The {HYDRODATA_URL} returned error code {response.status_code}."
+
+        except requests.exceptions.Timeout:
+            message = "Timeout error from server. Try again later or modify the query."
+            _send_download_complete_reply(
+                response, headers, download_start, message=message
+            )
+            raise ValueError(message) from None
+        except requests.exceptions.ChunkedEncodingError:
+            message = f"The {datafile_url} has timed out. Try again later or change your query."
+            _send_download_complete_reply(
+                response, headers, download_start, message=message
+            )
+            raise ValueError(message) from None
+        except Exception as e:
+            message = str(e)
             _send_download_complete_reply(
                 response, headers, download_start, message=message
             )
             raise ValueError(message) from None
 
-    except requests.exceptions.Timeout:
-        message = "Timeout error from server. Try again later or modify the query."
-        _send_download_complete_reply(
-            response, headers, download_start, message=message
-        )
-        raise ValueError(message) from None
-    except requests.exceptions.ChunkedEncodingError:
-        message = f"The {datafile_url} has timed out. Try again later or change your query."
-        _send_download_complete_reply(
-            response, headers, download_start, message=message
-        )
-        raise ValueError(message) from None
-    except Exception as e:
-        message = str(e)
-        _send_download_complete_reply(
-            response, headers, download_start, message=message
-        )
-        raise ValueError(message) from None
+        # Download of the batch is complete. Get the Batch-Range
+        offset_start = None
+        offset_end = None
+        file_size = None
+        batch_range = response.headers.get("Batch-Range")
+        if batch_range is not None:
+            parts = batch_range.split("/")
+            if not len(parts) == 2:
+                raise ValueError(
+                    "Server Error Invalid Content-Range header from 206 partial response"
+                )
+            offset_start, offset_end = parts[0].split("-")
+            file_size = int(parts[1])
+            offset_start = int(offset_start) if offset_start else 0
+            offset_end = int(offset_end) if offset_end else 0
 
-    content = response.content
-    if content is None or len(content) == 0:
-        message = "No content returned from server. Try again later or change your query."
-        _send_download_complete_reply(
-            response, headers, download_start, message=message
-        )
-        raise ValueError(message) from None
+        # The response was successful
+        updated_download_start = response.headers.get("download-start")
 
-    # The response was successful
-    updated_download_start = response.headers.get("download-start")
-    download_start = (
-        updated_download_start if updated_download_start else download_start
-    )
-    _send_download_complete_reply(response, headers, download_start)
-    file_obj = io.BytesIO(content)
-    with open(filepath, "wb") as output_file:
-        output_file.write(file_obj.read())
+        # Read the response stream in chunks and append to the file
+        chunksize = 16384
+        with response:
+            n = 0
+            for chunk in response.iter_content(chunk_size=chunksize):
+                if file_size and offset is not None and file_size >= 1000000000:
+                    # Print out progress if downloading a very large file
+                    percent = round(100 * (offset + n * chunksize) / file_size, 2)
+                    remaining = file_size - offset - n * chunksize - len(chunk)
+                    print(
+                        f"Progress {percent}% Remaining {remaining} bytes ...                          ",
+                        end="\r",
+                        flush=True,
+                    )
+                n = n + 1
+                if chunk:
+                    with open(filepath, "ab") as f:
+                        f.write(chunk)
+
+        # Download is complete send the reply to log the completion and delete server file
+        download_start = (
+            updated_download_start if updated_download_start else download_start
+        )
+        _send_download_complete_reply(response, headers, download_start)
+
+        if offset_end:
+            offset = offset_end + 1
+            if offset >= file_size:
+                break
+        else:
+            # Read the last chunk so exit chunking loop
+            break
 
 
 @_maintenance_guard
@@ -1198,7 +1261,14 @@ def get_raw_file(filepath, *args, **kwargs):
         _write_file_from_api(filepath, options)
 
     else:
-        hydro_filepath = get_path(options)
+        hydro_filepaths = get_paths(options)
+        if len(hydro_filepaths) == 0:
+            raise ValueError("No file found for query.")
+        if len(hydro_filepaths) > 1:
+            raise ValueError(
+                "Only one file can get downloaded using get_raw_file(). Change query to identify a single file."
+            )
+        hydro_filepath = hydro_filepaths[0]
         shutil.copy(hydro_filepath, filepath)
 
 
@@ -1385,7 +1455,7 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
     return data
 
 
-def _check_for_unknown_options(options:dict):
+def _check_for_unknown_options(options: dict):
     """
     Check for unknown option keys in the options.
     Parameters:
@@ -1435,7 +1505,8 @@ def _check_for_unknown_options(options:dict):
         "scenario_from_date",
         "scenario_to_date",
         "domain_path",
-        "threads"
+        "threads",
+        "offset",
     ]
     unknown_keys = []
     for key in options:
@@ -1796,7 +1867,7 @@ def _get_gridded_data_from_api(options):
         gridded_data_url = f"{HYDRODATA_URL}/api/gridded-data?{q_params}"
         try:
             headers = _get_api_headers()
-            response = requests.get(gridded_data_url, headers=headers, timeout=4000)
+            response = requests.get(gridded_data_url, headers=headers, timeout=(10, 60))
             response_headers = response.headers
             download_start = response_headers.get("download-start")
             for retry_count in range(0, 80):
@@ -1805,7 +1876,9 @@ def _get_gridded_data_from_api(options):
                     # Retry
                     retry_location = response_headers.get("Location")
                     retry_url = f"{HYDRODATA_URL}/api{retry_location}?download_start={download_start}"
-                    response = requests.get(retry_url, headers=headers, timeout=10)
+                    response = requests.get(
+                        retry_url, headers=headers, timeout=(10, 60)
+                    )
                     sleep_duration = (
                         1 if retry_count < 10 else 2 if retry_count < 30 else 4
                     )
@@ -1830,7 +1903,9 @@ def _get_gridded_data_from_api(options):
                     raise ValueError(message)
 
         except requests.exceptions.ChunkedEncodingError as ce:
-            message = "Chunked encoding error from server. Try again later or modify query."
+            message = (
+                "Chunked encoding error from server. Try again later or modify query."
+            )
             _send_download_complete_reply(
                 response, headers, download_start, message=message
             )
@@ -1847,7 +1922,6 @@ def _get_gridded_data_from_api(options):
                 response, headers, download_start, message=message
             )
             raise ValueError(message) from e
-
 
         content = response.content
         if content is None or len(content) == 0:
@@ -1900,7 +1974,7 @@ def _send_download_complete_reply(
             "download_start": download_start,
             "error_message": message,
             "job_queue_duration": job_queue_duration,
-            "job_query_parameters": job_query_parameters
+            "job_query_parameters": job_query_parameters,
         }
     else:
         query_parameters = {"error_message": message}
@@ -2055,6 +2129,10 @@ def _read_and_filter_pfb_files(
     # The read_pfb_sequence method has a limit to how many paths it can read in one call because of memory limits.
     # However, the fast_pfb_reader has no limit since internally it reads in parallel as many as fit in memory.
     max_block_size = 1 if constraint_delta else 100 if do_not_use_fast_pfb else 1000
+
+    # This is a hack until these files are changed from PQR=1,1,1
+    if len(paths) > 0 and "/hydrodata/temp" in paths[0]:
+        max_block_size = 1
 
     final_data = None
     block_start = 0
@@ -3051,13 +3129,13 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
         else options.get("latlon_bounds")
     )
     if isinstance(grid_bounds, str):
-       grid_bounds = json.loads(grid_bounds)
+        grid_bounds = json.loads(grid_bounds)
     if isinstance(grid_point, str):
-       grid_point = json.loads(grid_point)
+        grid_point = json.loads(grid_point)
     if isinstance(latlon_bounds, str):
-       latlon_bounds = json.loads(latlon_bounds)
+        latlon_bounds = json.loads(latlon_bounds)
     if isinstance(latlon_point, str):
-       latlon_point = json.loads(latlon_point)
+        latlon_point = json.loads(latlon_point)
     if isinstance(latitude_range, str):
         if latitude_range.strip().startswith("("):
             latitude_range = ast.literal_eval(latitude_range)
@@ -3089,14 +3167,26 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
     if grid_bounds and latlon_bounds:
         raise ValueError("Cannot specify both grid_bounds and latlon_bounds")
     if latlon_bounds and (latitude_range or longitude_range):
-        raise ValueError("Cannot specify both latlon_bounds and latitude_range and longitude_range")
+        raise ValueError(
+            "Cannot specify both latlon_bounds and latitude_range and longitude_range"
+        )
     if latlon_bounds:
         # Convert to grid_bounds using same algorithm as subset tools
         grid_bounds = _convert_latlon_to_grid(grid, latlon_bounds)
     if latitude_range and longitude_range:
         if len(latitude_range) != 2 or len(longitude_range) != 2:
-            raise ValueError("The latitude_range and longitude_range must be length 2 each.")
-        grid_bounds = _convert_latlon_to_grid(grid, [latitude_range[0], longitude_range[0], latitude_range[1], longitude_range[1]])
+            raise ValueError(
+                "The latitude_range and longitude_range must be length 2 each."
+            )
+        grid_bounds = _convert_latlon_to_grid(
+            grid,
+            [
+                latitude_range[0],
+                longitude_range[0],
+                latitude_range[1],
+                longitude_range[1],
+            ],
+        )
     huc_id = options.get("huc_id")
     if huc_id and isinstance(huc_id, str) and huc_id.startswith("["):
         huc_id = json.loads(huc_id)

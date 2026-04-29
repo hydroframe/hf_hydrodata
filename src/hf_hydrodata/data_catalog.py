@@ -149,13 +149,15 @@ def register_api_pin(email: str, pin: str):
         raise ValueError("Email and PIN are not specified in call to register_api_pin.")
 
     url = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
-    response = requests.get(url, timeout=20)
+    response = requests.get(url, timeout=(10, 60))
     if response.status_code == 400:
         raise ValueError(
             f"This PIN is not registered for '{email}' (expired?). Register a pin with https://hydrogen.princeton.edu/pin. Signup with https://hydrogen.princeton.edu/signup."
         )
     if not response.status_code == 200:
-        raise ValueError(f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server.")
+        raise ValueError(
+            f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server."
+        )
     pin_dir = os.path.expanduser("~/.hydrodata")
     os.makedirs(pin_dir, mode=0o700, exist_ok=True)
     pin_path = f"{pin_dir}/pin.json"

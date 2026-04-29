@@ -955,7 +955,7 @@ def _get_siteid_data_from_api(options):
     download_start = None
     try:
         headers = _validate_user()
-        response = requests.get(point_data_url, headers=headers, timeout=180)
+        response = requests.get(point_data_url, headers=headers, timeout=(10, 180))
         response_headers = response.headers
         download_start = response_headers.get("download-start")
         for retry_count in range(0, 60):
@@ -964,7 +964,7 @@ def _get_siteid_data_from_api(options):
                 # Retry
                 retry_location = response_headers.get("Location")
                 retry_url = f"{HYDRODATA_URL}/api{retry_location}?download_start={download_start}"
-                response = requests.get(retry_url, headers=headers, timeout=10)
+                response = requests.get(retry_url, headers=headers, timeout=(10, 180))
                 sleep_duration = 1 if retry_count < 10 else 2 if retry_count < 30 else 4
                 time.sleep(sleep_duration)
 
@@ -1019,7 +1019,7 @@ def _get_data_from_api(data_type, options):
     download_start = None
     try:
         headers = _validate_user()
-        response = requests.get(point_data_url, headers=headers, timeout=180)
+        response = requests.get(point_data_url, headers=headers, timeout=(10, 180))
         response_headers = response.headers
         download_start = response_headers.get("download-start")
         for retry_count in range(0, 60):
@@ -1028,7 +1028,7 @@ def _get_data_from_api(data_type, options):
                 # Retry
                 retry_location = response_headers.get("Location")
                 retry_url = f"{HYDRODATA_URL}/api{retry_location}?download_start={download_start}"
-                response = requests.get(retry_url, headers=headers, timeout=10)
+                response = requests.get(retry_url, headers=headers, timeout=(10, 180))
                 sleep_duration = 1 if retry_count < 10 else 2 if retry_count < 30 else 4
                 time.sleep(sleep_duration)
             elif response.status_code != 200:
@@ -1249,11 +1249,11 @@ def _validate_user():
     try:
         email, pin = _get_registered_api_pin()
         url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
-        response = requests.get(url_security, headers=None, timeout=15)
+        response = requests.get(url_security, headers=None, timeout=(10, 60))
+        if response.status_code == 502:
+            raise ValueError("Server is unavailable. Try again later.")
         if not response.status_code == 200:
-            raise ValueError(
-                f"PIN has expired. Re-register a pin for '{email}' with https://hydrogen.princeton.edu/pin ."
-            )
+            raise ValueError(f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server.")
         json_string = response.content.decode("utf-8")
         jwt_json = json.loads(json_string)
         expires_string = jwt_json.get("expires")
@@ -1270,6 +1270,8 @@ def _validate_user():
         headers = {}
         headers["Authorization"] = f"Bearer {jwt_token}"
         return headers
+    except ValueError as ve:
+        raise ve
     except:
         raise ValueError(f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server.")
 
