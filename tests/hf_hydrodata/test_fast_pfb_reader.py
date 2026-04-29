@@ -7,6 +7,7 @@ import sys
 import os
 import glob
 import tempfile
+import numpy as np
 import parflow
 import pytest
 
@@ -179,10 +180,12 @@ def test_empty_file():
         assert "does not exist" in str(info.value)
 
 
-@pytest.mark.private_dataset
 def test_get_pqr():
     """Test that we can get the PQR from a pfb file."""
 
-    path = "/hydrodata/PFCLM/CONUS1_baseline/simulations/static/CONUS1_vgn_n.pfb"
-    pqr = hf_hydrodata.fast_pfb_reader.get_pqr(path)
-    assert pqr == (48, 48, 1)
+    with tempfile.TemporaryDirectory() as tempdirname:
+        path = f"{tempdirname}/foo.pfb"
+        data = np.zeros((1, 2, 2))
+        parflow.write_pfb(path, data)
+        pqr = hf_hydrodata.fast_pfb_reader.get_pqr(path)
+        assert pqr == (1, 1, 1)
