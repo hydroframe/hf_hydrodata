@@ -270,3 +270,5 @@ def test_ambiguous_error():
     with pytest.raises(ValueError) as info:
         hf.get_catalog_entry(dataset="ma_2025", variable="water_table_depth")
     assert "Could be id" not in (str(info.value))
+    assert "or 'conus2_wtd.30'" in str(info.value)
+
