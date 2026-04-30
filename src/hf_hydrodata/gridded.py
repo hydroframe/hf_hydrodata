@@ -3235,7 +3235,7 @@ def _get_grid_bounds(grid: str, options: dict, rio_ds=None) -> List[float]:
         _get_bounds_options(options)
     )
     if latlon_point:
-        grid_point = _convert_latlon_point_to_grid(grid, latlon_point)
+        grid_point = _convert_latlon_point_to_grid(grid, latlon_point, rio_ds)
     if grid_point:
         grid_bounds = [
             grid_point[0],
