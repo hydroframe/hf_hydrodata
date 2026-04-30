@@ -52,7 +52,9 @@ SUPPORTED_FILTERS = [
     "grid",
     "grid_bounds",
     "huc_id",
-    "hf_version"
+    "hf_version",
+    "latitude_range",
+    "longitude_range",
 ]
 
 # List of SQL tables in the database corresponding to site-type-specific attributes
