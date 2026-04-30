@@ -2395,8 +2395,6 @@ def _read_and_filter_tiff_files(
     crs = grid_row["crs"]
     if "proj=longlat" in crs:
         # Projection is in LAT lon with data in lat/lon
-        ds = xr.open_dataset(file_path)
-        print(ds)
         result = _read_latlon_tiff(entry, options, file_path)
         return result
 
@@ -2441,7 +2439,15 @@ def _read_latlon_tiff(
     rio_ds = rioxarray.open_rasterio(file_path, chunks="auto")
     (x_min, y_min, x_max, y_max) = _get_grid_bounds(grid, options, rio_ds=rio_ds)
     subset = rio_ds.isel(x=slice(x_min, x_max), y=slice(y_min, y_max))
+
     data = subset.compute()
+    # Tiff file have (0,0) in north, west. Flip it by match pfb orientation (0,0) in south, west
+    if len(data.shape) == 3:
+        data = np.flip(data.to_numpy(), 1)
+    elif len(data.shape) == 2:
+        data = np.flip(data.to_numpy(), 0)
+    else:
+        raise ValueError("Unexpected shape of tiff file.")
     return data
 
 
@@ -3222,7 +3228,7 @@ def _get_grid_bounds(grid: str, options: dict, rio_ds=None) -> List[float]:
         _get_bounds_options(options)
     )
     if latlon_point:
-        grid_point = to_ij(grid, *latlon_point)
+        grid_point = _convert_latlon_point_to_grid(grid, latlon_point)
     if grid_point:
         grid_bounds = [
             grid_point[0],
@@ -3232,7 +3238,7 @@ def _get_grid_bounds(grid: str, options: dict, rio_ds=None) -> List[float]:
         ]
     if latlon_bounds:
         # Convert to grid_bounds using same algorithm as subset tools
-        grid_bounds = _convert_latlon_to_grid(grid, latlon_bounds, rio_ds)
+        grid_bounds = _convert_latlon_bounds_to_grid(grid, latlon_bounds, rio_ds)
 
     if huc_id and grid in ["conus1", "conus2"]:
         # HUC boundaries for conus1 and conus2 are supported by tiff files in /hydrodata
@@ -3273,12 +3279,51 @@ def _get_grid_bounds(grid: str, options: dict, rio_ds=None) -> List[float]:
         ]
 
         # Then convert the lat/lon bounds to the target grid bounds
-        grid_bounds = _convert_latlon_to_grid(grid, latlon_bounds, rio_ds)
+        grid_bounds = _convert_latlon_bounds_to_grid(grid, latlon_bounds, rio_ds)
 
     return grid_bounds
 
+def _convert_latlon_point_to_grid(grid:str, latlon_point, rio_ds = None):
+    """
+    Convert latlon_bounds array to a grid_bounds using subsettools algorithm.
+    Parameters:
+        grid:           Data catalog grid name.
+        latlon_point:   Array of 2 lat lon points [lat, lon]
+        rio_ds:         rio dataset (optional) to use latlon coordinates from dataset to map
+    Returns:
+        Grid point as array of [x, y]
+    """
+    # Convert to grid_bounds using same algorithm as subset tools
+    if len(latlon_point) != 2:
+        raise ValueError(f"The point {latlon_point} must be [lat,lon]")
+    if (
+        latlon_point[0] < 0
+        or latlon_point[1] > 0
+    ):
+        raise ValueError(f"The point {latlon_point} must be lat,lon and not lon,lat")
 
-def _convert_latlon_to_grid(grid: str, latlon_bounds, rio_ds=None):
+    grid_row = dc.get_table_row("grid", id=grid.lower())
+    crs = grid_row["crs"]
+    if "proj=longlat" in crs:
+        if rio_ds is not None:
+            [lat, lon] = latlon_point
+            x0 = rio_ds.x.to_index().get_indexer([lat], method="nearest")[0]
+            y0 = rio_ds.x.to_index().get_indexer([lon], method="nearest")[0]
+
+            grid_point = [x0, y0]
+            return grid_point
+        else:
+            # The grid is not in meters with LCC but we do not have rio_ds
+            # We have to estimate so use 30m grid to estimate
+            grid = "conus2_wtd.30"
+
+    ij_points = to_ij(grid, *latlon_point)
+    if len(ij_points) != 2:
+        raise ValueError(f"Unable to convert {latlon_point} to ij")
+    grid_point = [ij_points[0], ij_points[1]]
+    return grid_point
+
+def _convert_latlon_bounds_to_grid(grid: str, latlon_bounds, rio_ds=None):
     """
     Convert latlon_bounds array to a grid_bounds using subsettools algorithm.
     Parameters:
@@ -3302,19 +3347,20 @@ def _convert_latlon_to_grid(grid: str, latlon_bounds, rio_ds=None):
     grid_row = dc.get_table_row("grid", id=grid.lower())
     crs = grid_row["crs"]
     if "proj=longlat" in crs:
-        if rio_ds is None:
-            raise ValueError(
-                f"You can use bounds filters for grid '{grid}' on tiff files from server."
-            )
-        # The grid is latlon not LCC so we cannot use to_ij()
-        [lat_min, lon_min, lat_max, lon_max] = latlon_bounds
-        x0 = rio_ds.x.to_index().get_indexer([lon_min], method="nearest")[0]
-        x1 = rio_ds.x.to_index().get_indexer([lon_max], method="nearest")[0]
+        if rio_ds is not None:
+            # The grid is latlon not LCC so we cannot use to_ij()
+            [lat_min, lon_min, lat_max, lon_max] = latlon_bounds
+            x0 = rio_ds.x.to_index().get_indexer([lon_min], method="nearest")[0]
+            x1 = rio_ds.x.to_index().get_indexer([lon_max], method="nearest")[0]
 
-        y0 = rio_ds.y.to_index().get_indexer([lat_max], method="nearest")[0]
-        y1 = rio_ds.y.to_index().get_indexer([lat_min], method="nearest")[0]
-        grid_bounds = [x0, y0, x1, y1]
-        return grid_bounds
+            y0 = rio_ds.y.to_index().get_indexer([lat_max], method="nearest")[0]
+            y1 = rio_ds.y.to_index().get_indexer([lat_min], method="nearest")[0]
+            grid_bounds = [x0, y0, x1, y1]
+            return grid_bounds
+        else:
+            # The grid is not in meters with LCC but we do not have rio_ds
+            # We have to estimate so use 30m grid to estimate
+            grid = "conus2_wtd.30"
 
     ij_points = to_ij(grid, *latlon_bounds)
     if len(ij_points) != 4:
@@ -3329,7 +3375,6 @@ def _convert_latlon_to_grid(grid: str, latlon_bounds, rio_ds=None):
     ]
     grid_bounds = [imin, jmin, imax, jmax]
     return grid_bounds
-
 
 def _get_date_start(options):
     """
