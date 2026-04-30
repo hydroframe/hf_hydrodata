@@ -753,6 +753,8 @@ def _load_gridded_file_entry(
         # File already exists, so just skip this
         return
 
+    options = options.copy()
+    options["from"] = "get_gridded_files"
     data = get_gridded_data(options)
 
     if state.filename_template.endswith(".pfb"):
@@ -984,6 +986,7 @@ def _execute_dask_items(dask_items, state, file_name: str, verbose=False):
                         "variable": "latitude",
                         "file_type": "pfb",
                         "grid_bounds": grid_bounds,
+                        "from": "get_gridded_files",
                     }
                 )
                 longitude_coord = get_gridded_data(
@@ -992,6 +995,7 @@ def _execute_dask_items(dask_items, state, file_name: str, verbose=False):
                         "variable": "longitude",
                         "file_type": "pfb",
                         "grid_bounds": grid_bounds,
+                        "from": "get_gridded_files",
                     }
                 )
             else:
@@ -1506,6 +1510,7 @@ def _check_for_unknown_options(options: dict):
         "domain_path",
         "threads",
         "offset",
+        "from",
     ]
     unknown_keys = []
     for key in options:
@@ -1553,6 +1558,7 @@ def _apply_mask(data, entry, options):
                 "grid_bounds": bbox,
                 "level": level,
                 "dataset_version": os.getenv("HUC_VERSION", None),
+                "from": "_apply_mask",
             }
         )
         # Apply the HUC mask to the data, mask with all huc_ids
@@ -1568,6 +1574,7 @@ def _apply_mask(data, entry, options):
                 "grid_bounds": grid_bounds,
                 "level": 2,
                 "dataset_version": os.getenv("HUC_VERSION", None),
+                "from": "_apply_mask",
             }
         )
         data = np.where(mask > 0, data, np.nan)
