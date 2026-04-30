@@ -827,9 +827,10 @@ def test_latlng_to_grid():
     (x, y) = hf.from_latlon("conus1", 31.759219, -115.902573)
     assert round(x) == 10
     assert round(y) == 10
-    grid_bounds = hf.from_latlon("conus1", 31.65, -115.98, 31.759219, -115.902573)
-    assert round(grid_bounds[0]) == 0
-    assert round(grid_bounds[1]) == 0
+
+    with pytest.raises(ValueError):
+        hf.from_latlon("conus1", 31.65, -115.98, 31.759219, -115.902573)
+
     grid_bounds = hf.from_latlon("conus2", 31.65, -115.98, 31.759219, -115.902573)
     assert round(grid_bounds[0]) == 441
     assert round(grid_bounds[1]) == 970
@@ -869,9 +870,8 @@ def test_latlng_to_grid_out_of_bounds():
     """Unit tests for when latlng is out of bounds of conus1."""
 
     gr.HYDRODATA = "/hydrodata"
-    (x, y) = hf.from_latlon("conus1", 50, -61)
-    assert x == pytest.approx(3342)
-    assert y == pytest.approx(1888)
+    with pytest.raises(ValueError):
+        hf.from_latlon("conus1", 50, -61)
 
 
 def test_gridded_data_no_entry_passed():
