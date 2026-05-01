@@ -40,12 +40,13 @@ def test_latlng_to_grid():
     assert round(y) == 10
 
     with pytest.raises(ValueError) as info:
-        hf_hydrodata.grid.from_latlon("conus1", 31.65, -115.98, 31.759219, -115.902573)
+        lat0, lon0 = hf_hydrodata.grid.to_latlon("conus1", 0, 0)
+        lat1, lon1 = hf_hydrodata.grid.to_latlon("conus1", 10, 10)
+        hf_hydrodata.grid.from_latlon("conus1", lat0-0.1, lon0, lat1, lon1)
     assert "which is outside of the bounds" in str(info.value)
 
-    grid_bounds = hf_hydrodata.grid.from_latlon(
-        "conus1", 31.651836020939907, -115.98236700608565
-    )
+    lat, lon = hf_hydrodata.grid.to_latlon("conus1", 0, 0)
+    grid_bounds = hf_hydrodata.grid.from_latlon("conus1", lat, lon)
     assert round(grid_bounds[0]) == 0
     assert round(grid_bounds[1]) == 0
 
@@ -91,14 +92,14 @@ def test_meters_to_ij():
 def test_latlng_to_grid_out_of_bounds():
     """Unit tests for when latlng is out of bounds of conus1."""
 
-    (x, y) = hf_hydrodata.grid.from_latlon(
-        "conus1", 49.10773525961499, -76.09875470194815
-    )
+    lat, lon = hf_hydrodata.to_latlon("conus1", 3342, 1888)
+    (x, y) = hf_hydrodata.grid.from_latlon("conus1", lat, lon)
     assert x == pytest.approx(3342)
     assert y == pytest.approx(1888)
 
     with pytest.raises(ValueError) as info:
-        hf_hydrodata.grid.from_latlon("conus1", 49.10873525961499, -76.09875470194815)
+        lat, lon = hf_hydrodata.to_latlon("conus1", 3342, 1888)
+        hf_hydrodata.grid.from_latlon("conus1", lat+0.5, lon)
     assert "which is outside of the bounds" in str(info.value)
 
     with pytest.raises(ValueError) as info:
