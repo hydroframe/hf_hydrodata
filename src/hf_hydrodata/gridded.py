@@ -1131,7 +1131,7 @@ def _write_file_from_api(filepath: str, options: dict):
                     )
                     time.sleep(sleep_time)
                     location = response.headers.get("Location")
-                    datafile_url = f"{HYDRODATA_URL}/api/{location}"
+                    datafile_url = f"{HYDRODATA_URL}/api/{location}?download_start={download_start}"
                 else:
                     break
 
@@ -1145,33 +1145,33 @@ def _write_file_from_api(filepath: str, options: dict):
                 if response.status_code == 502:
                     message = "Server '%s' is not responding. Try again later."
                     _send_download_complete_reply(
-                        response, headers, download_start, message=message
+                        response, headers, download_start, message=message, reply_route="data-file"
                     )
                     raise ValueError(message) from None
                 message = (
                     f"The {HYDRODATA_URL} returned error code {response.status_code}."
                 )
                 _send_download_complete_reply(
-                    response, headers, download_start, message=message
+                    response, headers, download_start, message=message, reply_route="data-file"
                 )
                 raise ValueError(message) from None
 
         except requests.exceptions.Timeout:
             message = "Timeout error from server. Try again later or modify the query."
             _send_download_complete_reply(
-                response, headers, download_start, message=message
+                response, headers, download_start, message=message, reply_route="data-file"
             )
             raise ValueError(message) from None
         except requests.exceptions.ChunkedEncodingError:
             message = f"The {datafile_url} has timed out. Try again later or change your query."
             _send_download_complete_reply(
-                response, headers, download_start, message=message
+                response, headers, download_start, message=message, reply_route="data-file"
             )
             raise ValueError(message) from None
         except Exception as e:
             message = str(e)
             _send_download_complete_reply(
-                response, headers, download_start, message=message
+                response, headers, download_start, message=message, reply_route="data-file"
             )
             raise ValueError(message) from None
 
@@ -1217,7 +1217,7 @@ def _write_file_from_api(filepath: str, options: dict):
         download_start = (
             updated_download_start if updated_download_start else download_start
         )
-        _send_download_complete_reply(response, headers, download_start)
+        _send_download_complete_reply(response, headers, download_start, reply_route="data-file")
 
         if offset_end:
             offset = offset_end + 1
@@ -1959,7 +1959,7 @@ def _get_gridded_data_from_api(options):
 
 
 def _send_download_complete_reply(
-    response, request_headers, download_start, message=None
+    response, request_headers, download_start, message=None, reply_route="gridded-data"
 ):
     """
     Send back to the API a download complete reply.
@@ -1968,6 +1968,7 @@ def _send_download_complete_reply(
         request_headers:    The request headers with the JWT token to make the new request.
         download_start:     The timestamp when the download started to compute duration for the log.
         message:            The error message of the request or None.
+        reply_route:        The /api route to reply back
     """
     if response and request_headers:
         headers = response.headers
@@ -1992,7 +1993,7 @@ def _send_download_complete_reply(
         ]
     )
     if request_headers:
-        url = f"{HYDRODATA_URL}/api/gridded-data?{query_parameters_string}"
+        url = f"{HYDRODATA_URL}/api/{reply_route}?{query_parameters_string}"
         try:
             requests.delete(url, headers=request_headers, timeout=60)
         except:
