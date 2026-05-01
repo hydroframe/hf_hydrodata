@@ -828,8 +828,11 @@ def test_latlng_to_grid():
     assert round(x) == 10
     assert round(y) == 10
 
-    with pytest.raises(ValueError):
-        hf.from_latlon("conus1", 31.65, -115.98, 31.759219, -115.902573)
+    with pytest.raises(ValueError) as info:
+        lat0, lon0 = hf.to_latlon("conus1", 0, 0)
+        lat1, lon1 = hf.grid.to_latlon("conus1", 10, 10)
+        hf.grid.from_latlon("conus1", lat0 - 0.1, lon0, lat1, lon1)
+    assert "which is outside of the bounds" in str(info.value)
 
     grid_bounds = hf.from_latlon("conus2", 31.65, -115.98, 31.759219, -115.902573)
     assert round(grid_bounds[0]) == 441
@@ -2512,26 +2515,31 @@ def test_monthly_across_wy():
     assert data.shape == (11, 1, 1)
     assert data[0, 0, 0] == pytest.approx(280.64917718)
 
+
 def test_belitz_dataset():
     """Test that we can read the belitz_2019 dataset with bounds filters."""
 
     filter = {
-        "dataset":"belitz_2019",
+        "dataset": "belitz_2019",
         "variable": "distance_stream_horizontal",
         "grid_bounds": [80000, 80000, 80005, 80010],
     }
     data = hf.get_gridded_data(filter)
     assert data.shape == (10, 5)
-    assert data[2,2] == pytest.approx(240.0)
-    assert data[4,3] == pytest.approx(300.0)
+    assert data[2, 2] == pytest.approx(240.0)
+    assert data[4, 3] == pytest.approx(300.0)
 
     filter = {
-        "dataset":"belitz_2019",
+        "dataset": "belitz_2019",
         "variable": "distance_stream_horizontal",
-        "latlon_bounds": [46.61541666666154, -102.68347222220031, 46.61819444443932, -102.68208333331141]
+        "latlon_bounds": [
+            46.61541666666154,
+            -102.68347222220031,
+            46.61819444443932,
+            -102.68208333331141,
+        ],
     }
     data = hf.get_gridded_data(filter)
     assert data.shape == (10, 5)
-    assert data[2,2] == pytest.approx(240.0)
-    assert data[4,3] == pytest.approx(300.0)
-
+    assert data[2, 2] == pytest.approx(240.0)
+    assert data[4, 3] == pytest.approx(300.0)

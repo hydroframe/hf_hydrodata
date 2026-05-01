@@ -42,7 +42,7 @@ def test_latlng_to_grid():
     with pytest.raises(ValueError) as info:
         lat0, lon0 = hf_hydrodata.grid.to_latlon("conus1", 0, 0)
         lat1, lon1 = hf_hydrodata.grid.to_latlon("conus1", 10, 10)
-        hf_hydrodata.grid.from_latlon("conus1", lat0-0.1, lon0, lat1, lon1)
+        hf_hydrodata.grid.from_latlon("conus1", lat0 - 0.1, lon0, lat1, lon1)
     assert "which is outside of the bounds" in str(info.value)
 
     lat, lon = hf_hydrodata.grid.to_latlon("conus1", 0, 0)
@@ -99,7 +99,7 @@ def test_latlng_to_grid_out_of_bounds():
 
     with pytest.raises(ValueError) as info:
         lat, lon = hf_hydrodata.to_latlon("conus1", 3342, 1888)
-        hf_hydrodata.grid.from_latlon("conus1", lat+0.5, lon)
+        hf_hydrodata.grid.from_latlon("conus1", lat + 0.5, lon)
     assert "which is outside of the bounds" in str(info.value)
 
     with pytest.raises(ValueError) as info:
@@ -110,6 +110,7 @@ def test_latlng_to_grid_out_of_bounds():
     (x, y) = hf_hydrodata.grid.to_ij("conus1", lat, lon)
     assert x == 0
     assert y == 0
+
     with pytest.raises(ValueError) as info:
         (x, y) = hf_hydrodata.grid.to_ij("conus1", lat - 2, lon - 2)
     assert "which is outside of the bounds" in str(info.value)
