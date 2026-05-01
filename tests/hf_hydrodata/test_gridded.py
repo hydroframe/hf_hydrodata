@@ -2511,3 +2511,27 @@ def test_monthly_across_wy():
     data = hf.get_gridded_data(options)
     assert data.shape == (11, 1, 1)
     assert data[0, 0, 0] == pytest.approx(280.64917718)
+
+def test_belitz_dataset():
+    """Test that we can read the belitz_2019 dataset with bounds filters."""
+
+    filter = {
+        "dataset":"belitz_2019",
+        "variable": "distance_stream_horizontal",
+        "grid_bounds": [80000, 80000, 80005, 80010],
+    }
+    data = hf.get_gridded_data(filter)
+    assert data.shape == (10, 5)
+    assert data[2,2] == pytest.approx(240.0)
+    assert data[4,3] == pytest.approx(300.0)
+
+    filter = {
+        "dataset":"belitz_2019",
+        "variable": "distance_stream_horizontal",
+        "latlon_bounds": [46.61541666666154, -102.68347222220031, 46.61819444443932, -102.68208333331141]
+    }
+    data = hf.get_gridded_data(filter)
+    assert data.shape == (10, 5)
+    assert data[2,2] == pytest.approx(240.0)
+    assert data[4,3] == pytest.approx(300.0)
+

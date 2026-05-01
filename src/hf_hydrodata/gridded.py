@@ -2438,17 +2438,26 @@ def _read_latlon_tiff(
     Args:
         entry:          A modelTableRow containing the data catalog entry.
         options:        The options passed to get_ndarray as a dict.
-        start_time_value: The start time option of the option converted to a datetime or None.
+        file_path:      The file path to the full tiff file to be read
     Returns:
-        An numpy ndarray of the filtered contents of the pfb files.
+        An numpy ndarray with the filtered contents of the pfb files.
     """
     grid = entry["grid"]
+    y_size = _get_grid_y_size(grid)
+    grid = entry["grid"]
     rio_ds = rioxarray.open_rasterio(file_path, chunks="auto")
+    # Get the get bounds from the options assuming 0,0 is south west like pfb files
     (x_min, y_min, x_max, y_max) = _get_grid_bounds(grid, options, rio_ds=rio_ds)
-    subset = rio_ds.isel(x=slice(x_min, x_max), y=slice(y_min, y_max))
 
+    # Create slices to query the tiff file where 0,0 is north west (flip y axis)
+    x_slice = slice(x_min, x_max)
+    y_slice = slice(y_size - y_max, y_size - y_min)
+    subset = rio_ds.isel(x=x_slice, y=y_slice)
+
+    # Read the subset data from the tiff file
     data = subset.compute()
-    # Tiff file have (0,0) in north, west. Flip it by match pfb orientation (0,0) in south, west
+
+    # Flip the tiff subset to match pfb orientation with (0,0) in south, west
     if len(data.shape) == 3:
         data = np.flip(data.to_numpy(), 1)
     elif len(data.shape) == 2:
@@ -2508,23 +2517,32 @@ def _flip_da_indexers_y(entry, da_indexers) -> bool:
         # No y coordinates to flip, but return True so still flip the data
         return True
     grid = entry.get("grid")
+    y_size = _get_grid_y_size(grid)
+    y0 = da_indexers["y"].start
+    y1 = da_indexers["y"].stop
+    da_indexers["y"] = slice(y_size - y1, y_size - y0)
+    return True
+
+
+def _get_grid_y_size(grid: str) -> int:
+    """
+    Get the y size dimension of the grid.
+    Parameters:
+        grid:       Name of the grid from data catalog.
+    Returns:
+        The maximum size of the y dimension of the grid.
+    """
     grid_row = dc.get_table_row("grid", id=grid.lower())
     if grid_row is None:
         raise ValueError(f"No such grid {grid} available.")
     grid_shape = grid_row["shape"]
     if len(grid_shape) == 3:
         y_size = grid_shape[1]
-        y0 = da_indexers["y"].start
-        y1 = da_indexers["y"].stop
-        da_indexers["y"] = slice(y_size - y1, y_size - y0)
     elif len(grid_shape) == 2:
         y_size = grid_shape[0]
-        y0 = da_indexers["y"].start
-        y1 = da_indexers["y"].stop
-        da_indexers["y"] = slice(y_size - y1, y_size - y0)
     else:
         raise ValueError(f"The grid '{grid}' does not have a configured size.")
-    return True
+    return y_size
 
 
 def __get_geotiff(grid: str, level: int) -> xr.Dataset:
@@ -3228,12 +3246,25 @@ def _get_bounds_options(options) -> list:
 
 def _get_grid_bounds(grid: str, options: dict, rio_ds=None) -> List[float]:
     """
-    Get the grid_bounds of the filter options or None.
-    If latlon_bounds or huc_id is specified then convert that to a grid bounds and return it.
+    Parameters:
+        grid:       The data catalog grid name
+        options:    The query filter options.
+        rio_ds:     The open rasterio dataset (optional)
+    Returns:
+        (x_min, y_min, x_max, y_max) in grid coordinates assuming 0,0 is south west
+
+    If no bounds options are specified in options this just returns None.
+    This uses rio_ds for the case when the grid is in latlon coodinates that cannot be convert to a grid.
+    The x,y coordinates in the rio dataset are used to convert the grid coordinates in this case.
+    If the rio dataset is not specified (like when this is called to estimate size) a grid in meters used used instead.
     """
+
+    # Get the normalized bounds options and check for errors
     [grid_bounds, latlon_bounds, grid_point, latlon_point, huc_id] = (
         _get_bounds_options(options)
     )
+
+    # Convert the various bounds options to grid_bounds
     if latlon_point:
         grid_point = _convert_latlon_point_to_grid(grid, latlon_point, rio_ds)
     if grid_point:
@@ -3243,6 +3274,7 @@ def _get_grid_bounds(grid: str, options: dict, rio_ds=None) -> List[float]:
             grid_point[0] + 1,
             grid_point[1] + 1,
         ]
+
     if latlon_bounds:
         # Convert to grid_bounds using same algorithm as subset tools
         grid_bounds = _convert_latlon_bounds_to_grid(grid, latlon_bounds, rio_ds)
@@ -3288,9 +3320,11 @@ def _get_grid_bounds(grid: str, options: dict, rio_ds=None) -> List[float]:
         # Then convert the lat/lon bounds to the target grid bounds
         grid_bounds = _convert_latlon_bounds_to_grid(grid, latlon_bounds, rio_ds)
 
+    # Return the grid_bounds assuming 0,0 is south west
     return grid_bounds
 
-def _convert_latlon_point_to_grid(grid:str, latlon_point, rio_ds = None):
+
+def _convert_latlon_point_to_grid(grid: str, latlon_point, rio_ds=None):
     """
     Convert latlon_bounds array to a grid_bounds using subsettools algorithm.
     Parameters:
@@ -3303,10 +3337,7 @@ def _convert_latlon_point_to_grid(grid:str, latlon_point, rio_ds = None):
     # Convert to grid_bounds using same algorithm as subset tools
     if len(latlon_point) != 2:
         raise ValueError(f"The point {latlon_point} must be [lat,lon]")
-    if (
-        latlon_point[0] < 0
-        or latlon_point[1] > 0
-    ):
+    if latlon_point[0] < 0 or latlon_point[1] > 0:
         raise ValueError(f"The point {latlon_point} must be lat,lon and not lon,lat")
 
     grid_row = dc.get_table_row("grid", id=grid.lower())
@@ -3316,19 +3347,20 @@ def _convert_latlon_point_to_grid(grid:str, latlon_point, rio_ds = None):
             [lat, lon] = latlon_point
             x0 = rio_ds.x.to_index().get_indexer([lat], method="nearest")[0]
             y0 = rio_ds.x.to_index().get_indexer([lon], method="nearest")[0]
-
-            grid_point = [x0, y0]
+            y_size = _get_grid_y_size(grid)
+            grid_point = [x0, y_size - y0]
             return grid_point
-        else:
-            # The grid is not in meters with LCC but we do not have rio_ds
-            # We have to estimate so use 30m grid to estimate
-            grid = "conus2_wtd.30"
+
+        # The grid is not in meters with an LCC CRS but we do not have rio_ds
+        # We have to estimate so use 30m grid to estimate
+        grid = "conus2_wtd.30"
 
     ij_points = to_ij(grid, *latlon_point)
     if len(ij_points) != 2:
         raise ValueError(f"Unable to convert {latlon_point} to ij")
     grid_point = [ij_points[0], ij_points[1]]
     return grid_point
+
 
 def _convert_latlon_bounds_to_grid(grid: str, latlon_bounds, rio_ds=None):
     """
@@ -3356,18 +3388,18 @@ def _convert_latlon_bounds_to_grid(grid: str, latlon_bounds, rio_ds=None):
     if "proj=longlat" in crs:
         if rio_ds is not None:
             # The grid is latlon not LCC so we cannot use to_ij()
+            y_size = _get_grid_y_size(grid)
             [lat_min, lon_min, lat_max, lon_max] = latlon_bounds
             x0 = rio_ds.x.to_index().get_indexer([lon_min], method="nearest")[0]
             x1 = rio_ds.x.to_index().get_indexer([lon_max], method="nearest")[0]
 
-            y0 = rio_ds.y.to_index().get_indexer([lat_max], method="nearest")[0]
-            y1 = rio_ds.y.to_index().get_indexer([lat_min], method="nearest")[0]
-            grid_bounds = [x0, y0, x1, y1]
+            y0 = rio_ds.y.to_index().get_indexer([lat_min], method="nearest")[0]
+            y1 = rio_ds.y.to_index().get_indexer([lat_max], method="nearest")[0]
+            grid_bounds = [x0, y_size - y0, x1, y_size - y1]
             return grid_bounds
-        else:
-            # The grid is not in meters with LCC but we do not have rio_ds
-            # We have to estimate so use 30m grid to estimate
-            grid = "conus2_wtd.30"
+        # The grid is not in meters with LCC CRS but we do not have rio_ds
+        # We have to estimate so use 30m grid to estimate
+        grid = "conus2_wtd.30"
 
     ij_points = to_ij(grid, *latlon_bounds)
     if len(ij_points) != 4:
@@ -3382,6 +3414,7 @@ def _convert_latlon_bounds_to_grid(grid: str, latlon_bounds, rio_ds=None):
     ]
     grid_bounds = [imin, jmin, imax, jmax]
     return grid_bounds
+
 
 def _get_date_start(options):
     """
