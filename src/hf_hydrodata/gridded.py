@@ -3325,7 +3325,7 @@ def _get_grid_bounds(grid: str, options: dict, rio_ds=None) -> List[float]:
         nx = grid_bounds[2] - grid_bounds[0]
         ny = grid_bounds[3] - grid_bounds[1]
         if nx < 0 or ny < 0:
-            raise ValueError("The grid bounds specifies a negative x or y dimension.")
+            raise ValueError("The grid bounds specifies a negative x or y dimension. Should be [xmin,ymin,xmax,ymax].")
         
     # Return the grid_bounds assuming 0,0 is south west
     return grid_bounds
