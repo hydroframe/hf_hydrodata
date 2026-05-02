@@ -6,7 +6,6 @@ Unit test for the grid.py module
 import sys
 import os
 import pytest
-from unittest.mock import patch
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 
@@ -39,11 +38,18 @@ def test_latlng_to_grid():
     (x, y) = hf_hydrodata.grid.from_latlon("conus1", 31.759219, -115.902573)
     assert round(x) == 10
     assert round(y) == 10
-    grid_bounds = hf_hydrodata.grid.from_latlon(
-        "conus1", 31.65, -115.98, 31.759219, -115.902573
-    )
+
+    with pytest.raises(ValueError) as info:
+        lat0, lon0 = hf_hydrodata.grid.to_latlon("conus1", 0, 0)
+        lat1, lon1 = hf_hydrodata.grid.to_latlon("conus1", 10, 10)
+        hf_hydrodata.grid.from_latlon("conus1", lat0 - 0.1, lon0, lat1, lon1)
+    assert "which is outside of the bounds" in str(info.value)
+
+    lat, lon = hf_hydrodata.grid.to_latlon("conus1", 0, 0)
+    grid_bounds = hf_hydrodata.grid.from_latlon("conus1", lat, lon)
     assert round(grid_bounds[0]) == 0
     assert round(grid_bounds[1]) == 0
+
     grid_bounds = hf_hydrodata.grid.from_latlon(
         "conus2", 31.65, -115.98, 31.759219, -115.902573
     )
@@ -86,19 +92,28 @@ def test_meters_to_ij():
 def test_latlng_to_grid_out_of_bounds():
     """Unit tests for when latlng is out of bounds of conus1."""
 
-    (x, y) = hf_hydrodata.grid.from_latlon("conus1", 50, -61)
+    lat, lon = hf_hydrodata.to_latlon("conus1", 3342, 1888)
+    (x, y) = hf_hydrodata.grid.from_latlon("conus1", lat, lon)
     assert x == pytest.approx(3342)
     assert y == pytest.approx(1888)
-    (x, y) = hf_hydrodata.grid.from_latlon("conus1", 20, -132)
-    assert x == pytest.approx(0.0)
-    assert y == pytest.approx(0.0)
+
+    with pytest.raises(ValueError) as info:
+        lat, lon = hf_hydrodata.to_latlon("conus1", 3342, 1888)
+        hf_hydrodata.grid.from_latlon("conus1", lat + 0.5, lon)
+    assert "which is outside of the bounds" in str(info.value)
+
+    with pytest.raises(ValueError) as info:
+        hf_hydrodata.grid.from_latlon("conus1", 20, -132)
+    assert "which is outside of the bounds" in str(info.value)
+
     (lat, lon) = hf_hydrodata.grid.to_latlon("conus1", 0, 0)
     (x, y) = hf_hydrodata.grid.to_ij("conus1", lat, lon)
     assert x == 0
     assert y == 0
-    (x, y) = hf_hydrodata.grid.to_ij("conus1", lat - 2, lon - 2)
-    assert x == 0
-    assert y == 0
+
+    with pytest.raises(ValueError) as info:
+        (x, y) = hf_hydrodata.grid.to_ij("conus1", lat - 2, lon - 2)
+    assert "which is outside of the bounds" in str(info.value)
 
 
 def test_illegal_grid():

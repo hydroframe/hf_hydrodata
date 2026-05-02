@@ -23,6 +23,7 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 from parflow import read_pfb_sequence, write_pfb
+import rioxarray
 import hf_hydrodata.fast_pfb_reader
 from hf_hydrodata.data_model_access import (
     ModelTableRow,
@@ -752,6 +753,8 @@ def _load_gridded_file_entry(
         # File already exists, so just skip this
         return
 
+    options = options.copy()
+    options["from"] = "get_gridded_files"
     data = get_gridded_data(options)
 
     if state.filename_template.endswith(".pfb"):
@@ -983,6 +986,7 @@ def _execute_dask_items(dask_items, state, file_name: str, verbose=False):
                         "variable": "latitude",
                         "file_type": "pfb",
                         "grid_bounds": grid_bounds,
+                        "from": "get_gridded_files",
                     }
                 )
                 longitude_coord = get_gridded_data(
@@ -991,6 +995,7 @@ def _execute_dask_items(dask_items, state, file_name: str, verbose=False):
                         "variable": "longitude",
                         "file_type": "pfb",
                         "grid_bounds": grid_bounds,
+                        "from": "get_gridded_files",
                     }
                 )
             else:
@@ -1126,7 +1131,7 @@ def _write_file_from_api(filepath: str, options: dict):
                     )
                     time.sleep(sleep_time)
                     location = response.headers.get("Location")
-                    datafile_url = f"{HYDRODATA_URL}/api/{location}"
+                    datafile_url = f"{HYDRODATA_URL}/api/{location}?download_start={download_start}"
                 else:
                     break
 
@@ -1135,40 +1140,38 @@ def _write_file_from_api(filepath: str, options: dict):
                     content = response.content.decode()
                     response_json = json.loads(content)
                     message = response_json.get("message")
-                    _send_download_complete_reply(
-                        response, headers, download_start, message=message
-                    )
+                    # Do not send complete reply for 400 errors because they are already logged.
                     raise ValueError(message)
                 if response.status_code == 502:
                     message = "Server '%s' is not responding. Try again later."
                     _send_download_complete_reply(
-                        response, headers, download_start, message=message
+                        response, headers, download_start, message=message, reply_route="data-file"
                     )
                     raise ValueError(message) from None
                 message = (
                     f"The {HYDRODATA_URL} returned error code {response.status_code}."
                 )
                 _send_download_complete_reply(
-                    response, headers, download_start, message=message
+                    response, headers, download_start, message=message, reply_route="data-file"
                 )
                 raise ValueError(message) from None
 
         except requests.exceptions.Timeout:
             message = "Timeout error from server. Try again later or modify the query."
             _send_download_complete_reply(
-                response, headers, download_start, message=message
+                response, headers, download_start, message=message, reply_route="data-file"
             )
             raise ValueError(message) from None
         except requests.exceptions.ChunkedEncodingError:
             message = f"The {datafile_url} has timed out. Try again later or change your query."
             _send_download_complete_reply(
-                response, headers, download_start, message=message
+                response, headers, download_start, message=message, reply_route="data-file"
             )
             raise ValueError(message) from None
         except Exception as e:
             message = str(e)
             _send_download_complete_reply(
-                response, headers, download_start, message=message
+                response, headers, download_start, message=message, reply_route="data-file"
             )
             raise ValueError(message) from None
 
@@ -1214,7 +1217,7 @@ def _write_file_from_api(filepath: str, options: dict):
         download_start = (
             updated_download_start if updated_download_start else download_start
         )
-        _send_download_complete_reply(response, headers, download_start)
+        _send_download_complete_reply(response, headers, download_start, reply_route="data-file")
 
         if offset_end:
             offset = offset_end + 1
@@ -1507,6 +1510,7 @@ def _check_for_unknown_options(options: dict):
         "domain_path",
         "threads",
         "offset",
+        "from",
     ]
     unknown_keys = []
     for key in options:
@@ -1554,6 +1558,7 @@ def _apply_mask(data, entry, options):
                 "grid_bounds": bbox,
                 "level": level,
                 "dataset_version": os.getenv("HUC_VERSION", None),
+                "from": "_apply_mask",
             }
         )
         # Apply the HUC mask to the data, mask with all huc_ids
@@ -1569,6 +1574,7 @@ def _apply_mask(data, entry, options):
                 "grid_bounds": grid_bounds,
                 "level": 2,
                 "dataset_version": os.getenv("HUC_VERSION", None),
+                "from": "_apply_mask",
             }
         )
         data = np.where(mask > 0, data, np.nan)
@@ -1953,7 +1959,7 @@ def _get_gridded_data_from_api(options):
 
 
 def _send_download_complete_reply(
-    response, request_headers, download_start, message=None
+    response, request_headers, download_start, message=None, reply_route="gridded-data"
 ):
     """
     Send back to the API a download complete reply.
@@ -1962,6 +1968,7 @@ def _send_download_complete_reply(
         request_headers:    The request headers with the JWT token to make the new request.
         download_start:     The timestamp when the download started to compute duration for the log.
         message:            The error message of the request or None.
+        reply_route:        The /api route to reply back
     """
     if response and request_headers:
         headers = response.headers
@@ -1986,7 +1993,7 @@ def _send_download_complete_reply(
         ]
     )
     if request_headers:
-        url = f"{HYDRODATA_URL}/api/gridded-data?{query_parameters_string}"
+        url = f"{HYDRODATA_URL}/api/{reply_route}?{query_parameters_string}"
         try:
             requests.delete(url, headers=request_headers, timeout=60)
         except:
@@ -2386,16 +2393,24 @@ def _read_and_filter_tiff_files(
     Args:
         entry:          A modelTableRow containing the data catalog entry.
         options:        The options passed to get_ndarray as a dict.
-        start_time_value: The start time option of the option converted to a datetime or None.
     Returns:
         An numpy ndarray of the filtered contents of the pfb files.
     """
     paths = get_paths(options)
     file_path = paths[0]
-    variable = entry.get("dataset_var")
+    grid = entry.get("grid")
+    grid_row = dc.get_table_row("grid", id=grid.lower())
+    crs = grid_row["crs"]
+    if "proj=longlat" in crs:
+        # Projection is in LAT lon with data in lat/lon
+        result = _read_latlon_tiff(entry, options, file_path)
+        return result
+
+    # Projection is regular LCC with data in meters
     with THREAD_LOCK:
         # The open_dataset call itself is not thread safe (it is safe after it is opened)
         data_ds = xr.open_dataset(file_path)
+    variable = entry.get("dataset_var")
     data_da = data_ds[variable]
     da_indexers = _create_da_indexer(options, entry, data_ds, data_da, file_path)
     if _flip_da_indexers_y(entry, da_indexers):
@@ -2412,6 +2427,44 @@ def _read_and_filter_tiff_files(
         # Select the data and do not flip the result
         data_da = data_da.isel(da_indexers)
         data = data_da.to_numpy()
+    return data
+
+
+def _read_latlon_tiff(
+    entry: ModelTableRow, options: dict, file_path: str
+) -> np.ndarray:
+    """
+    Read a tiff files that uses a latlon grid.
+
+    Args:
+        entry:          A modelTableRow containing the data catalog entry.
+        options:        The options passed to get_ndarray as a dict.
+        file_path:      The file path to the full tiff file to be read
+    Returns:
+        An numpy ndarray with the filtered contents of the pfb files.
+    """
+    grid = entry["grid"]
+    y_size = _get_grid_y_size(grid)
+    grid = entry["grid"]
+    rio_ds = rioxarray.open_rasterio(file_path, chunks="auto")
+    # Get the get bounds from the options assuming 0,0 is south west like pfb files
+    (x_min, y_min, x_max, y_max) = _get_grid_bounds(grid, options, rio_ds=rio_ds)
+
+    # Create slices to query the tiff file where 0,0 is north west (flip y axis)
+    x_slice = slice(x_min, x_max)
+    y_slice = slice(y_size - y_max, y_size - y_min)
+    subset = rio_ds.isel(x=x_slice, y=y_slice)
+
+    # Read the subset data from the tiff file
+    data = subset.compute()
+
+    # Flip the tiff subset to match pfb orientation with (0,0) in south, west
+    if len(data.shape) == 3:
+        data = np.flip(data.to_numpy(), 1)
+    elif len(data.shape) == 2:
+        data = np.flip(data.to_numpy(), 0)
+    else:
+        raise ValueError("Unexpected shape of tiff file.")
     return data
 
 
@@ -2465,23 +2518,32 @@ def _flip_da_indexers_y(entry, da_indexers) -> bool:
         # No y coordinates to flip, but return True so still flip the data
         return True
     grid = entry.get("grid")
+    y_size = _get_grid_y_size(grid)
+    y0 = da_indexers["y"].start
+    y1 = da_indexers["y"].stop
+    da_indexers["y"] = slice(y_size - y1, y_size - y0)
+    return True
+
+
+def _get_grid_y_size(grid: str) -> int:
+    """
+    Get the y size dimension of the grid.
+    Parameters:
+        grid:       Name of the grid from data catalog.
+    Returns:
+        The maximum size of the y dimension of the grid.
+    """
     grid_row = dc.get_table_row("grid", id=grid.lower())
     if grid_row is None:
         raise ValueError(f"No such grid {grid} available.")
     grid_shape = grid_row["shape"]
     if len(grid_shape) == 3:
         y_size = grid_shape[1]
-        y0 = da_indexers["y"].start
-        y1 = da_indexers["y"].stop
-        da_indexers["y"] = slice(y_size - y1, y_size - y0)
     elif len(grid_shape) == 2:
         y_size = grid_shape[0]
-        y0 = da_indexers["y"].start
-        y1 = da_indexers["y"].stop
-        da_indexers["y"] = slice(y_size - y1, y_size - y0)
     else:
         raise ValueError(f"The grid '{grid}' does not have a configured size.")
-    return True
+    return y_size
 
 
 def __get_geotiff(grid: str, level: int) -> xr.Dataset:
@@ -3108,16 +3170,16 @@ def _get_time_dimension_name(ds: xr.Dataset, da: xr.DataArray):
     return (time_dimension_name, time_coord_name)
 
 
-def _get_grid_bounds(grid: str, options: dict) -> List[float]:
+def _get_bounds_options(options) -> list:
     """
-    Get the grid_bounds of the filter options or None.
-    If latlon_bounds or huc_id is specified then convert that to a grid bounds and return it.
+    Get the various types of bounds options from options.
+    Parameters:
+        options:    The query options.
+    Returns:
+        [grid_bounds, latlon_bounds, grid_point, latlon_point, huc_id]
     """
-
     grid_bounds = options.get("grid_bounds")
     grid_point = options.get("grid_point")
-    latitude_range = options.get("latitude_range")
-    longitude_range = options.get("longitude_range")
     latlon_point = (
         options.get("latlon_point")
         if options.get("latlon_point")
@@ -3136,6 +3198,9 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
         latlon_bounds = json.loads(latlon_bounds)
     if isinstance(latlon_point, str):
         latlon_point = json.loads(latlon_point)
+
+    latitude_range = options.get("latitude_range")
+    longitude_range = options.get("longitude_range")
     if isinstance(latitude_range, str):
         if latitude_range.strip().startswith("("):
             latitude_range = ast.literal_eval(latitude_range)
@@ -3148,6 +3213,21 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
             longitude_range = json.loads(longitude_range)
     if grid_point and grid_bounds:
         raise ValueError("Cannot specify both grid_bounds and grid_point")
+    if (latlon_bounds or latlon_point) and (latitude_range or longitude_range):
+        raise ValueError(
+            "Cannot specify both latlon_bounds and latitude_range, longitude_range"
+        )
+    if latitude_range and longitude_range:
+        if len(latitude_range) != 2 or len(longitude_range) != 2:
+            raise ValueError(
+                "The latitude_range and longitude_range must be length 2 each."
+            )
+        latlon_bounds = [
+            min(latitude_range[0], latitude_range[1]),
+            min(longitude_range[0], longitude_range[1]),
+            max(latitude_range[0], latitude_range[1]),
+            max(longitude_range[0], longitude_range[1]),
+        ]
     if latlon_point:
         if len(latlon_point) != 2:
             raise ValueError(f"The bounds {latlon_point} must be [lat,lon]")
@@ -3155,8 +3235,39 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
             raise ValueError(
                 f"The bounds {latlon_point} must be lat,lon and not lon,lat"
             )
+    if grid_bounds and latlon_bounds:
+        raise ValueError("Cannot specify both grid_bounds and latlon_bounds")
+    huc_id = options.get("huc_id")
+    if huc_id and isinstance(huc_id, str) and huc_id.startswith("["):
+        huc_id = json.loads(huc_id)
+    if huc_id and (latlon_bounds or grid_bounds or grid_point or latlon_point):
+        raise ValueError("Cannot specify both huc_id and other bounds filters.")
+    return [grid_bounds, latlon_bounds, grid_point, latlon_point, huc_id]
 
-        grid_point = to_ij(grid, *latlon_point)
+
+def _get_grid_bounds(grid: str, options: dict, rio_ds=None) -> List[float]:
+    """
+    Parameters:
+        grid:       The data catalog grid name
+        options:    The query filter options.
+        rio_ds:     The open rasterio dataset (optional)
+    Returns:
+        (x_min, y_min, x_max, y_max) in grid coordinates assuming 0,0 is south west
+
+    If no bounds options are specified in options this just returns None.
+    This uses rio_ds for the case when the grid is in latlon coodinates that cannot be convert to a grid.
+    The x,y coordinates in the rio dataset are used to convert the grid coordinates in this case.
+    If the rio dataset is not specified (like when this is called to estimate size) a grid in meters used used instead.
+    """
+
+    # Get the normalized bounds options and check for errors
+    [grid_bounds, latlon_bounds, grid_point, latlon_point, huc_id] = (
+        _get_bounds_options(options)
+    )
+
+    # Convert the various bounds options to grid_bounds
+    if latlon_point:
+        grid_point = _convert_latlon_point_to_grid(grid, latlon_point, rio_ds)
     if grid_point:
         grid_bounds = [
             grid_point[0],
@@ -3164,80 +3275,107 @@ def _get_grid_bounds(grid: str, options: dict) -> List[float]:
             grid_point[0] + 1,
             grid_point[1] + 1,
         ]
-    if grid_bounds and latlon_bounds:
-        raise ValueError("Cannot specify both grid_bounds and latlon_bounds")
-    if latlon_bounds and (latitude_range or longitude_range):
-        raise ValueError(
-            "Cannot specify both latlon_bounds and latitude_range and longitude_range"
-        )
+
     if latlon_bounds:
         # Convert to grid_bounds using same algorithm as subset tools
-        grid_bounds = _convert_latlon_to_grid(grid, latlon_bounds)
-    if latitude_range and longitude_range:
-        if len(latitude_range) != 2 or len(longitude_range) != 2:
-            raise ValueError(
-                "The latitude_range and longitude_range must be length 2 each."
-            )
-        grid_bounds = _convert_latlon_to_grid(
-            grid,
-            [
-                latitude_range[0],
-                longitude_range[0],
-                latitude_range[1],
-                longitude_range[1],
-            ],
-        )
-    huc_id = options.get("huc_id")
-    if huc_id and isinstance(huc_id, str) and huc_id.startswith("["):
-        huc_id = json.loads(huc_id)
-    if grid_bounds and huc_id:
-        raise ValueError("Cannot specify both grid_bounds, latlon_bounds and huc_id")
+        grid_bounds = _convert_latlon_bounds_to_grid(grid, latlon_bounds, rio_ds)
+
     if huc_id and grid in ["conus1", "conus2"]:
         # HUC boundaries for conus1 and conus2 are supported by tiff files in /hydrodata
         huc_id_list = huc_id.split(",") if isinstance(huc_id, str) else huc_id
         if grid == "conus2" and not len(huc_id_list[0]) in [2, 4, 6, 8]:
             raise ValueError(
-                f"HUC '{huc_id_list[0]}'. Only huc_ids of length 2,4,6,8 are supported."
+                f"HUC '{huc_id_list[0]}'. Only huc_ids of length 2,4,6,8 are supported in conus2."
             )
         if grid == "conus1" and not len(huc_id_list[0]) in [2, 4, 6, 8, 10]:
             raise ValueError(
-                f"HUC '{huc_id_list[0]}'. Only huc_ids of length 2,4,6,8,10 are supported."
+                f"HUC '{huc_id_list[0]}'. Only huc_ids of length 2,4,6,8,10 are supported in conus1."
             )
         grid_bounds = get_huc_bbox(grid, huc_id_list)
     elif huc_id:
-        # Other grids are not directly supported by tiff files so we need to convert from conus2
+        # The grid is not conus1 or conus2 so there is no direct look up for huc_id
         # First get the grid bounds of the huc using conus2
         huc_id_list = huc_id.split(",") if isinstance(huc_id, str) else huc_id
         if not len(huc_id_list[0]) in [2, 4, 6, 8]:
             raise ValueError(
                 f"HUC '{huc_id_list[0]}'. Only huc_ids of length 2,4,6,8 are supported."
             )
+
+        # Convert the huc_id to conus2 grid bounds and then to latlon
         conus2_grid_bounds = get_huc_bbox("conus2", huc_id_list)
-        # Then convert the conus2 grid bounds to lat/lon
         conus2_botleft_latlon = to_latlon(
             "conus2", conus2_grid_bounds[0], conus2_grid_bounds[1]
         )
         conus2_topright_latlon = to_latlon(
             "conus2", conus2_grid_bounds[2], conus2_grid_bounds[3]
         )
-        # Then convert the lat/lon bounds to the target grid bounds
+
+        # Create a latlon_bounds from the huc_id
         latlon_bounds = [
             conus2_botleft_latlon[0],
             conus2_botleft_latlon[1],
             conus2_topright_latlon[0],
             conus2_topright_latlon[1],
         ]
-        grid_bounds = _convert_latlon_to_grid(grid, latlon_bounds)
 
+        # Then convert the lat/lon bounds to the target grid bounds
+        grid_bounds = _convert_latlon_bounds_to_grid(grid, latlon_bounds, rio_ds)
+
+    if grid_bounds:
+        nx = grid_bounds[2] - grid_bounds[0]
+        ny = grid_bounds[3] - grid_bounds[1]
+        if nx < 0 or ny < 0:
+            raise ValueError("The grid bounds specifies a negative x or y dimension. Should be [xmin,ymin,xmax,ymax].")
+        
+    # Return the grid_bounds assuming 0,0 is south west
     return grid_bounds
 
 
-def _convert_latlon_to_grid(grid: str, latlon_bounds):
+def _convert_latlon_point_to_grid(grid: str, latlon_point, rio_ds=None):
     """
     Convert latlon_bounds array to a grid_bounds using subsettools algorithm.
     Parameters:
-        grid:   Data catalog grid name.
+        grid:           Data catalog grid name.
+        latlon_point:   Array of 2 lat lon points [lat, lon]
+        rio_ds:         rio dataset (optional) to use latlon coordinates from dataset to map
+    Returns:
+        Grid point as array of [x, y]
+    """
+    # Convert to grid_bounds using same algorithm as subset tools
+    if len(latlon_point) != 2:
+        raise ValueError(f"The point {latlon_point} must be [lat,lon]")
+    if latlon_point[0] < 0 or latlon_point[1] > 0:
+        raise ValueError(f"The point {latlon_point} must be lat,lon and not lon,lat")
+
+    grid_row = dc.get_table_row("grid", id=grid.lower())
+    crs = grid_row["crs"]
+    if "proj=longlat" in crs:
+        if rio_ds is not None:
+            [lat, lon] = latlon_point
+            x0 = rio_ds.x.to_index().get_indexer([lat], method="nearest")[0]
+            y0 = rio_ds.x.to_index().get_indexer([lon], method="nearest")[0]
+            y_size = _get_grid_y_size(grid)
+            grid_point = [x0, y_size - y0]
+            return grid_point
+
+        # The grid is not in meters with an LCC CRS but we do not have rio_ds
+        # We have to estimate so use 30m grid to estimate
+        grid = "conus2_wtd.30"
+
+    ij_points = to_ij(grid, *latlon_point)
+    if len(ij_points) != 2:
+        raise ValueError(f"Unable to convert {latlon_point} to ij")
+    grid_point = [ij_points[0], ij_points[1]]
+    return grid_point
+
+
+def _convert_latlon_bounds_to_grid(grid: str, latlon_bounds, rio_ds=None):
+    """
+    Convert latlon_bounds array to a grid_bounds using subsettools algorithm.
+    Parameters:
+        grid:           Data catalog grid name.
         latlon_bounds:  Array of 4 lat lon points [lat1,lon1,lat2,lon2]
+        rio_ds:         rio dataset (optional) to use latlon coordinates from dataset to map
     Returns:
         Grid bounds as array of [x0,y0,x1,y1]
     """
@@ -3251,6 +3389,25 @@ def _convert_latlon_to_grid(grid: str, latlon_bounds):
         or latlon_bounds[3] > 0
     ):
         raise ValueError(f"The bounds {latlon_bounds} must be lat,lon and not lon,lat")
+
+    grid_row = dc.get_table_row("grid", id=grid.lower())
+    crs = grid_row["crs"]
+    if "proj=longlat" in crs:
+        if rio_ds is not None:
+            # The grid is latlon not LCC so we cannot use to_ij()
+            y_size = _get_grid_y_size(grid)
+            [lat_min, lon_min, lat_max, lon_max] = latlon_bounds
+            x0 = rio_ds.x.to_index().get_indexer([lon_min], method="nearest")[0]
+            x1 = rio_ds.x.to_index().get_indexer([lon_max], method="nearest")[0]
+
+            y0 = rio_ds.y.to_index().get_indexer([lat_min], method="nearest")[0]
+            y1 = rio_ds.y.to_index().get_indexer([lat_max], method="nearest")[0]
+            grid_bounds = [x0, y_size - y0, x1, y_size - y1]
+            return grid_bounds
+        # The grid is not in meters with LCC CRS but we do not have rio_ds
+        # We have to estimate so use 30m grid to estimate
+        grid = "conus2_wtd.30"
+
     ij_points = to_ij(grid, *latlon_bounds)
     if len(ij_points) != 4:
         raise ValueError(f"Unable to convert {latlon_bounds} to grid_bounds")

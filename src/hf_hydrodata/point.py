@@ -52,7 +52,7 @@ SUPPORTED_FILTERS = [
     "grid",
     "grid_bounds",
     "huc_id",
-    "hf_version"
+    "hf_version",
 ]
 
 # List of SQL tables in the database corresponding to site-type-specific attributes

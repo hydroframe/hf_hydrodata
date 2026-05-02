@@ -102,15 +102,29 @@ def from_latlon(grid: str, *args) -> List[float]:
         bounds_x = float(shape[1])
         bounds_y = float(shape[0])
     else:
-        raise ValueError(f"Unable to convert lat/lon to grid '{grid}' because grid bounds not available.")
+        raise ValueError(
+            f"Unable to convert lat/lon to grid '{grid}' because grid bounds not available."
+        )
     for index in range(0, len(args), 2):
         lat = args[index]
         lon = args[index + 1]
         (x, y) = to_meters(grid, lat, lon)
         x = x / grid_resolution
         y = y / grid_resolution
-        x = min(max(x, 0.0), bounds_x)
-        y = min(max(y, 0.0), bounds_y)
+        # Make sure converting x,y -> lat,lon and back to x,y does not give an error
+        epsilon = 0.5
+        if x < 0 and x + epsilon >= 0:
+            x = 0.0
+        if y < 0 and y + epsilon >= 0:
+            y = 0.0
+        if x > bounds_x and x - epsilon <= bounds_x:
+            x = bounds_x
+        if y > bounds_y and y - epsilon <= bounds_y:
+            y = bounds_y
+        if x < 0 or x > bounds_x or y < 0 or y > bounds_y:
+            raise ValueError(
+                f"Lat/Lon point {lat},{lon} maps to xy {x},{y} which is outside of the bounds of the '{grid}' grid."
+            )
         result.append(x)
         result.append(y)
     return result

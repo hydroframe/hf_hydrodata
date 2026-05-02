@@ -479,7 +479,7 @@ def _get_preferred_catalog_entry(entries: List[dict]) -> dict:
         # If there are still ambiguous entries then raise an error
         if ambiguous_entries is not None and len(ambiguous_entries) > 1:
             raise ValueError(
-                _ambiguous_error_message(ambiguous_entries[0], ambiguous_entries[1])
+                _ambiguous_error_message(ambiguous_entries)
             )
 
     return result
@@ -549,7 +549,7 @@ def _update_preference_state(preference_state, new_entry):
             preference_state["ambiguous"] = ambiguous
 
 
-def _ambiguous_error_message(entry_1: dict, entry_2: dict) -> str:
+def _ambiguous_error_message(ambiguous_entries) -> str:
     """Returns an error message describing who entry_1 and entry_2 are ambiguous."""
 
     diff_list = []
@@ -563,16 +563,24 @@ def _ambiguous_error_message(entry_1: dict, entry_2: dict) -> str:
         "site_type",
     ]
     for variable in key_variables:
-        value_1 = entry_1[variable]
-        value_2 = entry_2[variable]
-        if value_1 and value_2 and not value_1 == value_2:
-            diff_list.append(f"{variable} = '{value_1}' or '{value_2}'")
+        variable_values = []
+        for entry in ambiguous_entries:
+            value = entry[variable]
+            if value not in variable_values and len(variable_values) < 3:
+                variable_values.append(value)
+        if len(variable_values) > 1:
+            variable_message = " or ".join([f"'{v}'" for v in variable_values])
+            diff_list.append(f"{variable} = {variable_message}")
     if len(diff_list) > 0:
         differences = ", ".join(diff_list)
     else:
-        id_1 = entry_1["id"]
-        id_2 = entry_2["id"]
-        differences = f"id = '{id_1}' or'{id_2}'"
+        for entry in ambiguous_entries:
+            value = entry["id"]
+            if value not in variable_values and len(variable_values) < 3:
+                variable_values.append(value)
+        if len(variable_values) > 1:
+            variable_message = " or ".join(['{v}' for v in variable_values])
+            diff_list.append(f"id = {variable_message}")
     return f"Ambiguous filter. Could be {differences}."
 
 
