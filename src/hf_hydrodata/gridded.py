@@ -1511,6 +1511,8 @@ def _check_for_unknown_options(options: dict):
         "threads",
         "offset",
         "from",
+        "structure_type",
+        "return_coordinates",
     ]
     unknown_keys = []
     for key in options:
