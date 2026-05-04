@@ -2519,17 +2519,17 @@ def test_monthly_across_wy():
 def test_belitz_dataset():
     """Test that we can read the belitz_2019 dataset with bounds filters."""
 
-    filter = {
+    options = {
         "dataset": "belitz_2019",
         "variable": "distance_stream_horizontal",
         "grid_bounds": [80000, 80000, 80005, 80010],
     }
-    data = hf.get_gridded_data(filter)
+    data = hf.get_gridded_data(options)
     assert data.shape == (10, 5)
     assert data[2, 2] == pytest.approx(240.0)
     assert data[4, 3] == pytest.approx(300.0)
 
-    filter = {
+    options = {
         "dataset": "belitz_2019",
         "variable": "distance_stream_horizontal",
         "latlon_bounds": [
@@ -2539,10 +2539,11 @@ def test_belitz_dataset():
             -102.68208333331141,
         ],
     }
-    data = hf.get_gridded_data(filter)
+    data = hf.get_gridded_data(options)
     assert data.shape == (10, 5)
     assert data[2, 2] == pytest.approx(240.0)
     assert data[4, 3] == pytest.approx(300.0)
+
 
 def test_negative_grid_bounds():
     """Test error message for negative grid bounds."""
@@ -2560,3 +2561,22 @@ def test_negative_grid_bounds():
         grid_bounds = [1000, 1000, 1010, 900]
         bounds = hf.gridded._get_grid_bounds("conus2", {"grid_bounds": grid_bounds})
     assert "specifies a negative" in str(info.value)
+
+
+def test_get_bounds_limits():
+    """Test error check when grid_bounds limits it outside shape bounds."""
+    grid_bounds = [1533, 1545, 3701, 3702]
+    options = {
+        "dataset": "conus2_domain",
+        "variable": "elevation",
+        "temporal_resolution": "static",
+        "aggregation": "-",
+        "file_type": "pfb",
+        "structure_type": "gridded",
+        "time_values": "null",
+        "return_coordinates": "false",
+        "grid_bounds": grid_bounds,
+    }
+    with pytest.raises(ValueError) as info:
+        hf.get_gridded_data(options)
+    assert "is outside the grid" in str(info.value)
