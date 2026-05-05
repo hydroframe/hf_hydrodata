@@ -328,8 +328,9 @@ datasets:
       and NSE = 0.62.
 
 
-      You can download the full WTD file using get_raw_file(). Or download subsets of the file using get_gridded_data().
-      See Python API Reference for get_raw_file() in hf_hydrodata.gridded module.
+      You can download the full WTD file using `hf_hydrodata.get_raw_file() <https://hf-hydrodata.readthedocs.io/en/latest/hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_raw_file>`_. 
+      Or download subsets of the file using `hf_hydrodata.get_gridded_data() <https://hf-hydrodata.readthedocs.io/en/latest/hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_gridded_data>_`.
+      See the linked Python API Reference for example syntax.
 
     processing_notes: >
       Long-term mean water table depth estimates were obtained using the median of tree outputs from the trained random 
@@ -339,5 +340,5 @@ datasets:
   "ma_2025_cog":
     summary: >
       A copy of the ma_2025 30m dataset stored as a COG (Cloud Optimized Geotiff).
-      You can download the full WTD COG file using get_raw_file().
-      See Python API Reference for get_raw_file() in hf_hydrodata.gridded module.
+      You can download the full WTD COG file using `hf_hydrodata.get_raw_file() <https://hf-hydrodata.readthedocs.io/en/latest/hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_raw_file>`_.
+      See the linked Python API Reference for example syntax.

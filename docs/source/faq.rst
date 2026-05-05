@@ -15,12 +15,12 @@ of the problem.
 
 How can I download a copy of the ma_2025 30m Water Table Depth Product?
 ----------------------------------------------------------------------------
-You can download a subset of the 30m water table depth file using the hf_hydrodata.get_gridded_data() function using
+You can download a subset of the 30m water table depth file using the `hf_hydrodata.get_gridded_data() <https://hf-hydrodata.readthedocs.io/en/latest/hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_gridded_data>_` function using
 a grid_bounds or latlon_bounds filter limited to about 2GB download.
 
-You can download the full version of the 30m water table depth using the hf_hydrodata.get_raw_file() function. 
+You can download the full version of the 30m water table depth using the `hf_hydrodata.get_raw_file() <https://hf-hydrodata.readthedocs.io/en/latest/hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_raw_file>`_ function. 
 
-See the Python API Reference documentation of the get_raw_file() function 
-in the hf_hydrodata.gridded module for examples. You can get this as either as a tiff file or a cog file.
+See the Python API Reference documentation of the `hf_hydrodata.get_raw_file() <https://hf-hydrodata.readthedocs.io/en/latest/hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_raw_file>`_ function for examples.
+You can get this as either as a tiff file or a cog file.
 You can also get the ma_2025 wtd_uncertainty variable and the belitz_2019 dataset variables the same way.
 
