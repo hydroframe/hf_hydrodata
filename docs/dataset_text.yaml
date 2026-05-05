@@ -329,7 +329,7 @@ datasets:
 
 
       You can download the full WTD file using `hf_hydrodata.get_raw_file() <https://hf-hydrodata.readthedocs.io/en/latest/hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_raw_file>`_. 
-      Or download subsets of the file using `hf_hydrodata.get_gridded_data() <https://hf-hydrodata.readthedocs.io/en/latest/hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_gridded_data>_`.
+      Or download subsets of the file using `hf_hydrodata.get_gridded_data() <https://hf-hydrodata.readthedocs.io/en/latest/hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_gridded_data>`_.
       See the linked Python API Reference for example syntax.
 
     processing_notes: >
