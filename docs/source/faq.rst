@@ -12,3 +12,15 @@ from 6 AM to 2 PM Eastern Time. During this time, users may (but not always) exp
 If you encounter this error, we suggest trying again after the maintenance window has ended. 
 If you continue to experience issues after the maintenance period, please open a GitHub Issue with a detailed description 
 of the problem.
+
+How can I download a copy of the ma_2025 30m Water Table Depth Product?
+----------------------------------------------------------------------------
+You can download a subset of the 30m water table depth file using the hf_hydrodata.get_gridded_data() function using
+a grid_bounds or latlon_bounds filter limited to about 2GB download.
+
+You can download the full version of the 30m water table depth using the hf_hydrodata.get_raw_file() function. 
+
+See the Python API Reference documentation of the get_raw_file() function 
+in the hf_hydrodata.gridded module for examples. You can get this as either as a tiff file or a cog file.
+You can also get the ma_2025 wtd_uncertainty variable and the belitz_2019 dataset variables the same way.
+

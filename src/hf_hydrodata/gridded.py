@@ -1252,26 +1252,39 @@ def _write_file_from_api(filepath: str, options: dict):
 
 @_maintenance_guard
 def get_raw_file(filepath, *args, **kwargs):
-    """Get the hydroframe file that is selected by the options to the given filepath.
+    """
+    Get the hydroframe file that is selected by the options.
+
+    This can be used to get smaller files such as huc_mapping file with the HUC ids for points in conus2.
+    This can also be used to get large files (24 GB) such as the 30m water table depth file or wtd_uncertainty file.
+
+    Larger files are streamed to the filepath. If the connection is dropped while downloading you can restart
+    the function writing to the same file and it will continue where it left off if the file exists already.
 
     Args:
-        filepath:          Either a ModelTableRow or the ID number of a data_catalog_entry. If None use the entry found by the filters.
-        options:           Optional positional parameter that must be a dict with data filter options.
+        filepath:          A path name to the file to store the downloaded data.
+        options:           Any hf_hydrodata filter options. This must identify a single file. You may need to specify a date_start option if the catalog entry has a temporal resolution and the data is stored in multiple files.
     Returns:
         None
     Raises:
         ValueError:        If there are multiple paths selected from hydroframe.
 
-    Example:
+    Examples:
 
     .. code-block:: python
 
         import hf_hydrodata as hf
-
         options = {
             "dataset": "huc_mapping", "grid": "conus2", "level": "4"}
         }
         hf.get_raw_file("huc4.tiff", options)
+
+        options = {"dataset": "ma_2025", "variable": "water_table_depth", "grid": "conus2_wtd.30"}
+        hf.get_raw_file("wtd.tiff", options)
+
+        options = {"dataset": "ma_2025_cog", "variable": "water_table_depth"}
+        hf.get_raw_file("wtd.cog.tiff", options)
+
     """
     if len(args) > 0 and isinstance(args[0], dict):
         # The filter options are being passed using a dict
