@@ -1119,7 +1119,7 @@ def _write_file_from_api(filepath: str, options: dict):
             # Loop through request retry responses if message queue detects low server disk space
             for retry_count in range(0, 70):
                 response = requests.get(
-                    datafile_url, headers=headers, stream=True, timeout=(10, 60)
+                    datafile_url, headers=headers, stream=True, timeout=(80, 180)
                 )
                 if retry_count == 0:
                     download_start = response.headers.get("download-start")
@@ -1145,33 +1145,56 @@ def _write_file_from_api(filepath: str, options: dict):
                 if response.status_code == 502:
                     message = "Server '%s' is not responding. Try again later."
                     _send_download_complete_reply(
-                        response, headers, download_start, message=message, reply_route="data-file"
+                        response,
+                        headers,
+                        download_start,
+                        message=message,
+                        reply_route="data-file",
                     )
                     raise ValueError(message) from None
                 message = (
                     f"The {HYDRODATA_URL} returned error code {response.status_code}."
                 )
                 _send_download_complete_reply(
-                    response, headers, download_start, message=message, reply_route="data-file"
+                    response,
+                    headers,
+                    download_start,
+                    message=message,
+                    reply_route="data-file",
                 )
                 raise ValueError(message) from None
 
         except requests.exceptions.Timeout:
             message = "Timeout error from server. Try again later or modify the query."
             _send_download_complete_reply(
-                response, headers, download_start, message=message, reply_route="data-file"
+                response,
+                headers,
+                download_start,
+                message=message,
+                reply_route="data-file",
             )
             raise ValueError(message) from None
         except requests.exceptions.ChunkedEncodingError:
             message = f"The {datafile_url} has timed out. Try again later or change your query."
             _send_download_complete_reply(
-                response, headers, download_start, message=message, reply_route="data-file"
+                response,
+                headers,
+                download_start,
+                message=message,
+                reply_route="data-file",
             )
             raise ValueError(message) from None
+        except ValueError as ve:
+            # This error has already been logged back to server
+            raise ve
         except Exception as e:
             message = str(e)
             _send_download_complete_reply(
-                response, headers, download_start, message=message, reply_route="data-file"
+                response,
+                headers,
+                download_start,
+                message=message,
+                reply_route="data-file",
             )
             raise ValueError(message) from None
 
@@ -1217,7 +1240,9 @@ def _write_file_from_api(filepath: str, options: dict):
         download_start = (
             updated_download_start if updated_download_start else download_start
         )
-        _send_download_complete_reply(response, headers, download_start, reply_route="data-file")
+        _send_download_complete_reply(
+            response, headers, download_start, reply_route="data-file"
+        )
 
         if offset_end:
             offset = offset_end + 1
@@ -1230,26 +1255,39 @@ def _write_file_from_api(filepath: str, options: dict):
 
 @_maintenance_guard
 def get_raw_file(filepath, *args, **kwargs):
-    """Get the hydroframe file that is selected by the options to the given filepath.
+    """
+    Get the hydroframe file that is selected by the options.
+
+    This can be used to get smaller files such as huc_mapping file with the HUC ids for points in conus2.
+    This can also be used to get large files (24 GB) such as the 30m water table depth file or wtd_uncertainty file.
+
+    Larger files are streamed to the filepath. If the connection is dropped while downloading you can restart
+    the function writing to the same file and it will continue where it left off if the file exists already.
 
     Args:
-        filepath:          Either a ModelTableRow or the ID number of a data_catalog_entry. If None use the entry found by the filters.
-        options:           Optional positional parameter that must be a dict with data filter options.
+        filepath:          A path name to the file to store the downloaded data.
+        options:           Any hf_hydrodata filter options. This must identify a single file. You may need to specify a date_start option if the catalog entry has a temporal resolution and the data is stored in multiple files.
     Returns:
         None
     Raises:
         ValueError:        If there are multiple paths selected from hydroframe.
 
-    Example:
+    Examples:
 
     .. code-block:: python
 
         import hf_hydrodata as hf
-
         options = {
             "dataset": "huc_mapping", "grid": "conus2", "level": "4"}
         }
         hf.get_raw_file("huc4.tiff", options)
+
+        options = {"dataset": "ma_2025", "variable": "water_table_depth", "grid": "conus2_wtd.30"}
+        hf.get_raw_file("wtd.tiff", options)
+
+        options = {"dataset": "ma_2025_cog", "variable": "water_table_depth"}
+        hf.get_raw_file("wtd.cog.tiff", options)
+
     """
     if len(args) > 0 and isinstance(args[0], dict):
         # The filter options are being passed using a dict
@@ -1511,6 +1549,8 @@ def _check_for_unknown_options(options: dict):
         "threads",
         "offset",
         "from",
+        "structure_type",
+        "return_coordinates",
     ]
     unknown_keys = []
     for key in options:
@@ -1873,7 +1913,7 @@ def _get_gridded_data_from_api(options):
         gridded_data_url = f"{HYDRODATA_URL}/api/gridded-data?{q_params}"
         try:
             headers = _get_api_headers()
-            response = requests.get(gridded_data_url, headers=headers, timeout=(10, 60))
+            response = requests.get(gridded_data_url, headers=headers, timeout=(80, 180))
             response_headers = response.headers
             download_start = response_headers.get("download-start")
             for retry_count in range(0, 80):
@@ -1883,7 +1923,7 @@ def _get_gridded_data_from_api(options):
                     retry_location = response_headers.get("Location")
                     retry_url = f"{HYDRODATA_URL}/api{retry_location}?download_start={download_start}"
                     response = requests.get(
-                        retry_url, headers=headers, timeout=(10, 60)
+                        retry_url, headers=headers, timeout=(80, 180)
                     )
                     sleep_duration = (
                         1 if retry_count < 10 else 2 if retry_count < 30 else 4
@@ -1922,6 +1962,9 @@ def _get_gridded_data_from_api(options):
                 response, headers, download_start, message=message
             )
             raise ValueError(message) from te
+        except ValueError as ve:
+            # This error was already logged back at server
+            raise ve
         except Exception as e:
             message = str(e)
             _send_download_complete_reply(
@@ -2621,14 +2664,18 @@ def _slice_da_bounds(da: xr.DataArray, grid: str, options: dict) -> xr.DataArray
     if grid_row is None:
         raise ValueError(f"No such grid {grid} available.")
     grid_shape = grid_row["shape"]
-    if (
-        len(grid_shape) >= 3
-        and (grid_bounds[0] < 0 or grid_bounds[0] > grid_shape[2])
-        or (grid_bounds[1] < 0 or grid_bounds[3] > grid_shape[1])
-    ):
-        raise ValueError(
-            f"grid_bounds {grid_bounds[0]},{grid_bounds[1]} is outside the grid shape {grid_shape[2]}, {grid_shape[1]}."
-        )
+    if len(grid_shape) < 2:
+        raise ValueError(f"Grid shape not available for grid '{grid}'/")
+    shape_bounds = (
+        [grid_shape[2], grid_shape[1]]
+        if len(grid_shape) >= 3
+        else [grid_shape[1], grid_shape[0]] if len(grid_shape) == 2 else None
+    )
+    for index, bound in enumerate(grid_bounds):
+        if bound < 0 or bound > shape_bounds[index % 2]:
+            raise ValueError(
+                f"grid_bounds {grid_bounds} is outside the grid shape {shape_bounds[0]}, {shape_bounds[1]}."
+            )
 
     if grid_bounds:
         if len(da.shape) == 3:
@@ -2668,7 +2715,13 @@ def _get_pfb_boundary_constraints(grid: str, options: dict) -> dict:
     if grid_row is None:
         raise ValueError(f"No such grid {grid} available.")
     grid_shape = grid_row["shape"]
-
+    if len(grid_shape) < 2:
+        raise ValueError(f"Grid shape not available for grid '{grid}'/")
+    shape_bounds = (
+        [grid_shape[2], grid_shape[1]]
+        if len(grid_shape) >= 3
+        else [grid_shape[1], grid_shape[0]] if len(grid_shape) == 2 else None
+    )
     result = None
     if x is not None:
         if y is None:
@@ -2676,13 +2729,9 @@ def _get_pfb_boundary_constraints(grid: str, options: dict) -> dict:
         z = int(z) if z is not None else 0
         x = float(x)
         y = float(y)
-        if (
-            len(grid_shape) >= 3
-            and (x < 0 or x > grid_shape[2])
-            or (y < 0 or y > grid_shape[1])
-        ):
+        if x < 0 or x > shape_bounds[0] or y < 0 or y > shape_bounds[1]:
             raise ValueError(
-                f"Point {x},{y} is outside the grid shape {grid_shape[2]}, {grid_shape[1]}."
+                f"Point {x},{y} is outside the grid shape {shape_bounds[0]}, {shape_bounds[0]}."
             )
         result = {
             "x": {"start": int(x), "stop": int(x)},
@@ -2690,14 +2739,11 @@ def _get_pfb_boundary_constraints(grid: str, options: dict) -> dict:
             "z": {"start": z, "stop": z},
         }
     elif grid_bounds:
-        if (
-            len(grid_shape) >= 3
-            and (grid_bounds[0] < 0 or grid_bounds[0] > grid_shape[2])
-            or (grid_bounds[1] < 0 or grid_bounds[3] > grid_shape[1])
-        ):
-            raise ValueError(
-                f"grid_bounds {grid_bounds[0]},{grid_bounds[1]} is outside the grid shape {grid_shape[2]}, {grid_shape[1]}."
-            )
+        for index, bound in enumerate(grid_bounds):
+            if bound < 0 or bound > shape_bounds[index % 2]:
+                raise ValueError(
+                    f"grid_bounds {grid_bounds} is outside the grid shape {shape_bounds[0]}, {shape_bounds[1]}."
+                )
         result = {
             "x": {"start": int(grid_bounds[0]), "stop": int(grid_bounds[2])},
             "y": {"start": int(grid_bounds[1]), "stop": int(grid_bounds[3])},
@@ -3325,8 +3371,10 @@ def _get_grid_bounds(grid: str, options: dict, rio_ds=None) -> List[float]:
         nx = grid_bounds[2] - grid_bounds[0]
         ny = grid_bounds[3] - grid_bounds[1]
         if nx < 0 or ny < 0:
-            raise ValueError("The grid bounds specifies a negative x or y dimension. Should be [xmin,ymin,xmax,ymax].")
-        
+            raise ValueError(
+                "The grid bounds specifies a negative x or y dimension. Should be [xmin,ymin,xmax,ymax]."
+            )
+
     # Return the grid_bounds assuming 0,0 is south west
     return grid_bounds
 
