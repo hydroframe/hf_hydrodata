@@ -1,6 +1,6 @@
 """Module to retrieve point observations."""
 
-# pylint: disable=C0301,W0707,W0719,C0121,C0302,C0209,C0325,W0702,R0912,R0914
+# pylint: disable=C0301,W0707,W0719,C0121,C0302,C0209,C0325,W0702,R0912,R0914,R0915,W1514,C0206
 import datetime
 from typing import Tuple
 import io
@@ -31,6 +31,7 @@ HYDRODATA = "/hydrodata"
 DB_PATH = f"{HYDRODATA}/national_obs/point_obs.sqlite"
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
 NETWORK_LISTS_PATH = f"{HYDRODATA}/national_obs/tools/network_lists"
+MAX_NUMBER_OF_SITES = 250000
 
 # Use this to check that user-supplied parameters are being used
 SUPPORTED_FILTERS = [
@@ -259,6 +260,7 @@ def get_point_data(*args, **kwargs):
 
     # Get data
     site_list = list(sites_df["site_id"])
+    _check_max_sites(site_list)
 
     if (var_id in (1, 2, 3, 4)) | (var_id in range(6, 25)):
         data_df = _get_data_nc(
@@ -955,7 +957,7 @@ def _get_siteid_data_from_api(options):
     download_start = None
     try:
         headers = _validate_user()
-        response = requests.get(point_data_url, headers=headers, timeout=(10, 180))
+        response = requests.get(point_data_url, headers=headers, timeout=(60, 180))
         response_headers = response.headers
         download_start = response_headers.get("download-start")
         for retry_count in range(0, 60):
@@ -964,7 +966,7 @@ def _get_siteid_data_from_api(options):
                 # Retry
                 retry_location = response_headers.get("Location")
                 retry_url = f"{HYDRODATA_URL}/api{retry_location}?download_start={download_start}"
-                response = requests.get(retry_url, headers=headers, timeout=(10, 180))
+                response = requests.get(retry_url, headers=headers, timeout=(60, 180))
                 sleep_duration = 1 if retry_count < 10 else 2 if retry_count < 30 else 4
                 time.sleep(sleep_duration)
 
@@ -978,20 +980,32 @@ def _get_siteid_data_from_api(options):
             # send a response for any other non-200 error to log the error
             message = f"{response.content}."
             _send_download_complete_reply(
-                response, headers, "site-variables-dataframe", download_start, message=message
+                response,
+                headers,
+                "site-variables-dataframe",
+                download_start,
+                message=message,
             )
             raise ValueError(message)
 
-    except requests.exceptions.Timeout as te:
-        message = f"The remote get_site_variables has timed out."
+    except requests.exceptions.Timeout:
+        message = "The remote get_site_variables has timed out."
         _send_download_complete_reply(
-            response, headers, "site-variables-dataframe", download_start, message=message
+            response,
+            headers,
+            "site-variables-dataframe",
+            download_start,
+            message=message,
         )
         raise ValueError(message)
     except Exception as e:
         message = f"The remote get_site_variables has failed with: {str(e)}"
         _send_download_complete_reply(
-            response, headers, "site-variables-dataframe", download_start, message=message
+            response,
+            headers,
+            "site-variables-dataframe",
+            download_start,
+            message=message,
         )
         raise ValueError(message)
 
@@ -1019,7 +1033,7 @@ def _get_data_from_api(data_type, options):
     download_start = None
     try:
         headers = _validate_user()
-        response = requests.get(point_data_url, headers=headers, timeout=(10, 180))
+        response = requests.get(point_data_url, headers=headers, timeout=(60, 180))
         response_headers = response.headers
         download_start = response_headers.get("download-start")
         for retry_count in range(0, 60):
@@ -1028,7 +1042,7 @@ def _get_data_from_api(data_type, options):
                 # Retry
                 retry_location = response_headers.get("Location")
                 retry_url = f"{HYDRODATA_URL}/api{retry_location}?download_start={download_start}"
-                response = requests.get(retry_url, headers=headers, timeout=(10, 180))
+                response = requests.get(retry_url, headers=headers, timeout=(60, 180))
                 sleep_duration = 1 if retry_count < 10 else 2 if retry_count < 30 else 4
                 time.sleep(sleep_duration)
             elif response.status_code != 200:
@@ -1040,21 +1054,29 @@ def _get_data_from_api(data_type, options):
                 if response.status_code == 502:
                     message = "Server not available error. Try again later."
                     _send_download_complete_reply(
-                        response, headers, "point-data-dataframe", download_start, message=message
+                        response,
+                        headers,
+                        "point-data-dataframe",
+                        download_start,
+                        message=message,
                     )
                     raise ValueError(message)
                 message = f"Server error {response.status_code}. Try again later."
                 _send_download_complete_reply(
-                    response, headers, "point-data-dataframe", download_start, message=message
+                    response,
+                    headers,
+                    "point-data-dataframe",
+                    download_start,
+                    message=message,
                 )
                 raise ValueError(message)
-    except requests.exceptions.ChunkedEncodingError as ce:
+    except requests.exceptions.ChunkedEncodingError:
         message = "Chunking error from server. Try again later or modify query."
         _send_download_complete_reply(
             response, headers, "point-data-dataframe", download_start, message=message
         )
         raise ValueError(message)
-    except requests.exceptions.Timeout as te:
+    except requests.exceptions.Timeout:
         message = "Timeout error from server. Try again later or modify query."
         _send_download_complete_reply(
             response, headers, "point-data-dataframe", download_start, message=message
@@ -1249,11 +1271,13 @@ def _validate_user():
     try:
         email, pin = _get_registered_api_pin()
         url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
-        response = requests.get(url_security, headers=None, timeout=(10, 60))
+        response = requests.get(url_security, headers=None, timeout=(60, 60))
         if response.status_code == 502:
             raise ValueError("Server is unavailable. Try again later.")
         if not response.status_code == 200:
-            raise ValueError(f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server.")
+            raise ValueError(
+                f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server."
+            )
         json_string = response.content.decode("utf-8")
         jwt_json = json.loads(json_string)
         expires_string = jwt_json.get("expires")
@@ -1273,7 +1297,10 @@ def _validate_user():
     except ValueError as ve:
         raise ve
     except:
-        raise ValueError(f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server.")
+        raise ValueError(
+            f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server."
+        )
+
 
 def _get_variables(conn):
     """
@@ -1670,6 +1697,7 @@ def _get_sites(
                         """
         grid_bounds_df = pd.read_sql_query(grid_bounds_query, conn)
         grid_bounds_sites = list(grid_bounds_df["site_id"])
+        _check_max_sites(grid_bounds_sites)
 
         if len(grid_bounds_sites) > 0:
             grid_bounds_query = " AND s.site_id IN (%s)" % ",".join(
@@ -1767,8 +1795,7 @@ def _get_sites(
         clipped_df = _filter_on_polygon(df, options["polygon"], options["polygon_crs"])
         return clipped_df
 
-    else:
-        return df
+    return df
 
 
 def _get_bbox_from_shape(polygon, polygon_crs):
@@ -2161,8 +2188,7 @@ def _get_data_nc(
     data_df = _convert_to_pandas(ds)
     if "min_num_obs" in options and options["min_num_obs"] is not None:
         return _filter_min_num_obs(data_df, options["min_num_obs"])
-    else:
-        return data_df
+    return data_df
 
 
 def _get_data_sql(conn, site_list, var_id, *args, **kwargs):
@@ -2415,7 +2441,7 @@ def _send_download_complete_reply(
             "download_start": download_start,
             "error_message": message,
             "job_queue_duration": job_queue_duration,
-            "job_query_parameters": job_query_parameters
+            "job_query_parameters": job_query_parameters,
         }
     else:
         query_parameters = {"error_message": message}
@@ -2433,3 +2459,12 @@ def _send_download_complete_reply(
             requests.delete(url, headers=request_headers, timeout=60)
         except:
             pass
+
+
+def _check_max_sites(site_list):
+    """Check to see if the number of sites in the site list exeeded maximum."""
+
+    if len(site_list) > MAX_NUMBER_OF_SITES:
+        raise ValueError(
+            f'Too many sites > {MAX_NUMBER_OF_SITES} selected ({len(site_list)})for one request. Try filtering by latitude_range, longitude_range, grid_bounds or state (for example "state": "NJ")'
+        )

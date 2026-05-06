@@ -1119,7 +1119,7 @@ def _write_file_from_api(filepath: str, options: dict):
             # Loop through request retry responses if message queue detects low server disk space
             for retry_count in range(0, 70):
                 response = requests.get(
-                    datafile_url, headers=headers, stream=True, timeout=(10, 60)
+                    datafile_url, headers=headers, stream=True, timeout=(80, 180)
                 )
                 if retry_count == 0:
                     download_start = response.headers.get("download-start")
@@ -1184,6 +1184,9 @@ def _write_file_from_api(filepath: str, options: dict):
                 reply_route="data-file",
             )
             raise ValueError(message) from None
+        except ValueError as ve:
+            # This error has already been logged back to server
+            raise ve
         except Exception as e:
             message = str(e)
             _send_download_complete_reply(
@@ -1910,7 +1913,7 @@ def _get_gridded_data_from_api(options):
         gridded_data_url = f"{HYDRODATA_URL}/api/gridded-data?{q_params}"
         try:
             headers = _get_api_headers()
-            response = requests.get(gridded_data_url, headers=headers, timeout=(10, 60))
+            response = requests.get(gridded_data_url, headers=headers, timeout=(80, 180))
             response_headers = response.headers
             download_start = response_headers.get("download-start")
             for retry_count in range(0, 80):
@@ -1920,7 +1923,7 @@ def _get_gridded_data_from_api(options):
                     retry_location = response_headers.get("Location")
                     retry_url = f"{HYDRODATA_URL}/api{retry_location}?download_start={download_start}"
                     response = requests.get(
-                        retry_url, headers=headers, timeout=(10, 60)
+                        retry_url, headers=headers, timeout=(80, 180)
                     )
                     sleep_duration = (
                         1 if retry_count < 10 else 2 if retry_count < 30 else 4
@@ -1959,6 +1962,9 @@ def _get_gridded_data_from_api(options):
                 response, headers, download_start, message=message
             )
             raise ValueError(message) from te
+        except ValueError as ve:
+            # This error was already logged back at server
+            raise ve
         except Exception as e:
             message = str(e)
             _send_download_complete_reply(

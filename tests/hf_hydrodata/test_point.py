@@ -1923,6 +1923,33 @@ def test_maintenance_error_point_pass(monkeypatch):
     )
     assert len(df) == 5
 
+def test_all_sites_point_data():
+    """Test for daily streamflow data for all sites. This should raise an error"""
+    with pytest.raises(ValueError) as info:
+        point.get_point_data(
+            dataset="fan_2013",
+            variable="water_table_depth",
+            temporal_resolution="long_term",
+            aggregation="mean",
+            date_start="2002-01-01",
+            date_end="2002-01-05",
+        )
+
+def test_large_number_of_sites():
+    """Test for large number of sites."""
+    bounds = [0, 0, 2300, 2000]
+    grid = "conus2"
+    df = point.get_point_data(
+        dataset="fan_2013",
+        variable="water_table_depth",
+        temporal_resolution="long_term",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        grid=grid,
+        grid_bounds=bounds
+    )
+    assert(len(df)) > 100000
 
 if __name__ == "__main__":
     pytest.main()
