@@ -1261,7 +1261,7 @@ def get_raw_file(filepath, *args, **kwargs):
     This can be used to get smaller files such as huc_mapping file with the HUC ids for points in conus2.
     This can also be used to get large files (24 GB) such as the 30m water table depth file or wtd_uncertainty file.
 
-    Note - the 30m resolution full datasets are large - 25GB for the cog and 35 GB for the tiff.
+    Note - the 30m resolution full datasets are large - 25 GB for the cog and 35 GB for the tiff.
     It can take about 20-40 minutes to download these large files. If your connection drops you can restart
     the function writing to the same file and it will continue where it left off. If multiple people
     are trying to download a large file at the same time your request may be queued and take longer per
