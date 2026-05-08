@@ -24,3 +24,5 @@ See the Python API Reference documentation of the `hf_hydrodata.get_raw_file() <
 You can get this as either as a tiff file or a cog file.
 You can also get the ma_2025 wtd_uncertainty variable and the belitz_2019 dataset variables the same way.
 
+We also have the full ma_2025 water table depth dataset available as a tiff file
+on `Zenodo <https://zenodo.org/records/18504963>`_ as a direct download.
