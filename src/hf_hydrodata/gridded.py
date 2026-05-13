@@ -473,6 +473,90 @@ def get_gridded_files(
     files that already exist. To re-download data, remember to delete previously created files first.
     """
     verbose_start_time = time.time()
+    (variables, temporal_resolution, date_start, date_end, delta, filename_template) = _collect_gridded_files_options(options, variables, filename_template)
+
+    last_file_name = None
+    file_name = None
+    dask_items = []
+    file_time = date_start
+    time_index = 0
+    state = _FileDownloadState(
+        options,
+        filename_template,
+        temporal_resolution,
+        date_start,
+        date_end,
+        verbose,
+    )
+    state.generate_time_coords(file_time)
+
+    while file_time < date_end:
+        options = dict(options)
+        options["start_time"] = file_time
+        options["end_time"] = file_time + delta
+        for variable in variables:
+            options["variable"] = variable
+            aggregation_entries = _get_aggregation_entries(options)
+            aggregation_types = [
+                agg_entry.get("aggregation") for agg_entry in aggregation_entries
+            ]
+            if "min" not in aggregation_types and "max" not in aggregation_types:
+                # No point looping through aggregation types if max or main are not options
+                entry = dc.get_catalog_entry(options)
+                aggregation_entries = [entry] if entry else []
+            for entry in aggregation_entries:
+                options_copy = dict(options)
+                if entry is None:
+                    raise ValueError(
+                        f"No data catalog entry found for options {options}"
+                    )
+                aggregation = entry.get("aggregation")
+                options_copy["aggregation"] = aggregation
+                file_name = _substitute_datapath(
+                    filename_template, entry, options_copy, file_time, date_start
+                )
+                if file_name.endswith(".nc") and not file_name == last_file_name:
+                    if last_file_name:
+                        _execute_dask_items(dask_items, state, last_file_name, verbose)
+                        state = _FileDownloadState(
+                            options_copy,
+                            filename_template,
+                            temporal_resolution,
+                            date_start,
+                            date_end,
+                            verbose,
+                        )
+                        state.generate_time_coords(file_time)
+                        dask_items = []
+                dask_items.append(
+                    dask.delayed(_load_gridded_file_entry)(
+                        state, entry, options_copy, file_time
+                    )
+                )
+            last_file_name = file_name
+        file_time = file_time + delta
+        time_index = time_index + 1
+    _execute_dask_items(dask_items, state, last_file_name, verbose)
+    if verbose:
+        duration = round(time.time() - verbose_start_time, 1)
+        if duration < 60 * 5:
+            print(f"Created all files in {duration} seconds.")
+        else:
+            duration = round(duration / 60)
+            print(f"Created all files in {duration} minutes.")
+
+def _collect_gridded_files_options(options:dict, variables:list[str], filename_template:str):
+    """
+    Collect the gridded_files() options.
+    Parameters:
+        options:            The query parameters options of get_gridded_files().
+        variables:          The variables list from get_gridded_files() arguments.
+        filename_template:  The filename_template from get_gridded_files() arguments.
+    Returns:
+        Tuple (variables, temporal_resolution, date_start, date_end, delta, filename_template)
+    Raises:
+        ValueError if options are missing or invalid.
+    """
     if options.get("period") and not options.get("temporal_resolution"):
         options["temporal_resolution"] = options.get("period")
     _check_for_unknown_options(options)
@@ -521,24 +605,24 @@ def get_gridded_files(
         )
     if not options.get("dataset"):
         raise ValueError("The dataset is not specified")
-    start_time_option = _get_date_start(options)
-    end_time_option = _get_date_end(options)
-    start_time = _parse_time(start_time_option)
-    end_time = _parse_time(end_time_option)
-    if not start_time:
+    date_start_option = _get_date_start(options)
+    date_end_option = _get_date_end(options)
+    date_start = _parse_time(date_start_option)
+    date_end = _parse_time(date_end_option)
+    if not date_start:
         if temporal_resolution == "static":
-            start_time = datetime.datetime.now()
+            date_start = datetime.datetime.now()
         else:
-            raise ValueError("The start_time option must be specified")
-    if not end_time or filename_template.endswith(".tiff"):
+            raise ValueError("The date_start option must be specified")
+    if not date_end or filename_template.endswith(".tiff"):
         if temporal_resolution == "static":
-            end_time = start_time + datetime.timedelta(days=1)
+            date_end = date_start + datetime.timedelta(days=1)
         elif temporal_resolution == "daily":
-            end_time = start_time + datetime.timedelta(days=1)
+            date_end = date_start + datetime.timedelta(days=1)
         elif temporal_resolution == "monthly":
-            end_time = start_time + datetime.timedelta(days=1)
+            date_end = date_start + datetime.timedelta(days=1)
         else:
-            end_time = start_time + datetime.timedelta(hours=1)
+            date_end = date_start + datetime.timedelta(hours=1)
     if not variables:
         entry = dc.get_catalog_entry(options)
         if entry is None:
@@ -559,76 +643,7 @@ def get_gridded_files(
             "The temporal_resolution must be hourly, daily, monthly or static."
         )
 
-    last_file_name = None
-    file_name = None
-    dask_items = []
-    file_time = start_time
-    time_index = 0
-    state = _FileDownloadState(
-        options,
-        filename_template,
-        temporal_resolution,
-        start_time,
-        end_time,
-        verbose,
-    )
-    state.generate_time_coords(file_time)
-
-    while file_time < end_time:
-        options = dict(options)
-        options["start_time"] = file_time
-        options["end_time"] = file_time + delta
-        for variable in variables:
-            options["variable"] = variable
-            aggregation_entries = _get_aggregation_entries(options)
-            aggregation_types = [
-                agg_entry.get("aggregation") for agg_entry in aggregation_entries
-            ]
-            if "min" not in aggregation_types and "max" not in aggregation_types:
-                # No point looping through aggregation types if max or main are not options
-                entry = dc.get_catalog_entry(options)
-                aggregation_entries = [entry] if entry else []
-            for entry in aggregation_entries:
-                options_copy = dict(options)
-                if entry is None:
-                    raise ValueError(
-                        f"No data catalog entry found for options {options}"
-                    )
-                aggregation = entry.get("aggregation")
-                options_copy["aggregation"] = aggregation
-                file_name = _substitute_datapath(
-                    filename_template, entry, options_copy, file_time, start_time
-                )
-                if file_name.endswith(".nc") and not file_name == last_file_name:
-                    if last_file_name:
-                        _execute_dask_items(dask_items, state, last_file_name, verbose)
-                        state = _FileDownloadState(
-                            options_copy,
-                            filename_template,
-                            temporal_resolution,
-                            start_time,
-                            end_time,
-                            verbose,
-                        )
-                        state.generate_time_coords(file_time)
-                        dask_items = []
-                dask_items.append(
-                    dask.delayed(_load_gridded_file_entry)(
-                        state, entry, options_copy, file_time
-                    )
-                )
-            last_file_name = file_name
-        file_time = file_time + delta
-        time_index = time_index + 1
-    _execute_dask_items(dask_items, state, last_file_name, verbose)
-    if verbose:
-        duration = round(time.time() - verbose_start_time, 1)
-        if duration < 60 * 5:
-            print(f"Created all files in {duration} seconds.")
-        else:
-            duration = round(duration / 60)
-            print(f"Created all files in {duration} minutes.")
-
+    return (variables, temporal_resolution, date_start, date_end, delta, filename_template)
 
 def read_fast_pfb(pfb_files: List[str], pfb_constraints: dict = None):
     """
@@ -1916,7 +1931,7 @@ def _get_gridded_data_from_api(options):
         gridded_data_url = f"{HYDRODATA_URL}/api/gridded-data?{q_params}"
         try:
             headers = _get_api_headers()
-            response = requests.get(gridded_data_url, headers=headers, timeout=(80, 180))
+            response = requests.get(gridded_data_url, headers=headers, stream=True, timeout=(80, 360))
             response_headers = response.headers
             download_start = response_headers.get("download-start")
             for retry_count in range(0, 80):
@@ -1926,7 +1941,7 @@ def _get_gridded_data_from_api(options):
                     retry_location = response_headers.get("Location")
                     retry_url = f"{HYDRODATA_URL}/api{retry_location}?download_start={download_start}"
                     response = requests.get(
-                        retry_url, headers=headers, timeout=(80, 180)
+                        retry_url, headers=headers, timeout=(80, 360), stream=True
                     )
                     sleep_duration = (
                         1 if retry_count < 10 else 2 if retry_count < 30 else 4
@@ -1975,8 +1990,8 @@ def _get_gridded_data_from_api(options):
             )
             raise ValueError(message) from e
 
-        content = response.content
-        if content is None or len(content) == 0:
+        file_obj = _get_bytesio_from_response(response)
+        if len(file_obj.getBuffer()) == 0:
             message = "Empty content from server. Try again later or modify query."
             _send_download_complete_reply(
                 response, headers, download_start, message=message
@@ -1989,7 +2004,6 @@ def _get_gridded_data_from_api(options):
             updated_download_start if updated_download_start else download_start
         )
 
-        file_obj = io.BytesIO(content)
         _send_download_complete_reply(response, headers, download_start)
         with THREAD_LOCK:
             # The open_dataset call itself is not thread safe (it is safe after it is opened)
@@ -2003,6 +2017,21 @@ def _get_gridded_data_from_api(options):
 
     return None
 
+def _get_bytesio_from_response(response)->io.BytesIO:
+    """
+    Stream the bytes from an https response into a io.BytesIO buffer
+    Parameters:
+        response:   The response from an requests.get() call that uses stream=True
+    Returns:
+        a io.BytesIO buffer of the response content
+    """
+    file_obj = io.BytesIO()
+    for chunk in response.iter_content(chunk_size=8192):
+        if chunk:
+            file_obj.write(chunk)
+    
+    file_obj.seek(0)
+    return file_obj
 
 def _send_download_complete_reply(
     response, request_headers, download_start, message=None, reply_route="gridded-data"
