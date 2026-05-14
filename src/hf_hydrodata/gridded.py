@@ -1569,6 +1569,7 @@ def _check_for_unknown_options(options: dict):
         "from",
         "structure_type",
         "return_coordinates",
+        "file_path",
     ]
     unknown_keys = []
     for key in options:
@@ -1990,8 +1991,8 @@ def _get_gridded_data_from_api(options):
             )
             raise ValueError(message) from e
 
-        file_obj = _get_bytesio_from_response(response)
-        if len(file_obj.getBuffer()) == 0:
+        file_obj = _get_byte_buffer_from_response(response, options)
+        if len(file_obj.getbuffer()) == 0:
             message = "Empty content from server. Try again later or modify query."
             _send_download_complete_reply(
                 response, headers, download_start, message=message
@@ -2017,21 +2018,39 @@ def _get_gridded_data_from_api(options):
 
     return None
 
-def _get_bytesio_from_response(response)->io.BytesIO:
+def _get_byte_buffer_from_response(response, options:dict)->io.BytesIO:
     """
     Stream the bytes from an https response into a io.BytesIO buffer
+    or stream the bytes into a file if the options contains a file_path key.
+
     Parameters:
         response:   The response from an requests.get() call that uses stream=True
+        options:    A dict of query parameter options for the request.
     Returns:
-        a io.BytesIO buffer of the response content
+        a io.BytesIO buffer of the response content or None if options contains file_path.
     """
-    file_obj = io.BytesIO()
-    for chunk in response.iter_content(chunk_size=8192):
-        if chunk:
-            file_obj.write(chunk)
-    
-    file_obj.seek(0)
-    return file_obj
+    file_path = options.get("file_path")
+    if file_path:
+        # A file path is specified to stream the contents into that file_path and return None
+        with open(file_path, "wb") as f:
+            n = 0
+            for chunk in response.iter_content(chunk_size=16384):
+                if chunk:
+                    f.write(chunk)
+                    print(f"Wrote chunk to file #{n}")
+                    n = n + 1
+        return None
+    else:
+        # No file path is specified so stream the contents into an buffer and return the buffer
+        file_obj = io.BytesIO()
+        for chunk in response.iter_content(chunk_size=16384):
+            n = 0
+            if chunk:
+                file_obj.write(chunk)
+                print(f"Wrote chunk to buffer #{n}")
+                n = n + 1
+        file_obj.seek(0)
+        return file_obj
 
 def _send_download_complete_reply(
     response, request_headers, download_start, message=None, reply_route="gridded-data"
