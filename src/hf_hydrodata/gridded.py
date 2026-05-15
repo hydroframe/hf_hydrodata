@@ -473,7 +473,9 @@ def get_gridded_files(
     files that already exist. To re-download data, remember to delete previously created files first.
     """
     verbose_start_time = time.time()
-    (variables, temporal_resolution, date_start, date_end, delta, filename_template) = _collect_gridded_files_options(options, variables, filename_template)
+    (variables, temporal_resolution, date_start, date_end, delta, filename_template) = (
+        _collect_gridded_files_options(options, variables, filename_template)
+    )
 
     last_file_name = None
     file_name = None
@@ -545,7 +547,10 @@ def get_gridded_files(
             duration = round(duration / 60)
             print(f"Created all files in {duration} minutes.")
 
-def _collect_gridded_files_options(options:dict, variables:list[str], filename_template:str):
+
+def _collect_gridded_files_options(
+    options: dict, variables: list[str], filename_template: str
+):
     """
     Collect the gridded_files() options.
     Parameters:
@@ -643,7 +648,15 @@ def _collect_gridded_files_options(options:dict, variables:list[str], filename_t
             "The temporal_resolution must be hourly, daily, monthly or static."
         )
 
-    return (variables, temporal_resolution, date_start, date_end, delta, filename_template)
+    return (
+        variables,
+        temporal_resolution,
+        date_start,
+        date_end,
+        delta,
+        filename_template,
+    )
+
 
 def read_fast_pfb(pfb_files: List[str], pfb_constraints: dict = None):
     """
@@ -1569,7 +1582,6 @@ def _check_for_unknown_options(options: dict):
         "from",
         "structure_type",
         "return_coordinates",
-        "file_path",
     ]
     unknown_keys = []
     for key in options:
@@ -1903,17 +1915,20 @@ def _convert_json_to_strings(options):
     return options
 
 
-def _get_gridded_data_from_api(options):
+def _get_gridded_data_from_api(options, file_path: str = None):
     """Get gridded_data using the remote API. Return None if running locally to /hydrodata.
 
     Parameters
     ----------
     options : dict
-        datast to which the variable belongs.
+        query options to send to API to get the data for the request
+    file_path: str
+        A file path to write the api response into
+
 
     Returns
     -------
-    numpy array of the requested data or None if running locally.
+    numpy array of the requested data or None if running locally or if a file_path is specified.
     """
     run_remote = not os.path.exists(HYDRODATA)
     if run_remote:
@@ -1932,7 +1947,9 @@ def _get_gridded_data_from_api(options):
         gridded_data_url = f"{HYDRODATA_URL}/api/gridded-data?{q_params}"
         try:
             headers = _get_api_headers()
-            response = requests.get(gridded_data_url, headers=headers, stream=True, timeout=(80, 360))
+            response = requests.get(
+                gridded_data_url, headers=headers, stream=True, timeout=(80, 360)
+            )
             response_headers = response.headers
             download_start = response_headers.get("download-start")
             for retry_count in range(0, 80):
@@ -1991,7 +2008,13 @@ def _get_gridded_data_from_api(options):
             )
             raise ValueError(message) from e
 
-        file_obj = _get_byte_buffer_from_response(response, options)
+        if file_path:
+            _write_buffer_to_file_path(response, file_path)
+            return None
+
+        file_obj = _get_byte_buffer_from_response(response)
+        if file_obj is None:
+            return
         if len(file_obj.getbuffer()) == 0:
             message = "Empty content from server. Try again later or modify query."
             _send_download_complete_reply(
@@ -2018,39 +2041,38 @@ def _get_gridded_data_from_api(options):
 
     return None
 
-def _get_byte_buffer_from_response(response, options:dict)->io.BytesIO:
+
+def _write_buffer_to_file_path(response, file_path: str):
     """
-    Stream the bytes from an https response into a io.BytesIO buffer
-    or stream the bytes into a file if the options contains a file_path key.
+    Stream the bytes from an https response into a file path.
 
     Parameters:
         response:   The response from an requests.get() call that uses stream=True
-        options:    A dict of query parameter options for the request.
-    Returns:
-        a io.BytesIO buffer of the response content or None if options contains file_path.
+        file_path:  The path to a file to write the contents of the response
     """
-    file_path = options.get("file_path")
-    if file_path:
-        # A file path is specified to stream the contents into that file_path and return None
-        with open(file_path, "wb") as f:
-            n = 0
-            for chunk in response.iter_content(chunk_size=16384):
-                if chunk:
-                    f.write(chunk)
-                    print(f"Wrote chunk to file #{n}")
-                    n = n + 1
-        return None
-    else:
-        # No file path is specified so stream the contents into an buffer and return the buffer
-        file_obj = io.BytesIO()
+    with open(file_path, "wb") as f:
         for chunk in response.iter_content(chunk_size=16384):
-            n = 0
             if chunk:
-                file_obj.write(chunk)
-                print(f"Wrote chunk to buffer #{n}")
-                n = n + 1
-        file_obj.seek(0)
-        return file_obj
+                f.write(chunk)
+        return None
+
+
+def _get_byte_buffer_from_response(response) -> io.BytesIO:
+    """
+    Stream the bytes from an https response into a io.BytesIO buffer.
+
+    Parameters:
+        response:   The response from an requests.get() call that uses stream=True
+    Returns:
+        a io.BytesIO buffer of the response content
+    """
+    file_obj = io.BytesIO()
+    for chunk in response.iter_content(chunk_size=16384):
+        if chunk:
+            file_obj.write(chunk)
+    file_obj.seek(0)
+    return file_obj
+
 
 def _send_download_complete_reply(
     response, request_headers, download_start, message=None, reply_route="gridded-data"
