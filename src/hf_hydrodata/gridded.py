@@ -457,6 +457,8 @@ def get_gridded_file(options: dict, file_path: str):
         raise ValueError(f"No data catalog entry found for options {options}")
 
     options = options.copy()
+    options["from"] = "get_gridded_file"
+
     if temporal_resolution == "static":
         # The query is for a static file so just download it to the file_path
         file_name = _substitute_datapath(filename_template, entry, options, None, None)
@@ -547,7 +549,8 @@ def _download_file_for_gridded_file(
     run_remote = not os.path.exists(HYDRODATA)
     if run_remote:
         # make the API call to query the data and stream directly into the file_path
-        pass
+        options["format"] = format_option
+        _get_gridded_data_from_api(options, file_path)
     else:
         # This is running locally
         # Get the numpy subsetted data for the query from get_gridded_data()
@@ -561,7 +564,7 @@ def _download_file_for_gridded_file(
             hf_hydrodata.tiff_util.generate_tiff_file(data, entry, options, file_path)
         elif file_path.endswith("pfb"):
             hf_hydrodata.pfb_util.generate_pfb_file(data, file_path)
-
+    print(f"Created '{file_path}'.")
 
 @_maintenance_guard
 def get_gridded_files(
@@ -2202,8 +2205,15 @@ def _get_gridded_data_from_api(options, file_path: str = None):
             )
             raise ValueError(message) from e
 
+        # Get an updated download_start if provided in the response headers of a retry response from message queue
+        updated_download_start = response.headers.get("download-start")
+        download_start = (
+            updated_download_start if updated_download_start else download_start
+        )
+
         if file_path:
             _write_buffer_to_file_path(response, file_path)
+            _send_download_complete_reply(response, headers, download_start)
             return None
 
         file_obj = _get_byte_buffer_from_response(response)
@@ -2216,11 +2226,6 @@ def _get_gridded_data_from_api(options, file_path: str = None):
             )
             raise ValueError(message)
 
-        # Get an updated download_start if provided in the response headers of a retry response from message queue
-        updated_download_start = response.headers.get("download-start")
-        download_start = (
-            updated_download_start if updated_download_start else download_start
-        )
 
         _send_download_complete_reply(response, headers, download_start)
         with THREAD_LOCK:
