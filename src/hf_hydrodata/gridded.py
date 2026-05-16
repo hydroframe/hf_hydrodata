@@ -374,29 +374,31 @@ def get_numpy(*args, **kwargs):
 
 
 @_maintenance_guard
-def get_gridded_file(options: dict, file_path: str):
+def get_gridded_file(file_path: str, options: dict):
     """
     Query the hf_hydrodata data_catalog for data matching the options and download
-    the data into file_path.
+    the data into file_path. This is a replacment for the old get_gridded_files().
+    This function allows you to perform the same query as get_gridded_data(), but
+    write it to a file with projection information instead of just getting a numpy array.
 
     Parameters:
-        options:    A dict with the same options allowed by the get_gridded_data() function.
         file_path:  A file path to write the data downloaded using the options.
+        options:    A dict with the same options allowed by the get_gridded_data() function.
 
     Raises:
         ValueError: If an error occurs while downloading and creating files.
 
     The file_path must have an extension of either ".tiff", ".nc" or ".pfb". The format of
-    the file written depends on the extension. Format: "TIFF", "NetCDF" or "parflow binary pfb file".
+    the file written depends on the extension. Format: "TIFF", "NetCDF" or "parflow binary pfb" file.
 
     The file will contain projection information and x, y coordinate information to allow the file
     to be viewed by ARCGIS or QGIS if this is possible (pfb files do not hold projection info).
-    Tiff file are only written with 2D data so data with multiple time dimensions will not be stored.
+    Tiff files are only written with 2D data so data with multiple time dimensions will not be stored.
     You can write a file with a time dimension to a tiff as long as you only select one time in the query.
 
-    The file_path may optionally contain one or more of the substition options listed below.
+    The file_path may optionally contain one or more of the substitution options listed below.
     If this makes the file_path different for the time in the downloaded data then multiple files
-    may be be written with the data for the file name.
+    may be be written. 
 
     Substitutable parameters available for file_path:
 
@@ -419,10 +421,12 @@ def get_gridded_file(options: dict, file_path: str):
 
         import hf_hydrodata as hf
 
-        options = {"dataset": "ma_2025", "variable": "water_table_depth", "huc_id": "14010002"}
-        hf.get_gridded_file(options, "wtd.tiff")
+        options = {"dataset": "ma_2025", "variable": "water_table_depth",
+                   "grid": "conus2_wtd.30", "huc_id": "14010002"}
+        hf.get_gridded_file("wtd.tiff", options)
 
-    The example below will create two NetCDF file, one for each water year in the query.
+    The example below will create two NetCDF files, one for each water year
+    in the query because of the {wy} in the file_path.
 
     .. code-block:: python
 
@@ -433,11 +437,14 @@ def get_gridded_file(options: dict, file_path: str):
             "date_start":"2005-09-01", "date_end":"2005-11-01",
             "grid_bounds":[200, 200, 300, 250]
         }
+        hf.get_gridded_file("{dataset}_{variable}_{wy}.nc", options)
 
-        hf.get_gridded_file(options, "{dataset}_{variable}_{wy}.nc")
+    The example below will create 3 .pfb files in two water year directories with hourly data
+    and one file per day.
+    Note the {wy} in the directory part of the file_path and the {wy_start_24hr} in the
+    name part of the file_path.
 
-    The example below will create 3 .pfb files in two water year directories with hourly data:
-        .. code-block:: python
+    .. code-block:: python
 
         import hf_hydrodata as hf
 
@@ -447,7 +454,7 @@ def get_gridded_file(options: dict, file_path: str):
             "grid_bounds":[200, 200, 300, 250]
         }
         file_path = "WY{wy}/{dataset}_{variable}.{wy_start_24hr:06d}_to_{wy_end_24hr:06}.pfb"
-        hf.get_gridded_file(options, file_path)
+        hf.get_gridded_file(file_path, options)
     """
     (_, temporal_resolution, date_start, date_end, delta, filename_template) = (
         _collect_gridded_files_options(options, None, file_path)
@@ -1479,7 +1486,7 @@ def _write_file_from_api(filepath: str, options: dict):
 
 
 @_maintenance_guard
-def get_raw_file(filepath, *args, **kwargs):
+def get_raw_file(filepath:str, *args, **kwargs):
     """
     Get the hydroframe file that is selected by the options.
 

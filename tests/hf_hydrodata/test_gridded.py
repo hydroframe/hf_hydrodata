@@ -2600,7 +2600,7 @@ def test_gridded_file_2wy():
 
         # Download to 2 different files for each water year
         file_path = tempdirname + "/" + "{dataset}_{variable}_{wy}.nc"
-        hf.get_gridded_file(options, file_path)
+        hf.get_gridded_file(file_path, options)
         path = f"{tempdirname}/CW3E_air_temp_1990.nc"
         if not os.path.exists(path):
             raise ValueError(f"File not created: '{path}'")
@@ -2612,7 +2612,7 @@ def test_gridded_file_2wy():
 
         # Download to one file for both water years
         file_path = tempdirname + "/" + "{dataset}_{variable}.nc"
-        hf.get_gridded_file(options, file_path)
+        hf.get_gridded_file(file_path, options)
         path = f"{tempdirname}/CW3E_air_temp.nc"
         if not os.path.exists(path):
             raise ValueError(f"File not created: '{path}'")
@@ -2625,7 +2625,7 @@ def test_gridded_file_2wy():
         # Download as one tiff (this should be an error)
         with pytest.raises(ValueError):
             file_path = tempdirname + "/" + "{dataset}_{variable}.tif"
-            hf.get_gridded_file(options, file_path)
+            hf.get_gridded_file(file_path, options)
             path = f"{tempdirname}/CW3E_air_temp.nc"
 
 
@@ -2644,7 +2644,7 @@ def test_gridded_file_wtd():
 
         # Download it as a tif
         file_path = tempdirname + "/" + "{dataset}_{variable}.tif"
-        hf.get_gridded_file(options, file_path)
+        hf.get_gridded_file(file_path, options)
         path = f"{tempdirname}/ma_2025_water_table_depth.tif"
         if not os.path.exists(path):
             raise ValueError(f"File not created: '{path}'")
@@ -2654,7 +2654,7 @@ def test_gridded_file_wtd():
 
         # Download it as netcdf
         file_path = tempdirname + "/" + "{dataset}_{variable}.nc"
-        hf.get_gridded_file(options, file_path)
+        hf.get_gridded_file(file_path, options)
         path = f"{tempdirname}/ma_2025_water_table_depth.nc"
         if not os.path.exists(path):
             raise ValueError(f"File not created: '{path}'")
@@ -2685,7 +2685,7 @@ def test_gridded_file_pfb():
             + "/"
             + "WY{wy}/{dataset}_{variable}.{wy_start_24hr:06d}_to_{wy_end_24hr:06}.pfb"
         )
-        hf.get_gridded_file(options, file_path)
+        hf.get_gridded_file(file_path, options)
         path = f"{tempdirname}/WY1990/CW3E_air_temp.008689_to_008712.pfb"
         if not os.path.exists(path):
             raise ValueError(f"File not created: '{path}'")
@@ -2694,6 +2694,6 @@ def test_gridded_file_pfb():
 
         # Download to one file
         file_path = tempdirname + "precip.pfb"
-        hf.get_gridded_file(options, file_path)
+        hf.get_gridded_file(file_path, options)
         data = hf.gridded.read_fast_pfb(file_path)
         assert data.shape == (1, 144, 19, 48)
