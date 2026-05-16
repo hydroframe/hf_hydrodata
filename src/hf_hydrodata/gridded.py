@@ -33,6 +33,9 @@ from hf_hydrodata.data_model_access import (
 from hf_hydrodata.grid import to_ij, to_latlon
 from hf_hydrodata.data_catalog import _maintenance_guard
 import hf_hydrodata.data_catalog as dc
+import hf_hydrodata.netcdf_util
+import hf_hydrodata.pfb_util
+import hf_hydrodata.tiff_util
 
 C_PFB_MAP = {
     "eflx_lh_tot": 0,
@@ -371,6 +374,196 @@ def get_numpy(*args, **kwargs):
 
 
 @_maintenance_guard
+def get_gridded_file(options: dict, file_path: str):
+    """
+    Query the hf_hydrodata data_catalog for data matching the options and download
+    the data into file_path.
+
+    Parameters:
+        options:    A dict with the same options allowed by the get_gridded_data() function.
+        file_path:  A file path to write the data downloaded using the options.
+
+    Raises:
+        ValueError: If an error occurs while downloading and creating files.
+
+    The file_path must have an extension of either ".tiff", ".nc" or ".pfb". The format of
+    the file written depends on the extension. Format: "TIFF", "NetCDF" or "parflow binary pfb file".
+
+    The file will contain projection information and x, y coordinate information to allow the file
+    to be viewed by ARCGIS or QGIS if this is possible (pfb files do not hold projection info).
+    Tiff file are only written with 2D data so data with multiple time dimensions will not be stored.
+    You can write a file with a time dimension to a tiff as long as you only select one time in the query.
+
+    The file_path may optionally contain one or more of the substition options listed below.
+    If this makes the file_path different for the time in the downloaded data then multiple files
+    may be be written with the data for the file name.
+
+    Substitutable parameters available for file_path:
+
+    - ``dataset``: The dataset name from the options.
+    - ``variable``: The variable being downloaded from options or the variables list.
+    - ``dataset_var``: The data catalog entry dataset_var.
+    - ``hour_start``: The starting hour of the data in the saved file (starting at 0).
+    - ``hour_end``: The ending hour of the data in the saved file.
+    - ``daynum``: The day number of the data in the saved file (starting at 0).
+    - ``wy``: The water year of the data in the saved file.
+    - ``wy_daynum``: The day number of the water year.
+    - ``wy_start_24hr``: The 24-hour start hour of the water year in the file.
+    - ``wy_end_24hr``: The 24-hour end hour of the water year in the file.
+    - ``mdy``: The date as month-day-year of data in the saved file.
+    - ``ymd``: The date as year-month-day of data in the saved file.
+
+    The example below will create a .tiff file with a subset of the 30m resolution WTD data.
+
+    .. code-block:: python
+
+        import hf_hydrodata as hf
+
+        options = {"dataset": "ma_2025", "variable": "water_table_depth", "huc_id": "14010002"}
+        hf.get_gridded_file(options, "wtd.tiff")
+
+    The example below will create two NetCDF file, one for each water year in the query.
+
+    .. code-block:: python
+
+        import hf_hydrodata as hf
+
+        options = {
+            "dataset": "NLDAS2", "temporal_resolution": "hourly", "variable": "precipitation",
+            "date_start":"2005-09-01", "date_end":"2005-11-01",
+            "grid_bounds":[200, 200, 300, 250]
+        }
+
+        hf.get_gridded_file(options, "{dataset}_{variable}_{wy}.nc")
+
+    The example below will create 3 .pfb files in two water year directories with hourly data:
+        .. code-block:: python
+
+        import hf_hydrodata as hf
+
+        options = {
+            "dataset": "NLDAS2", "temporal_resolution": "hourly", "variable": "precipitation",
+            "date_start":"2009-09-28", "date_end":"2009-10-04",
+            "grid_bounds":[200, 200, 300, 250]
+        }
+        file_path = "WY{wy}/{dataset}_{variable}.{wy_start_24hr:06d}_to_{wy_end_24hr:06}.pfb"
+        hf.get_gridded_file(options, file_path)
+    """
+    (_, temporal_resolution, date_start, date_end, delta, filename_template) = (
+        _collect_gridded_files_options(options, None, file_path)
+    )
+    entry = dc.get_catalog_entry(options)
+    if entry is None:
+        raise ValueError(f"No data catalog entry found for options {options}")
+
+    options = options.copy()
+    if temporal_resolution == "static":
+        # The query is for a static file so just download it to the file_path
+        file_name = _substitute_datapath(filename_template, entry, options, None, None)
+        _download_file_for_gridded_file(options, entry, 0, file_name)
+    else:
+        # They query has a time dimension so possibly save it in multiple files
+        file_time = date_start
+        time_index = 0
+        last_file_name = None
+        file_name = None
+        start_time = date_start
+        # Remove the old start_time, end_time names from options if they exist
+        # These will be replaced with date_start and date_end for the time chunks
+        if options.get("start_time"):
+            del options["start_time"]
+        if options.get("end_time"):
+            del options["end_time"]
+        if options.get("start_date"):
+            del options["start_date"]
+        if options.get("end_date"):
+            del options["end_date"]
+
+        # Loop through time chunks and if file name changes query and download that file
+        while file_time < date_end:
+            end_time = file_time
+            options["date_start"] = start_time
+            options["date_end"] = end_time
+            file_name = _substitute_datapath(
+                filename_template, entry, options, file_time, file_time
+            )
+            if last_file_name is None:
+                last_file_name = file_name
+
+            if last_file_name != file_name:
+                # Download the last_file_name because this next time chunk will go into a new file
+                _download_file_for_gridded_file(
+                    options, entry, time_index, last_file_name
+                )
+                last_file_name = file_name
+                start_time = end_time
+                time_index = 0
+
+            file_time = file_time + delta
+            time_index = time_index + 1
+
+        # Download the last_file_name that wasn't downloaded yet
+        options["date_start"] = start_time
+        options["date_end"] = file_time
+        _download_file_for_gridded_file(options, entry, time_index, last_file_name)
+
+
+def _download_file_for_gridded_file(
+    options: dict, entry: dict, time_index: int, file_path: str
+):
+    """
+    Download a file using the query parameters options into the file_path
+    Parameters:
+        options:    A dict with keys to get data from the data catalog like get_gridded_data().
+        entry:      A data catalog entry for the options query.
+        time_index: The size of the time dimension
+        file_path:  A file path to write the data from the query with projection information.
+    """
+
+    format_option = (
+        "tiff" if file_path.endswith(".tiff") or file_path.endswith(".tif") else None
+    )
+    format_option = "nc" if file_path.endswith(".nc") else format_option
+    format_option = "pfb" if file_path.endswith(".pfb") else format_option
+
+    if format_option is None:
+        raise ValueError(f"The extension for '{file_path}' must be .tiff, .nc, or .pfb")
+
+    file_dir = os.path.dirname(file_path)
+    os.makedirs(file_dir, exist_ok=True)
+
+    if format_option == "tiff":
+        if time_index > 1:
+            raise ValueError(
+                f"Only 2D data supported in .tiff files. The query has time dimension of {time_index}."
+            )
+        has_z = entry.get("has_z") is not None and entry.get("has_z").lower() == "true"
+        if has_z:
+            variable = entry.get("variable")
+            raise ValueError(
+                f"Only 2D data supported in .tiff files. The variable '{variable}' contains 3D data."
+            )
+
+    run_remote = not os.path.exists(HYDRODATA)
+    if run_remote:
+        # make the API call to query the data and stream directly into the file_path
+        pass
+    else:
+        # This is running locally
+        # Get the numpy subsetted data for the query from get_gridded_data()
+        data = get_gridded_data(options)
+        # Write the numpy data to file_path and add projection information
+        if format_option == "nc":
+            hf_hydrodata.netcdf_util.generate_netcdf_file(
+                data, entry, options, file_path, netcdf_format="NETCDF4"
+            )
+        elif file_path.endswith("tiff") or file_path.endswith("tif"):
+            hf_hydrodata.tiff_util.generate_tiff_file(data, entry, options, file_path)
+        elif file_path.endswith("pfb"):
+            hf_hydrodata.pfb_util.generate_pfb_file(data, file_path)
+
+
+@_maintenance_guard
 def get_gridded_files(
     options: dict,
     filename_template: str = None,
@@ -604,6 +797,7 @@ def _collect_gridded_files_options(
         not filename_template.endswith(".pfb")
         and not filename_template.endswith(".nc")
         and not filename_template.endswith(".tiff")
+        and not filename_template.endswith(".tif")
     ):
         raise ValueError(
             "The file_template does not have extension .pfb, .nc, or .tiff"
@@ -2014,7 +2208,7 @@ def _get_gridded_data_from_api(options, file_path: str = None):
 
         file_obj = _get_byte_buffer_from_response(response)
         if file_obj is None:
-            return
+            return None
         if len(file_obj.getbuffer()) == 0:
             message = "Empty content from server. Try again later or modify query."
             _send_download_complete_reply(

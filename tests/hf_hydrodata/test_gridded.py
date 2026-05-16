@@ -2580,3 +2580,120 @@ def test_get_bounds_limits():
     with pytest.raises(ValueError) as info:
         hf.get_gridded_data(options)
     assert "is outside the grid" in str(info.value)
+
+
+def test_gridded_file_2wy():
+    """Test downloading subset in 2 waters years using get_gridded_file."""
+
+    with tempfile.TemporaryDirectory() as tempdirname:
+        bounds = [1399, 1784, 1447, 1803]
+        date_start = "1990-09-28"
+        date_end = "1990-10-04"
+        options = {
+            "dataset": "CW3E",
+            "variable": "air_temp",
+            "grid_bounds": bounds,
+            "temporal_resolution": "daily",
+            "date_start": date_start,
+            "date_end": date_end,
+        }
+
+        # Download to 2 different files for each water year
+        file_path = tempdirname + "/" + "{dataset}_{variable}_{wy}.nc"
+        hf.get_gridded_file(options, file_path)
+        path = f"{tempdirname}/CW3E_air_temp_1990.nc"
+        if not os.path.exists(path):
+            raise ValueError(f"File not created: '{path}'")
+        ds = xr.open_dataset(path)
+        assert ds["time"].shape[0] == 3
+        assert str(ds["time"].values[0]).startswith("1990-09-28")
+        assert ds["x"].shape[0] == 48
+        assert ds["y"].shape[0] == 19
+
+        # Download to one file for both water years
+        file_path = tempdirname + "/" + "{dataset}_{variable}.nc"
+        hf.get_gridded_file(options, file_path)
+        path = f"{tempdirname}/CW3E_air_temp.nc"
+        if not os.path.exists(path):
+            raise ValueError(f"File not created: '{path}'")
+        ds = xr.open_dataset(path)
+        assert ds["time"].shape[0] == 6
+        assert str(ds["time"].values[0]).startswith("1990-09-28")
+        assert ds["x"].shape[0] == 48
+        assert ds["y"].shape[0] == 19
+
+        # Download as one tiff (this should be an error)
+        with pytest.raises(ValueError):
+            file_path = tempdirname + "/" + "{dataset}_{variable}.tif"
+            hf.get_gridded_file(options, file_path)
+            path = f"{tempdirname}/CW3E_air_temp.nc"
+
+
+def test_gridded_file_wtd():
+    """Test downloading subset of 30m WTD usign get_gridded_file."""
+
+    with tempfile.TemporaryDirectory() as tempdirname:
+        tempdirname = "."
+        bounds = [3000, 3000, 3010, 3020]
+        options = {
+            "dataset": "ma_2025",
+            "variable": "water_table_depth",
+            "grid_bounds": bounds,
+            "grid": "conus2_wtd",
+        }
+
+        # Download it as a tif
+        file_path = tempdirname + "/" + "{dataset}_{variable}.tif"
+        hf.get_gridded_file(options, file_path)
+        path = f"{tempdirname}/ma_2025_water_table_depth.tif"
+        if not os.path.exists(path):
+            raise ValueError(f"File not created: '{path}'")
+        ds = xr.open_dataset(path)
+        assert ds["x"].shape[0] == 10
+        assert ds["y"].shape[0] == 20
+
+        # Download it as netcdf
+        file_path = tempdirname + "/" + "{dataset}_{variable}.nc"
+        hf.get_gridded_file(options, file_path)
+        path = f"{tempdirname}/ma_2025_water_table_depth.nc"
+        if not os.path.exists(path):
+            raise ValueError(f"File not created: '{path}'")
+        ds = xr.open_dataset(path)
+        assert ds["x"].shape[0] == 10
+        assert ds["y"].shape[0] == 20
+
+
+def test_gridded_file_pfb():
+    """Test downloading subset in 2 waters years using get_gridded_file to pfb."""
+
+    with tempfile.TemporaryDirectory() as tempdirname:
+        bounds = [1399, 1784, 1447, 1803]
+        date_start = "1990-09-28"
+        date_end = "1990-10-04"
+        options = {
+            "dataset": "CW3E",
+            "variable": "air_temp",
+            "grid_bounds": bounds,
+            "temporal_resolution": "hourly",
+            "date_start": date_start,
+            "date_end": date_end,
+        }
+
+        # Download to 6 files for each day in separate water year directories
+        file_path = (
+            tempdirname
+            + "/"
+            + "WY{wy}/{dataset}_{variable}.{wy_start_24hr:06d}_to_{wy_end_24hr:06}.pfb"
+        )
+        hf.get_gridded_file(options, file_path)
+        path = f"{tempdirname}/WY1990/CW3E_air_temp.008689_to_008712.pfb"
+        if not os.path.exists(path):
+            raise ValueError(f"File not created: '{path}'")
+        data = hf.gridded.read_fast_pfb(path)
+        assert data.shape == (1, 24, 19, 48)
+
+        # Download to one file
+        file_path = tempdirname + "precip.pfb"
+        hf.get_gridded_file(options, file_path)
+        data = hf.gridded.read_fast_pfb(file_path)
+        assert data.shape == (1, 144, 19, 48)
