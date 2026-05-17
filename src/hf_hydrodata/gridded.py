@@ -33,6 +33,9 @@ from hf_hydrodata.data_model_access import (
 from hf_hydrodata.grid import to_ij, to_latlon
 from hf_hydrodata.data_catalog import _maintenance_guard
 import hf_hydrodata.data_catalog as dc
+import hf_hydrodata.netcdf_util
+import hf_hydrodata.pfb_util
+import hf_hydrodata.tiff_util
 
 C_PFB_MAP = {
     "eflx_lh_tot": 0,
@@ -371,44 +374,36 @@ def get_numpy(*args, **kwargs):
 
 
 @_maintenance_guard
-def get_gridded_files(
-    options: dict,
-    filename_template: str = None,
-    variables=None,
-    verbose=False,
-):
+def get_gridded_file(file_path: str, options: dict):
     """
-    Download data from the hydrodata catalog and save into multiple files in the current directory.
-    This allows you to perform large downloads using multiple threads into multiple files with one function call.
+    Query the hf_hydrodata data_catalog for data matching the options and download
+    the data into file_path. This function allows you to perform the same query as
+    get_gridded_data(), but write it to a file with projection information instead of
+    just returning a numpy array.
 
-    This allows you to perform large downloads using multiple threads into multiple output files with one function call.
-    Files are saved to the current directory. A separate file is created for each day of data downloaded for daily or hourly
-    temporal_resolution. A separate file is created for each water year of a monthly file. For static temporal_resolution
-    one file per variable is created.
+    Note - this function is new as of hf_hydrodata version 1.4.7. This function
+    replaces the old get_gridded_files() function.
 
-    The extension of the filename_template determines the file format. Only .pfb, .tiff, and .nc extensions are supported.
-    For TIFF files, only the first time period of the selected data is saved since a TIFF is 2D.
-    For .nc files, one file is created per water year, so the filename_template should contain {wy}.
-
-    The default filename_template saves data as pfb files:
-        * hourly:   {dataset}.{dataset_var}.{hour_start:06d}_to_{hour_end:06d}.pfb
-        * daily:    {dataset}.{dataset_var}.daily.{aggregation}.{daynum:03d}.pfb
-        * monthly:  {dataset}.{dataset_var}.monthly.{aggregation}.WY{wy}.pfb
-        * static:   {dataset}.{variable}.pfb
-
-    If you explicitly specify a filename_template, it will be used instead.
-    If filename_template contains a directory path, that directory will be created if it does not exist.
-
-    Args:
-        options (dict): A dict containing data filters to be passed to get_gridded_data().
-        filename_template (str, optional): A template to create file name(s) for downloaded data.
-        variables (str or list, optional): Variable name(s) to download. If provided, overwrites the variable in options dict.
-        verbose (bool): If True, prints progress of downloaded data. Default is False.
+    Parameters:
+        file_path:  A file path to write the data downloaded using the options.
+        options:    A dict with the same options allowed by the get_gridded_data() function.
 
     Raises:
         ValueError: If an error occurs while downloading and creating files.
 
-    Substitutable parameters in filename_template:
+    The file_path must have an extension of either ".tiff", ".tif", ".nc" or ".pfb". The format of
+    the file written depends on the extension. Format: "TIFF", "NetCDF" or "parflow binary pfb" file.
+
+    The file will contain projection information and x, y, time coordinate information to allow the file
+    to be viewed by ARCGIS or QGIS if this is possible (pfb files do not hold projection info).
+    Tiff files are only written with 2D data so data with multiple time dimensions will not be stored.
+    You can write a file with a time dimension to a tiff as long as you only select one time in the query.
+
+    The file_path may optionally contain one or more of the substitution options listed below.
+    If this makes the file_path different for the time in the downloaded data then multiple files
+    may be be written.
+
+    Substitutable parameters available for file_path:
 
     - ``dataset``: The dataset name from the options.
     - ``variable``: The variable being downloaded from options or the variables list.
@@ -418,11 +413,23 @@ def get_gridded_files(
     - ``daynum``: The day number of the data in the saved file (starting at 0).
     - ``wy``: The water year of the data in the saved file.
     - ``wy_daynum``: The day number of the water year.
-    - ``wy_start_24hr``: The 24-hour start hour of the water year.
+    - ``wy_start_24hr``: The 24-hour start hour of the water year in the file.
+    - ``wy_end_24hr``: The 24-hour end hour of the water year in the file.
     - ``mdy``: The date as month-day-year of data in the saved file.
     - ``ymd``: The date as year-month-day of data in the saved file.
 
-    Example:
+    The example below will create a .tiff file with a subset of the 30m resolution WTD data.
+
+    .. code-block:: python
+
+        import hf_hydrodata as hf
+
+        options = {"dataset": "ma_2025", "variable": "water_table_depth",
+                   "grid": "conus2_wtd.30", "huc_id": "14010002"}
+        hf.get_gridded_file("wtd.tiff", options)
+
+    The example below will create two NetCDF files, one for each water year
+    in the query because of the {wy} in the file_path.
 
     .. code-block:: python
 
@@ -430,49 +437,250 @@ def get_gridded_files(
 
         options = {
             "dataset": "NLDAS2", "temporal_resolution": "hourly", "variable": "precipitation",
-            "date_start":"2005-10-01", "date_end":"2005-10-04",
+            "date_start":"2005-09-01", "date_end":"2005-11-01",
             "grid_bounds":[200, 200, 300, 250]
         }
+        hf.get_gridded_file("{dataset}_{variable}_{wy}.nc", options)
 
-        # By default this creates pfb files named with the time dimension starting at 0.
-        hf.get_gridded_files(options)
+    The example below will create 3 .pfb files in two water year directories with hourly data
+    and one file per day.
+    Note the {wy} in the directory part of the file_path and the {wy_start_24hr} in the
+    name part of the file_path.
 
-        # The above function call will create files in the current directory named:
-        #    NLDAS2.precipitation.000000_to_000024.pfb
-        #    NLDAS2.precipitation.000025_to_000048.pfb
-        #    NLDAS2.precipitation.000048_to_000072.pfb
-        # Each pfb file is shape (24, 50, 100) with dimensions time, y, x.
+    .. code-block:: python
 
-        # To download data into a NetCdf file specify a filename_template ending with .nc
-        hf.get_gridded_files(
-            options,
-            filename_template="{dataset}_WY{wy}.nc",
-            variables=["precipitation", "air_temp"])
+        import hf_hydrodata as hf
 
-        # The above function call will create a netcdf file named:
-        #    NLDAS2_WY2006.nc
-        # The .nc file will have two variables: precipitation and air_temp.
-        # The .nc file will have a time dimension with coordinates of the water year containing the data in the file.
-        # For the example above the time dimension would be between 2005-10-1 to 2006-09-30
-        #    with only 3 days of data downloaded and stored in the file.
-        # The .nc file will have x dimension 100 and y dimensions 50 defined by the grid_bounds.
-
-        # To download data into a GeoTiff file specify a filename_template ending with .tiff
-        hf.get_gridded_files(
-            options,
-            filename_template="{dataset}_{variable}.tiff",
-            variables=["precipitation", "air_temp"])
-
-        # The above function will create two GeoTiff files:
-        #   NLDAS2.precipitation.tiff
-        #   NLDAS2.air_temp.tiff
-        # Only the first hour of the period "2005-10-01 00:00:00" is used to create the files.
-        # The tiff files will contain projection information suitable to view with GIS.
-
-    For long downloads if the function execution is aborted before completion it can be restarted and will continue where it left off by skipping
-    files that already exist. To re-download data, remember to delete previously created files first.
+        options = {
+            "dataset": "NLDAS2", "temporal_resolution": "hourly", "variable": "precipitation",
+            "date_start":"2009-09-28", "date_end":"2009-10-04",
+            "grid_bounds":[200, 200, 300, 250]
+        }
+        file_path = "WY{wy}/{dataset}_{variable}.{wy_start_24hr:06d}_to_{wy_end_24hr:06}.pfb"
+        hf.get_gridded_file(file_path, options)
     """
+    (_, temporal_resolution, date_start, date_end, delta, filename_template) = (
+        _collect_gridded_files_options(options, None, file_path)
+    )
+    entry = dc.get_catalog_entry(options)
+    if entry is None:
+        raise ValueError(f"No data catalog entry found for options {options}")
+
+    options = options.copy()
+    options["from"] = "get_gridded_file"
+
+    if temporal_resolution == "static":
+        # The query is for a static file so just download it to the file_path
+        file_name = _substitute_datapath(filename_template, entry, options, None, None)
+        _download_file_for_gridded_file(options, entry, 0, file_name)
+    else:
+        # They query has a time dimension so possibly save it in multiple files
+        file_time = date_start
+        time_index = 0
+        last_file_name = None
+        file_name = None
+        start_time = date_start
+        # Remove the old start_time, end_time names from options if they exist
+        # These will be replaced with date_start and date_end for the time chunks
+        if options.get("start_time"):
+            del options["start_time"]
+        if options.get("end_time"):
+            del options["end_time"]
+        if options.get("start_date"):
+            del options["start_date"]
+        if options.get("end_date"):
+            del options["end_date"]
+
+        # Loop through time chunks and if file name changes query and download that file
+        while file_time < date_end:
+            end_time = file_time
+            options["date_start"] = start_time
+            options["date_end"] = end_time
+            file_name = _substitute_datapath(
+                filename_template, entry, options, file_time, file_time
+            )
+            if last_file_name is None:
+                last_file_name = file_name
+
+            if last_file_name != file_name:
+                # Download the last_file_name because this next time chunk will go into a new file
+                _download_file_for_gridded_file(
+                    options, entry, time_index, last_file_name
+                )
+                last_file_name = file_name
+                start_time = end_time
+                time_index = 0
+
+            file_time = file_time + delta
+            time_index = time_index + 1
+
+        # Download the last_file_name that wasn't downloaded yet
+        options["date_start"] = start_time
+        options["date_end"] = file_time
+        _download_file_for_gridded_file(options, entry, time_index, last_file_name)
+
+
+def _download_file_for_gridded_file(
+    options: dict, entry: dict, time_index: int, file_path: str
+):
+    """
+    Download a file using the query parameters options into the file_path
+    Parameters:
+        options:    A dict with keys to get data from the data catalog like get_gridded_data().
+        entry:      A data catalog entry for the options query.
+        time_index: The size of the time dimension
+        file_path:  A file path to write the data from the query with projection information.
+    """
+
+    format_option = (
+        "tiff" if file_path.endswith(".tiff") or file_path.endswith(".tif") else None
+    )
+    format_option = "nc" if file_path.endswith(".nc") else format_option
+    format_option = "pfb" if file_path.endswith(".pfb") else format_option
+
+    if format_option is None:
+        raise ValueError(f"The extension for '{file_path}' must be .tiff, .nc, or .pfb")
+
+    file_dir = os.path.dirname(file_path)
+    if file_dir:
+        os.makedirs(file_dir, exist_ok=True)
+
+    if format_option == "tiff":
+        if time_index > 1:
+            raise ValueError(
+                f"Only 2D data supported in .tiff files. The query has time dimension of {time_index}."
+            )
+        has_z = entry.get("has_z") is not None and entry.get("has_z").lower() == "true"
+        if has_z:
+            variable = entry.get("variable")
+            raise ValueError(
+                f"Only 2D data supported in .tiff files. The variable '{variable}' contains 3D data."
+            )
+
+    run_remote = not os.path.exists(HYDRODATA)
+    if run_remote:
+        # make the API call to query the data and stream directly into the file_path
+        options["format"] = format_option
+        _get_gridded_data_from_api(options, file_path)
+    else:
+        # This is running locally
+        # Get the numpy subsetted data for the query from get_gridded_data()
+        data = get_gridded_data(options)
+        # Write the numpy data to file_path and add projection information
+        if format_option == "nc":
+            hf_hydrodata.netcdf_util.generate_netcdf_file(
+                data, entry, options, file_path, netcdf_format="NETCDF4"
+            )
+        elif file_path.endswith("tiff") or file_path.endswith("tif"):
+            hf_hydrodata.tiff_util.generate_tiff_file(data, entry, options, file_path)
+        elif file_path.endswith("pfb"):
+            hf_hydrodata.pfb_util.generate_pfb_file(data, file_path)
+    print(f"Created '{file_path}'.")
+
+
+@_maintenance_guard
+def get_gridded_files(
+    options: dict,
+    filename_template: str = None,
+    variables=None,
+    verbose=False,
+):
+    """
+    Deprecated. Use the new get_gridded_file() function instead.
+    """
+    print(
+        "DEPRECATED. Use the new get_gridded_file() function instead of the old get_gridded_files()."
+    )
     verbose_start_time = time.time()
+    (variables, temporal_resolution, date_start, date_end, delta, filename_template) = (
+        _collect_gridded_files_options(options, variables, filename_template)
+    )
+
+    last_file_name = None
+    file_name = None
+    dask_items = []
+    file_time = date_start
+    time_index = 0
+    state = _FileDownloadState(
+        options,
+        filename_template,
+        temporal_resolution,
+        date_start,
+        date_end,
+        verbose,
+    )
+    state.generate_time_coords(file_time)
+
+    while file_time < date_end:
+        options = dict(options)
+        options["start_time"] = file_time
+        options["end_time"] = file_time + delta
+        for variable in variables:
+            options["variable"] = variable
+            aggregation_entries = _get_aggregation_entries(options)
+            aggregation_types = [
+                agg_entry.get("aggregation") for agg_entry in aggregation_entries
+            ]
+            if "min" not in aggregation_types and "max" not in aggregation_types:
+                # No point looping through aggregation types if max or main are not options
+                entry = dc.get_catalog_entry(options)
+                aggregation_entries = [entry] if entry else []
+            for entry in aggregation_entries:
+                options_copy = dict(options)
+                if entry is None:
+                    raise ValueError(
+                        f"No data catalog entry found for options {options}"
+                    )
+                aggregation = entry.get("aggregation")
+                options_copy["aggregation"] = aggregation
+                file_name = _substitute_datapath(
+                    filename_template, entry, options_copy, file_time, date_start
+                )
+                if file_name.endswith(".nc") and not file_name == last_file_name:
+                    if last_file_name:
+                        _execute_dask_items(dask_items, state, last_file_name, verbose)
+                        state = _FileDownloadState(
+                            options_copy,
+                            filename_template,
+                            temporal_resolution,
+                            date_start,
+                            date_end,
+                            verbose,
+                        )
+                        state.generate_time_coords(file_time)
+                        dask_items = []
+                dask_items.append(
+                    dask.delayed(_load_gridded_file_entry)(
+                        state, entry, options_copy, file_time
+                    )
+                )
+            last_file_name = file_name
+        file_time = file_time + delta
+        time_index = time_index + 1
+    _execute_dask_items(dask_items, state, last_file_name, verbose)
+    if verbose:
+        duration = round(time.time() - verbose_start_time, 1)
+        if duration < 60 * 5:
+            print(f"Created all files in {duration} seconds.")
+        else:
+            duration = round(duration / 60)
+            print(f"Created all files in {duration} minutes.")
+
+
+def _collect_gridded_files_options(
+    options: dict, variables: list[str], filename_template: str
+):
+    """
+    Collect the gridded_files() options.
+    Parameters:
+        options:            The query parameters options of get_gridded_files().
+        variables:          The variables list from get_gridded_files() arguments.
+        filename_template:  The filename_template from get_gridded_files() arguments.
+    Returns:
+        Tuple (variables, temporal_resolution, date_start, date_end, delta, filename_template)
+    Raises:
+        ValueError if options are missing or invalid.
+    """
     if options.get("period") and not options.get("temporal_resolution"):
         options["temporal_resolution"] = options.get("period")
     _check_for_unknown_options(options)
@@ -515,30 +723,31 @@ def get_gridded_files(
         not filename_template.endswith(".pfb")
         and not filename_template.endswith(".nc")
         and not filename_template.endswith(".tiff")
+        and not filename_template.endswith(".tif")
     ):
         raise ValueError(
             "The file_template does not have extension .pfb, .nc, or .tiff"
         )
     if not options.get("dataset"):
         raise ValueError("The dataset is not specified")
-    start_time_option = _get_date_start(options)
-    end_time_option = _get_date_end(options)
-    start_time = _parse_time(start_time_option)
-    end_time = _parse_time(end_time_option)
-    if not start_time:
+    date_start_option = _get_date_start(options)
+    date_end_option = _get_date_end(options)
+    date_start = _parse_time(date_start_option)
+    date_end = _parse_time(date_end_option)
+    if not date_start:
         if temporal_resolution == "static":
-            start_time = datetime.datetime.now()
+            date_start = datetime.datetime.now()
         else:
-            raise ValueError("The start_time option must be specified")
-    if not end_time or filename_template.endswith(".tiff"):
+            raise ValueError("The date_start option must be specified")
+    if not date_end or filename_template.endswith(".tiff"):
         if temporal_resolution == "static":
-            end_time = start_time + datetime.timedelta(days=1)
+            date_end = date_start + datetime.timedelta(days=1)
         elif temporal_resolution == "daily":
-            end_time = start_time + datetime.timedelta(days=1)
+            date_end = date_start + datetime.timedelta(days=1)
         elif temporal_resolution == "monthly":
-            end_time = start_time + datetime.timedelta(days=1)
+            date_end = date_start + datetime.timedelta(days=1)
         else:
-            end_time = start_time + datetime.timedelta(hours=1)
+            date_end = date_start + datetime.timedelta(hours=1)
     if not variables:
         entry = dc.get_catalog_entry(options)
         if entry is None:
@@ -559,75 +768,14 @@ def get_gridded_files(
             "The temporal_resolution must be hourly, daily, monthly or static."
         )
 
-    last_file_name = None
-    file_name = None
-    dask_items = []
-    file_time = start_time
-    time_index = 0
-    state = _FileDownloadState(
-        options,
-        filename_template,
+    return (
+        variables,
         temporal_resolution,
-        start_time,
-        end_time,
-        verbose,
+        date_start,
+        date_end,
+        delta,
+        filename_template,
     )
-    state.generate_time_coords(file_time)
-
-    while file_time < end_time:
-        options = dict(options)
-        options["start_time"] = file_time
-        options["end_time"] = file_time + delta
-        for variable in variables:
-            options["variable"] = variable
-            aggregation_entries = _get_aggregation_entries(options)
-            aggregation_types = [
-                agg_entry.get("aggregation") for agg_entry in aggregation_entries
-            ]
-            if "min" not in aggregation_types and "max" not in aggregation_types:
-                # No point looping through aggregation types if max or main are not options
-                entry = dc.get_catalog_entry(options)
-                aggregation_entries = [entry] if entry else []
-            for entry in aggregation_entries:
-                options_copy = dict(options)
-                if entry is None:
-                    raise ValueError(
-                        f"No data catalog entry found for options {options}"
-                    )
-                aggregation = entry.get("aggregation")
-                options_copy["aggregation"] = aggregation
-                file_name = _substitute_datapath(
-                    filename_template, entry, options_copy, file_time, start_time
-                )
-                if file_name.endswith(".nc") and not file_name == last_file_name:
-                    if last_file_name:
-                        _execute_dask_items(dask_items, state, last_file_name, verbose)
-                        state = _FileDownloadState(
-                            options_copy,
-                            filename_template,
-                            temporal_resolution,
-                            start_time,
-                            end_time,
-                            verbose,
-                        )
-                        state.generate_time_coords(file_time)
-                        dask_items = []
-                dask_items.append(
-                    dask.delayed(_load_gridded_file_entry)(
-                        state, entry, options_copy, file_time
-                    )
-                )
-            last_file_name = file_name
-        file_time = file_time + delta
-        time_index = time_index + 1
-    _execute_dask_items(dask_items, state, last_file_name, verbose)
-    if verbose:
-        duration = round(time.time() - verbose_start_time, 1)
-        if duration < 60 * 5:
-            print(f"Created all files in {duration} seconds.")
-        else:
-            duration = round(duration / 60)
-            print(f"Created all files in {duration} minutes.")
 
 
 def read_fast_pfb(pfb_files: List[str], pfb_constraints: dict = None):
@@ -1119,7 +1267,7 @@ def _write_file_from_api(filepath: str, options: dict):
             # Loop through request retry responses if message queue detects low server disk space
             for retry_count in range(0, 70):
                 response = requests.get(
-                    datafile_url, headers=headers, stream=True, timeout=(80, 180)
+                    datafile_url, headers=headers, stream=True, timeout=(80, 360)
                 )
                 if retry_count == 0:
                     download_start = response.headers.get("download-start")
@@ -1217,24 +1365,9 @@ def _write_file_from_api(filepath: str, options: dict):
         # The response was successful
         updated_download_start = response.headers.get("download-start")
 
-        # Read the response stream in chunks and append to the file
-        chunksize = 16384
-        with response:
-            n = 0
-            for chunk in response.iter_content(chunk_size=chunksize):
-                if file_size and offset is not None and file_size >= 1000000000:
-                    # Print out progress if downloading a very large file
-                    percent = round(100 * (offset + n * chunksize) / file_size, 2)
-                    remaining = file_size - offset - n * chunksize - len(chunk)
-                    print(
-                        f"Progress {percent}% Remaining {remaining} bytes ...                          ",
-                        end="\r",
-                        flush=True,
-                    )
-                n = n + 1
-                if chunk:
-                    with open(filepath, "ab") as f:
-                        f.write(chunk)
+        # Stream the response contents to the file
+        print_progress = file_size > 100000000 if file_size else False
+        _stream_response_to_file(response, file_size, offset, filepath, print_progress)
 
         # Download is complete send the reply to log the completion and delete server file
         download_start = (
@@ -1253,8 +1386,44 @@ def _write_file_from_api(filepath: str, options: dict):
             break
 
 
+def _stream_response_to_file(
+    response,
+    file_size: int,
+    offset: int,
+    file_path: str,
+    print_progress: bool,
+):
+    """
+    Stream the contents of the requests.get() response to a file.
+    Parameters:
+        response:       The response from a requests.get() call with stream=True
+        file_size:      The full number of bytes of the file being downloaded.
+        offset:         The byte offset of this request into the full size of the file.
+        file_path:      The file path of the file to write to. Write with append.
+        print_progress: True to print the download press to stdout.
+
+    """
+    chunksize = 16384
+    with response:
+        n = 0
+        for chunk in response.iter_content(chunk_size=chunksize):
+            if print_progress and file_size and offset is not None:
+                # Print out progress if downloading a very large file
+                percent = round(100 * (offset + n * chunksize) / file_size, 2)
+                remaining = file_size - offset - n * chunksize - len(chunk)
+                print(
+                    f"Download progress {percent}% Remaining {remaining} bytes ...                          ",
+                    end="\r",
+                    flush=True,
+                )
+            n = n + 1
+            if chunk:
+                with open(file_path, "ab") as f:
+                    f.write(chunk)
+
+
 @_maintenance_guard
-def get_raw_file(filepath, *args, **kwargs):
+def get_raw_file(filepath: str, *args, **kwargs):
     """
     Get the hydroframe file that is selected by the options.
 
@@ -1887,17 +2056,20 @@ def _convert_json_to_strings(options):
     return options
 
 
-def _get_gridded_data_from_api(options):
+def _get_gridded_data_from_api(options, file_path: str = None):
     """Get gridded_data using the remote API. Return None if running locally to /hydrodata.
 
     Parameters
     ----------
     options : dict
-        datast to which the variable belongs.
+        query options to send to API to get the data for the request
+    file_path: str
+        A file path to write the api response into
+
 
     Returns
     -------
-    numpy array of the requested data or None if running locally.
+    numpy array of the requested data or None if running locally or if a file_path is specified.
     """
     run_remote = not os.path.exists(HYDRODATA)
     if run_remote:
@@ -1916,7 +2088,9 @@ def _get_gridded_data_from_api(options):
         gridded_data_url = f"{HYDRODATA_URL}/api/gridded-data?{q_params}"
         try:
             headers = _get_api_headers()
-            response = requests.get(gridded_data_url, headers=headers, timeout=(80, 180))
+            response = requests.get(
+                gridded_data_url, headers=headers, stream=True, timeout=(80, 360)
+            )
             response_headers = response.headers
             download_start = response_headers.get("download-start")
             for retry_count in range(0, 80):
@@ -1926,11 +2100,17 @@ def _get_gridded_data_from_api(options):
                     retry_location = response_headers.get("Location")
                     retry_url = f"{HYDRODATA_URL}/api{retry_location}?download_start={download_start}"
                     response = requests.get(
-                        retry_url, headers=headers, timeout=(80, 180)
+                        retry_url, headers=headers, timeout=(80, 360), stream=True
                     )
                     sleep_duration = (
                         1 if retry_count < 10 else 2 if retry_count < 30 else 4
                     )
+                    if retry_count >= 4:
+                        print(
+                            f"Generating file on server #{retry_count} ...                ",
+                            end="\r",
+                            flush=True,
+                        )
                     time.sleep(sleep_duration)
                 elif response.status_code == 400:
                     # Do not send download complete reply for 400 errors since they are already logged.
@@ -1975,21 +2155,27 @@ def _get_gridded_data_from_api(options):
             )
             raise ValueError(message) from e
 
-        content = response.content
-        if content is None or len(content) == 0:
-            message = "Empty content from server. Try again later or modify query."
-            _send_download_complete_reply(
-                response, headers, download_start, message=message
-            )
-            raise ValueError(message)
-
         # Get an updated download_start if provided in the response headers of a retry response from message queue
         updated_download_start = response.headers.get("download-start")
         download_start = (
             updated_download_start if updated_download_start else download_start
         )
 
-        file_obj = io.BytesIO(content)
+        if file_path:
+            _write_buffer_to_file_path(response, file_path)
+            _send_download_complete_reply(response, headers, download_start)
+            return None
+
+        file_obj = _get_byte_buffer_from_response(response)
+        if file_obj is None:
+            return None
+        if len(file_obj.getbuffer()) == 0:
+            message = "Empty content from server. Try again later or modify query."
+            _send_download_complete_reply(
+                response, headers, download_start, message=message
+            )
+            raise ValueError(message)
+
         _send_download_complete_reply(response, headers, download_start)
         with THREAD_LOCK:
             # The open_dataset call itself is not thread safe (it is safe after it is opened)
@@ -2002,6 +2188,44 @@ def _get_gridded_data_from_api(options):
         return data
 
     return None
+
+
+def _write_buffer_to_file_path(response, file_path: str):
+    """
+    Stream the bytes from an https response into a file path.
+
+    Parameters:
+        response:   The response from an requests.get() call that uses stream=True
+        file_path:  The path to a file to write the contents of the response
+    """
+    headers = response.headers
+    file_size = headers.get("transfer-size")
+    file_size = int(file_size) if file_size else None
+    print_progress = file_size is not None
+
+    # Remove file if it exists since streaming will append chunks so it must be empty first
+    if os.path.exists(file_path):
+        os.remove(file_path)
+    _stream_response_to_file(response, file_size, 0, file_path, print_progress)
+    if print_progress:
+        print("Download complete.                              ")
+
+
+def _get_byte_buffer_from_response(response) -> io.BytesIO:
+    """
+    Stream the bytes from an https response into a io.BytesIO buffer.
+
+    Parameters:
+        response:   The response from an requests.get() call that uses stream=True
+    Returns:
+        a io.BytesIO buffer of the response content
+    """
+    file_obj = io.BytesIO()
+    for chunk in response.iter_content(chunk_size=16384):
+        if chunk:
+            file_obj.write(chunk)
+    file_obj.seek(0)
+    return file_obj
 
 
 def _send_download_complete_reply(
@@ -2609,6 +2833,7 @@ def __get_geotiff(grid: str, level: int) -> xr.Dataset:
         "grid": grid,
         "level": str(level),
         "dataset_version": os.getenv("HUC_VERSION", None),
+        "from": "geotiff",
     }
     entry = dc.get_catalog_entry(options)
     if entry is None:
