@@ -2629,6 +2629,7 @@ def test_gridded_file_2wy():
             path = f"{tempdirname}/CW3E_air_temp.nc"
 
 
+@pytest.mark.private_dataset
 def test_gridded_file_wtd():
     """Test downloading subset of 30m WTD usign get_gridded_file."""
 

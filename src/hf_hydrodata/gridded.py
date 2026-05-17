@@ -585,7 +585,9 @@ def get_gridded_files(
     """
     Deprecated. Use the new get_gridded_file() function instead.
     """
-    print("DEPRECATED. Use the new get_gridded_file() function instead of the old get_gridded_files().")
+    print(
+        "DEPRECATED. Use the new get_gridded_file() function instead of the old get_gridded_files()."
+    )
     verbose_start_time = time.time()
     (variables, temporal_resolution, date_start, date_end, delta, filename_template) = (
         _collect_gridded_files_options(options, variables, filename_template)
@@ -1262,7 +1264,7 @@ def _write_file_from_api(filepath: str, options: dict):
             # Loop through request retry responses if message queue detects low server disk space
             for retry_count in range(0, 70):
                 response = requests.get(
-                    datafile_url, headers=headers, stream=True, timeout=(80, 180)
+                    datafile_url, headers=headers, stream=True, timeout=(80, 360)
                 )
                 if retry_count == 0:
                     download_start = response.headers.get("download-start")
@@ -1361,7 +1363,7 @@ def _write_file_from_api(filepath: str, options: dict):
         updated_download_start = response.headers.get("download-start")
 
         # Stream the response contents to the file
-        print_progress = file_size > 10000000 if file_size else False
+        print_progress = file_size > 100000000 if file_size else False
         _stream_response_to_file(response, file_size, offset, filepath, print_progress)
 
         # Download is complete send the reply to log the completion and delete server file

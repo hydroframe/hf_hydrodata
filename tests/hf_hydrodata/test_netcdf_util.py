@@ -97,7 +97,7 @@ def test_hourly():
         "start_time": "2006-01-01 00:00:00",
         "end_time": "2006-01-01 01:00:00",
         "file_type": "pfb",
-        "huc_id": "14010002",
+        "grid_bounds": [1000, 1000, 1020, 1010],
         "dataset": "CW3E",
     }
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -109,13 +109,13 @@ def test_hourly():
         )
         ds = xr.open_dataset(file_name)
         assert os.path.exists(file_name)
-        assert len(ds["x"].values) == 52
-        assert len(ds["y"].values) == 76
+        assert len(ds["x"].values) == 20
+        assert len(ds["y"].values) == 10
         assert len(ds["time"].values) == 1
-        assert len(ds.coords["x"]) == 52
-        assert ds.coords["x"][0] == pytest.approx(-779500.3088117298)
+        assert len(ds.coords["x"]) == 20
+        assert ds.coords["x"].values[0] == pytest.approx(-1207500.3088117298)
         da = ds["air_temp"]
-        assert da.shape == (1, 76, 52)
-        assert da.values[0, 20, 20] == pytest.approx(273.6231)
+        assert da.shape == (1, 10, 20)
+        assert da.values[0, 5, 5] == pytest.approx(287.357452)
         assert ds.attrs["variable"] == "air_temp"
         assert ds.attrs["temporal_resolution"] == "hourly"

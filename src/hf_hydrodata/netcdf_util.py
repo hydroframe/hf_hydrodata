@@ -178,6 +178,8 @@ def create_time_variable(
             delta = datetime.timedelta(weeks=1)
         elif temporal_resolution == "monthly":
             delta = dateutil.relativedelta.relativedelta(months=1)
+        else:
+            delta = datetime.timedelta(days=1)
         dt = date_start
         for _ in range(0, time_steps):
             dates.append(dt)
