@@ -1700,7 +1700,7 @@ def test_topographic_index(tmp_path):
         "grid_bounds": bounds,
         "variable": "topographic_index",
     }
-    hf.get_gridded_files(options, filename_template="foo.nc")
+    hf.get_gridded_file("foo.nc", options)
     ds = xr.open_dataset("foo.nc")
     da = ds["topographic_index"]
     assert da.shape == (5, 5)

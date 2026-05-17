@@ -2830,6 +2830,7 @@ def __get_geotiff(grid: str, level: int) -> xr.Dataset:
         "grid": grid,
         "level": str(level),
         "dataset_version": os.getenv("HUC_VERSION", None),
+        "from": "geotiff",
     }
     entry = dc.get_catalog_entry(options)
     if entry is None:
