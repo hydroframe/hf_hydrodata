@@ -398,7 +398,7 @@ def get_gridded_file(file_path: str, options: dict):
 
     The file_path may optionally contain one or more of the substitution options listed below.
     If this makes the file_path different for the time in the downloaded data then multiple files
-    may be be written. 
+    may be be written.
 
     Substitutable parameters available for file_path:
 
@@ -539,7 +539,8 @@ def _download_file_for_gridded_file(
         raise ValueError(f"The extension for '{file_path}' must be .tiff, .nc, or .pfb")
 
     file_dir = os.path.dirname(file_path)
-    os.makedirs(file_dir, exist_ok=True)
+    if file_dir:
+        os.makedirs(file_dir, exist_ok=True)
 
     if format_option == "tiff":
         if time_index > 1:
@@ -572,6 +573,7 @@ def _download_file_for_gridded_file(
         elif file_path.endswith("pfb"):
             hf_hydrodata.pfb_util.generate_pfb_file(data, file_path)
     print(f"Created '{file_path}'.")
+
 
 @_maintenance_guard
 def get_gridded_files(
@@ -1449,24 +1451,9 @@ def _write_file_from_api(filepath: str, options: dict):
         # The response was successful
         updated_download_start = response.headers.get("download-start")
 
-        # Read the response stream in chunks and append to the file
-        chunksize = 16384
-        with response:
-            n = 0
-            for chunk in response.iter_content(chunk_size=chunksize):
-                if file_size and offset is not None and file_size >= 1000000000:
-                    # Print out progress if downloading a very large file
-                    percent = round(100 * (offset + n * chunksize) / file_size, 2)
-                    remaining = file_size - offset - n * chunksize - len(chunk)
-                    print(
-                        f"Progress {percent}% Remaining {remaining} bytes ...                          ",
-                        end="\r",
-                        flush=True,
-                    )
-                n = n + 1
-                if chunk:
-                    with open(filepath, "ab") as f:
-                        f.write(chunk)
+        # Stream the response contents to the file
+        print_progress = file_size > 10000000 if file_size else False
+        _stream_response_to_file(response, file_size, offset, filepath, print_progress)
 
         # Download is complete send the reply to log the completion and delete server file
         download_start = (
@@ -1485,8 +1472,44 @@ def _write_file_from_api(filepath: str, options: dict):
             break
 
 
+def _stream_response_to_file(
+    response,
+    file_size: int,
+    offset: int,
+    file_path: str,
+    print_progress: bool,
+):
+    """
+    Stream the contents of the requests.get() response to a file.
+    Parameters:
+        response:       The response from a requests.get() call with stream=True
+        file_size:      The full number of bytes of the file being downloaded.
+        offset:         The byte offset of this request into the full size of the file.
+        file_path:      The file path of the file to write to. Write with append.
+        print_progress: True to print the download press to stdout.
+
+    """
+    chunksize = 16384
+    with response:
+        n = 0
+        for chunk in response.iter_content(chunk_size=chunksize):
+            if print_progress and file_size and offset is not None:
+                # Print out progress if downloading a very large file
+                percent = round(100 * (offset + n * chunksize) / file_size, 2)
+                remaining = file_size - offset - n * chunksize - len(chunk)
+                print(
+                    f"Download progress {percent}% Remaining {remaining} bytes ...                          ",
+                    end="\r",
+                    flush=True,
+                )
+            n = n + 1
+            if chunk:
+                with open(file_path, "ab") as f:
+                    f.write(chunk)
+
+
 @_maintenance_guard
-def get_raw_file(filepath:str, *args, **kwargs):
+def get_raw_file(filepath: str, *args, **kwargs):
     """
     Get the hydroframe file that is selected by the options.
 
@@ -2168,6 +2191,12 @@ def _get_gridded_data_from_api(options, file_path: str = None):
                     sleep_duration = (
                         1 if retry_count < 10 else 2 if retry_count < 30 else 4
                     )
+                    if retry_count >= 4:
+                        print(
+                            f"Generating file on server #{retry_count} ...                ",
+                            end="\r",
+                            flush=True,
+                        )
                     time.sleep(sleep_duration)
                 elif response.status_code == 400:
                     # Do not send download complete reply for 400 errors since they are already logged.
@@ -2233,7 +2262,6 @@ def _get_gridded_data_from_api(options, file_path: str = None):
             )
             raise ValueError(message)
 
-
         _send_download_complete_reply(response, headers, download_start)
         with THREAD_LOCK:
             # The open_dataset call itself is not thread safe (it is safe after it is opened)
@@ -2256,11 +2284,17 @@ def _write_buffer_to_file_path(response, file_path: str):
         response:   The response from an requests.get() call that uses stream=True
         file_path:  The path to a file to write the contents of the response
     """
-    with open(file_path, "wb") as f:
-        for chunk in response.iter_content(chunk_size=16384):
-            if chunk:
-                f.write(chunk)
-        return None
+    headers = response.headers
+    file_size = headers.get("transfer-size")
+    file_size = int(file_size) if file_size else None
+    print_progress = file_size is not None
+
+    # Remove file if it exists since streaming will append chunks so it must be empty first
+    if os.path.exists(file_path):
+        os.remove(file_path)
+    _stream_response_to_file(response, file_size, 0, file_path, print_progress)
+    if print_progress:
+        print("Download complete.                              ")
 
 
 def _get_byte_buffer_from_response(response) -> io.BytesIO:
