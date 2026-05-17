@@ -377,9 +377,12 @@ def get_numpy(*args, **kwargs):
 def get_gridded_file(file_path: str, options: dict):
     """
     Query the hf_hydrodata data_catalog for data matching the options and download
-    the data into file_path. This is a replacment for the old get_gridded_files().
-    This function allows you to perform the same query as get_gridded_data(), but
-    write it to a file with projection information instead of just getting a numpy array.
+    the data into file_path. This function allows you to perform the same query as
+    get_gridded_data(), but write it to a file with projection information instead of
+    just returning a numpy array.
+
+    Note - this function is new as of hf_hydrodata version 1.4.7. This function
+    replaces the old get_gridded_files() function.
 
     Parameters:
         file_path:  A file path to write the data downloaded using the options.
@@ -388,10 +391,10 @@ def get_gridded_file(file_path: str, options: dict):
     Raises:
         ValueError: If an error occurs while downloading and creating files.
 
-    The file_path must have an extension of either ".tiff", ".nc" or ".pfb". The format of
+    The file_path must have an extension of either ".tiff", ".tif", ".nc" or ".pfb". The format of
     the file written depends on the extension. Format: "TIFF", "NetCDF" or "parflow binary pfb" file.
 
-    The file will contain projection information and x, y coordinate information to allow the file
+    The file will contain projection information and x, y, time coordinate information to allow the file
     to be viewed by ARCGIS or QGIS if this is possible (pfb files do not hold projection info).
     Tiff files are only written with 2D data so data with multiple time dimensions will not be stored.
     You can write a file with a time dimension to a tiff as long as you only select one time in the query.
