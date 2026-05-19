@@ -1274,6 +1274,10 @@ def _validate_user():
         response = requests.get(url_security, headers=None, timeout=(60, 60))
         if response.status_code == 502:
             raise ValueError("Server is unavailable. Try again later.")
+        if response.status_code == 403:
+            raise ValueError(
+                f"Unable connect to '{HYDRODATA_URL}' server to validate user."
+            )
         if not response.status_code == 200:
             raise ValueError(
                 f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server."

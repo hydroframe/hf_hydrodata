@@ -129,9 +129,13 @@ class ModelTable:
             response = requests.get(url, timeout=120, headers=headers)
             if response.status_code == 200:
                 response_json = json.loads(response.text)
+            elif response.status_code == 403:
+                raise ValueError(
+                    f"Unable to connect to '{HYDRODATA_URL}' to get data catalog information."
+                )
             else:
                 raise ValueError(
-                    f"Unable to connect to '{HYDRODATA_URL}' code = '{response.status_code}' to get data catalog information."
+                    f"Error ({response.status_code}) from server while trying to get data catalog information."
                 )
         return response_json
 
@@ -229,7 +233,7 @@ def _get_api_headers(required=True) -> dict:
             response = requests.get(url_security, timeout=(10, 100))
         except:
             raise ValueError(
-                f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server."
+                f"Unable to connect to the server '{HYDRODATA_URL}' server."
             )
         if not response.status_code == 200:
             if not required:
