@@ -142,7 +142,7 @@ def generate_netcdf_file(
 
     # Add metadata attributes to the NC file
     for key, value in metadata.items():
-        setattr(nc, key, value)
+        setattr(nc, key, str(value))
 
     nc.close()
 
@@ -157,7 +157,9 @@ def create_time_variable(
 
     if temporal_resolution in ["daily", "hourly", "monthly", "weekly"]:
         date_start_str = get_date_start(query_parameters)
-        if ":" in date_start_str:
+        if isinstance(date_start_str, datetime.datetime):
+            date_start = date_start_str
+        elif ":" in date_start_str:
             date_start = datetime.datetime.strptime(date_start_str, "%Y-%m-%d %H:%M:%S")
         else:
             date_start = datetime.datetime.strptime(date_start_str, "%Y-%m-%d")
@@ -176,6 +178,8 @@ def create_time_variable(
             delta = datetime.timedelta(weeks=1)
         elif temporal_resolution == "monthly":
             delta = dateutil.relativedelta.relativedelta(months=1)
+        else:
+            delta = datetime.timedelta(days=1)
         dt = date_start
         for _ in range(0, time_steps):
             dates.append(dt)
