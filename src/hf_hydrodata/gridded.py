@@ -13,6 +13,7 @@ import json
 import shutil
 import tempfile
 import threading
+import warnings
 import importlib.metadata
 import dask
 import requests
@@ -588,8 +589,11 @@ def get_gridded_files(
     """
     Deprecated. Use the new get_gridded_file() function instead.
     """
-    print(
-        "DEPRECATED. Use the new get_gridded_file() function instead of the old get_gridded_files()."
+    warnings.simplefilter("default")
+    warnings.warn(
+        "This function is deprecated. Use get_gridded_file() instead.",
+        DeprecationWarning,
+        stacklevel=2,
     )
     verbose_start_time = time.time()
     (variables, temporal_resolution, date_start, date_end, delta, filename_template) = (
