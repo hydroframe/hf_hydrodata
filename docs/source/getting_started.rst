@@ -45,6 +45,12 @@ Additionally, the :ref:`api` can be used to see the full list of available featu
 
 Please see :ref:`api_pin` to make sure you have properly signed up and registered your API PIN.
 
+Browsing Available Datasets
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+You can browse the available datasets by using the `Data Catalog Browser <https://hydroframe.org/datacatalog-browser>`_ 
+from the `hydroframe.org <https://hydroframe.org>`_ website. 
+You can also use this browser to download sample data with projection information of entries from the data catalog.
+
 Accessing Gridded Data
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 

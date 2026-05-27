@@ -328,9 +328,12 @@ datasets:
       and NSE = 0.62.
 
 
-      You can download the full WTD file using `hf_hydrodata.get_raw_file() <https://hf-hydrodata.readthedocs.io/en/latest/hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_raw_file>`_. 
-      Or download subsets of the file using `hf_hydrodata.get_gridded_data() <https://hf-hydrodata.readthedocs.io/en/latest/hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_gridded_data>`_.
-      See the linked Python API Reference for example syntax.
+      You can download the full WTD tiff file using `Zenodo <https://zenodo.org/records/18504963>`_ or 
+      using `hf_hydrodata.get_raw_file() <https://hf-hydrodata.readthedocs.io/en/latest/hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_raw_file>`_. 
+      You can get subsets of the dataset as a numpy array using `hf_hydrodata.get_gridded_data() <https://hf-hydrodata.readthedocs.io/en/latest/hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_gridded_data>`_,
+      or download a file containing a subset of the data as a file with projection information as a TIFF or NetCDF file using
+      `hf_hydrodata.get_gridded_file() <https://hf-hydrodata.readthedocs.io/en/latest/hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_gridded_file>`_.
+      You can select a subset using the filter options: grid_bounds, latlon_bounds or huc_id.
 
     processing_notes: >
       Long-term mean water table depth estimates were obtained using the median of tree outputs from the trained random 
