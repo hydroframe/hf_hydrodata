@@ -2097,7 +2097,7 @@ def _get_gridded_data_from_api(options, file_path: str = None):
             )
             response_headers = response.headers
             download_start = response_headers.get("download-start")
-            for retry_count in range(0, 80):
+            for retry_count in range(0, 240):
                 # Retry up to 80 times if the response is a 202 (retry) response
                 if response.status_code == 202:
                     # Retry
@@ -2134,6 +2134,12 @@ def _get_gridded_data_from_api(options, file_path: str = None):
                         response, headers, download_start, message=message
                     )
                     raise ValueError(message)
+            if response.status_code == 202:
+                message = f"Server '{HYDRODATA_URL}' job is taking too long. Try again later."
+                _send_download_complete_reply(
+                    response, headers, download_start, message=message
+                )
+                raise ValueError(message)
 
         except requests.exceptions.ChunkedEncodingError as ce:
             message = (
