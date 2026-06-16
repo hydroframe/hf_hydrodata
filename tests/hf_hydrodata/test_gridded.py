@@ -1818,11 +1818,6 @@ def test_cw3e_version():
         "grid_bounds": [500, 2500, 501, 2501],
     }
 
-    options_version09 = options.copy()
-    options_version09["dataset_version"] = "0.9"
-    cw3e_version09 = hf.get_gridded_data(options_version09)
-    assert cw3e_version09[0, 0, 0] - 284.66085 <= 0.00001
-
     options_version1 = options.copy()
     options_version1["dataset_version"] = "1.0"
     cw3e_version1 = hf.get_gridded_data(options_version1)

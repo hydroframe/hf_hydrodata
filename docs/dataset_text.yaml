@@ -97,7 +97,7 @@ datasets:
         - Upper Colorado River Basin (HUC 14): temperature lapse rate correction at 2.5 K/km 
 
 
-      **Version 0.9**: Initial version of CW3E dataset.
+      **Version 0.9**: Initial version of CW3E dataset (deprecated).
 
   "huc_mapping":
     summary: >
