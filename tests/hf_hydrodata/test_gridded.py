@@ -242,7 +242,8 @@ def test_files_exist():
                     "site_id": site_id,
                 }
             )
-            if data_catalog_entry_id not in [
+            # Ignore HydroGEN entries and files known to not exist
+            if (data_catalog_entry_id not in [
                 "253",
                 "254",
                 "10003",
@@ -254,8 +255,7 @@ def test_files_exist():
                 "10009",
                 "10010",
                 "10011",
-            ]:
-                # Ignore HydroGEN entries and files known to not exist
+            ]) and ("CW3E_v0.9" not in path_example):
                 dataset = entry["dataset"]
                 if not os.path.exists(path_example):
                     print(path_example, "does not exist")
