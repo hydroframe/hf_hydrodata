@@ -3353,7 +3353,7 @@ def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -
                     )
             elif period == "hourly":
                 time_index = int(
-                    (start_time_value - dimension_start_time).seconds / 3600
+                    (start_time_value - dimension_start_time).total_seconds() / 3600
                 )
             elif period == "monthly":
                 time_index = (
@@ -3385,7 +3385,7 @@ def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -
                     end_time_index = (end_time_value - dimension_start_time).days
                 elif period == "hourly":
                     end_time_index = int(
-                        (end_time_value - dimension_start_time).seconds / 3600
+                        (end_time_value - dimension_start_time).total_seconds() / 3600
                     )
                 elif period == "monthly":
                     end_time_index = (

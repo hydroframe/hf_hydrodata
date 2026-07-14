@@ -2693,3 +2693,29 @@ def test_gridded_file_pfb():
         hf.get_gridded_file(file_path, options)
         data = hf.gridded.read_fast_pfb(file_path)
         assert data.shape == (1, 144, 19, 48)
+
+
+def test_create_da_indexer_hourly_multiday_time_index():
+    """
+    Unit test that _create_da_indexer uses total_seconds() (not .seconds) when
+    computing the hourly time index from a netcdf file's time dimension.
+
+    timedelta.seconds wraps at 86400 (one day), so a start_time that is more
+    than 24 hours past the file's first timestep would produce a wrong index.
+    For example, 54 hours past the start: .seconds gives 6*3600 → index 6,
+    total_seconds() gives 54*3600 → index 54 (correct).
+    """
+    dimension_start = datetime.datetime(2005, 10, 1, 0, 0, 0)
+    times = [dimension_start + datetime.timedelta(hours=h) for h in range(100)]
+    data = np.zeros((100,))
+    data_da = xr.DataArray(data, dims=["time"], coords={"time": times}, name="var")
+    data_ds = data_da.to_dataset()
+
+    entry = {"temporal_resolution": "hourly", "grid": None}
+    # start_time is 54 hours (2 days + 6 hours) after the dimension start.
+    # .seconds would return 6*3600, giving index 6. total_seconds() gives 54.
+    options = {"start_time": "2005-10-03 06:00:00"}
+
+    da_indexers = gr._create_da_indexer(options, entry, data_ds, data_da, "synthetic.nc")
+
+    assert da_indexers["time"] == 54
