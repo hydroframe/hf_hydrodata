@@ -255,7 +255,7 @@ def test_files_exist():
                 "10009",
                 "10010",
                 "10011",
-            ]) and ("CW3E_v0.9" not in path_example):
+            ]) and ("CW3E_Forcing_Update" not in path_example):
                 dataset = entry["dataset"]
                 if not os.path.exists(path_example):
                     print(path_example, "does not exist")
