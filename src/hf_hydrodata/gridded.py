@@ -1642,6 +1642,12 @@ def get_gridded_data(*args, **kwargs) -> np.ndarray:
             raise ValueError(f"No entry found in data catalog for {args}.")
         _verify_time_in_range(entry, options)
 
+        temporal_resolution = entry.get("temporal_resolution")
+        if temporal_resolution not in ["static", "", "-"]:
+            start_date_value = _get_date_start(options)
+            if start_date_value is None:
+                raise ValueError(f"No date_start specified for download of dataset with temporal_resolution '{temporal_resolution}'")
+
         file_type = entry.get("file_type")
         structure_type = entry.get("structure_type")
         data = None

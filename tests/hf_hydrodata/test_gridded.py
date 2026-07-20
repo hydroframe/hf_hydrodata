@@ -2629,7 +2629,6 @@ def test_gridded_file_wtd():
     """Test downloading subset of 30m WTD usign get_gridded_file."""
 
     with tempfile.TemporaryDirectory() as tempdirname:
-        tempdirname = "."
         bounds = [3000, 3000, 3010, 3020]
         options = {
             "dataset": "ma_2025",
@@ -2719,3 +2718,34 @@ def test_create_da_indexer_hourly_multiday_time_index():
     da_indexers = gr._create_da_indexer(options, entry, data_ds, data_da, "synthetic.nc")
 
     assert da_indexers["time"] == 54
+
+def test_read_failure_subgrid():
+    """
+    Test that a read failure of a subgrid error that is fixed. This occurred with this
+    latlon value on the conus2_domain dataset and should be fixed and work now.
+    """
+
+    latlon = [34.47374326, -98.06526228]
+    options = {
+        "dataset": "conus2_domain",
+        "variable": "porosity",
+        "latlon_point" : latlon,
+    }
+    data = hf.get_gridded_data(options)
+    assert data.shape == (10, 1, 1)
+
+def test_temporal_resolution_no_date():
+    """
+    Test the error message that occurs when you read a dataset with
+    a temporal resolution, but do not pass a start date to the query.
+    """
+
+    latlon = [34.47374326, -98.06526228]
+    options = {
+        "dataset": "conus1_baseline_mod",
+        "variable": "saturation",
+        "latlon_point" : latlon,
+    }
+    with pytest.raises(ValueError) as err:
+        data = hf.get_gridded_data(options)
+    assert "No date_start specified for download of dataset with temporal_resolution" in str(err.value)
