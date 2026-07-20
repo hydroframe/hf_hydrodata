@@ -387,7 +387,7 @@ def find_subgrid(
     result_x = math.floor(x / sg_nx)
     remain_parts = result_x - remain_x
     full_parts = result_x - remain_parts
-    if result_x > remain_x:
+    if result_x >= remain_x:
         if x - full_parts * sg_nx - remain_parts * (sg_nx - 1) >= (sg_nx - 1):
             result_x = result_x + 1
 
