@@ -345,3 +345,21 @@ datasets:
       A copy of the ma_2025 30m dataset stored as a COG (Cloud Optimized Geotiff).
       You can download the full WTD COG file using `hf_hydrodata.get_raw_file() <https://hf-hydrodata.readthedocs.io/en/latest/hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_raw_file>`_.
       See the linked Python API Reference for example syntax.
+
+  "ucrb_baseline":
+    summary: >
+      The ParFlow-CLM UCRB model is a subset of the ParFlow-CLM CONUS2 model that was spun-up and ran for WY1980-WY2024 under pre-development 
+      conditions. The model is forced with `CW3E meteorology data <https://hf-hydrodata.readthedocs.io/en/latest/gen_CW3E.html>`_. 
+      All outputs (pressure, saturation, CLM) are publicly available in this dataset. Model inputs can be found using the 
+      `SubsetTools platform <https://hydroframesubsettools.readthedocs.io/en/latest/>`_ and selecting the 
+      UCRB basin, which has a HUC2 unit code = 14. 
+      Please cite `Jadallah and Maxwell (2026) <10.1016/j.jhydrol.2026.135839>`_ when using the simulated data.  
+
+      The HydroFrame project provides `resources <https://hydroframe.org/parflow-resources>`_ to help users interact with ParFlow outputs. 
+      For datasets that are 3 dimensional, the ParFlow CONUS2 model consists of 10 layers with a total depth of about 392 m. 
+      The layers have variable thicknesses of 200, 100, 50, 25, 10, 5, 1, 0.6, 0.3, and 0.1 m from bottom to top. 
+      Note that indexing layers is also done from bottom to top, so the layer associated with Python index 0 is the 
+      bottom (deepest) layer and the layer associated with Python index 9 is the top layer closest to the surface. 
+    
+    processing_notes: >
+      Specific details about static inputs, forcing, and spinup are detailed in `Jadallah and Maxwell (2026) <10.1016/j.jhydrol.2026.135839>`_. 
