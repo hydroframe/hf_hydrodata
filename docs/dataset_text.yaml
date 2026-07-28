@@ -353,7 +353,7 @@ datasets:
       All outputs (pressure, saturation, CLM) are publicly available in this dataset. Model inputs can be found using the 
       `SubsetTools platform <https://hydroframesubsettools.readthedocs.io/en/latest/>`_ and selecting the 
       UCRB basin, which has a HUC2 unit code = 14. 
-      Please cite `Jadallah and Maxwell (2026) <10.1016/j.jhydrol.2026.135839>`_ when using the simulated data.  
+      Please cite `Jadallah and Maxwell (2026) <https://doi.org/10.1016/j.jhydrol.2026.135839>`_ when using the simulated data.  
 
       The HydroFrame project provides `resources <https://hydroframe.org/parflow-resources>`_ to help users interact with ParFlow outputs. 
       For datasets that are 3 dimensional, the ParFlow CONUS2 model consists of 10 layers with a total depth of about 392 m. 
@@ -362,4 +362,4 @@ datasets:
       bottom (deepest) layer and the layer associated with Python index 9 is the top layer closest to the surface. 
     
     processing_notes: >
-      Specific details about static inputs, forcing, and spinup are detailed in `Jadallah and Maxwell (2026) <10.1016/j.jhydrol.2026.135839>`_. 
+      Specific details about static inputs, forcing, and spinup are detailed in `Jadallah and Maxwell (2026) <https://doi.org/10.1016/j.jhydrol.2026.135839>`_. 
