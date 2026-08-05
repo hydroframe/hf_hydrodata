@@ -3327,10 +3327,8 @@ def _create_da_indexer(options: dict, entry, data_ds, data_da, file_path: str) -
         da_indexers["member"] = run_index
     if "z" in data_da.dims:
         z = options.get("z")
-        z_index = data_da.dims.index("z")
-        data_z = data_da.shape[z_index]
-        z = int(z) if z is not None else data_z - 1
-        da_indexers["z"] = z
+        if z is not None:
+            da_indexers["z"] = int(z)
     (time_dimension_name, time_coord_name) = _get_time_dimension_name(data_ds, data_da)
     if time_dimension_name is not None:
         # If start_time is specified in options then slice the time dimension to return only that time
