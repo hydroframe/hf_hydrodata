@@ -353,6 +353,7 @@ datasets:
       UCRB basin, which has a HUC2 unit code = 14. 
       Please cite `Jadallah and Maxwell (2026) <https://doi.org/10.1016/j.jhydrol.2026.135839>`_ when using the simulated data.  
 
+
       The HydroFrame project provides `resources <https://hydroframe.org/parflow-resources>`_ to help users interact with ParFlow outputs. 
       For datasets that are 3 dimensional, the ParFlow CONUS2 model consists of 10 layers with a total depth of about 392 m. 
       The layers have variable thicknesses of 200, 100, 50, 25, 10, 5, 1, 0.6, 0.3, and 0.1 m from bottom to top. 
