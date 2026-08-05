@@ -151,13 +151,11 @@ datasets:
 
         - Hourly streamflow and water table depth data are in UTC and aggregated to the hourly level from the `"/continuous" endpoint <https://api.waterdata.usgs.gov/ogcapi/v0/openapi#/continuous>`_ of the updated USGS OGC API. The raw observations are typically collected at 15-minute increments.   
 
-        - The water table depth data accessed with `temporal_resolution='instantaneous'` comes from the USGS `Groundwater Levels Service <https://waterservices.usgs.gov/docs/groundwater-levels/groundwater-levels-details/>`_. Our team is currently working on updating this dataset to query from the updated USGS OGC endpoint. Note that these data usually do not have regular temporal coverage and many of the sites with data available through this method only have a single point-in-time observation available.
+        - The water table depth data accessed with `temporal_resolution='instantaneous'` comes from the `"/field-measurements" endpoint <https://api.waterdata.usgs.gov/ogcapi/v0/openapi#/field-measurements>`_ of the updated USGS OGC API. Note that these data usually do not have regular temporal coverage and many of the sites with data available through this method only have a single point-in-time observation available.
 
     processing_notes: >
       We query data from the USGS weekly, early on Sunday mornings. Each weekly job collects all observations that have been modified since the date of our previous data pull. For sites that are currently in operation, this translates to collecting data that was modified during only the previous week. 
       
-      Because of the sparsity of the `temporal_resolution='instantaneous'` groundwater measurements, those are not included in this weekly schedule. We plan to query that source for new observations roughly every few months.
-
       Note that raw hourly data is saved in UTC while raw daily data is saved with respect to the local site time zone. 
 
       To maintain the integrety and traceability back to the original sources, our team conducts very limited data manipulation on the queried data. This includes the following:
