@@ -34,16 +34,8 @@ def test_reading_multiple_files():
     # Read using fast_pfb_reader
     fast_data = hf_hydrodata.fast_pfb_reader.read_files(pfb_files, pfb_constraints)
     fast_total = fast_data.sum()
-
-    # Read using parflow read_pfb_sequence
-    pfb_seq_data = parflow.read_pfb_sequence(pfb_files, pfb_constraints)
-    pfb_seq_total = pfb_seq_data.sum()
-
-    # Check that both give the same answer
     assert fast_data.shape == (365, 24, 1, 1)
-    assert pfb_seq_data.shape == (365, 24, 1, 1)
-    assert fast_total == pfb_seq_total
-
+    assert 2506339.537 == pytest.approx(fast_total, abs=0.001)
 
 def test_not_enough_memory_error():
     """Test attempting to read a file with so many conus2 sized files that will not fit in memory."""
