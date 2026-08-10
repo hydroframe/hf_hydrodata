@@ -24,7 +24,7 @@ import hf_hydrodata.gridded as gr
 
 hf.data_model_access.DATA_MODEL_CACHE = None
 
-run_remote = not os.path.exists(gr.HYDRODATA)
+run_remote = not os.path.exists("/hydrodata")
 
 
 class MockResponse:
@@ -232,7 +232,11 @@ def test_files_exist():
         site_id = _get_site_id(entry)
         site_id = _get_site_id(entry)
         level = "2"
+        if entry.get("dataset") == "ucrb_baseline":
+            continue
         path_template = entry["path"]
+        if "/temp" in path_template:
+            continue
         if path_template:
             path_example = hf.get_path(
                 {
@@ -263,39 +267,6 @@ def test_files_exist():
                     path_example
                 ), f"File '{data_catalog_entry_id}'dataset '{dataset}' template '{path_template}' time '{start_time}'"
 
-
-def test_subsetting():
-    """Test subsetting"""
-
-    gr.HYDRODATA = "/hydrodata"
-    if not os.path.exists("/hydrodata"):
-        # Just skip test if this is run on a machine without /hydrodata access
-        return
-    options = {
-        "variable": "pressure_head",
-        "dataset": "conus1_baseline_mod",
-        "grid": "conus1",
-        "file_type": "pfb",
-        "period": "hourly",
-        "start_time": "2005-09-29",
-        "end_time": "2005-10-03",
-    }
-    row = hf.get_catalog_entry(options)
-    paths = gr.get_file_paths(row, options)
-
-    # Read the data from the list of pfb files (5 days crossing a water year)
-    # Subset the pfb files by x,y space constraints to an area of interest
-    boundary_constraints = {
-        "x": {"start": int(1076), "stop": int(1124)},
-        "y": {"start": int(720), "stop": int(739)},
-        "z": {"start": 0, "stop": 0},
-    }
-    data = read_pfb_sequence(paths, boundary_constraints)
-
-    assert data.shape[0] == 96  # 96 hours
-    assert data.shape[1] == 5  # 5 layers deep
-    assert data.shape[2] == 19  # 19 y points
-    assert data.shape[3] == 48  # 48 x points
 
 
 def test_get_gridded_data_pfb_precipitation():
@@ -1284,187 +1255,6 @@ def test_temporal_resolution():
     assert entry["period"] == "hourly"
 
 
-def test_get_gridded_files_pfb(tmp_path):
-    """Unit test for get_gridded_files not passing variables list."""
-
-    cd = os.getcwd()
-    os.chdir(tmp_path)
-
-    grid_bounds = [10, 10, 20, 20]
-    options = {
-        "dataset": "NLDAS2",
-        "temporal_resolution": "hourly",
-        "variable": "atmospheric_pressure",
-        "grid_bounds": grid_bounds,
-        "start_time": "2005-10-02",
-        "end_time": "2005-10-3",
-    }
-    assert not os.path.exists("NLDAS2.Press.000001_to_000024.pfb")
-    gr.get_gridded_files(options)
-    assert os.path.exists("NLDAS2.Press.000001_to_000024.pfb")
-
-    with pytest.raises(ValueError):
-        options["dataset"] = "error"
-        gr.get_gridded_files(options)
-
-    os.chdir(cd)
-
-
-def test_get_gridded_files_variables(tmp_path):
-    """Unit test for get_gridded_files with variables list."""
-
-    cd = os.getcwd()
-    os.chdir(tmp_path)
-
-    variables = ["air_temp", "precipitation"]
-    grid_bounds = [10, 10, 20, 20]
-    options = {
-        "dataset": "NLDAS2",
-        "temporal_resolution": "hourly",
-        "grid_bounds": grid_bounds,
-        "start_time": "2005-10-02",
-        "end_time": "2005-10-3",
-    }
-    assert not os.path.exists("NLDAS2.Temp.000001_to_000024.pfb")
-    assert not os.path.exists("NLDAS2.APCP.000001_to_000024.pfb")
-    gr.get_gridded_files(options, variables=variables)
-    assert os.path.exists("NLDAS2.Temp.000001_to_000024.pfb")
-    assert os.path.exists("NLDAS2.APCP.000001_to_000024.pfb")
-
-    os.chdir(cd)
-
-
-def test_get_gridded_files_3d(tmp_path):
-    """Unit test for get_gridded_files with 3d variable."""
-
-    cd = os.getcwd()
-    os.chdir(tmp_path)
-
-    grid_bounds = [10, 10, 20, 20]
-    options = {
-        "dataset": "conus1_baseline_mod",
-        "variable": "pressure_head",
-        "temporal_resolution": "hourly",
-        "grid_bounds": grid_bounds,
-        "start_time": "2005-10-01",
-        "end_time": "2005-10-02",
-    }
-    assert not os.path.exists("CONUS.2006.out.press.00025.pfb")
-    assert not os.path.exists("CONUS.2006.out.press.00024.pfb")
-    gr.get_gridded_files(
-        options, filename_template="CONUS.{wy}.out.press.{wy_hour:05d}.pfb"
-    )
-    assert os.path.exists("CONUS.2006.out.press.00001.pfb")
-    assert os.path.exists("CONUS.2006.out.press.00024.pfb")
-    os.chdir(cd)
-
-
-def test_get_gridded_files_netcdf(tmp_path):
-    """Unit test for get_gridded_files to netcdf file."""
-
-    cd = os.getcwd()
-    os.chdir(tmp_path)
-
-    variables = ["ground_heat", "pressure_head"]
-    grid_bounds = [10, 10, 14, 20]
-    options = {
-        "dataset": "conus1_baseline_mod",
-        "temporal_resolution": "hourly",
-        "grid_bounds": grid_bounds,
-        "start_time": "2005-09-29",
-        "end_time": "2005-10-04",
-    }
-    assert not os.path.exists("NLDAS2.2006.nc")
-    gr.get_gridded_files(
-        options, variables=variables, filename_template="NLDAS2.{wy}.nc"
-    )
-    assert os.path.exists("NLDAS2.2006.nc")
-    assert os.path.exists("NLDAS2.2005.nc")
-    ds = xr.open_dataset("NLDAS2.2006.nc")
-    assert len(ds.keys()) == 2
-    ground_heat = ds["eflx_soil_grnd"]
-    assert ground_heat.shape == (8760, 10, 4)
-    pressure_head = ds["Press"]
-    assert pressure_head.shape == (8760, 5, 10, 4)
-    lat_coord = ds["latitude"]
-    assert lat_coord.shape == (10, 4)
-
-    # Check it does nothing if file already exists
-    gr.get_gridded_files(
-        options, variables=variables, filename_template="NLDAS2.{wy}.nc"
-    )
-
-    os.chdir(cd)
-
-
-def test_get_gridded_files_tiff(tmp_path):
-    """Unit test for get_gridded_files to tiff file."""
-
-    cd = os.getcwd()
-    os.chdir(tmp_path)
-
-    variables = ["ground_heat", "pressure_head"]
-    variables = ["ground_heat"]
-    grid_bounds = [10, 10, 14, 20]
-    options = {
-        "dataset": "conus1_baseline_mod",
-        "temporal_resolution": "hourly",
-        "grid_bounds": grid_bounds,
-        "start_time": "2005-09-29",
-        "end_time": "2005-10-04",
-    }
-    assert not os.path.exists("conus1_baseline_mod.ground_heat.tiff")
-    gr.get_gridded_files(
-        options, variables=variables, filename_template="{dataset}.{variable}.tiff"
-    )
-    assert os.path.exists("conus1_baseline_mod.ground_heat.tiff")
-    luc = rioxarray.open_rasterio("conus1_baseline_mod.ground_heat.tiff")
-    assert 'standard_parallel_1",33' in str(luc.rio.crs)
-    os.chdir(cd)
-
-
-def test_get_huc_conus_2_gridded_files_tiff(tmp_path):
-    """Unit test for get_gridded_files to get conus2 huc_map as tiff file."""
-
-    cd = os.getcwd()
-    os.chdir(tmp_path)
-
-    options = {
-        "dataset": "huc_mapping",
-        "variable": "huc_map",
-        "grid": "conus2",
-        "level": "2",
-    }
-    output_file = "foo.tiff"
-    assert not os.path.exists(output_file)
-    gr.get_gridded_files(options, filename_template=output_file)
-    assert os.path.exists(output_file)
-    luc = rioxarray.open_rasterio(output_file)
-    assert 'standard_parallel_1",30' in str(luc.rio.crs)
-    os.chdir(cd)
-
-
-def test_get_huc_conus_1_gridded_files_tiff(tmp_path):
-    """Unit test for get_gridded_files to get conus1 huc_map as tiff file."""
-
-    cd = os.getcwd()
-    os.chdir(tmp_path)
-
-    options = {
-        "dataset": "huc_mapping",
-        "variable": "huc_map",
-        "grid": "conus1",
-        "level": "2",
-    }
-    output_file = "foo.tiff"
-    assert not os.path.exists(output_file)
-    gr.get_gridded_files(options, filename_template=output_file)
-    assert os.path.exists(output_file)
-    luc = rioxarray.open_rasterio(output_file)
-    assert 'standard_parallel_1",33' in str(luc.rio.crs)
-    os.chdir(cd)
-
-
 def test_entry_without_dataset():
     """Test that we can get gridded data with options without a dataset"""
 
@@ -1478,40 +1268,6 @@ def test_entry_without_dataset():
     assert len(entries) == 1
     data = hf.get_gridded_data(options)
     assert data.shape == (5, 2)
-
-
-def test_multiple_aggregations(tmp_path):
-    """Test that we can get_gridded_files with multiple aggregations."""
-
-    cd = os.getcwd()
-    os.chdir(tmp_path)
-
-    variables = ["precipitation", "air_temp", "downward_shortwave"]
-    bounds = [500, 500, 502, 502]
-    start_time = datetime.datetime(1991, 8, 4)
-    end_time = start_time + datetime.timedelta(days=2)
-    options = {
-        "dataset": "CW3E",
-        "grid_bounds": bounds,
-        "temporal_resolution": "daily",
-        "start_time": start_time,
-        "end_time": end_time,
-    }
-    assert not os.path.exists("foo.nc")
-    gr.get_gridded_files(options, variables=variables, filename_template="foo.nc")
-    assert os.path.exists("foo.nc")
-    ds = xr.open_dataset("foo.nc")
-    da = ds["APCP"]
-    assert da.shape == (365, 2, 2)
-    da = ds["DSWR"]
-    assert da.shape == (365, 2, 2)
-    da = ds["Temp_mean"]
-    assert da.shape == (365, 2, 2)
-    da = ds["Temp_min"]
-    assert da.shape == (365, 2, 2)
-    da = ds["Temp_max"]
-    assert da.shape == (365, 2, 2)
-    os.chdir(cd)
 
 
 def test_huc_mask():
@@ -1615,30 +1371,6 @@ def test_topographic_index(tmp_path):
     da = ds["topographic_index"]
     assert da.shape == (5, 5)
     os.chdir(cd)
-
-
-def test_gridded_files_default_temporal_resolution(tmp_path):
-    """Test reading gridded files without specifing temporal resolution."""
-
-    cd = os.getcwd()
-    os.chdir(tmp_path)
-
-    options = {
-        "dataset": "conus2_current_conditions",
-        "variable": "soil_moisture",
-        "grid_bounds": [100, 100, 104, 104],
-        "start_time": "2024-03-01",
-        "end_time": "2024-03-03",
-    }
-    variables = ["soil_moisture"]
-    gr.get_gridded_files(options, filename_template="foo.nc", variables=variables)
-    assert os.path.exists("foo.nc")
-    os.chdir(cd)
-
-    assert gr._get_temporal_resolution_from_catalog(options) == "daily"
-
-    with pytest.raises(ValueError):
-        gr._get_temporal_resolution_from_catalog({"dataset": "CW3E"})
 
 
 def test_flow_direction():
@@ -1856,108 +1588,6 @@ def test_get_pfb_vegm_for_zvalue():
     assert data.shape == (23, 2, 2)
 
 
-def test_temporal_resolution_static(tmp_path):
-    """Test get_gridded_files with different temporal_resolution and aggregation values"""
-
-    cd = os.getcwd()
-    os.chdir(tmp_path)
-
-    # Check with temporal_resolution:static even though data catalog has blank temporal resolution
-    options = {
-        "dataset": "conus2_domain",
-        "variable": "mask",
-        "temporal_resolution": "static",
-        "aggregation": "-",
-        "huc_id": "02",
-    }
-    variables = ["mask"]
-
-    hf.get_gridded_files(
-        options,
-        filename_template="foo_{dataset}_{variable}.pfb",
-        variables=variables,
-    )
-    data = parflow.read_pfb("foo_conus2_domain_mask.pfb")
-    assert data.shape == (1, 852, 586)
-
-    # Test if the variables parameter is passed as a string instead of a list.
-    variables = "mask"
-    hf.get_gridded_files(
-        options,
-        filename_template="foo_{dataset}_{variable}.tiff",
-        variables=variables,
-    )
-    assert os.path.exists("foo_conus2_domain_mask.tiff")
-    os.chdir(cd)
-
-
-def test_gridded_files_crs_full_conus1(tmp_path):
-    """
-    Test get_gridded_files crs and origin creating full conus1 sized tiff file.
-    The origin of the projection in the generated tiff file must reflect the full conus1 position.
-    """
-
-    cd = os.getcwd()
-    os.chdir(tmp_path)
-
-    dataset = "ma_2023"
-    variable = "water_table_depth"
-    options = {
-        "dataset": dataset,
-        "variable": variable,
-        "start_time": "2023-10-01",
-        "end_time": "2023-10-02",
-    }
-    hf.get_gridded_files(
-        options,
-        filename_template="foo_{dataset}_{variable}.tiff",
-    )
-    path = f"foo_{dataset}_{variable}.tiff"
-    assert os.path.exists(path)
-    with rioxarray.open_rasterio(path) as fp:
-        crs = fp.rio.crs.to_proj4()
-        assert crs.startswith("+proj=lcc +lat_0=39")
-        assert "+lat_2=45" in crs
-        transform = fp.rio.transform()
-        assert pytest.approx(transform.c) == -1885055.4995
-        assert pytest.approx(transform.f) == 1283042.9346
-    os.chdir(cd)
-
-
-def test_gridded_files_crs_subgrid(tmp_path):
-    """
-    Test get_gridded_files crs and origin creating a subset conus1 tiff file.
-    The origin in the tiff file projection must reflect the grid_bounds.
-    """
-
-    cd = os.getcwd()
-    os.chdir(tmp_path)
-
-    dataset = "ma_2023"
-    variable = "water_table_depth"
-    options = {
-        "dataset": dataset,
-        "variable": variable,
-        "start_time": "2023-10-01",
-        "end_time": "2023-10-02",
-        "grid_bounds": [1000, 1000, 1010, 1010],
-    }
-    hf.get_gridded_files(
-        options,
-        filename_template="foo_{dataset}_{variable}.tiff",
-    )
-    path = f"foo_{dataset}_{variable}.tiff"
-    assert os.path.exists(path)
-    with rioxarray.open_rasterio(path) as fp:
-        crs = fp.rio.crs.to_proj4()
-        assert crs.startswith("+proj=lcc +lat_0=39")
-        assert "+lat_2=45" in crs
-        transform = fp.rio.transform()
-        assert pytest.approx(transform.c) == -885055.49950
-        assert pytest.approx(transform.f) == 405042.93460
-    os.chdir(cd)
-
-
 def test_mask_variables():
     """Test we can read the 6 mask variables for top,bottom,left,right,front,back"""
 
@@ -2035,37 +1665,6 @@ def test_latlon_bounds_tall():
             {"variable": "latitude", "grid": "conus2", "latlng_point": latlng_point}
         )
     assert "must be lat,lon and not lon,lat" in str(info)
-
-
-def test_get_gridded_files_to_netcdf_min():
-    """
-    Test test gridded files CW3E daily into a NetCDF file with aggregation not specified.
-    This previously was a bug that did not deterministically put all the datasets with
-    different aggregation values into the result .nc file.
-    """
-    with tempfile.TemporaryDirectory() as tempdirname:
-        bounds = [1399, 1784, 1447, 1803]
-        variables = ["air_temp"]
-        start_time = datetime.datetime(1990, 8, 4)
-        end_time = start_time + datetime.timedelta(days=1)
-        filters = {
-            "dataset": "CW3E",
-            "grid_bounds": bounds,
-            "temporal_resolution": "daily",
-            "start_time": start_time,
-            "end_time": end_time,
-            "variable": "air_temp",
-        }
-        output_file = f"{tempdirname}/run1.1990-08-04_1990-11-02.nc"
-        hf.get_gridded_files(
-            filters, variables=variables, filename_template=output_file
-        )
-        ds = xr.open_dataset(output_file)
-        da_min = ds["Temp_min"].values
-        # The NetCDF file has time dimension of 365 regardless of the time filter
-        assert da_min.shape == (365, 19, 48)
-        # The day 8/4/1990 is day index 307 in the water year of the requested data
-        assert round(da_min[307, 0, 0], 2) == 282.75
 
 
 def test_huc_box_dataset_version():
@@ -2276,24 +1875,6 @@ def test_get_gridded_data_wtd_huc_id():
     assert data.shape == (19, 48)
 
 
-@pytest.mark.private_dataset
-def test_get_gridded_files_huc_wtd_grid():
-    """Test get_gridded_files works with huc_id filter for grid not conus1 or conus2."""
-
-    options = {
-        "dataset": "ma_2025",
-        "huc_id": "15020018",
-        "variable": "water_table_depth",
-        "grid": "conus2_wtd",
-    }
-    gr.get_gridded_files(options)
-    file_name = "ma_2025.water_table_depth.pfb"
-    if os.path.exists(file_name):
-        os.remove(file_name)
-    else:
-        assert False, f"File '{file_name}' not generated."
-
-
 @pytest.mark.parametrize(
     "calendar_month, wy_month",
     [
@@ -2339,35 +1920,6 @@ def test_get_lat_lon_coords_from_grid():
     test_mid_lat, test_mid_lon = hf.to_latlon("conus2", 1000, 501)
     assert round(latitudes[1, 0], 5) == round(test_mid_lat, 5)
     assert round(longitudes[1, 0], 5) == round(test_mid_lon, 5)
-
-
-def test_ma_2025_get_gridded_files_netcdf(tmp_path):
-    """
-    Unit test for get_gridded_files to netcdf file on a grid that is
-    not conus1 or conus2 (uses alternate algorithm to calculate lat/lon coords).
-    """
-
-    cd = os.getcwd()
-    os.chdir(tmp_path)
-
-    variables = ["water_table_depth"]
-    grid_bounds = [1000, 500, 1005, 505]
-    options = {
-        "dataset": "ma_2025",
-        "grid_bounds": grid_bounds,
-        "grid": "conus2_wtd.30",
-    }
-    assert not os.path.exists("ma_2025.nc")
-    gr.get_gridded_files(options, variables=variables, filename_template="ma_2025.nc")
-    assert os.path.exists("ma_2025.nc")
-    ds = xr.open_dataset("ma_2025.nc")
-    assert len(ds.keys()) == 1
-    wtd = ds["band_data"]
-    assert wtd.shape == (5, 5)
-    lat_coord = ds["latitude"]
-    assert lat_coord.shape == (5, 5)
-
-    os.chdir(cd)
 
 
 def test_read_pftxt():

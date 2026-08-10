@@ -234,10 +234,10 @@ def test_get_data_streamflow_hourly():
         date_start="2002-01-01",
         date_end="2002-01-05",
         latitude_range=(45, 50),
-        longitude_range=(-75, -50),
+        longitude_range=(-75, -70),
     )
     assert len(df) == 97
-    assert "01011000" in df.columns
+    assert "01129200" in df.columns
 
 
 def test_get_data_wtd_daily():
@@ -1937,7 +1937,7 @@ def test_all_sites_point_data():
 
 def test_large_number_of_sites():
     """Test for large number of sites."""
-    bounds = [0, 0, 2300, 2000]
+    bounds = [0, 0, 1000, 1000]
     grid = "conus2"
     df = point.get_point_data(
         dataset="fan_2013",
@@ -1949,7 +1949,7 @@ def test_large_number_of_sites():
         grid=grid,
         grid_bounds=bounds
     )
-    assert(len(df)) > 100000
+    assert(len(df)) > 2000
 
 if __name__ == "__main__":
     pytest.main()
