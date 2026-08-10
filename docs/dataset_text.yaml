@@ -151,13 +151,11 @@ datasets:
 
         - Hourly streamflow and water table depth data are in UTC and aggregated to the hourly level from the `"/continuous" endpoint <https://api.waterdata.usgs.gov/ogcapi/v0/openapi#/continuous>`_ of the updated USGS OGC API. The raw observations are typically collected at 15-minute increments.   
 
-        - The water table depth data accessed with `temporal_resolution='instantaneous'` comes from the USGS `Groundwater Levels Service <https://waterservices.usgs.gov/docs/groundwater-levels/groundwater-levels-details/>`_. Our team is currently working on updating this dataset to query from the updated USGS OGC endpoint. Note that these data usually do not have regular temporal coverage and many of the sites with data available through this method only have a single point-in-time observation available.
+        - The water table depth data accessed with `temporal_resolution='instantaneous'` comes from the `"/field-measurements" endpoint <https://api.waterdata.usgs.gov/ogcapi/v0/openapi#/field-measurements>`_ of the updated USGS OGC API. Note that these data usually do not have regular temporal coverage and many of the sites with data available through this method only have a single point-in-time observation available.
 
     processing_notes: >
       We query data from the USGS weekly, early on Sunday mornings. Each weekly job collects all observations that have been modified since the date of our previous data pull. For sites that are currently in operation, this translates to collecting data that was modified during only the previous week. 
       
-      Because of the sparsity of the `temporal_resolution='instantaneous'` groundwater measurements, those are not included in this weekly schedule. We plan to query that source for new observations roughly every few months.
-
       Note that raw hourly data is saved in UTC while raw daily data is saved with respect to the local site time zone. 
 
       To maintain the integrety and traceability back to the original sources, our team conducts very limited data manipulation on the queried data. This includes the following:
@@ -345,3 +343,22 @@ datasets:
       A copy of the ma_2025 30m dataset stored as a COG (Cloud Optimized Geotiff).
       You can download the full WTD COG file using `hf_hydrodata.get_raw_file() <https://hf-hydrodata.readthedocs.io/en/latest/hf_hydrodata.gridded.html#hf_hydrodata.gridded.get_raw_file>`_.
       See the linked Python API Reference for example syntax.
+
+  "ucrb_baseline":
+    summary: >
+      The ParFlow-CLM UCRB model is a subset of the ParFlow-CLM CONUS2 model that was spun-up and ran for WY1980-WY2024 under pre-development 
+      conditions. The model is forced with `CW3E meteorology data <https://hf-hydrodata.readthedocs.io/en/latest/gen_CW3E.html>`_. 
+      All outputs (pressure, saturation, CLM) are publicly available in this dataset. Model inputs can be found using the 
+      `SubsetTools platform <https://hydroframesubsettools.readthedocs.io/en/latest/>`_ and selecting the 
+      UCRB basin, which has a HUC2 unit code = 14. 
+      Please cite `Jadallah and Maxwell (2026) <https://doi.org/10.1016/j.jhydrol.2026.135839>`_ when using the simulated data.  
+
+
+      The HydroFrame project provides `resources <https://hydroframe.org/parflow-resources>`_ to help users interact with ParFlow outputs. 
+      For datasets that are 3 dimensional, the ParFlow CONUS2 model consists of 10 layers with a total depth of about 392 m. 
+      The layers have variable thicknesses of 200, 100, 50, 25, 10, 5, 1, 0.6, 0.3, and 0.1 m from bottom to top. 
+      Note that indexing layers is also done from bottom to top, so the layer associated with Python index 0 is the 
+      bottom (deepest) layer and the layer associated with Python index 9 is the top layer closest to the surface. 
+    
+    processing_notes: >
+      Specific details about static inputs, forcing, and spinup are detailed in `Jadallah and Maxwell (2026) <https://doi.org/10.1016/j.jhydrol.2026.135839>`_. 

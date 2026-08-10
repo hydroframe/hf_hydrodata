@@ -2659,3 +2659,34 @@ def test_temporal_resolution_no_date():
     with pytest.raises(ValueError) as err:
         data = hf.get_gridded_data(options)
     assert "No date_start specified for download of dataset with temporal_resolution" in str(err.value)
+
+def test_ucrb_parflow_hourly():
+    """
+    Test for reading UCRB hourly ParFlow output data.
+    """
+    options = {
+        "dataset": "ucrb_baseline",
+        "variable": "pressure_head",
+        "date_start": "1980-01-01",
+        "date_end": "1980-01-02",
+    }
+    data = hf.get_gridded_data(options)
+
+    assert data.shape == (24, 10, 871, 601)
+    assert data[0,0,250,250] == pytest.approx(214.31626210)
+
+def test_ucrb_clm_hourly():
+    """
+    Test for reading UCRB hourly CLM output data.
+    """
+    options = {
+        "dataset": "ucrb_baseline",
+        "variable": "swe",
+        "date_start": "1980-01-01",
+        "date_end": "1980-01-02",
+    }
+    data = hf.get_gridded_data(options)
+
+    assert data.shape == (24, 871, 601)
+    assert data[0,250,250] == pytest.approx(25.61617971)
+
