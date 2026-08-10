@@ -2372,6 +2372,8 @@ def _adjust_dimensions(data: np.ndarray, entry: ModelTableRow) -> np.ndarray:
         elif has_z:
             if existing_dim_size == 4 and period == "static":
                 data = data[0, :, :, :]
+            elif existing_dim_size == 5 and period in ["hourly", "daily", "monthly", "weekly"]:
+                data = data[0, :, :, :, :]
 
     return data
 
