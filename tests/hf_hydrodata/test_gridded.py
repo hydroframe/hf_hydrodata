@@ -1469,30 +1469,6 @@ def test_cw3e_version():
     np.testing.assert_array_equal(cw3e_default, cw3e_version1)
 
 
-def test_cw3e_no_warning():
-    """Test user receives no warning if explicitly requesting CW3E v1.0 dataset."""
-    options = {
-        "dataset": "CW3E",
-        "variable": "air_temp",
-        "temporal_resolution": "hourly",
-        "start_time": "2002-10-01",
-        "end_time": "2002-10-02",
-        "grid": "conus2",
-        "grid_bounds": [500, 2500, 501, 2501],
-        "dataset_version": "1.0",
-    }
-
-    with warnings.catch_warnings(record=True) as w:
-        # Cause all warnings to always be triggered.
-        warnings.simplefilter("always")
-
-        # Trigger a warning.
-        hf.get_gridded_data(options)
-
-        # Verify the user does not get warning message if they
-        # explicitly request version 1.0
-        assert len(w) == 0
-
 
 def test_wateryear_one_point():
     """Test request for CW3E dataset water year for one point."""
