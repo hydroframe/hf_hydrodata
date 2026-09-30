@@ -1417,7 +1417,7 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
             "reservoir_inflow",
             "reservoir_outflow",
             "reservoir_storage",
-            "reservoir_elevation",
+            "reservoir_water_elevation",
             "reservoir_evaporation"
         ]
     except:
