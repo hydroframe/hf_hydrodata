@@ -2286,7 +2286,7 @@ def _get_data_csv(
         temp = pd.read_csv(file_list[i], parse_dates=["date"], usecols=["date", varname])
 
         # Subset to only observations within desired time range
-        if ("date_start" not in requests.options) and ("date_end" not in options):
+        if ("date_start" not in options) and ("date_end" not in options):
             temp_wy = temp
         elif ("date_start" not in options) and ("date_end" in options):
             temp_wy = temp[temp["date"] <= date_end_dt]
