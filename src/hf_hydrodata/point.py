@@ -28,8 +28,7 @@ from hf_hydrodata.data_catalog import get_catalog_entry, _maintenance_guard
 
 
 HYDRODATA = "/hydrodata"
-# DB_PATH = os.environ.get("POINT_OBS_DB_PATH", f"{HYDRODATA}/national_obs/point_obs.sqlite")
-DB_PATH = '/Users/ad9465/Documents/git/HydroFrame-ML/HydroGEN-NationalData/db_tools/point_obs/point_obs.sqlite'
+DB_PATH = os.environ.get("POINT_OBS_DB_PATH", f"{HYDRODATA}/national_obs/point_obs.sqlite")
 HYDRODATA_URL = os.getenv("HYDRODATA_URL", "https://hydrogen.princeton.edu")
 NETWORK_LISTS_PATH = f"{HYDRODATA}/national_obs/tools/network_lists"
 MAX_NUMBER_OF_SITES = 250000
