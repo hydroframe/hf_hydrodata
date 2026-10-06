@@ -1522,7 +1522,7 @@ def _get_var_id(
 
     # Accept "-" in new versions of code as aggregation level
     # Maintain compatibility with older versions using "instantaneous"
-    if aggregation == "-":
+    if aggregation == "-" and variable != "reservoir_water_elevation":
         aggregation = "instantaneous"
 
     if variable == "soil_moisture":

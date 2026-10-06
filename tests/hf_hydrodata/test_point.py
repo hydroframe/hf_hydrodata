@@ -1951,5 +1951,87 @@ def test_large_number_of_sites():
     )
     assert(len(df)) > 2000
 
+def test_get_data_reservoir_inflow():
+    """
+    Get reservoir inflow data from ResOpsUS for a HUC
+    """
+    df = point.get_point_data(
+        dataset="res_ops_us",
+        variable="reservoir_inflow",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        huc_id=["1802"], grid="conus2", 
+        min_num_obs=1
+    )
+    assert df.shape == (5, 8)
+    assert "ResOpsUS-132" in df.columns
+
+def test_get_data_reservoir_outflow():
+    """
+    Get reservoir outflow data from ResOpsUS for a HUC
+    """
+    df = point.get_point_data(
+        dataset="res_ops_us",
+        variable="reservoir_outflow",
+        temporal_resolution="daily",
+        aggregation="mean",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        huc_id=["1802"], grid="conus2", 
+        min_num_obs=1
+    )
+    assert df.shape == (5, 8)
+    assert "ResOpsUS-132" in df.columns
+
+def test_get_data_reservoir_evaporation():
+    """
+    Get reservoir outflow data from ResOpsUS for a single site
+    """
+    df = point.get_point_data(
+        dataset="res_ops_us",
+        variable="reservoir_evaporation",
+        temporal_resolution="daily",
+        aggregation="sum",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        site_ids=["ResOpsUS-223"]
+    )
+    assert df.shape == (5, 2)
+    assert df.loc[df['date']=='2002-01-05']['ResOpsUS-223'] == 5.08
+
+def test_get_data_reservoir_storage():
+    """
+    Get reservoir storage data from ResOpsUS for a HUC
+    """
+    df = point.get_point_data(
+        dataset="res_ops_us",
+        variable="reservoir_storage",
+        temporal_resolution="daily",
+        aggregation="sum",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        huc_id=["1802"], grid="conus2"
+    )
+    assert df.shape == (5, 29)
+    assert "ResOpsUS-132" in df.columns
+
+def test_get_data_reservoir_elevation():
+    """
+    Get reservoir water elevation data from ResOpsUS for a HUC
+    """
+    df = point.get_point_data(
+        dataset="res_ops_us",
+        variable="reservoir_water_elevation",
+        temporal_resolution="daily",
+        aggregation="-",
+        date_start="2002-01-01",
+        date_end="2002-01-05",
+        huc_id=["1802"], grid="conus2"
+    )
+    assert df.shape == (5, 4)
+    assert "ResOpsUS-168" in df.columns
+    
 if __name__ == "__main__":
     pytest.main()
