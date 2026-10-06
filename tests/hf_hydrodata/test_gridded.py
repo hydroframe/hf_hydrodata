@@ -222,8 +222,8 @@ def test_files_exist():
                 result = "2028:PA:SCAN"
             elif "ameriflux" in entry["path"]:
                 result = "US-Ho2"
-            elif "res_ops_us" in entry["path"]:
-                result = "ResOpsUS-223"
+            elif "ResOpsUS" in entry["path"]:
+                result = "223"
         return result
 
     # Verify the path of every entry in the data catalog points to an existing file after substitution
