@@ -29,6 +29,9 @@ jobs:
         python-version: ["3.12"]
 
     steps:
+      - name: Sleep for 10 minutes to avoid running too many sets of tests at once on the server
+        run: sleep 600
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
