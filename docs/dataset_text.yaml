@@ -362,3 +362,24 @@ datasets:
     
     processing_notes: >
       Specific details about static inputs, forcing, and spinup are detailed in `Jadallah and Maxwell (2026) <https://doi.org/10.1016/j.jhydrol.2026.135839>`_. 
+
+  "res_ops_us":
+    summary: >
+      ResOpsUS represents a dataset of historical reservoir inflows, outflows and changes in storage for 679 
+      major reservoirs across the US. All of the data are provided at a daily temporal resolution. Temporal 
+      coverage varies by reservoir depending on construction date and digital data availability. Overall, the 
+      data spans from 1930 to 2020, although the best coverage is for the most recent years, particularly 1980 to 2020.  
+
+
+      The full dataset, including raw time series, can be found on `Zenodo <https://doi.org/10.5281/zenodo.6612040>`_. 
+      Within hf_hydrodata we include all reservoir-level site attributes and the processed time series data.  
+
+
+      This work was supported by the U.S. Department of Energy, Interoperable Design of Extreme-scale 
+      Application Software (IDEAS) Project under Award Number DE-AC02-05CH11231. Co-authors ST and NV were 
+      supported by the U.S. Department of Energy, Office of Science, as part of research in Multisector Dynamics, 
+      Earth and Environmental System Modeling Program.  
+
+    processing_notes: >
+      Details on the data collection and processing can be found in `Steyaert et al 2022 <https://www.nature.com/articles/s41597-022-01134-7>`_.
+      

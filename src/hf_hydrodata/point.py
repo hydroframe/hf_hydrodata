@@ -63,6 +63,7 @@ SITE_ATTRIBUTE_TABLES = [
     "snotel_station_attributes",
     "flux_tower_attributes",
     "jasechko_attributes",
+    "reservoir_attributes",
 ]
 
 DEPTH_LEVELS = [2, 4, 8, 20, 40]
@@ -82,11 +83,9 @@ def get_point_data(*args, **kwargs):
     ----------
     dataset : str, required
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'.
+        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013', 'res_ops_us'.
     variable : str, required
-        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
-        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
-        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
+        Description of type of data requested. Please see the documentation for available variable options.
     temporal_resolution : str, required
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
         'yearly', and 'long_term'. Please see the documentation for allowable combinations with `variable`.
@@ -275,6 +274,16 @@ def get_point_data(*args, **kwargs):
     elif var_id in (5, 25, 26):
         data_df = _get_data_sql(conn, site_list, var_id, *args, **kwargs)
 
+    elif var_id in range(27, 32):
+        data_df = _get_data_csv(
+            site_list,
+            options["dataset"],
+            options["variable"],
+            options["temporal_resolution"],
+            options["aggregation"],
+            options,
+        )
+
     conn.close()
 
     return data_df.reset_index().drop("index", axis=1)
@@ -289,11 +298,9 @@ def get_point_metadata(*args, **kwargs):
     ----------
     dataset : str, required
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'.
+        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013', 'res_ops_us'.
     variable : str, required
-        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
-        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
-        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
+        Description of type of data requested. Please see the documentation for available variable options.
     temporal_resolution : str, required
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
         'yearly', and 'multiyear'.
@@ -548,6 +555,20 @@ def get_point_metadata(*args, **kwargs):
         )
         metadata_df = pd.merge(metadata_df, attributes_df, how="left", on="site_id")
 
+    if "reservoir" in metadata_df["site_type"].unique():
+        attributes_df = pd.read_sql_query(
+            """SELECT site_id, agency_code, agency_name, data_disclaimers,
+                      inflow_outflow, additional_data_notes, 
+                      access_date, access_type,
+                      conus1_i, conus1_j, conus2_i, conus2_j
+               FROM reservoir_attributes WHERE site_id IN (%s)"""
+            % ",".join("?" * len(site_ids)),
+            conn,
+            params=site_ids,
+        )
+        metadata_df = pd.merge(metadata_df, attributes_df, how="left", on="site_id")
+        metadata_df["doi"] = "10.1038/s41597-022-01134-7"
+
     conn.close()
     return metadata_df
 
@@ -561,11 +582,9 @@ def get_site_variables(*args, **kwargs):
     ----------
     dataset : str, optional
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux', 'jasechko_2024', and 'fan_2013'.
+        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013', and 'res_ops_us'.
     variable : str, optional
-        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
-        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
-        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
+        Description of type of data requested. Please see the documentation for available variable options.
     temporal_resolution : str, optional
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
         'yearly', and 'long_term'.
@@ -680,14 +699,15 @@ def get_site_variables(*args, **kwargs):
                 "ameriflux",
                 "jasechko_2024",
                 "fan_2013",
+                "res_ops_us"
             ]
         except:
             raise ValueError(
-                f"dataset must be one of 'usgs_nwis', 'snotel', 'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'. You provided {options['dataset']}"
+                f"dataset must be one of 'usgs_nwis', 'snotel', 'scan', 'ameriflux', 'jasechko_2024', 'fan_2013', 'res_ops_us'. You provided {options['dataset']}"
             )
 
         if options["dataset"] == "usgs_nwis":
-            dataset_query = " AND agency == ?"
+            dataset_query = " AND agency == ? AND site_type IN ('stream gauge', 'groundwater well')"
             param_list.append("USGS")
         elif options["dataset"] == "ameriflux":
             dataset_query = " AND agency == ?"
@@ -703,6 +723,9 @@ def get_site_variables(*args, **kwargs):
             param_list.append("SCAN station")
         elif options["dataset"] == "fan_2013":
             dataset_query = " AND fan_2013 == 1 AND var_id == 26"
+        elif options["dataset"] == "res_ops_us":
+            dataset_query = " AND site_type == ?"
+            param_list.append("reservoir")
     else:
         dataset_query = ""
 
@@ -1334,11 +1357,9 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
     ----------
     dataset : str
         Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'.
+        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013', 'res_ops_us'.
     variable : str, required
-        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
-        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
-        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
+        Description of type of data requested. Please see the documentation for available variable options.
     temporal_resolution : str
         Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
         'yearly', 'long_term'.
@@ -1392,6 +1413,11 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
             "downward_longwave",
             "vapor_pressure_deficit",
             "wind_speed",
+            "reservoir_inflow",
+            "reservoir_outflow",
+            "reservoir_storage",
+            "reservoir_water_elevation",
+            "reservoir_evaporation"
         ]
     except:
         raise ValueError(
@@ -1424,6 +1450,7 @@ def _check_inputs(dataset, variable, temporal_resolution, aggregation, *args, **
             "ameriflux",
             "jasechko_2024",
             "fan_2013",
+            "res_ops_us"
         ]
     except:
         raise ValueError(
@@ -1458,15 +1485,11 @@ def _get_var_id(
     conn : Connection object
         The Connection object associated with the SQLite database to query from.
     dataset : str
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux', 'jasechko_2024'.
+        Source from which requested data originated.
     variable : str, required
-        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
-        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
-        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
+        Description of type of data requested.
     temporal_resolution : str
-        Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous', and
-        'yearly'.
+        Collection frequency of data requested.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
         Options include descriptors such as 'mean' and 'sum'. Please see the documentation
@@ -1499,7 +1522,7 @@ def _get_var_id(
 
     # Accept "-" in new versions of code as aggregation level
     # Maintain compatibility with older versions using "instantaneous"
-    if aggregation == "-":
+    if aggregation == "-" and variable != "reservoir_water_elevation":
         aggregation = "instantaneous"
 
     if variable == "soil_moisture":
@@ -1552,15 +1575,11 @@ def _get_sites(
         The Connection object associated with the SQLite database to
         query from.
     dataset : str
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'.
+        Source from which requested data originated.
     variable : str, required
-        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
-        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
-        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
+        Description of type of data requested.
     temporal_resolution : str
-        Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
-        'yearly', 'long_term'.
+        Collection frequency of data requested.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
@@ -1688,6 +1707,8 @@ def _get_sites(
             tbl = "jasechko_attributes"
         elif dataset == "fan_2013":
             tbl = "well_attributes"
+        elif dataset == "res_ops_us":
+            tbl = "reservoir_attributes"
 
         grid = options["grid"]
         grid_bounds = options["grid_bounds"]
@@ -2077,15 +2098,11 @@ def _get_data_nc(
     site_list : list
         List of site IDs to query observations data for.
     dataset : str
-        Source from which requested data originated. Currently supported: 'usgs_nwis', 'snotel',
-        'scan', 'ameriflux', 'jasechko_2024', 'fan_2013'.
+        Source from which requested data originated.
     variable : str, required
-        Description of type of data requested. Currently supported: 'streamflow', 'water_table_depth', 'swe',
-        'precipitation', 'air_temp', 'soil_moisture', 'latent_heat', 'sensible_heat',
-        'downward_shortwave', 'downward_longwave', 'vapor_pressure_deficit', 'wind_speed'.
+        Description of type of data requested.
     temporal_resolution : str
-        Collection frequency of data requested. Currently supported: 'daily', 'hourly', 'instantaneous',
-        'yearly', 'long_term'.
+        Collection frequency of data requested.
         Please see the documentation for allowable combinations with `variable`.
     aggregation : str
         Additional information specifying the aggregation method for the variable to be returned.
@@ -2194,6 +2211,108 @@ def _get_data_nc(
         return _filter_min_num_obs(data_df, options["min_num_obs"])
     return data_df
 
+def _get_data_csv(
+    site_list, dataset, variable, temporal_resolution, aggregation, *args, **kwargs
+):
+    """
+    Get observations data for data that is stored in .csv files.
+
+    Parameters
+    ----------
+    site_list : list
+        List of site IDs to query observations data for.
+    dataset : str
+        Source from which requested data originated.
+    variable : str, required
+        Description of type of data requested.
+    temporal_resolution : str
+        Collection frequency of data requested.
+        Please see the documentation for allowable combinations with `variable`.
+    aggregation : str
+        Additional information specifying the aggregation method for the variable to be returned.
+        Options include descriptors such as 'mean' and 'sum'. Please see the documentation
+        for allowable combinations with `variable`.
+    args :
+        Optional positional parameters that must be a dict with filter options.
+    kwargs :
+        Supports multiple named parameters with filter option values.
+
+    Optional Parameters
+    --------------------
+    date_start : str; default=None
+        'YYYY-MM-DD' date indicating beginning of time range.
+    date_end : str; default=None
+        'YYYY-MM-DD' date indicating end of time range.
+    min_num_obs : int; default=1
+        Value for the minimum number of observations desired for a site to have.
+
+    Returns
+    -------
+    DataFrame
+        Stacked observations data for a single variable, filtered to only sites that
+        have the minimum number of observations specified.
+    """
+    if len(args) > 0 and isinstance(args[0], dict):
+        options = args[0]
+    else:
+        options = kwargs
+
+    dc_entry = get_catalog_entry(
+        dataset=dataset,
+        variable=variable,
+        temporal_resolution=temporal_resolution,
+        aggregation=aggregation,
+        file_grouping="site_id",
+    )
+
+    # Parse out the directory path rather than a specific file path
+    # Because the point data is one file per site ID, the code uses the
+    # generic directory path and fills in the necessary site ID file information
+    # when the data is requested.
+    dirpath = ("/").join(dc_entry["path"].split("/")[:-1])
+    if dataset == "res_ops_us":
+        file_list = [f"{dirpath}/{site.replace('-', '_')}.csv" for site in site_list]
+    varname = dc_entry["dataset_var"]
+
+    if "date_start" in options:
+        date_start_dt = np.datetime64(options["date_start"])
+    if "date_end" in options:
+        date_end_dt = np.datetime64(options["date_end"])
+
+    all_sites_dataframes = []
+
+    for i in range(len(site_list)):
+        # Open single site file
+        temp = pd.read_csv(file_list[i], parse_dates=["date"], usecols=["date", varname])
+
+        # Subset to only observations within desired time range
+        if ("date_start" not in options) and ("date_end" not in options):
+            temp_wy = temp
+        elif ("date_start" not in options) and ("date_end" in options):
+            temp_wy = temp[temp["date"] <= date_end_dt]
+        elif ("date_start" in options) and ("date_end" not in options):
+            temp_wy = temp[temp["date"] >= date_start_dt]
+        elif ("date_start" in options) and ("date_end" in options):
+            temp_wy = temp[
+                (temp["date"] >= date_start_dt)
+                & (temp["date"] <= date_end_dt)
+            ]
+
+        # Rename column to be site_ID value before appending.
+        temp_wy = temp_wy.set_index("date")
+        temp_wy.rename(columns={varname: site_list[i]}, inplace=True)
+
+        all_sites_dataframes.append(temp_wy)
+
+    # Concatenate all site DataFrames into a single DataFrame, with site IDs 
+    # as column names and date as a column. Reset index to make date a column instead of index.
+    sites_combined_df = pd.concat(all_sites_dataframes, axis=1)
+    sites_combined_df.reset_index(inplace=True)
+    sites_combined_df["date"] = sites_combined_df["date"].astype(str)
+
+    if "min_num_obs" in options and options["min_num_obs"] is not None:
+        return _filter_min_num_obs(sites_combined_df, options["min_num_obs"])
+    return sites_combined_df
 
 def _get_data_sql(conn, site_list, var_id, *args, **kwargs):
     """
@@ -2380,6 +2499,8 @@ def _get_huc_query(options, param_list, conn, dataset=None, variable=None):
             tbl_list = ["jasechko_attributes"]
         elif dataset == "fan_2013":
             tbl_list = ["well_attributes"]
+        elif dataset == "res_ops_us":
+            tbl_list = ["reservoir_attributes"]
     else:
         tbl_list = SITE_ATTRIBUTE_TABLES
 
