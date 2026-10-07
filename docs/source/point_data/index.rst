@@ -93,3 +93,4 @@ press the download button to download the notebook and run it locally.
    examples/example_shapefile.ipynb
    examples/example_plot_data.ipynb  
    examples/example_pandas.ipynb
+   examples/example_res_ops_us.ipynb
