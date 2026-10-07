@@ -48,6 +48,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "*data_model_access*", "
 html_theme = "sphinx_rtd_theme"
 html_static_path = ['_static']
 smartquotes = False
+nb_execution_mode = 'off'
 
 def ensure_pandoc_installed(_):
     # Download pandoc if necessary. If pandoc is already installed and on
