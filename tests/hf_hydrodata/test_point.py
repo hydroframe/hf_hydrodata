@@ -1999,7 +1999,7 @@ def test_get_data_reservoir_evaporation():
         site_ids=["ResOpsUS-223"]
     )
     assert df.shape == (5, 2)
-    assert df.loc[df['date']=='2002-01-05']['ResOpsUS-223'] == 5.08
+    assert df.loc[df['date']=='2002-01-05']['ResOpsUS-223'].item() == pytest.approx(5.08)
 
 def test_get_data_reservoir_storage():
     """
