@@ -1075,12 +1075,12 @@ def _create_gridded_files_geotiff(
         raise ValueError(f"Grid {grid} does not have resolution_meters defined.")
     if grid_bounds and len(grid_bounds) == 4:
         # Tiff files have origin at top left so left is grid_bounds[0] and top is grid_bounds[3]
-        left_origin = x_origin + grid_bounds[0] * 1000
-        top_origin = y_origin + grid_bounds[3] * 1000
+        left_origin = x_origin + grid_bounds[0] * float(resolution_meters)
+        top_origin = y_origin + grid_bounds[3] * float(resolution_meters)
     else:
         # If there no grid_bounds then the origin is the same as origin of the grid itself
         left_origin = x_origin
-        top_origin = y_origin + grid_data["shape"][1] * 1000
+        top_origin = y_origin + grid_data["shape"][1] * float(resolution_meters)
 
     # Remove false northing and false easting from CRS since this is handled by transform origins
     pos = crs_string.find("+x_0=")

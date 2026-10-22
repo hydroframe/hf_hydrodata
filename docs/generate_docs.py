@@ -90,21 +90,113 @@ def _generate_dataset_type_docs(dataset_type_id, dataset_ids, directory):
         stream.write("\n")
         stream.write("    * - Dataset\n")
         stream.write("      - Description\n")
-        for dataset_id in dataset_table.row_ids:
-            if dataset_id in dataset_ids:
-                dataset_row = dataset_table.get_row(dataset_id)
-                if dataset_row["dataset_type"] == dataset_type_id:
-                    dataset_description = dataset_row["description"]
-                    stream.write(f"    * - :doc:`{dataset_id} <gen_{dataset_id}>`\n")
-                    stream.write(f"      - {dataset_description}\n")
-                    _generate_dataset_docs(dataset_id, dataset_text_map, directory)
+        type_dataset_ids = [
+            dataset_id
+            for dataset_id in dataset_table.row_ids
+            if dataset_id in dataset_ids
+            and dataset_table.get_row(dataset_id)["dataset_type"] == dataset_type_id
+        ]
+        # Datasets from the same publication are listed next to each other
+        for dataset_id in _order_by_publication(type_dataset_ids):
+            dataset_row = dataset_table.get_row(dataset_id)
+            dataset_description = dataset_row["description"]
+            stream.write(f"    * - :doc:`{dataset_id} <gen_{dataset_id}>`\n")
+            stream.write(f"      - {dataset_description}\n")
+            _generate_dataset_docs(dataset_id, dataset_text_map, directory, dataset_ids)
         stream.write("\n")
         stream.write("\n")
 
 
-def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
+def _normalize_dois(paper_dois):
+    """
+    Convert a paper_dois attribute into a set of comparable DOI strings.
+
+    The paper_dois may be a list of DOIs separated by spaces or semicolons and each DOI
+    may be written as a bare DOI or as a https://doi.org/ link.
+
+    Returns:
+        A set of lower case DOI strings without any url prefix.
+    """
+    result = set()
+    if paper_dois:
+        for entry in paper_dois.replace(";", " ").split():
+            entry = entry.strip().lower()
+            for prefix in ["https://doi.org/", "http://doi.org/", "doi:"]:
+                if entry.startswith(prefix):
+                    entry = entry[len(prefix) :]
+            if entry:
+                result.add(entry)
+    return result
+
+
+def _find_related_dataset_ids(dataset_id, dataset_ids):
+    """
+    Find the other datasets that share a paper DOI with a dataset.
+
+    Args:
+        dataset_id:     The id of the dataset to find related datasets for.
+        dataset_ids:    The list of visible dataset ids to search.
+    Returns:
+        A list of dataset ids (not including dataset_id) in the order of the dataset table.
+    """
+    dataset_table = load_data_model().get_table("dataset")
+    dois = _normalize_dois(dataset_table.get_row(dataset_id)["paper_dois"])
+    if not dois:
+        return []
+    result = []
+    for other_id in dataset_table.row_ids:
+        if other_id != dataset_id and other_id in dataset_ids:
+            other_dois = _normalize_dois(dataset_table.get_row(other_id)["paper_dois"])
+            if dois & other_dois:
+                result.append(other_id)
+    return result
+
+
+def _order_by_publication(dataset_ids):
+    """
+    Order datasets so that datasets sharing a paper DOI are adjacent.
+
+    The first appearance of a publication determines its position in the list and
+    the datasets that do not share a DOI keep their original order.
+    """
+    result = []
+    for dataset_id in dataset_ids:
+        if dataset_id not in result:
+            result.append(dataset_id)
+            for related_id in _find_related_dataset_ids(dataset_id, dataset_ids):
+                if related_id not in result:
+                    result.append(related_id)
+    return result
+
+
+def _generate_related_datasets_docs(dataset_id, dataset_ids, stream):
+    """
+    Generate a section that links to the other datasets from the same publication.
+    Nothing is generated if the dataset has no related datasets.
+    """
+    related_ids = _find_related_dataset_ids(dataset_id, dataset_ids)
+    if not related_ids:
+        return
+    dataset_table = load_data_model().get_table("dataset")
+    stream.write("**Related datasets from this publication:**\n\n")
+    stream.write(
+        "The following datasets are described by the same publication as this dataset.\n\n"
+    )
+    for related_id in related_ids:
+        related_description = dataset_table.get_row(related_id)["description"]
+        stream.write(f"* :doc:`{related_id} <gen_{related_id}>`: {related_description}\n")
+    stream.write("\n")
+
+
+def _generate_dataset_docs(dataset_id, dataset_text_map, directory, dataset_ids):
     """
     Generate rst file for documentation of the dataset.
+
+    Args:
+        dataset_id:         The id of the dataset to generate.
+        dataset_text_map:   The dict of additional text from dataset_text.yaml.
+        directory:          The directory to write the file to.
+        dataset_ids:        The visible dataset ids used to find related datasets.
     """
 
     data_model = load_data_model()
@@ -160,6 +252,8 @@ def _generate_dataset_docs(dataset_id, dataset_text_map, directory):
             if dataset_dois:
                 for entry in dataset_dois.split(" "):
                     _generate_dois_citation(entry, stream)
+
+        _generate_related_datasets_docs(dataset_id, dataset_ids, stream)
 
         if dataset_start_date or len(grids) > 0:
             stream.write("**Extent and Resolution**:\n\n")
