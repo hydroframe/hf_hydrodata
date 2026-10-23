@@ -382,4 +382,107 @@ datasets:
 
     processing_notes: >
       Details on the data collection and processing can be found in `Steyaert et al 2022 <https://www.nature.com/articles/s41597-022-01134-7>`_.
+
+  "fleury_2026":
+    summary: >
+      Placeholder text. 
+
+    processing_notes: >
+      Placeholder text.
+
+  "peeples_2026_PF_100m":
+    summary: >
+      Two 100 m resolution inundation presence maps for the East Taylor watershed were produced using ParFlow-CLM 
+      as input and label data for a random forest model in `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_.
+      This dataset contains the 100 m ParFlow-CLM modeled inundation status. 
+
+
+      The 1 km ParFlow-CLM modeled inundation status resampled to 100 m resolution dataset is linked in the "Related datasets from this 
+      publication" section below. That section also includes links to the random forest modeled inundations produced 
+      in the same publication.
+
+    processing_notes: >
+      Please view the included citation for the detailed description of the production of this dataset.  
+
+  "peeples_2026_PF_1km":
+    summary: >
+      Two 100 m resolution inundation presence maps for the East Taylor watershed were produced using ParFlow-CLM 
+      as input and label data for a random forest model in `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_.
+      This dataset contains the 1 km ParFlow-CLM modeled inundation status resampled to 100 m resolution. 
+
+
+      The 100 m ParFlow-CLM modeled inundation status dataset is linked in the "Related datasets from this 
+      publication" section below. That section also includes links to the random forest modeled inundations 
+      produced in the same publication.
+
+
+    processing_notes: >
+      Please view the included citation for the detailed description of the production of this dataset.  
+
+  "peeples_2026_RF_baseline":
+    summary: >
+      Three 100 m resolution inundation prediction datasets for the East Taylor watershed were produced using 
+      a hybrid machine learning and physics-based approach in `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_. 
+      The machine learning component (random forest model)
+      was trained on 40 million data points from a 100 m ParFlow-CLM simulation of the same location. 
+      This dataset contains the baseline RF-PF inundation predictions.  
+
       
+      The datasets predictions from the spatial ablation RF-PF and temporal ablation RF-PF models are linked in the 
+      "Related datasets from this publication" section below." That section also includes links to the ParFlow-CLM
+      modeled inundations produced in the same publication.  
+
+
+      The hybrid physics-based and machine learning approach is 97.6% accurate in predicting high-resolution inundation 
+      status when compared to the 100m resolution ParFlow-CLM model at 1/500th of the computational cost. 
+      The spatial and temporal transferability of the random forest model was also tested and it was found that 
+      the model is 96.2% accurate in unseen timesteps and 86.4% accurate in unseen locations.
+ 
+    processing_notes: >
+      Please view the included citation for the detailed description of the production of this dataset.  
+
+  "peeples_2026_RF_spatial":
+    summary: >
+      Three 100 m resolution inundation prediction datasets for the East Taylor watershed were produced using 
+      a hybrid machine learning and physics-based approach in `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_. 
+      The machine learning component (random forest model)
+      was trained on 40 million data points from a 100 m ParFlow-CLM simulation of the same location. 
+      This dataset contains the spatial ablation RF-PF inundation predictions.  
+      
+      
+      The datasets predictions from the baseline RF-PF and temporal ablation RF-PF models are linked in the 
+      "Related datasets from this publication" section below." That section also includes links to the ParFlow-CLM
+      modeled inundations produced in the same publication.  
+
+
+      The hybrid physics-based and machine learning approach is 97.6% accurate in predicting high-resolution inundation 
+      status when compared to the 100m resolution ParFlow-CLM model at 1/500th of the computational cost. 
+      The spatial and temporal transferability of the random forest model was also tested and it was found that 
+      the model is 96.2% accurate in unseen timesteps and 86.4% accurate in unseen locations.
+ 
+
+    processing_notes: >
+      Please view the included citation for the detailed description of the production of this dataset.  
+
+  "peeples_2026_RF_temporal":
+    summary: >
+      Three 100 m resolution inundation prediction datasets for the East Taylor watershed were produced using 
+      a hybrid machine learning and physics-based approach in `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_. 
+      The machine learning component (random forest model)
+      was trained on 40 million data points from a 100 m ParFlow-CLM simulation of the same location. 
+      This dataset contains the temporal ablation RF-PF inundation predictions.  
+      
+      
+      The datasets predictions from the baseline RF-PF and spatial ablation RF-PF models are linked in the 
+      "Related datasets from this publication" section below." That section also includes links to the ParFlow-CLM
+      modeled inundations produced in the same publication.  
+
+
+      The hybrid physics-based and machine learning approach is 97.6% accurate in predicting high-resolution inundation 
+      status when compared to the 100m resolution ParFlow-CLM model at 1/500th of the computational cost. 
+      The spatial and temporal transferability of the random forest model was also tested and it was found that 
+      the model is 96.2% accurate in unseen timesteps and 86.4% accurate in unseen locations.
+ 
+
+    processing_notes: >
+      Please view the included citation for the detailed description of the production of this dataset.       
