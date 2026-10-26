@@ -385,10 +385,27 @@ datasets:
 
   "fleury_2026":
     summary: >
-      Placeholder text. 
+      A high-resolution water table depth (WTD) map for Brazil using machine learning methods trained on over 
+      138,000 well observations from the Geological Survey of Brazil, compiled from two databases 
+      (the quality-controlled `GWDBrazil <https://www.nature.com/articles/s41597-025-05843-7>`_ 
+      static water level records and `RIMAS <https://rimasweb.sgb.gov.br/layout/>`_ monitoring wells) 
+      spanning 1928-2024. A random forest model with 300 decision trees was trained on 80% of the grid cells 
+      with observations using ten input variables including climatology (precipitation, temperature, PME), 
+      subsurface properties (hydraulic conductivity, sand and clay content in the soil), and topographic 
+      features (elevation, slope, horizontal distance to streams, height above nearest drainage). The model 
+      achieved a test performance of r = 0.61, RMSE = 19.10 m, and MAE = 10.41 m. An uncertainty estimate, 
+      the interquartile range of the 300 tree predictions, is also provided for each grid cell. 
+
+
+      You can download the full WTD tiff file using `hf_hydrodata.get_raw_file()`. You can get subsets of 
+      the dataset as a numpy array using `hf_hydrodata.get_gridded_data()`, or download a file containing 
+      a subset of the data as a file with projection information as a TIFF or NetCDF file using 
+      `hf_hydrodata.get_gridded_file()`.
 
     processing_notes: >
-      Placeholder text.
+      Long-term mean water table depth estimates were obtained using the median of tree outputs from the trained 
+      random forest model. The uncertainty was assessed based on the interquantile range of the tree outputs from 
+      the random forest model.
 
   "peeples_2026_PF_100m":
     summary: >
