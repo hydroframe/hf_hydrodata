@@ -388,7 +388,7 @@ datasets:
       A high-resolution water table depth (WTD) map for Brazil using machine learning methods trained on over 
       138,000 well observations from the Geological Survey of Brazil, compiled from two databases 
       (the quality-controlled `GWDBrazil <https://www.nature.com/articles/s41597-025-05843-7>`_ 
-      static water level records and `RIMAS <https://rimasweb.sgb.gov.br/layout/>`_ monitoring wells) 
+      static water level records and `RIMAS <https://www.sgb.gov.br/rede-integrada-de-monitoramento-das-aguas-subterraneas-rimas>`_ monitoring wells) 
       spanning 1928-2024. A random forest model with 300 decision trees was trained on 80% of the grid cells 
       with observations using ten input variables including climatology (precipitation, temperature, PME), 
       subsurface properties (hydraulic conductivity, sand and clay content in the soil), and topographic 
