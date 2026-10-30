@@ -202,6 +202,25 @@ def load_data_model() -> DataModel:
         return data_model
 
 
+def _api_pin_error_message(status_code: int, email: str) -> str:
+    """Return a user-facing error for a failed /api/api_pins response."""
+    if status_code == 400:
+        return (
+            f"This PIN is not registered for '{email}' (expired?). "
+            "Register a pin with https://hydrogen.princeton.edu/pin. "
+            "Signup with https://hydrogen.princeton.edu/signup."
+        )
+    if status_code in (401, 403):
+        return (
+            f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server."
+        )
+    if 500 <= status_code <= 599:
+        return f"Server '{HYDRODATA_URL}' unavailable. Try again later."
+    return (
+        f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server."
+    )
+
+
 def _get_api_headers(required=True) -> dict:
     """
     Get the API headers containing the jwt token to be passed to API calls.
@@ -239,9 +258,7 @@ def _get_api_headers(required=True) -> dict:
             if not required:
                 # The PIN is not required so it is ok that the API request returned an error.
                 return {}
-            raise ValueError(
-                f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server."
-            )
+            raise ValueError(_api_pin_error_message(response.status_code, email))
         json_string = response.content.decode("utf-8")
         jwt_json = json.loads(json_string)
         expires_string = jwt_json.get("expires")
