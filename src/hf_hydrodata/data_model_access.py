@@ -202,7 +202,7 @@ def load_data_model() -> DataModel:
         return data_model
 
 
-def _api_pin_error_message(status_code: int, email: str) -> str:
+def _api_pin_error_message(status_code: int, email: str, retry_after=None) -> str:
     """Return a user-facing error for a failed /api/api_pins response."""
     if status_code == 400:
         return (
@@ -214,6 +214,11 @@ def _api_pin_error_message(status_code: int, email: str) -> str:
         return (
             f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server."
         )
+    if status_code == 429:
+        message = "Too many PIN validation requests. Wait a moment and try again."
+        if retry_after:
+            message = f"{message} Retry after {retry_after}."
+        return message
     if 500 <= status_code <= 599:
         return f"Server '{HYDRODATA_URL}' unavailable. Try again later."
     return (
@@ -258,7 +263,13 @@ def _get_api_headers(required=True) -> dict:
             if not required:
                 # The PIN is not required so it is ok that the API request returned an error.
                 return {}
-            raise ValueError(_api_pin_error_message(response.status_code, email))
+            raise ValueError(
+                _api_pin_error_message(
+                    response.status_code,
+                    email,
+                    retry_after=response.headers.get("Retry-After"),
+                )
+            )
         json_string = response.content.decode("utf-8")
         jwt_json = json.loads(json_string)
         expires_string = jwt_json.get("expires")
