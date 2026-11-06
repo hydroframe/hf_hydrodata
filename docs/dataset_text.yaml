@@ -406,100 +406,76 @@ datasets:
       Long-term mean water table depth estimates were obtained using the median of tree outputs from the trained 
       random forest model. The uncertainty was assessed based on the interquantile range of the tree outputs from 
       the random forest model.
-      
+
   "peeples_2026_PF_100m":
     summary: >
-      Two 100 m resolution inundation presence maps for the East Taylor watershed were produced using ParFlow-CLM 
-      as input and label data for a random forest model in `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_.
-      This dataset contains the 100 m ParFlow-CLM modeled inundation status. 
+      This dataset contains the modeled inundation status (wet vs. dry) from a 100 m resolution ParFlow-CLM model 
+      for the East Taylor watershed during the 2019 water year. It was used for label data for a random forest 
+      model in `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_.
+      
 
-
-      The 1 km ParFlow-CLM modeled inundation status resampled to 100 m resolution dataset is linked in the "Related datasets from this 
-      publication" section below. That section also includes links to the random forest modeled inundations produced 
-      in the same publication.
+      Please see "Related datsets from this publication" section below for the other inundation status 
+      datasets produced in the same publication.
 
     processing_notes: >
       Please view the included citation for the detailed description of the production of this dataset.  
 
   "peeples_2026_PF_1km":
     summary: >
-      Two 100 m resolution inundation presence maps for the East Taylor watershed were produced using ParFlow-CLM 
-      as input and label data for a random forest model in `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_.
-      This dataset contains the 1 km ParFlow-CLM modeled inundation status resampled to 100 m resolution. 
+      This dataset contains the modeled inundation status (wet vs. dry) from a 1 km resolution ParFlow-CLM model for 
+      the East Taylor watershed during the 2019 water year homogeneously resampled to 100 m resolution. 
+      It was used as input data for a random forest model in `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_.
 
 
-      The 100 m ParFlow-CLM modeled inundation status dataset is linked in the "Related datasets from this 
-      publication" section below. That section also includes links to the random forest modeled inundations 
-      produced in the same publication.
-
+      Please see "Related datsets from this publication" section below for the other inundation status 
+      datasets produced in the same publication.
 
     processing_notes: >
       Please view the included citation for the detailed description of the production of this dataset.  
 
   "peeples_2026_RF_baseline":
     summary: >
-      Three 100 m resolution inundation prediction datasets for the East Taylor watershed were produced using 
-      a hybrid machine learning and physics-based approach in `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_. 
-      The machine learning component (random forest model)
-      was trained on 40 million data points from a 100 m ParFlow-CLM simulation of the same location. 
-      This dataset contains the baseline RF-PF inundation predictions.  
+      This dataset contains the modeled inundation status (wet vs. dry) from a hybrid physics-based 
+      and machine learning approach to predict 100 m resolution inundation status for the East Taylor 
+      watershed during the 2019 water year from `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_. 
+      The machine learning component (random forest model) was trained on 40 million data points 
+      randomly selected from an inundation dataset produced by a100 m ParFlow-CLM simulation of the same location.
 
       
-      The datasets predictions from the spatial ablation RF-PF and temporal ablation RF-PF models are linked in the 
-      "Related datasets from this publication" section below." That section also includes links to the ParFlow-CLM
-      modeled inundations produced in the same publication.  
-
-
-      The hybrid physics-based and machine learning approach is 97.6% accurate in predicting high-resolution inundation 
-      status when compared to the 100m resolution ParFlow-CLM model at 1/500th of the computational cost. 
-      The spatial and temporal transferability of the random forest model was also tested and it was found that 
-      the model is 96.2% accurate in unseen timesteps and 86.4% accurate in unseen locations.
+      Please see "Related datsets from this publication" section below for the other inundation status 
+      datasets produced in the same publication.
  
     processing_notes: >
       Please view the included citation for the detailed description of the production of this dataset.  
 
   "peeples_2026_RF_spatial":
     summary: >
-      Three 100 m resolution inundation prediction datasets for the East Taylor watershed were produced using 
-      a hybrid machine learning and physics-based approach in `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_. 
-      The machine learning component (random forest model)
-      was trained on 40 million data points from a 100 m ParFlow-CLM simulation of the same location. 
-      This dataset contains the spatial ablation RF-PF inundation predictions.  
+      This dataset contains the modeled inundation status (wet vs. dry) from a hybrid physics-based and 
+      machine learning approach to predict 100 m resolution inundation status for the East Taylor watershed 
+      during the 2019 water year from `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_. 
+      The machine learning component (random forest model) was trained on 40 million data points randomly 
+      selected from a spatially-ablated inundation dataset produced by a 100 m ParFlow-CLM simulation of 
+      the same location.
       
       
-      The datasets predictions from the baseline RF-PF and temporal ablation RF-PF models are linked in the 
-      "Related datasets from this publication" section below." That section also includes links to the ParFlow-CLM
-      modeled inundations produced in the same publication.  
-
-
-      The hybrid physics-based and machine learning approach is 97.6% accurate in predicting high-resolution inundation 
-      status when compared to the 100m resolution ParFlow-CLM model at 1/500th of the computational cost. 
-      The spatial and temporal transferability of the random forest model was also tested and it was found that 
-      the model is 96.2% accurate in unseen timesteps and 86.4% accurate in unseen locations.
- 
+      Please see "Related datsets from this publication" section below for the other inundation status 
+      datasets produced in the same publication.
 
     processing_notes: >
       Please view the included citation for the detailed description of the production of this dataset.  
 
   "peeples_2026_RF_temporal":
     summary: >
-      Three 100 m resolution inundation prediction datasets for the East Taylor watershed were produced using 
-      a hybrid machine learning and physics-based approach in `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_. 
-      The machine learning component (random forest model)
-      was trained on 40 million data points from a 100 m ParFlow-CLM simulation of the same location. 
-      This dataset contains the temporal ablation RF-PF inundation predictions.  
-      
-      
-      The datasets predictions from the baseline RF-PF and spatial ablation RF-PF models are linked in the 
-      "Related datasets from this publication" section below." That section also includes links to the ParFlow-CLM
-      modeled inundations produced in the same publication.  
+      This dataset contains the modeled inundation status (wet vs. dry) from a hybrid physics-based and 
+      machine learning approach to predict 100 m resolution inundation status for the East Taylor watershed 
+      during the 2019 water year from `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_. 
+      The machine learning component (random forest model) was trained on 40 million data points randomly 
+      selected from a temporally-ablated inundation dataset produced by a 100 m ParFlow-CLM simulation of 
+      the same location.
 
-
-      The hybrid physics-based and machine learning approach is 97.6% accurate in predicting high-resolution inundation 
-      status when compared to the 100m resolution ParFlow-CLM model at 1/500th of the computational cost. 
-      The spatial and temporal transferability of the random forest model was also tested and it was found that 
-      the model is 96.2% accurate in unseen timesteps and 86.4% accurate in unseen locations.
- 
+      
+      Please see "Related datsets from this publication" section below for the other inundation status 
+      datasets produced in the same publication.
 
     processing_notes: >
       Please view the included citation for the detailed description of the production of this dataset.       
