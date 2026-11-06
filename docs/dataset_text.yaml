@@ -406,3 +406,76 @@ datasets:
       Long-term mean water table depth estimates were obtained using the median of tree outputs from the trained 
       random forest model. The uncertainty was assessed based on the interquantile range of the tree outputs from 
       the random forest model.
+
+  "peeples_2026_PF_100m":
+    summary: >
+      This dataset contains the modeled inundation status (wet vs. dry) from a 100 m resolution ParFlow-CLM model 
+      for the East Taylor watershed during the 2019 water year. It was used for label data for a random forest 
+      model in `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_.
+      
+
+      Please see "Related datsets from this publication" section below for the other inundation status 
+      datasets produced in the same publication.
+
+    processing_notes: >
+      Please view the included citation for the detailed description of the production of this dataset.  
+
+  "peeples_2026_PF_1km":
+    summary: >
+      This dataset contains the modeled inundation status (wet vs. dry) from a 1 km resolution ParFlow-CLM model for 
+      the East Taylor watershed during the 2019 water year homogeneously resampled to 100 m resolution. 
+      It was used as input data for a random forest model in `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_.
+
+
+      Please see "Related datsets from this publication" section below for the other inundation status 
+      datasets produced in the same publication.
+
+    processing_notes: >
+      Please view the included citation for the detailed description of the production of this dataset.  
+
+  "peeples_2026_RF_baseline":
+    summary: >
+      This dataset contains the modeled inundation status (wet vs. dry) from a hybrid physics-based 
+      and machine learning approach to predict 100 m resolution inundation status for the East Taylor 
+      watershed during the 2019 water year from `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_. 
+      The machine learning component (random forest model) was trained on 40 million data points 
+      randomly selected from an inundation dataset produced by a 100 m ParFlow-CLM simulation of the same location.
+
+      
+      Please see "Related datsets from this publication" section below for the other inundation status 
+      datasets produced in the same publication.
+ 
+    processing_notes: >
+      Please view the included citation for the detailed description of the production of this dataset.  
+
+  "peeples_2026_RF_spatial":
+    summary: >
+      This dataset contains the modeled inundation status (wet vs. dry) from a hybrid physics-based and 
+      machine learning approach to predict 100 m resolution inundation status for the East Taylor watershed 
+      during the 2019 water year from `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_. 
+      The machine learning component (random forest model) was trained on 40 million data points randomly 
+      selected from a spatially-ablated inundation dataset produced by a 100 m ParFlow-CLM simulation of 
+      the same location.
+      
+      
+      Please see "Related datsets from this publication" section below for the other inundation status 
+      datasets produced in the same publication.
+
+    processing_notes: >
+      Please view the included citation for the detailed description of the production of this dataset.  
+
+  "peeples_2026_RF_temporal":
+    summary: >
+      This dataset contains the modeled inundation status (wet vs. dry) from a hybrid physics-based and 
+      machine learning approach to predict 100 m resolution inundation status for the East Taylor watershed 
+      during the 2019 water year from `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_. 
+      The machine learning component (random forest model) was trained on 40 million data points randomly 
+      selected from a temporally-ablated inundation dataset produced by a 100 m ParFlow-CLM simulation of 
+      the same location.
+
+      
+      Please see "Related datsets from this publication" section below for the other inundation status 
+      datasets produced in the same publication.
+
+    processing_notes: >
+      Please view the included citation for the detailed description of the production of this dataset.       
