@@ -439,7 +439,7 @@ datasets:
       and machine learning approach to predict 100 m resolution inundation status for the East Taylor 
       watershed during the 2019 water year from `Peeples et al. 2026 <https://doi.org/10.1016/j.jhydrol.2026.136246>`_. 
       The machine learning component (random forest model) was trained on 40 million data points 
-      randomly selected from an inundation dataset produced by a100 m ParFlow-CLM simulation of the same location.
+      randomly selected from an inundation dataset produced by a 100 m ParFlow-CLM simulation of the same location.
 
       
       Please see "Related datsets from this publication" section below for the other inundation status 
