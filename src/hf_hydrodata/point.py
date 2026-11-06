@@ -2,7 +2,6 @@
 
 # pylint: disable=C0301,W0707,W0719,C0121,C0302,C0209,C0325,W0702,R0912,R0914,R0915,W1514,C0206
 import datetime
-from typing import Tuple
 import io
 import ast
 import os
@@ -25,6 +24,7 @@ from hf_hydrodata.gridded import (
     get_gridded_data,
 )
 from hf_hydrodata.data_catalog import get_catalog_entry, _maintenance_guard
+from hf_hydrodata.data_model_access import _get_api_headers
 
 
 HYDRODATA = "/hydrodata"
@@ -979,7 +979,7 @@ def _get_siteid_data_from_api(options):
     response = None
     download_start = None
     try:
-        headers = _validate_user()
+        headers = _get_api_headers()
         response = requests.get(point_data_url, headers=headers, timeout=(60, 180))
         response_headers = response.headers
         download_start = response_headers.get("download-start")
@@ -1055,7 +1055,7 @@ def _get_data_from_api(data_type, options):
     headers = None
     download_start = None
     try:
-        headers = _validate_user()
+        headers = _get_api_headers()
         response = requests.get(point_data_url, headers=headers, timeout=(60, 180))
         response_headers = response.headers
         download_start = response_headers.get("download-start")
@@ -1121,35 +1121,6 @@ def _get_data_from_api(data_type, options):
     )
     data_df = pd.read_pickle(io.BytesIO(response.content))
     return data_df
-
-
-def _get_registered_api_pin() -> Tuple[str, str]:
-    """
-    Get the email and pin registered by the current user.
-
-    Returns:
-        A tuple (email, pin)
-    Raises:
-        ValueError if no email/pin was registered
-    """
-
-    pin_dir = os.path.expanduser("~/.hydrodata")
-    pin_path = f"{pin_dir}/pin.json"
-    if not os.path.exists(pin_path):
-        raise ValueError(
-            "No email/pin was registered. Use the register_api() method to register the pin you created at the website."
-        )
-    try:
-        with open(pin_path, "r") as stream:
-            contents = stream.read()
-            parsed_contents = json.loads(contents)
-            email = parsed_contents.get("email")
-            pin = parsed_contents.get("pin")
-            return (email, pin)
-    except Exception as e:
-        raise ValueError(
-            "No email/pin was registered. Use the register_api() method to register the pin you created at the website."
-        ) from e
 
 
 def _convert_params_to_string_dict(options):
@@ -1288,45 +1259,6 @@ def _construct_string_from_qparams(data_type, options):
     result_string = "&".join(string_parts)
 
     return result_string
-
-
-def _validate_user():
-    try:
-        email, pin = _get_registered_api_pin()
-        url_security = f"{HYDRODATA_URL}/api/api_pins?pin={pin}&email={email}"
-        response = requests.get(url_security, headers=None, timeout=(60, 60))
-        if response.status_code == 502:
-            raise ValueError("Server is unavailable. Try again later.")
-        if response.status_code == 403:
-            raise ValueError(
-                f"Unable connect to '{HYDRODATA_URL}' server to validate user."
-            )
-        if not response.status_code == 200:
-            raise ValueError(
-                f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server."
-            )
-        json_string = response.content.decode("utf-8")
-        jwt_json = json.loads(json_string)
-        expires_string = jwt_json.get("expires")
-        if expires_string:
-            expires = datetime.datetime.strptime(
-                expires_string, "%Y/%m/%d %H:%M:%S GMT-0000"
-            )
-            now = datetime.datetime.now()
-            if now > expires:
-                raise ValueError(
-                    "PIN has expired. Please re-register it from https://hydrogen.princeton.edu/pin"
-                )
-        jwt_token = jwt_json["jwt_token"]
-        headers = {}
-        headers["Authorization"] = f"Bearer {jwt_token}"
-        return headers
-    except ValueError as ve:
-        raise ve
-    except:
-        raise ValueError(
-            f"Unable to authenticate with your email/pin with '{HYDRODATA_URL}' server."
-        )
 
 
 def _get_variables(conn):
